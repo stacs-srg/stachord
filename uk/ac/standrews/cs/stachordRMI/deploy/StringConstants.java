@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
  */
 public class StringConstants {
     
-    private static final String BUNDLE_NAME = "uk.ac.standrews.cs.stachord.deploy.strings";//$NON-NLS-1$
+    private static final String BUNDLE_NAME = "uk.ac.standrews.cs.stachordRMI.deploy.strings";//$NON-NLS-1$
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

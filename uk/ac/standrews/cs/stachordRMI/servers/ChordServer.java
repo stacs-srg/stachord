@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.rmi.RMISecurityManager;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
@@ -61,7 +62,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
  */
 public class ChordServer {
 
-	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.RUN;
+	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.FULL;
 
 	private static final String RMI_POLICY_FILENAME = "rmiPolicy";
 	
@@ -111,8 +112,12 @@ public class ChordServer {
 		} catch( Exception e ) {
 			ErrorHandling.hardError( "Exception in establishing known node socket addresses" + known_address_parameter );
 		}
-		Diagnostic.traceNoSource(DiagnosticLevel.RUN, "Starting RMU Chord node with local address: " + server_address_parameter + " and known node address: " + known_address_parameter );
-		IChordNode node = ChordRMIDeployment.deployNode( local_node_address, known_node_address );
+		Diagnostic.traceNoSource(DiagnosticLevel.RUN, "Starting RMI Chord node with local address: " + server_address_parameter + " and known node address: " + known_address_parameter );
+		try {
+			IChordNode node = ChordRMIDeployment.deployNode( local_node_address, known_node_address );
+		} catch (RemoteException e) {
+			ErrorHandling.hardError( "Exception in initialising node: node already initialised? (potential key/address reuse" );
+		}
 
 	}
 

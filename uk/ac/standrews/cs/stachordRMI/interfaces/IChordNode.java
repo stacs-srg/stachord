@@ -18,16 +18,21 @@
  */
 package uk.ac.standrews.cs.stachordRMI.interfaces;
 
+import java.net.InetSocketAddress;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
+import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 
 /**
  * Defines locally accessible Chord node functionality.
  *
  * @author graham
  */
-public interface IChordNode extends IChordRemote {
-
+public interface IChordNode { // extends IChordRemote {
 	/**
 	 * Creates a new ring containing only this node.
 	 */
@@ -37,9 +42,10 @@ public interface IChordNode extends IChordRemote {
 	 * Joins an existing ring containing a specified known node.
 	 *
 	 * @param known_node a node on an existing ring
+	 * @throws RemoteException 
 	 * @throws P2PNodeException if a failure occurs during the join protocol
 	 */
-	void join(IChordRemote known_node) throws P2PNodeException;
+	boolean join(IChordRemoteReference known_node) throws RemoteException;
 
 	/**
 	 * Executes the stabilization protocol.
@@ -64,11 +70,16 @@ public interface IChordNode extends IChordRemote {
 	void fixNextFinger();
 
 	/**
+	 * Updates an entry in this node's finger table.
+	 */
+	void fixAllFingers();
+	
+	/**
 	 * Sets the predecessor node in key space.
 	 *
 	 * @param p the new predecessor node
 	 */
-	void setPredecessor(IChordRemote p);
+	void setPredecessor(IChordRemoteReference p);
 
 	/**
 	 * Allows node failure to be simulated.
@@ -87,7 +98,20 @@ public interface IChordNode extends IChordRemote {
 	 * 
 	 * @param k a key
 	 * @return true if k lies in this node's key range
+	 * @throws  
 	 * @throws P2PNodeException if this node's key range is unknown due to incomplete peer state.
 	 */
-	boolean inLocalKeyRange(IKey k) throws P2PNodeException;
+	boolean inLocalKeyRange(IKey k) throws P2PNodeException ;
+	
+	IChordRemoteReference lookup( IKey key ) throws RemoteException;
+	
+	InetSocketAddress getAddress();
+
+	IKey getKey();
+
+	IChordRemoteReference getSuccessor();
+	
+	IChordRemoteReference getProxy();
+	
+	void showState();
 }

@@ -21,22 +21,23 @@
  */
 package uk.ac.standrews.cs.stachordRMI.impl;
 
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
  * Representation of a ring segment.
  */
 public class RingSegment {
 
-	private final IChordRemote finger;
+	private final IChordRemoteReference finger;
 	private final int segment_number;
 
 	/**
 	 * @param finger
 	 * @param segment_number
 	 */
-	public RingSegment(IChordRemote finger, int segment_number) {
-
+	public RingSegment(IChordRemoteReference finger, int segment_number) {
 		this.finger = finger;
 		this.segment_number = segment_number;
 	}
@@ -46,13 +47,13 @@ public class RingSegment {
 
 		if (!(obj instanceof RingSegment)) return false;
 
-		return finger.getKey().equals(((RingSegment) obj).getFinger().getKey());
+		return this.getKey().equals(((RingSegment) obj).getKey());
 	}
 
 	/**
 	 * @return the finger reference
 	 */
-	public IChordRemote getFinger() {
+	public IChordRemoteReference getFinger() {
 		return finger;
 	}
 
@@ -61,5 +62,9 @@ public class RingSegment {
 	 */
 	public int getSegmentNumber() {
 		return segment_number;
+	}
+
+	public IKey getKey() {
+		return finger.getKey();
 	}
 }

@@ -21,6 +21,7 @@
  */
 package uk.ac.standrews.cs.stachordRMI.impl;
 
+import java.rmi.RemoteException;
 import java.util.Comparator;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -47,10 +48,13 @@ public class NodeSegmentStructComparator implements Comparator<NodeSegmentStruct
 		IKey k1 = kss1.fingerKey;
 		if(kss0.equals(kss1))
 			return 0;
-		else if(localNode.getKey().ringDistanceTo(k0).compareTo(localNode.getKey().ringDistanceTo(k1))<0)
-			return 1;
-		else
-			return -1;
+		else {
+				if(localNode.getKey().ringDistanceTo(k0).compareTo(localNode.getKey().ringDistanceTo(k1))<0)
+					return 1;
+				else
+					return -1;
+		}
+
 	}
 
 }

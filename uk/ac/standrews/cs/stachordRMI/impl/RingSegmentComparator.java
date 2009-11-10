@@ -22,6 +22,7 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.math.BigInteger;
+import java.rmi.RemoteException;
 import java.util.Comparator;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -49,10 +50,11 @@ public class RingSegmentComparator implements Comparator<RingSegment> {
 
 		if (segment1.equals(segment2)) return 0;
 
-		IKey key1 = segment1.getFinger().getKey();
-		IKey key2 = segment2.getFinger().getKey();
+		IKey key1 = segment1.getKey();
+		IKey key2 = segment2.getKey();
 
-		IKey local_key = local_node.getKey();
+		IKey local_key = null;
+		local_key = local_node.getKey();
 
 		BigInteger distance_to_segment1 = local_key.ringDistanceTo(key1);
 		BigInteger distance_to_segment2 = local_key.ringDistanceTo(key2);

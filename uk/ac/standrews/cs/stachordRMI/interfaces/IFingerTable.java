@@ -21,6 +21,7 @@
  */
 package uk.ac.standrews.cs.stachordRMI.interfaces;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
@@ -40,12 +41,12 @@ public interface IFingerTable {
 	 * @return the node with the key most closely preceding k
 	 * @throws NoPrecedingNodeException if no such node is found
 	 */
-	IChordRemote closestPrecedingNode(IKey k) throws NoPrecedingNodeException;
+	IChordRemoteReference closestPrecedingNode(IKey k) throws NoPrecedingNodeException;
 
 	/**
 	 * @return a list of references to finger nodes
 	 */
-	List<IChordRemote> getFingers();
+	ArrayList<IChordRemoteReference> getFingers();
 
 	/**
 	 * Fixes all the entries in the finger table.
@@ -71,7 +72,7 @@ public interface IFingerTable {
 	 * 
 	 * @param extantNode a node that could be added to the finger table
 	 */
-	void notifyExistence(IChordRemote extantNode);
+	void notifyExistence(IChordRemoteReference extantNode);
 
 	/**
 	 * Notifies this finger table of a node that could be removed.
@@ -79,7 +80,7 @@ public interface IFingerTable {
 	 * 
 	 * @param deadNode the node that could be removed from the finger table
 	 */
-	void notifySuspectedFailure(IChordRemote deadNode);
+	void notifySuspectedFailure(IChordRemoteReference deadNode);
 
 	/**
 	 * @return a string representing the contents of the finger table omitting duplicate keys

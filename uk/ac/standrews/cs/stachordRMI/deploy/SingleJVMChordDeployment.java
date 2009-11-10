@@ -22,6 +22,7 @@
 package uk.ac.standrews.cs.stachordRMI.deploy;
 
 import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
 import uk.ac.standrews.cs.nds.eventModel.eventBus.busInterfaces.IEventBus;
@@ -33,6 +34,8 @@ import uk.ac.standrews.cs.nds.p2p.util.HashBasedKeyFactory;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
  * Provides a number of static methods for creating a ChordNode. No maintenance thread is created.
@@ -56,7 +59,7 @@ public class SingleJVMChordDeployment {
 	 * @return the deployed node
 	 * @throws P2PNodeException if an error occurs during node initialisation or joining the existing network.
 	 */
-	public static IChordNode customDeployment(InetSocketAddress local_node, IKey local_node_key, IChordNode known_node, IEventBus bus, IApplicationRegistry appRegistry) throws P2PNodeException {
+	public static IChordNode customDeployment(InetSocketAddress local_node, IKey local_node_key, IChordRemoteReference known_node, IEventBus bus, IApplicationRegistry appRegistry) throws RemoteException {
 
 		IChordNode node = nodeDeployment(local_node, local_node_key, known_node, bus, appRegistry);
 
@@ -73,14 +76,14 @@ public class SingleJVMChordDeployment {
 	 * @return the deployed node
 	 * @throws P2PNodeException if an error occurs during node initialisation or joining the existing network.
 	 */
-	public static IChordNode customDeployment(InetSocketAddress local_node, IKey local_node_key, IEventBus bus, IApplicationRegistry appRegistry) throws P2PNodeException {
+	public static IChordNode customDeployment(InetSocketAddress local_node, IKey local_node_key, IEventBus bus, IApplicationRegistry appRegistry) throws RemoteException {
 
 		IChordNode node = nodeDeployment(local_node, local_node_key, null, bus, appRegistry);
 
 		return node;
 	}
 
-	public static IChordNode nodeDeployment(InetSocketAddress local_node, IKey local_node_key, IChordNode known_node, IEventBus bus, IApplicationRegistry appRegistry) throws P2PNodeException {
+	public static IChordNode nodeDeployment(InetSocketAddress local_node, IKey local_node_key, IChordRemoteReference known_node, IEventBus bus, IApplicationRegistry appRegistry) throws RemoteException {
 
 		IKey node_key = local_node_key==null?key_factory.generateKey(local_node):local_node_key;
 		IChordNode node = new ChordNodeImpl(local_node, node_key, bus, appRegistry);
@@ -93,8 +96,8 @@ public class SingleJVMChordDeployment {
 
 	/*Addition 3-2-08 Markus Tauber*/
 	public static IChordNode customDeployment(InetSocketAddress local_node, IKey localKey,
-			IChordNode knownNode, IEventBus bus, IApplicationRegistry applicationRegistry,
-			IEventGenerator eventGenerator) throws P2PNodeException {
+			IChordRemoteReference knownNode, IEventBus bus, IApplicationRegistry applicationRegistry,
+			IEventGenerator eventGenerator) throws RemoteException {
 
 		IKey node_key = localKey == null ? key_factory.generateKey(local_node) : localKey;
 		IChordNode node = new ChordNodeImpl(local_node, node_key, bus, applicationRegistry, eventGenerator);

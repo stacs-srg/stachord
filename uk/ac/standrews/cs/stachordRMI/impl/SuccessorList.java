@@ -20,14 +20,14 @@
 
 package uk.ac.standrews.cs.stachordRMI.impl;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.stachordRMI.events.ChordEventFactory;
-import uk.ac.standrews.cs.stachordRMI.events.Constants;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 public class SuccessorList {
 
@@ -36,14 +36,14 @@ public class SuccessorList {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private final ChordNodeImpl local_node;
-	private List<IChordRemote> successor_list;
+	private ArrayList<IChordRemoteReference> successor_list;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public SuccessorList(ChordNodeImpl local_node) {
 
 		this.local_node = local_node;
-		successor_list = new ArrayList<IChordRemote>();
+		successor_list = new ArrayList<IChordRemoteReference>();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,15 +54,15 @@ public class SuccessorList {
 	 * @return the first working node in the SuccessorList
 	 * @throws NoReachableNodeException if no working node is found
 	 */
-	protected IChordRemote findFirstWorkingNode() throws NoReachableNodeException {
+	protected IChordRemoteReference findFirstWorkingNode() throws NoReachableNodeException {
 
-		for (IChordRemote next : successor_list) {
+		for (IChordRemoteReference next : successor_list) {
 			try {
-				next.isAlive();
+				next.getRemote().isAlive();
 				return next;
 			}
 			catch (Exception e) {
-				local_node.recordEvent(Constants.SUCCESSOR_ACCESS_EVENT, Constants.FIELD_ACCESS_FAILED);
+				// local_node.recordEvent(Constants.SUCCESSOR_ACCESS_EVENT, Constants.FIELD_ACCESS_FAILED);
 			}
 		}
 		throw new NoReachableNodeException();
@@ -71,7 +71,7 @@ public class SuccessorList {
 	/**
 	 * @return the successor list
 	 */
-	protected List<IChordRemote> getList() {
+	protected ArrayList<IChordRemoteReference> getList() {
 		return successor_list;
 	}
 
@@ -82,15 +82,15 @@ public class SuccessorList {
 	 */
 	protected boolean refreshList() {
 
-		List<IChordRemote> removed = null;
-		List<IChordRemote> new_list = null;
+		ArrayList<IChordRemoteReference> removed = null;
+		ArrayList<IChordRemoteReference> new_list = null;
 
 		// This is a new ring or we have collapsed back to a single node.
 		if (successor_list.size() > 0) {
 
 			// The successor list is not empty.
 			removed = successor_list;
-			new_list = new ArrayList<IChordRemote>();
+			new_list = new ArrayList<IChordRemoteReference>();
 		}
 
 		return generateSuccessorListChangeEvent(null, removed, new_list);
@@ -101,15 +101,15 @@ public class SuccessorList {
 	 * followed by the first (MAX_SIZE-1) elements of the successor's successor
 	 * list.
 	 */
-	protected boolean refreshList(List<IChordRemote> successor_list_of_successor) {
+	protected boolean refreshList(List<IChordRemoteReference> successor_list_of_successor) {
 
-		IChordRemote successor = local_node.getSuccessor();
+		IChordRemoteReference successor = local_node.getSuccessor();
 
-		List<IChordRemote> added = null;
-		List<IChordRemote> removed = null;
-		List<IChordRemote> new_list = null;
+		ArrayList<IChordRemoteReference> added = null;
+		ArrayList<IChordRemoteReference> removed = null;
+		ArrayList<IChordRemoteReference> new_list = null;
 
-		new_list = new ArrayList<IChordRemote>();
+		new_list = new ArrayList<IChordRemoteReference>();
 
 		int numElements = Math.min(MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
 
@@ -120,7 +120,7 @@ public class SuccessorList {
 
 		for (int i = 0; i < numElements; i++) {
 
-			IChordRemote node = successor_list_of_successor.get(i);
+			IChordRemoteReference node = successor_list_of_successor.get(i);
 
 			if (node.getKey().equals(local_node.getKey())) {
 				break;
@@ -137,7 +137,7 @@ public class SuccessorList {
 		return generateSuccessorListChangeEvent(added, removed, new_list);
 	}
 
-	private boolean generateSuccessorListChangeEvent(List<IChordRemote> added, List<IChordRemote> removed, List<IChordRemote> new_list) {
+	private boolean generateSuccessorListChangeEvent(ArrayList<IChordRemoteReference> added, ArrayList<IChordRemoteReference> removed, ArrayList<IChordRemoteReference> new_list) {
 
 		if (added != null || removed != null) {
 
@@ -147,22 +147,17 @@ public class SuccessorList {
 			successor_list = new_list;
 
 			KeyRange keyRange = null;
-			IChordRemote pred = local_node.getPredecessor();
+			IChordRemoteReference pred = local_node.getPredecessor();
 
 			/*
 			 * This node's predecessor may be null.
 			 */
 			if (pred != null) {
-				IKey pred_key = pred.getKey();
+				IKey pred_key;
+				pred_key = pred.getKey();
 				keyRange = new KeyRange(pred_key, local_node.getKey(), false);
+				
 			}
-
-			/*
-			 * If pred is null then we cannot work out the key range for the
-			 * local node. Here we generate the event regardless of whether or
-			 * not we know the local key range.
-			 */
-			local_node.generateEvent(ChordEventFactory.makeSuccessorListChangeEvent(successor_list, keyRange, new_list, added, removed));
 
 			return true;
 		}
@@ -180,16 +175,16 @@ public class SuccessorList {
 	 * @param new_list the successor list entries (in ring order) received from this node's successor, which does not contain this node's successor,
 	 * assuming that this node's successor has been added to the start of the list.
 	 */
-	private List<IChordRemote> addedNodes(List<IChordRemote> current_list, List<IChordRemote> new_list) {
+	private ArrayList<IChordRemoteReference> addedNodes(List<IChordRemoteReference> current_list, List<IChordRemoteReference> new_list) {
 
 		// For each node in new_list, if the node is not in currentList, add the node to added.
-		List<IChordRemote> added = null;
+		ArrayList<IChordRemoteReference> added = null;
 
-		for (IChordRemote node : new_list)
+		for (IChordRemoteReference node : new_list)
 			if (!containsNode(current_list, node)) {
 
 				if (added == null) {
-					added = new ArrayList<IChordRemote>();
+					added = new ArrayList<IChordRemoteReference>();
 				}
 				added.add(node);
 			}
@@ -206,17 +201,17 @@ public class SuccessorList {
 	 * @param new_list the successor list entries (in ring order) received from this node's successor, which does not contain this node's successor,
 	 * assuming that this node's successor has been added to the start of the list.
 	 */
-	private List<IChordRemote> removedNodes(List<IChordRemote> current_list, List<IChordRemote> new_list) {
+	private ArrayList<IChordRemoteReference> removedNodes(List<IChordRemoteReference> current_list, List<IChordRemoteReference> new_list) {
 
 		// For each node in currentList, if the node is not in newList, add the node to removed.
 
-		List<IChordRemote> removed = null;
+		ArrayList<IChordRemoteReference> removed = null;
 
-		for (IChordRemote node : current_list)
+		for (IChordRemoteReference node : current_list)
 			if (!containsNode(new_list, node)) {
 
 				if (removed == null) {
-					removed = new ArrayList<IChordRemote>();
+					removed = new ArrayList<IChordRemoteReference>();
 				}
 				removed.add(node);
 			}
@@ -224,11 +219,26 @@ public class SuccessorList {
 		return removed;
 	}
 
-	private boolean containsNode(List<IChordRemote> list, IChordRemote node) {
+	private boolean containsNode(List<IChordRemoteReference> list, IChordRemoteReference node) {
 
-		for (IChordRemote list_element : list)
+		for (IChordRemoteReference list_element : list)
 			if (list_element.getKey().equals(node.getKey())) return true;
 
 		return false;
+	}
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append( "Successors: " );
+		if( successor_list.isEmpty() ) {
+			sb.append( "empty" );
+			
+		} else {
+			for( IChordRemoteReference ref : successor_list ) {
+				sb.append( ref.getKey() + "," );
+			}
+			sb.deleteCharAt( sb.length() - 1 );
+		}
+		return sb.toString();
 	}
 }

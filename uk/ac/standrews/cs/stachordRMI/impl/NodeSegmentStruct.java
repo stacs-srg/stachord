@@ -37,13 +37,12 @@ public class NodeSegmentStruct {
 	public int segmentNumber;
     public IKey fingerKey;
 
-	public NodeSegmentStruct(IChordRemote finger, int segmentNumber) {
+	public NodeSegmentStruct(IChordRemote finger, IKey key, InetSocketAddress addr, int segmentNumber) {
 
 		this.finger = finger;
-		fingerKey = finger.getKey();
-
+		fingerKey = key;
 		try {
-			fingerAddress = finger.getAddress();
+			fingerAddress = addr;
 		} catch (Exception e) {
 			ErrorHandling.exceptionError(e,"Could not get address from finger");
 		}

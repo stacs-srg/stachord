@@ -33,6 +33,7 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.InvalidSegmentNumberException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTable;
 import uk.ac.standrews.cs.stachordRMI.interfaces.ISegmentRangeCalculator;
 import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
@@ -65,8 +66,10 @@ public class GeometricFingerTable extends AbstractFingerTable implements IFinger
 	}
 
 	@Override
-	protected boolean addFinger(IChordRemote finger, int segment_number){
+	protected boolean addFinger(IChordRemoteReference finger, int segment_number){
 
+		IKey key = finger.getKey();
+		
 		try {
 			if (search_distance == 0) return super.addFinger(finger, segment_number);
 
@@ -79,126 +82,44 @@ public class GeometricFingerTable extends AbstractFingerTable implements IFinger
 		}
 	}
 
-	private IChordRemote closestNodeConstrained(IChordRemote startNode, int segmentNumber) throws InvalidSegmentNumberException {
+	private IChordRemoteReference closestNodeConstrained(IChordRemoteReference startNode, int segmentNumber) throws InvalidSegmentNumberException {
 
-		IChordRemote closest = startNode;
-		IChordRemote right = startNode;
+		IChordRemoteReference closest = startNode;
+		IChordRemoteReference right = startNode;
 
-		KeyRange range = getSegmentCalculator().currentSegmentRange();
-
-		IKey startKey = startNode.getKey();
-
-		double distance = distance_calculator.distance(getNode().getAddress().getAddress(), startNode.getAddress().getAddress());
-
-		for (int i = 0; i < search_distance; i++) {
-			try {
-				right = right.getSuccessor();
-			}
-			catch (Exception e) {
-				//stop looking to the right
-				Diagnostic.trace(DiagnosticLevel.RUN, "Call to getSuccessor() on 'right' node failed.");
-				return closest;
-			}
-
-			if (right != null) {
-
-				IKey rightKey = null;
-				InetAddress rightIP = null;
-
-				rightKey = right.getKey();
-				try {
-					rightIP = right.getAddress().getAddress();
-				}
-				catch (Exception e) {
-					//stop looking to the right
-					Diagnostic.trace(DiagnosticLevel.RUN, "Call to getKey() on 'right' node failed.");
-					return closest;
-				}
-
-				if (rightKey != null && !getNode().getKey().equals(rightKey) && SegmentArithmetic.inClosedSegment(rightKey, startKey, range.getUpperBound())) {
-
-					double rightDistance = distance_calculator.distance(getNode().getAddress().getAddress(), rightIP);
-
-					if (rightDistance < distance) {
-						distance = rightDistance;
-						closest = right;
-					}
-				} else return closest;
-			}
-		}
-		return closest;
-	}
-
-	private IChordRemote closestNodeUnconstrained(IChordRemote startNode, int segmentNumber) {
-
-		IChordRemote closest = startNode;
-		IChordRemote left = startNode;
-		IChordRemote right = startNode;
-
-		IChordRemote succ = null;
 		try {
-			succ = getNode().getSuccessor();
-		} catch (RemoteException e1) {
-			ErrorHandling.hardError( "error getting successor of node - should not happen local node" );
-		}
-		IKey succKey = succ.getKey();
+			KeyRange range = getSegmentCalculator().currentSegmentRange();
 
-		double distance = distance_calculator.distance(getNode().getAddress().getAddress(), startNode.getAddress().getAddress());
+			IKey startKey = startNode.getKey();
 
-		for (int i = 0; i < search_distance; i++) {
-			if (left != null) {
+			double distance = distance_calculator.distance(getNode().getAddress().getAddress(), startNode.getRemote().getAddress().getAddress());
 
+			for (int i = 0; i < search_distance; i++) {
 				try {
-					left = left.getPredecessor();
+					right = right.getRemote().getSuccessor();
 				}
 				catch (Exception e) {
-					//stop looking to the left
-					Diagnostic.trace(DiagnosticLevel.RUN, "error getting predecessor of 'left' node");
-					left = null;
-				}
-
-				if (left != null) {
-
-					IKey leftKey = null;
-					InetAddress leftIP = null;
-
-					leftKey = left.getKey();
-					try {
-						leftIP = left.getAddress().getAddress();
-					}
-					catch (Exception e) {
-						//stop looking to the left
-						Diagnostic.trace(DiagnosticLevel.RUN, "error getting representation of 'left' node");
-						left = null;
-					}
-
-					if (leftKey != null && !succKey.equals(leftKey) && !getNode().getKey().equals(leftKey)) {
-
-						double leftDistance = distance_calculator.distance(getNode().getAddress().getAddress(), leftIP);
-
-						if (leftDistance < distance) {
-							distance = leftDistance;
-							closest = left;
-						}
-					}
-				}
-			}
-
-			if (right != null) {
-				try {
-					right = right.getSuccessor();
-				} catch (Exception e) {
 					//stop looking to the right
-					Diagnostic.trace(DiagnosticLevel.RUN, "error getting successor of 'right' node");
-					right = null;
+					Diagnostic.trace(DiagnosticLevel.RUN, "Call to getSuccessor() on 'right' node failed.");
+					return closest;
 				}
 
 				if (right != null) {
 
-					IKey rightKey = right.getKey();
-					InetAddress rightIP = right.getAddress().getAddress();
+					IKey rightKey = null;
+					InetAddress rightIP = null;
 
-					if (rightKey != null && !succKey.equals(rightKey) && !getNode().getKey().equals(rightKey)) {
+					rightKey = right.getKey();
+					try {
+						rightIP = right.getRemote().getAddress().getAddress();
+					}
+					catch (Exception e) {
+						//stop looking to the right
+						Diagnostic.trace(DiagnosticLevel.RUN, "Call to getKey() on 'right' node failed.");
+						return closest;
+					}
+
+					if (rightKey != null && !getNode().getKey().equals(rightKey) && SegmentArithmetic.inClosedSegment(rightKey, startKey, range.getUpperBound())) {
 
 						double rightDistance = distance_calculator.distance(getNode().getAddress().getAddress(), rightIP);
 
@@ -206,12 +127,104 @@ public class GeometricFingerTable extends AbstractFingerTable implements IFinger
 							distance = rightDistance;
 							closest = right;
 						}
-					}
+					} else return closest;
 				}
 			}
-
-			if (left.getKey().equals(right.getKey())) return closest;
+			return closest;
 		}
-		return closest;
+		catch( RemoteException e ) {
+			Diagnostic.trace(DiagnosticLevel.RUN, "Remote call failed");
+
+			return closest;
+		}
 	}
+
+	private IChordRemoteReference closestNodeUnconstrained(IChordRemoteReference startNode, int segmentNumber) {
+
+		IChordRemoteReference closest = startNode;
+		IChordRemoteReference left = startNode;
+		IChordRemoteReference right = startNode;
+
+		try {
+			IChordRemoteReference succ = null;
+			succ = getNode().getSuccessor();
+			IKey succKey = succ.getKey();
+
+			double distance = distance_calculator.distance(getNode().getAddress().getAddress(), startNode.getRemote().getAddress().getAddress());
+
+			for (int i = 0; i < search_distance; i++) {
+				if (left != null) {
+
+					try {
+						left = left.getRemote().getPredecessor();
+					}
+					catch (Exception e) {
+						//stop looking to the left
+						Diagnostic.trace(DiagnosticLevel.RUN, "error getting predecessor of 'left' node");
+						left = null;
+					}
+
+					if (left != null) {
+
+						IKey leftKey = null;
+						InetAddress leftIP = null;
+
+						leftKey = left.getKey();
+						try {
+							leftIP = left.getRemote().getAddress().getAddress();
+						}
+						catch (Exception e) {
+							//stop looking to the left
+							Diagnostic.trace(DiagnosticLevel.RUN, "error getting representation of 'left' node");
+							left = null;
+						}
+
+						if (leftKey != null && !succKey.equals(leftKey) && !getNode().getKey().equals(leftKey)) {
+
+							double leftDistance = distance_calculator.distance(getNode().getAddress().getAddress(), leftIP);
+
+							if (leftDistance < distance) {
+								distance = leftDistance;
+								closest = left;
+							}
+						}
+					}
+				}
+
+				if (right != null) {
+					try {
+						right = right.getRemote().getSuccessor();
+					} catch (Exception e) {
+						//stop looking to the right
+						Diagnostic.trace(DiagnosticLevel.RUN, "error getting successor of 'right' node");
+						right = null;
+					}
+
+					if (right != null) {
+
+						IKey rightKey = right.getKey();
+						InetAddress rightIP = right.getRemote().getAddress().getAddress();
+
+						if (rightKey != null && !succKey.equals(rightKey) && !getNode().getKey().equals(rightKey)) {
+
+							double rightDistance = distance_calculator.distance(getNode().getAddress().getAddress(), rightIP);
+
+							if (rightDistance < distance) {
+								distance = rightDistance;
+								closest = right;
+							}
+						}
+					}
+				}
+
+				if (left.getKey().equals(right.getKey())) return closest;
+			}
+			return closest;
+		}
+		catch( RemoteException e ) {
+				Diagnostic.trace(DiagnosticLevel.RUN, "Remote call failed");
+				return closest;
+			}
+	}
+	
 }

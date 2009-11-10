@@ -18,6 +18,8 @@
  */
 package uk.ac.standrews.cs.stachordRMI.deploy;
 
+import java.rmi.RemoteException;
+
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
@@ -39,7 +41,8 @@ public class DiagnosticMaintenanceThread extends MaintenanceThread {
 
 	@Override
 	public void run() {
-		String nodeStr = node.getAddress() + "(" + node.getKey() + ")";
+		String nodeStr = "Node ";
+		nodeStr += node.getKey().toString();
 		try {
 
 			while (running) {
@@ -84,8 +87,7 @@ public class DiagnosticMaintenanceThread extends MaintenanceThread {
 			ErrorHandling
 					.exceptionError(
 							e,
-							"Caught a OutOfMemoryError exception. This will cause this house-keeping thread to terminate.\n\t",
-							"node key: ", node.getKey());
+							"Caught a OutOfMemoryError exception. This will cause this house-keeping thread to terminate.\n\t" );
 		} catch (Exception e) {
 			ErrorHandling.exceptionError(e,
 					"maintenance thread exception on node" + nodeStr);

@@ -51,6 +51,7 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 	public DecimalGeometricSegments(IChordNode localNode, double decimalConstant) {
 
 		super(localNode);
+		((Observable)localNode).addObserver(this);
 		if(decimalConstant<=1.0) {
 			this.decimalConstant=new BigDecimal(DEFAULT_DECIMAL_CONSTANT);
 		} else {
@@ -91,22 +92,21 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 
 		int counter=0;
 
-		do {
-			current_segment++;
-			counter++;
-			if(counter>last_segment_number+1){
-				//we've gone through all of the possible segments and
-				//have failed to find a key that is further away in
-				//keyspace than this node's successor. Give up.
-				current_segment = NO_VIABLE_SEGMENTS;
-				throw new InvalidSegmentNumberException();
+			do {
+				current_segment++;
+				counter++;
+				if(counter>last_segment_number+1){
+					//we've gone through all of the possible segments and
+					//have failed to find a key that is further away in
+					//keyspace than this node's successor. Give up.
+					current_segment = NO_VIABLE_SEGMENTS;
+					throw new InvalidSegmentNumberException();
+				}
+				else if(current_segment > last_segment_number) {
+					current_segment = 0;
+				}
 			}
-			else if(current_segment > last_segment_number) {
-				current_segment = 0;
-			}
-
-		}
-		while (getNode().getKey().ringDistanceTo(succKey).compareTo(getNode().getKey().ringDistanceTo(segmentLowerBound(current_segment))) > 0);
+			while (getNode().getKey().ringDistanceTo(succKey).compareTo(getNode().getKey().ringDistanceTo(segmentLowerBound(current_segment))) > 0);
 
 		return current_segment;
 	}
@@ -131,9 +131,6 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 			// Ignore - getSuccessor() call may throw exception if simulating failure; in real deployment the call should never fail,
 			// since node object is local.
 		}
-		catch( RemoteException e ) {
-			// should never happen - local node.
-		}
 	}
 
 	public int calculateSegmentNumber(IKey k) throws InvalidSegmentNumberException {
@@ -154,19 +151,21 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 
 	public int numberOfSegments() {
 
-		int segment_counter = -1;
+	int segment_counter = 0;
+	
+	try {
+		segment_counter = -1;
 
-		try {
-			do {
-				segment_counter++;
-				if (segment_counter > last_segment_number) return 0;
-			}
-			while (getNode().getKey().ringDistanceTo(succKey).compareTo(getNode().getKey().ringDistanceTo(segmentLowerBound(segment_counter))) > 0);
+				do {
+					segment_counter++;
+					if (segment_counter > last_segment_number) return 0;
+				}
+				while (getNode().getKey().ringDistanceTo(succKey).compareTo(getNode().getKey().ringDistanceTo(segmentLowerBound(segment_counter))) > 0);
 		}
-		catch (InvalidSegmentNumberException e) {
+		catch (InvalidSegmentNumberException e ) {
 			Diagnostic.trace(DiagnosticLevel.FULL, "invalid segment number: " + segment_counter);
 			return 0;
-		}
+		} 
 
 		return last_segment_number - segment_counter + 1;
 	}

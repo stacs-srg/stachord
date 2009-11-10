@@ -18,14 +18,17 @@
  */
 package uk.ac.standrews.cs.stachordRMI.interfaces;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IApplicationComponentLocator;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.impl.NextHopResultStatus;
 
+import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -34,42 +37,52 @@ import java.rmi.RemoteException;
  *
  * @author graham
  */
-public interface IChordRemote extends IP2PNode, IApplicationComponentLocator, Remote {
+public interface IChordRemote extends Remote {
 
+	/**
+	 * Get the key of the node
+	 */
+	public IKey getKey() throws RemoteException;
+	
+	/**
+	 * Get the address of a node
+	 */
+	public InetSocketAddress getAddress() throws RemoteException;
+	
 	/**
 	 * Notifies this node that a given node may be its predecessor.
 	 *
 	 * @param potential_predecessor a node that may be this node's most suitable predecessor
 	 */
-	void notify(IChordRemote potential_predecessor) throws RemoteException;
+	void notify(IChordRemoteReference potential_predecessor) throws RemoteException;
 
 	/**
 	 * Returns this node's successor list.
 	 *
 	 * @return this node's successor list
 	 */
-	List<IChordRemote> getSuccessorList() throws RemoteException;
+	ArrayList<IChordRemoteReference> getSuccessorList() throws RemoteException;
 
 	/**
 	 * Returns this node's finger list.
 	 *
 	 * @return this node's finger list
 	 */
-	List<IChordRemote> getFingerList() throws RemoteException;
+	ArrayList<IChordRemoteReference> getFingerList() throws RemoteException;
 
 	/**
 	 * Returns this node's predecessor in the key space.
 	 * 
 	 * @return this node's predecessor node
 	 */
-	IChordRemote getPredecessor() throws RemoteException;
+	IChordRemoteReference getPredecessor() throws RemoteException;
 
 	/**
 	 * Returns this node's successor in the key space.
 	 * 
 	 * @return this node's successor node
 	 */
-	IChordRemote getSuccessor() throws RemoteException;
+	IChordRemoteReference getSuccessor() throws RemoteException;
 
 	/**
 	 * Used to check the availability of this node.
@@ -84,5 +97,7 @@ public interface IChordRemote extends IP2PNode, IApplicationComponentLocator, Re
 	 * @param k a key
 	 * @return the next hop towards the successor of the specified key
 	 */
-	Pair<NextHopResultStatus, IChordRemote> nextHop(IKey k);
+	Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) throws RemoteException;
+	
+	IChordRemoteReference lookup( IKey key ) throws RemoteException;
 }

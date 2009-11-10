@@ -22,6 +22,8 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.math.BigInteger;
+import java.rmi.RemoteException;
+
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.InvalidSegmentNumberException;

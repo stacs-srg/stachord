@@ -32,7 +32,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTableFactory;
 /**
  * @author stuart/al
  */
-public class ChordNodeFactory implements INodeFactory<IChordNode> {
+public class ChordNodeFactory {
 
     private IFingerTableFactory finger_table_factory = null;
 

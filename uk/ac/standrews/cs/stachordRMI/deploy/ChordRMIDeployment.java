@@ -18,46 +18,29 @@
  */
 package uk.ac.standrews.cs.stachordRMI.deploy;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.rmi.AccessException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.rmi.server.UnicastRemoteObject;
 
-import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
 import uk.ac.standrews.cs.nds.eventModel.eventBus.EventBus;
 import uk.ac.standrews.cs.nds.eventModel.eventBus.busInterfaces.IEventBus;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.impl.P2PStatus;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IApplicationRegistry;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 import uk.ac.standrews.cs.nds.p2p.util.HashBasedKeyFactory;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
-import uk.ac.standrews.cs.nds.util.CommandLineArgs;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.impl.ApplicationRegistryImpl;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.impl.CustomSocketFactory;
-import uk.ac.standrews.cs.stachordRMI.impl.NextHopResultStatus;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
-import uk.ac.standrews.cs.stachordRMI.nodeFactories.ChordSingleton;
-import uk.ac.standrews.cs.stachordRMI.testharness.impl.DebuggingObjectOutputStream;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
  * Provides a number of static methods for deploying a Chord node.
@@ -82,39 +65,61 @@ public class ChordRMIDeployment {
 
 	private static HashBasedKeyFactory key_factory = new SHA1KeyFactory();
 
-	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address ) throws P2PNodeException {
 
-		IChordRemote known_node_remote = null;
+	private static IChordNode initialise(InetSocketAddress node_rep, IKey key, IChordRemoteReference known_node, IEventBus bus, IApplicationRegistry registry  ) throws RemoteException, P2PNodeException {
 
-		DebuggingObjectOutputStream out = null;
-		try {
-			out = new DebuggingObjectOutputStream( System.out );
-		} catch ( IOException e1 ) {
-			e1.printStackTrace();
+		IChordNode instance = new ChordNodeImpl( node_rep, key, bus, registry );
+
+		if (known_node == null) {
+			Diagnostic.trace( DiagnosticLevel.RUN, "Creating a new ring" );
+			instance.createRing();
+		} else {
+			Diagnostic.trace( DiagnosticLevel.RUN, "Joining ring" );
+			instance.join(known_node);
 		}
-		
-		// Look for a/the remote iChordNode on the known machine
-		if (known_node_address != null) {
-			try {
-				Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
-				known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( CHORD_REMOTE_SERVICE );
-			}
-			catch (Exception e) {
-				throw new RuntimeException( "Serialization error. Path to bad object: "  + out.getStack(), e);
-				// throw new P2PNodeException(P2PStatus.KNOWN_NODE_FAILURE);
-			}
-		}
+		return instance;
+	}
+	
+	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address ) throws P2PNodeException, RemoteException {
+
+		IChordRemoteReference known_node_remote_ref = null;
 		
 		IApplicationRegistry registry = new ApplicationRegistryImpl();
 		IEventBus bus = new EventBus();
 		IKey node_key = key_factory.generateKey(local_node_address);
+		Diagnostic.trace( DiagnosticLevel.RUN, "Node Key: " + node_key );
+		IChordNode node;
+		
+		// Setup/join the ring
+		
+		if( known_node_address != null ) {
+			try {
+					Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
+					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( CHORD_REMOTE_SERVICE );
+					known_node_remote_ref = new ChordRemoteReference( known_node_remote.getKey(), known_node_remote );
+			}
+			catch (Exception e) {
+					throw new RuntimeException( "Serialization error. Path to bad object: ");
+					// throw new P2PNodeException(P2PStatus.KNOWN_NODE_FAILURE);
+			}
 
-		ChordSingleton.initialise(local_node_address, node_key, known_node_remote, bus, registry );
-
-		IChordNode node = ChordSingleton.getInstance();
-
-		Thread thread_for_maintenance = new DefaultMaintenanceThread(node);  //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< THREAD <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+		}
+		
+		node =  initialise(local_node_address, node_key, known_node_remote_ref, bus, registry );
+		
+		// Start maintenance thread
+		Thread thread_for_maintenance = new DefaultMaintenanceThread(node);
 		thread_for_maintenance.start();
+
+		
+		// Now start RMI listening
+		try {
+			IChordRemote stub = (IChordRemote) UnicastRemoteObject.exportObject(node.getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
+		} catch (RemoteException e1) {
+			throw new RuntimeException( "Cannot export object ", e1);
+		}
+		
+		// Register the service with the registry
 		
 		Registry local_registry = null;
 		try {
@@ -128,8 +133,8 @@ public class ChordRMIDeployment {
 				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry failure");
 		}
 		try {
-			local_registry.rebind( CHORD_REMOTE_SERVICE, node );
-			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry" );
+			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
+			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry" + node );
 		} catch (Exception e) {
 			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry binding exception");
 		}
