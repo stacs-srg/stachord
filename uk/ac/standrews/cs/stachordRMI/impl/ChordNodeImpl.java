@@ -586,6 +586,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private synchronized void setSuccessor(IChordRemoteReference successor) {	
 		this.successor = successor;		
 		setChanged();
+		
+		notifyObservers( new Event("SuccessorStateEvent") );
 	}
 
 	private boolean inSuccessorKeyRange(IKey k) {
