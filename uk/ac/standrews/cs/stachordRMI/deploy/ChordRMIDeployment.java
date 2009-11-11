@@ -134,7 +134,7 @@ public class ChordRMIDeployment {
 		}
 		try {
 			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
-			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry" + node );
+			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry [" + node + "]" );
 		} catch (Exception e) {
 			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry binding exception");
 		}

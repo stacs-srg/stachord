@@ -109,18 +109,14 @@ public abstract class AbstractFingerTable implements IFingerTable {
 
 	private boolean fixFinger(IKey target_key, int segmentNumber) {
 
-		Diagnostic.trace(DiagnosticLevel.FULL, "\tfixing segment:" + segmentNumber );
-		Diagnostic.trace(DiagnosticLevel.FULL, "\tsegment key:" + target_key );
 		if (target_key != null) {
 			try {
 				IChordRemoteReference finger = (IChordRemoteReference)node.lookup(target_key);
-				Diagnostic.trace(DiagnosticLevel.FULL, "\tfound node with key:" + finger.getKey() );
 				
 				// node is of type IChordNode
 				if (finger != null &&
 						! finger.getKey().equals( node.getKey() ) &&
-							! finger.getKey().equals( node.getSuccessor().getKey() ) ) { // AL changed
-						Diagnostic.trace(DiagnosticLevel.FULL, "adding key:" + finger.getKey() );
+							! finger.getKey().equals( node.getSuccessor().getKey() ) ) {
 						return addFinger(finger, segmentNumber);
 				}
 			}

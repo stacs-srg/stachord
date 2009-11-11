@@ -57,7 +57,6 @@ public class DefaultMaintenanceThread extends MaintenanceThread{
 	            node.checkPredecessor();
                 /* OutOfMemory Exception happens in here */
                 node.stabilize();
-                node.showState();
                 node.fixNextFinger();
  
             }

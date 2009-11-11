@@ -676,7 +676,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		return proxy;
 	}
 	
+	@Override
 	public String toString() {
+		return "key: " + key + "" + " " + "local_address: " + local_address;
+	}
+	
+	public String toStringFull() {
 		return
 			"Node state" + "\n" + 
 			"key: " + key + "\n" + 
@@ -688,6 +693,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	}
 	
 	public void showState() {
-		System.out.println( this );
+		System.out.println( toStringFull() );
 	}
 }
