@@ -4,7 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/nds"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/rafda"/>
 	<classpathentry kind="lib" path="/nds/lib/mindterm.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://www.appgate.com/products/80_MindTerm/80_API_Documentation/"/>
