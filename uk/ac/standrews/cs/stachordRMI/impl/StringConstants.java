@@ -19,7 +19,7 @@
 /*
  * Created on Apr 14, 2005 at 10:21:29 AM.
  */
-package uk.ac.standrews.cs.stachordRMI.deploy;
+package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

@@ -19,7 +19,7 @@
 /*
  * Created on Jan 18, 2005 at 5:07:00 PM.
  */
-package uk.ac.standrews.cs.stachordRMI.nodeFactories;
+package uk.ac.standrews.cs.stachordRMI.factories;
 
 import java.net.InetSocketAddress;
 

@@ -41,7 +41,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Pair;
-import uk.ac.standrews.cs.stachordRMI.fingerTableFactories.GeometricFingerTableFactory;
+import uk.ac.standrews.cs.stachordRMI.factories.GeometricFingerTableFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
@@ -81,7 +81,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param finger_table_factory a factory for creating finger tables
 	 */
 	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory finger_table_factory) {
-		this(local_address, key, null, finger_table_factory, null);
+		this(local_address, key, null, finger_table_factory);
 	}
 
 	/**
@@ -90,10 +90,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param local_address the network address of the node
 	 * @param key the node's key
 	 * @param bus an event bus
-	 * @param registry an application registry
 	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IApplicationRegistry registry) {
-		this(local_address, key, bus, new GeometricFingerTableFactory(), registry);
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus ) {
+		this(local_address, key, bus, new GeometricFingerTableFactory());
 	}
 
 	/**
@@ -103,10 +102,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param key the node's key
 	 * @param bus an event bus
 	 * @param registry an application registry
-	 * @param event_generator an event generator
 	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IApplicationRegistry registry, IEventGenerator event_generator) {
-		this(local_address, key, bus, new GeometricFingerTableFactory(event_generator), registry, event_generator);
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IEventGenerator event_generator) {
+		this(local_address, key, bus, new GeometricFingerTableFactory(event_generator), event_generator);
 	}
 
 	/**
@@ -115,11 +113,10 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param local_address the network address of the node
 	 * @param key the node's key
 	 * @param bus an event bus
-	 * @param registry an application registry
 	 * @param finger_table_factory a factory for creating finger tables
 	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory finger_table_factory, IApplicationRegistry registry) {
-		this(local_address, key, bus, finger_table_factory, registry, null);
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory finger_table_factory) {
+		this(local_address, key, bus, finger_table_factory, null);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +128,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		// Deliberately empty.
 	}
 
-	private ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory fingerTableFactory, IApplicationRegistry registry, IEventGenerator event_generator) {
+	private ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory fingerTableFactory, IEventGenerator event_generator) {
 
 		this.local_address = local_address;
 		this.key = key;
@@ -145,7 +142,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		proxy = new ChordRemoteReference( key, new ChordNodeProxy( this ) );
 
 		this.bus = bus;
-		this.registry = registry;
 		this.event_generator = event_generator;
 
 		finger_table = fingerTableFactory.makeFingerTable(this);

@@ -17,7 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.standrews.cs.stachordRMI.fingerTableFactories;
+package uk.ac.standrews.cs.stachordRMI.factories;
 
 import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IDistanceCalculator;

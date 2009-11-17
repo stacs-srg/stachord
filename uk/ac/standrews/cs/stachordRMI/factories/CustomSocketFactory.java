@@ -1,4 +1,4 @@
-package uk.ac.standrews.cs.stachordRMI.impl;
+package uk.ac.standrews.cs.stachordRMI.factories;
 
 import java.io.IOException;
 import java.net.InetAddress;
