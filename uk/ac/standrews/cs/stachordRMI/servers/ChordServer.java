@@ -106,10 +106,14 @@ public class ChordServer {
 	}
 	
 	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address ) throws P2PNodeException, RemoteException {
+		IEventBus bus = new EventBus();
+		return deployNode( local_node_address, known_node_address,bus );
+	}
+		
+	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address, IEventBus bus ) throws P2PNodeException, RemoteException {
 
 		IChordRemoteReference known_node_remote_ref = null;
 		
-		IEventBus bus = new EventBus();
 		IKey node_key = key_factory.generateKey(local_node_address);
 		Diagnostic.trace( DiagnosticLevel.RUN, "Node Key: " + node_key );
 		IChordNode node;
