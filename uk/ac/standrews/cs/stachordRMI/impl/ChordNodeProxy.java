@@ -84,6 +84,39 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 		return cni.lookup(k);
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cni == null) ? 0 : cni.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ChordNodeProxy other = (ChordNodeProxy) obj;
+		if (cni == null) {
+			if (other.cni != null)
+				return false;
+		} else if (!cni.equals(other.cni))
+			return false;
+		return true;
+	}
+	
+	
 }
 
 

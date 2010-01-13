@@ -20,12 +20,13 @@ package uk.ac.standrews.cs.stachordRMI.util;
 
 import java.rmi.registry.LocateRegistry;
 
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.ChordServer;
 
 /**
@@ -60,8 +61,6 @@ public class ChordRingTraversor extends Thread {
 	 */
 	public ChordRingTraversor(String hostname, int port) {
 		
-		//InetSocketAddress known_node_descriptor = new InetSocketAddress(hostname, port);
-		
 		try {
 			this.startNode = (IChordRemote) LocateRegistry.getRegistry( hostname, port ).lookup( ChordServer.CHORD_REMOTE_SERVICE );
 		} catch (Exception e) {
@@ -91,10 +90,10 @@ public class ChordRingTraversor extends Thread {
 		Diagnostic.traceNoEvent(DiagnosticLevel.FINAL, "ChordRingTraversor running. Checking ring every " + traversal_interval / 1000 + " seconds.");
 		
 		try {
-
+			
 			while (traverse) {
 
-				traverseJChordRing(startNode, true);
+				traverseJChordRing(startNode);
 				
 				try {
 					sleep(traversal_interval);
@@ -108,27 +107,37 @@ public class ChordRingTraversor extends Thread {
 	}
 
 	
-
-	private void traverseJChordRing() {
-		traverseJChordRing(startNode, true);
-	}
-	
 	// from TestUtils.traverseJChordRing(startNode, nodes.size());
 	//
-	public static void traverseJChordRing(IChordRemote startNode, boolean clockwise) {
+	public static void traverseJChordRing(IChordRemote startNode) {
 
 		int count = 0;
 
 		try {
 			count = 0;
-			IChordRemoteReference next = (clockwise ? startNode.getSuccessor() : startNode.getPredecessor());
+			IChordRemote current = startNode;
 
-			count++;
+			do {
+				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "# " + (current.getAddress().getPort()- 29999) + " : " + current.getAddress().getHostName() + " : " +
+						current.getAddress().getPort() + " : " + current.getKey().toDecimalString() + " : " + current.getKey() + " : " + current.getSuccessor().getKey());
 
-			while (next != null && !next.getKey().equals(startNode.getKey())) {
-				next = clockwise ? next.getRemote().getSuccessor() : next.getRemote().getPredecessor();
+				IChordRemote succ = current.getSuccessor().getRemote();
+				IChordRemote pred = current.getPredecessor().getRemote();
+				IKey current_key = current.getKey();
+				
+				
+				if (succ != null && !succ.getPredecessor().getKey().equals(current_key)){
+					Diagnostic.trace("Predecessor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+				}
+				if (pred != null && !pred.getSuccessor().getKey().equals(current_key)){
+					Diagnostic.trace("Predecessor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+				}
+				
+				current = succ;
+				
 				count++;
-			}
+			} while (current != null && !current.getKey().equals(startNode.getKey()));
+				
 			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
 					+ ",RING_CLOSED");
 		} catch (Exception e) {
