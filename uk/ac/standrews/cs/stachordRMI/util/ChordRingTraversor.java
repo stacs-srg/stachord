@@ -119,7 +119,7 @@ public class ChordRingTraversor extends Thread {
 
 			do {
 				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "# " + (current.getAddress().getPort()- 29999) + " : " + current.getAddress().getHostName() + " : " +
-						current.getAddress().getPort() + " : " + current.getKey().toDecimalString() + " : " + current.getKey() + " : " + current.getSuccessor().getKey());
+						current.getAddress().getPort() + " : " + current.getKey().toString(10) + " : " + current.getKey() + " : " + current.getSuccessor().getKey());
 
 				IChordRemote succ = current.getSuccessor().getRemote();
 				IChordRemote pred = current.getPredecessor().getRemote();
