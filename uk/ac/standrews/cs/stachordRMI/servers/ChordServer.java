@@ -93,7 +93,7 @@ public class ChordServer {
 
 	private static IChordNode initialise(InetSocketAddress node_rep, IKey key, IChordRemoteReference known_node, IEventBus bus  ) throws RemoteException, P2PNodeException {
 
-		IChordNode instance = new ChordNodeImpl( node_rep, key, bus );
+		IChordNode instance = new ChordNodeImpl( node_rep, key );
 
 		if (known_node == null) {
 			Diagnostic.trace( DiagnosticLevel.RUN, "Creating a new ring" );

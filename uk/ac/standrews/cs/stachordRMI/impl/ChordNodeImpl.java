@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Observable;
 
 import uk.ac.standrews.cs.nds.eventModel.Event;
-import uk.ac.standrews.cs.nds.eventModel.IEvent;
-import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
-import uk.ac.standrews.cs.nds.eventModel.eventBus.busInterfaces.IEventBus;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.p2p.exceptions.SimulatedFailureException;
 import uk.ac.standrews.cs.nds.p2p.impl.AID;
@@ -67,21 +64,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private IFingerTable finger_table;
 
 	private IApplicationRegistry registry;
-	private IEventGenerator event_generator;
 	private boolean simulating_failure;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Creates a new Chord node using a specified finger table policy and no event bus.
-	 * 
-	 * @param local_address the network address of the node
-	 * @param key the node's key
-	 * @param finger_table_factory a factory for creating finger tables
-	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory finger_table_factory) {
-		this(local_address, key, null, finger_table_factory);
-	}
 
 	/**
 	 * Creates a new Chord node using a geometric finger table.
@@ -90,32 +75,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param key the node's key
 	 * @param bus an event bus
 	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus ) {
-		this(local_address, key, bus, new GeometricFingerTableFactory());
-	}
-
-	/**
-	 * Creates a new Chord node using a geometric finger table. Used by autonomic manager to control event generation.
-	 * 
-	 * @param local_address the network address of the node
-	 * @param key the node's key
-	 * @param bus an event bus
-	 * @param registry an application registry
-	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IEventGenerator event_generator) {
-		this(local_address, key, bus, new GeometricFingerTableFactory(event_generator), event_generator);
-	}
-
-	/**
-	 * Creates a new Chord node using a specified finger table policy.
-	 * 
-	 * @param local_address the network address of the node
-	 * @param key the node's key
-	 * @param bus an event bus
-	 * @param finger_table_factory a factory for creating finger tables
-	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory finger_table_factory) {
-		this(local_address, key, bus, finger_table_factory, null);
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key ) {
+		this(local_address, key, new GeometricFingerTableFactory());
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +88,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		// Deliberately empty.
 	}
 
-	private ChordNodeImpl(InetSocketAddress local_address, IKey key, IEventBus bus, IFingerTableFactory fingerTableFactory, IEventGenerator event_generator) {
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory fingerTableFactory ) {
 
 		this.local_address = local_address;
 		this.key = key;
@@ -139,11 +100,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		successor_list = new SuccessorList(this);
 
 		proxy = new ChordRemoteReference( key, new ChordNodeProxy( this ) );
-		
-		this.event_generator = event_generator;
 
 		finger_table = fingerTableFactory.makeFingerTable(this);
-		finger_table.setEventGenerator(event_generator);
 
 		simulating_failure = false;
 

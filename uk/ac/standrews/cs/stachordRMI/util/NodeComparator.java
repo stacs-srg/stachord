@@ -9,7 +9,7 @@ public class NodeComparator implements Comparator<IChordNode>  {
 	/* (non-Javadoc)
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	@Override
+
 	public int compare(IChordNode o1, IChordNode o2) {
 		if (o1 == null) return 1;
 		else if (o2==null) return -1;
