@@ -133,6 +133,8 @@ public class ChordServer {
 
 		}
 		
+		
+		
 		node =  initialise(local_node_address, node_key, known_node_remote_ref, bus  );
 		
 		// Start maintenance thread

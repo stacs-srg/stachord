@@ -66,7 +66,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private SuccessorList successor_list;
 	private IFingerTable finger_table;
 
-	private IEventBus bus;
 	private IApplicationRegistry registry;
 	private IEventGenerator event_generator;
 	private boolean simulating_failure;
@@ -132,16 +131,15 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 		this.local_address = local_address;
 		this.key = key;
-		
+
 		hash_code = hashCode();
 
 		predecessor = null;
 		successor = null;
 		successor_list = new SuccessorList(this);
-		
-		proxy = new ChordRemoteReference( key, new ChordNodeProxy( this ) );
 
-		this.bus = bus;
+		proxy = new ChordRemoteReference( key, new ChordNodeProxy( this ) );
+		
 		this.event_generator = event_generator;
 
 		finger_table = fingerTableFactory.makeFingerTable(this);
@@ -245,7 +243,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			// There isn't currently a predecessor, so use the suggested one.
 			setPredecessor(potential_predecessor);
 		}
-		
+
 	}
 
 	public ArrayList<IChordRemoteReference> getSuccessorList() {
@@ -362,7 +360,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			pingPredecessor();
 		}
 		catch (Exception e) {
-//			suggestSuspectedFailure(predecessor);
+			//			suggestSuspectedFailure(predecessor);
 			setPredecessor(null);
 		}
 	}
@@ -371,7 +369,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		checkSimulatedFailure();
 		finger_table.fixNextFinger();
 	}
-	
+
 	public synchronized void fixAllFingers() {
 		checkSimulatedFailure();
 		finger_table.fixAllFingers();
@@ -380,7 +378,14 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	public synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
 		checkSimulatedFailure();
 
+		IChordRemoteReference oldPredecessor = predecessor;
+
 		predecessor = new_predecessor;
+
+		if (oldPredecessor != null && !oldPredecessor.equals(new_predecessor)){
+			setChanged();
+			notifyObservers();
+		}
 	}
 
 	public IFingerTable getFingerTable() {
@@ -417,14 +422,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Returns this node's event bus.
-	 * 
-	 * @return the event bus
-	 */
-	public IEventBus getEventBus() {
-		return bus;
-	}
 
 	/**
 	 * Returns the closest preceding node from the finger table, or the successor if there
@@ -487,7 +484,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		} catch (RemoteException e) {
 			handleSuccessorError( e );
 		}
-		
+
 	}
 
 	private boolean refreshSuccessorList() {
@@ -524,20 +521,20 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 			switch (result.first) {
 
-				case NEXT_HOP: {
-					next = result.second;
-					break;
-				}
+			case NEXT_HOP: {
+				next = result.second;
+				break;
+			}
 
-				case FINAL: {
-					next = result.second;
-					return next;
-				}
+			case FINAL: {
+				next = result.second;
+				return next;
+			}
 
-				default: {
+			default: {
 
-					ErrorHandling.hardError("nextHop call returned NextHopResult with unrecognised code");
-				}
+				ErrorHandling.hardError("nextHop call returned NextHopResult with unrecognised code");
+			}
 			}
 
 			hop_count++;
@@ -562,7 +559,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 				if (hop_count == 0) {
 					suggestSuspectedFingerFailure(next);
 				} else {
-//					suggestSuspectedFailure(next);
+					//					suggestSuspectedFailure(next);
 				}
 
 				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "a failure ocurred when trying to determine the successor for key " + k + ": " + e.getMessage());
@@ -582,7 +579,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private synchronized void setSuccessor(IChordRemoteReference successor) {	
 		this.successor = successor;		
 		setChanged();
-		
+
 		notifyObservers( new Event("SuccessorStateEvent") );
 	}
 
@@ -597,19 +594,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			throw new SimulatedFailureException("simulated failure");
 	}
 
-	protected void generateEvent(Event e) {
-
-		if (bus != null) {
-			bus.publishEvent(e);
-		}
-	}
-
 	/**
 	 * Attempts to find a working successor from the successor list, or failing that using the predecessor or a finger.
 	 */
 	private synchronized void findWorkingSuccessor() {
 
-//		suggestSuspectedFailure(successor);
+		//		suggestSuspectedFailure(successor);
 
 		try {
 			IChordRemoteReference new_successor = successor_list.findFirstWorkingNode();
@@ -637,28 +627,28 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private void joinUsingFinger() throws RemoteException {
 
 		for (IChordRemoteReference node : finger_table.getFingers()) {
-				join(node);
-				return;
+			join(node);
+			return;
 		}
 	}
 
-//	/**
-//	 * Computes the time that has elapsed since the given start time.
-//	 * 
-//	 * @param start_time a time stamp as returned by System.currentTimeMillis())
-//	 * @return the elapsed time
-//	 */
-//	private int elapsedTime(long start_time) {
-//
-//		return (int) ((int) System.currentTimeMillis() - start_time);
-//	}
-//
-//	private void suggestSuspectedFailure(IChordRemoteReference node) {
-//
-//		Diagnostic.trace(DiagnosticLevel.FULL, this,": signalling suspected failure of ", node.getKey()); // TODO al and stuart are here
-//		generateEvent(ChordEventFactory.makeNodeFailureNotificationRepEvent(node.getKey())); 
-//		
-//	}
+	//	/**
+	//	 * Computes the time that has elapsed since the given start time.
+	//	 * 
+	//	 * @param start_time a time stamp as returned by System.currentTimeMillis())
+	//	 * @return the elapsed time
+	//	 */
+	//	private int elapsedTime(long start_time) {
+	//
+	//		return (int) ((int) System.currentTimeMillis() - start_time);
+	//	}
+	//
+	//	private void suggestSuspectedFailure(IChordRemoteReference node) {
+	//
+	//		Diagnostic.trace(DiagnosticLevel.FULL, this,": signalling suspected failure of ", node.getKey()); // TODO al and stuart are here
+	//		generateEvent(ChordEventFactory.makeNodeFailureNotificationRepEvent(node.getKey())); 
+	//		
+	//	}
 
 	private void suggestSuspectedFingerFailure(IChordRemoteReference node) {
 
@@ -671,23 +661,23 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	public IChordRemoteReference getProxy() {
 		return proxy;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "key: " + key + "" + " " + "local_address: " + local_address;
 	}
-	
+
 	public String toStringFull() {
 		return
-			"Node state" + "\n" + 
-			"key: " + key + "\n" + 
-			"local_address: " + local_address + "\n" + 
-			"predecessor: " + predecessor + "\n" + 
-			"successor: " + successor + "\n" + 
-			"successor_list: " +  successor_list + "\n" + 
-			"finger_table: " + finger_table;
+		"Node state" + "\n" + 
+		"key: " + key + "\n" + 
+		"local_address: " + local_address + "\n" + 
+		"predecessor: " + predecessor + "\n" + 
+		"successor: " + successor + "\n" + 
+		"successor_list: " +  successor_list + "\n" + 
+		"finger_table: " + finger_table;
 	}
-	
+
 	public void showState() {
 		System.out.println( toStringFull() );
 	}
