@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Observable;
 
 import uk.ac.standrews.cs.nds.eventModel.Event;
+import uk.ac.standrews.cs.nds.eventModel.IEvent;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.p2p.exceptions.SimulatedFailureException;
 import uk.ac.standrews.cs.nds.p2p.impl.AID;
@@ -65,6 +66,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	private IApplicationRegistry registry;
 	private boolean simulating_failure;
+	
+	public static IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
+
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -342,7 +346,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 		if (oldPredecessor != null && !oldPredecessor.equals(new_predecessor)){
 			setChanged();
-			notifyObservers();
+			notifyObservers(PREDECESSOR_CHANGE_EVENT);
 		}
 	}
 
