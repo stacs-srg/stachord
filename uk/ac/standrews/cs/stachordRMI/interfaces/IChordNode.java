@@ -111,6 +111,8 @@ public interface IChordNode { // extends IChordRemote {
 
 	IChordRemoteReference getSuccessor();
 	
+	IChordRemoteReference getPredecessor();
+	
 	IChordRemoteReference getProxy();
 	
 	void showState();
