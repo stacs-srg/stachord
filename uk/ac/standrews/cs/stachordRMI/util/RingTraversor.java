@@ -43,7 +43,7 @@ import uk.ac.standrews.cs.stachordRMI.servers.ChordServer;
  * @author Angus Macdonald (angus@cs.st-andrews.ac.uk), based on code by Markus Tauber
  */
 
-public class ChordRingTraversor extends Thread {
+public class RingTraversor extends Thread {
 
 	private final boolean traverse = true;
 	
@@ -58,7 +58,7 @@ public class ChordRingTraversor extends Thread {
 	 * @param hostname	Host on which the known node is running.
 	 * @param port		Port on which the known node is running.
 	 */
-	public ChordRingTraversor(String hostname, int port) {
+	public RingTraversor(String hostname, int port) {
 		
 		try {
 			this.startNode = (IChordRemote) LocateRegistry.getRegistry( hostname, port ).lookup( ChordServer.CHORD_REMOTE_SERVICE );
@@ -76,7 +76,7 @@ public class ChordRingTraversor extends Thread {
 	 * @param port		Port on which the known node is running.
 	 * @param interval	Timing interval between checking whether the ring is closed.
 	 */
-	public ChordRingTraversor(String hostname, int port, int interval) {
+	public RingTraversor(String hostname, int port, int interval) {
 		this(hostname, port);
 		
 		this.traversal_interval = interval;
@@ -108,7 +108,7 @@ public class ChordRingTraversor extends Thread {
 	
 	// from TestUtils.traverseJChordRing(startNode, nodes.size());
 	//
-	public static void traverseJChordRing(IChordRemote startNode) {
+	public static boolean traverseJChordRing(IChordRemote startNode) {
 
 		int count = 0;
 
@@ -117,8 +117,9 @@ public class ChordRingTraversor extends Thread {
 			IChordRemote current = startNode;
 
 			do {
-				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "# " + (current.getAddress().getPort()- 29999) + " : " + current.getAddress().getHostName() + " : " +
-						current.getAddress().getPort() + " : " + current.getKey().toString(10) + " : " + current.getKey() + " : " + current.getSuccessor().getKey());
+				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, current.getAddress().getHostName() + ":" + (current.getAddress().getPort() ) + 
+						" Key:" + current.getKey() + " Pred: " + current.getPredecessor().getKey() + " Succ: " + current.getSuccessor().getKey() );
+				
 
 				if (current.getSuccessor() == null){
 					Diagnostic.trace("Node at port " + current.getAddress().getPort() + " does not have a successor.");
@@ -150,9 +151,11 @@ public class ChordRingTraversor extends Thread {
 				
 			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
 					+ ",RING_CLOSED");
+			return true;
 		} catch (Exception e) {
 			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
 					+ ",RING_OPEN");
+			return false;
 		}
 	}
 
@@ -164,7 +167,7 @@ public class ChordRingTraversor extends Thread {
 			String hostname = args[0];
 			int port = Integer.parseInt(args[1]);
 			
-			ChordRingTraversor traverser = new ChordRingTraversor(hostname, port);
+			RingTraversor traverser = new RingTraversor(hostname, port);
 			
 			traverser.start();
 		} else if (args.length == 3) { //Hostname, port and interval specified. 
@@ -173,7 +176,7 @@ public class ChordRingTraversor extends Thread {
 			
 			int interval = Integer.parseInt(args[2]);
 
-			ChordRingTraversor traverser = new ChordRingTraversor(hostname, port, interval);
+			RingTraversor traverser = new RingTraversor(hostname, port, interval);
 			
 			traverser.start();
 			

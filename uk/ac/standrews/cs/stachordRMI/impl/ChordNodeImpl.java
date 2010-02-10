@@ -19,14 +19,21 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.net.InetSocketAddress;
+import java.rmi.AccessException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
 import uk.ac.standrews.cs.nds.eventModel.Event;
 import uk.ac.standrews.cs.nds.eventModel.IEvent;
+import uk.ac.standrews.cs.nds.eventModel.eventBus.EventBus;
+import uk.ac.standrews.cs.nds.eventModel.eventBus.busInterfaces.IEventBus;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.p2p.exceptions.SimulatedFailureException;
 import uk.ac.standrews.cs.nds.p2p.impl.AID;
@@ -34,15 +41,18 @@ import uk.ac.standrews.cs.nds.p2p.impl.P2PStatus;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IApplicationRegistry;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
+import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Pair;
+import uk.ac.standrews.cs.stachordRMI.factories.CustomSocketFactory;
 import uk.ac.standrews.cs.stachordRMI.factories.GeometricFingerTableFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTable;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTableFactory;
@@ -60,16 +70,22 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private int hash_code;
 
 	private IChordRemoteReference predecessor, successor;
-	private IChordRemoteReference proxy; // overkill but keeps code tidy.
 	private SuccessorList successor_list;
 	private IFingerTable finger_table;
+	
+	private IChordRemoteReference self_reference; 			// a local RMI refetrence to this node
+	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy
 
 	private IApplicationRegistry registry;
-	private boolean simulating_failure;
+	private Thread maintenanceThread;
+
 	
 	public static IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
 	public static IEvent SUCCESSOR_STATE_EVENT = new Event("SuccessorStateEvent");
 	public static IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
+	
+	public static final String CHORD_REMOTE_SERVICE = IChordRemote.class.getSimpleName();
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -79,7 +95,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param key the node's key
 	 * @param bus an event bus
 	 */
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key ) {
+	private ChordNodeImpl(InetSocketAddress local_address, IKey key ) {
 		this(local_address, key, new GeometricFingerTableFactory());
 	}
 
@@ -91,8 +107,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	protected ChordNodeImpl() {
 		// Deliberately empty.
 	}
-
-	public ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory fingerTableFactory ) {
+	
+	
+	/**
+	 * Standard constructor.
+	 */
+	private ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory fingerTableFactory ) {
 
 		this.local_address = local_address;
 		this.key = key;
@@ -103,13 +123,104 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		successor = null;
 		successor_list = new SuccessorList(this);
 
-		proxy = new ChordRemoteReference( key, new ChordNodeProxy( this ) );
+		self_proxy = new ChordNodeProxy( this );
+		self_reference = new ChordRemoteReference( key,self_proxy  );
 
 		finger_table = fingerTableFactory.makeFingerTable(this);
 
-		simulating_failure = false;
-
 		Diagnostic.trace(DiagnosticLevel.INIT, "initialised with key: ", key);
+	}
+	
+	/**
+	 * Standard destructor.
+	 */
+	@SuppressWarnings("deprecation")
+	public void destroy() {
+		maintenanceThread.stop(); // stop the maintenance thread
+		try {
+			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( CHORD_REMOTE_SERVICE ); // unhook the node from RMI
+		} catch ( Exception e ) {
+			ErrorHandling.error( "Failed to destroy node with key: ", key );
+		}
+		self_proxy.destroy(); // stop incoming message being processed by this node
+		Diagnostic.trace( "Successfully destroyed Node with key: ", key);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+
+
+	/*
+	 *  Factory method for the creation of ChordNodes.
+	 */
+	public static IChordNode deployNode(InetSocketAddress local_address, InetSocketAddress known_node_address ) throws RemoteException, P2PNodeException {
+
+
+		IChordRemoteReference known_node_remote_ref = null;
+		
+		IKey node_key = new SHA1KeyFactory().generateKey(local_address);
+		Diagnostic.trace( DiagnosticLevel.RUN, "Node Key: " + node_key );
+		ChordNodeImpl node;
+		
+		// Setup/join the ring
+		
+		if( known_node_address != null ) {
+			try {
+					Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
+					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( CHORD_REMOTE_SERVICE );
+					known_node_remote_ref = new ChordRemoteReference( known_node_remote.getKey(), known_node_remote );
+			}
+			catch (Exception e) {
+					throw new RuntimeException( "Serialization error. Path to bad object: ");
+					// throw new P2PNodeException(P2PStatus.KNOWN_NODE_FAILURE);
+			}
+
+		}
+		
+		node = new ChordNodeImpl( local_address, node_key );
+
+		if (known_node_remote_ref == null) {
+			Diagnostic.trace( DiagnosticLevel.RUN, "Creating a new ring" );
+			node.createRing();
+		} else {
+			Diagnostic.trace( DiagnosticLevel.RUN, "Joining ring" );
+			node.join(known_node_remote_ref);
+		}
+
+		
+		// Start maintenance thread
+		Thread thread_for_maintenance = new DefaultMaintenanceThread(node);
+		thread_for_maintenance.start();
+		node.setmaintenanceThread( thread_for_maintenance );
+
+		
+		// Now start RMI listening
+		try {
+			IChordRemote stub = (IChordRemote) UnicastRemoteObject.exportObject(node.getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
+		} catch (RemoteException e1) {
+			throw new RuntimeException( "Cannot export object ", e1);
+		}
+		
+		// Register the service with the registry
+		
+		Registry local_registry = null;
+		try {
+				// Obtains a stub for a registry on the local host on the default registry port
+				// first parameter is the port where the RMI registry is listening
+				// last paramter is the address where the service is going to be found.
+				local_registry = LocateRegistry.createRegistry( local_address.getPort(), null, new CustomSocketFactory( local_address.getAddress() ) );
+				Diagnostic.trace( DiagnosticLevel.RUN, "Local Registry deployed at:" + local_address.getAddress() + ":" + local_address.getPort() );
+		}
+		catch (Exception e) {
+				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry failure");
+		}
+		try {
+			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
+			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry [" + node + "]" );
+		} catch (Exception e) {
+			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry binding exception");
+		}
+		return node;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +258,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	// IP2PNode
 
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
-		checkSimulatedFailure();
+		
 
 		/* If the key specified is greater than this node's key, and less than or equal
 		 * to this node's successor's key, return this node's successor.
@@ -160,7 +271,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		long start_time = System.currentTimeMillis();
 
 		if (k.equals(key) || successor.getKey().equals( this.getKey() ) ) {
-			return proxy;
+			return self_reference;
 		}
 
 		// If the key lies between this node and its successor, return the successor.
@@ -180,10 +291,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		return finger_table.size();
 	}
 
-	public boolean isSimulatingFailure() {
-
-		return simulating_failure;
-	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -191,7 +298,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public void notify(IChordRemoteReference potential_predecessor) {
 
-		checkSimulatedFailure();
+		
 
 		// Only use the suggested predecessor if it's in the current key range.
 		// Also check that the suggested predecessor is not this node, for paranoia.
@@ -210,36 +317,36 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public ArrayList<IChordRemoteReference> getSuccessorList() {
 
-		checkSimulatedFailure();
+		
 		return successor_list.getList();
 	}
 
 	public ArrayList<IChordRemoteReference> getFingerList() {
 
-		checkSimulatedFailure();
+		
 		return finger_table.getFingers();
 	}
 
 	public IChordRemoteReference getPredecessor() {
 
-		checkSimulatedFailure();
+		
 		return predecessor;
 	}
 
 	public IChordRemoteReference getSuccessor() {
 
-		checkSimulatedFailure();
+		
 		return successor;
 	}
 
 	public void isAlive() {
 
-		checkSimulatedFailure();
+		
 	}
 
 	public Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) {
 
-		checkSimulatedFailure();
+		
 
 		// Check whether the key lies in the range between this node and its successor,
 		// in which case the successor represents the final hop.
@@ -253,7 +360,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		// Perhaps this method should be synchronized - the predecessor field
 		// can be set to null during the execution of this method.
 
-		checkSimulatedFailure();
+		
 
 		// Check that this node is the root node for k.
 		try {
@@ -273,16 +380,16 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public synchronized void createRing() {
 
-		checkSimulatedFailure();
+		
 
 		setPredecessor(null);
-		setSuccessor(this.proxy);
+		setSuccessor(this.self_reference);
 
 		successor_list.refreshList();
 	}
 
 	public synchronized boolean join(IChordRemoteReference known_node) throws RemoteException { 
-		checkSimulatedFailure();
+		
 		IChordRemoteReference initial_successor;
 		initial_successor = known_node.getRemote().lookup(key);
 		setSuccessor(initial_successor);
@@ -291,7 +398,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public synchronized void stabilize() {
 
-		checkSimulatedFailure();
+		
 
 		try {
 			// Find predecessor of this node's successor.
@@ -316,7 +423,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public synchronized void checkPredecessor() {
 
-		checkSimulatedFailure();
+		
 
 		try {
 			pingPredecessor();
@@ -328,17 +435,17 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	}
 
 	public synchronized void fixNextFinger() {
-		checkSimulatedFailure();
+		
 		finger_table.fixNextFinger();
 	}
 
 	public synchronized void fixAllFingers() {
-		checkSimulatedFailure();
+		
 		finger_table.fixAllFingers();
 	}
 
 	public synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
-		checkSimulatedFailure();
+		
 
 		IChordRemoteReference oldPredecessor = predecessor;
 
@@ -352,25 +459,20 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public IFingerTable getFingerTable() {
 
-		checkSimulatedFailure();
+		
 
 		return finger_table;
 	}
 
 	public boolean inLocalKeyRange(IKey k) throws P2PNodeException {
 
-		checkSimulatedFailure();
+		
 
 		// Need the predecessor key to test whether k lies within range.
 		if (predecessor == null) {
 			throw new P2PNodeException(P2PStatus.STATE_ACCESS_FAILURE, "predecessor is null");
 		}
 		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), key);
-	}
-
-	public void setSimulatingFailure(boolean simulating_failure) {
-
-		this.simulating_failure = simulating_failure;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -442,7 +544,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private void notifySuccessor() {
 
 		try {
-			successor.getRemote().notify(this.proxy);
+			successor.getRemote().notify(this.self_reference);
 		} catch (RemoteException e) {
 			handleSuccessorError( e );
 		}
@@ -533,6 +635,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		}
 	}
 
+	
+
+	void setmaintenanceThread( Thread maintenanceThread ) {
+		this.maintenanceThread = maintenanceThread;
+	}
+	
 	/**
 	 * Sets the successor node in key space.
 	 * 
@@ -559,12 +667,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private boolean inSuccessorKeyRange(IKey k) {
 
 		return SegmentArithmetic.inHalfOpenSegment(k, key, successor.getKey());
-	}
-
-	private void checkSimulatedFailure() {
-
-		if (simulating_failure)
-			throw new SimulatedFailureException("simulated failure");
 	}
 
 	/**
@@ -632,7 +734,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	}
 
 	public IChordRemoteReference getProxy() {
-		return proxy;
+		return self_reference;
 	}
 
 	@Override

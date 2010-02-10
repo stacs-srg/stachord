@@ -89,88 +89,7 @@ public class ChordServer {
 
 	private static final String RMI_POLICY_FILENAME = "rmiPolicy";
 
-	private static HashBasedKeyFactory key_factory = new SHA1KeyFactory();
 
-	private static IChordNode initialise(InetSocketAddress node_rep, IKey key, IChordRemoteReference known_node, IEventBus bus  ) throws RemoteException, P2PNodeException {
-
-		IChordNode instance = new ChordNodeImpl( node_rep, key );
-
-		if (known_node == null) {
-			Diagnostic.trace( DiagnosticLevel.RUN, "Creating a new ring" );
-			instance.createRing();
-		} else {
-			Diagnostic.trace( DiagnosticLevel.RUN, "Joining ring" );
-			instance.join(known_node);
-		}
-		return instance;
-	}
-	
-	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address ) throws P2PNodeException, RemoteException {
-		IEventBus bus = new EventBus();
-		return deployNode( local_node_address, known_node_address,bus );
-	}
-		
-	public static IChordNode deployNode(InetSocketAddress local_node_address, InetSocketAddress known_node_address, IEventBus bus ) throws P2PNodeException, RemoteException {
-
-		IChordRemoteReference known_node_remote_ref = null;
-		
-		IKey node_key = key_factory.generateKey(local_node_address);
-		Diagnostic.trace( DiagnosticLevel.RUN, "Node Key: " + node_key );
-		IChordNode node;
-		
-		// Setup/join the ring
-		
-		if( known_node_address != null ) {
-			try {
-					Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
-					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( CHORD_REMOTE_SERVICE );
-					known_node_remote_ref = new ChordRemoteReference( known_node_remote.getKey(), known_node_remote );
-			}
-			catch (Exception e) {
-					throw new RuntimeException( "Serialization error. Path to bad object: ");
-					// throw new P2PNodeException(P2PStatus.KNOWN_NODE_FAILURE);
-			}
-
-		}
-		
-		
-		
-		node =  initialise(local_node_address, node_key, known_node_remote_ref, bus  );
-		
-		// Start maintenance thread
-		Thread thread_for_maintenance = new DefaultMaintenanceThread(node);
-		thread_for_maintenance.start();
-
-		
-		// Now start RMI listening
-		try {
-			IChordRemote stub = (IChordRemote) UnicastRemoteObject.exportObject(node.getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
-		} catch (RemoteException e1) {
-			throw new RuntimeException( "Cannot export object ", e1);
-		}
-		
-		// Register the service with the registry
-		
-		Registry local_registry = null;
-		try {
-				// Obtains a stub for a registry on the local host on the default registry port
-				// first parameter is the port where the RMI registry is listening
-				// last paramter is the address where the service is going to be found.
-				local_registry = LocateRegistry.createRegistry( local_node_address.getPort(), null, new CustomSocketFactory( local_node_address.getAddress() ) );
-				Diagnostic.trace( DiagnosticLevel.RUN, "Local Registry deployed at:" + local_node_address.getAddress() + ":" + local_node_address.getPort() );
-		}
-		catch (Exception e) {
-				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry failure");
-		}
-		try {
-			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
-			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry [" + node + "]" );
-		} catch (Exception e) {
-			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry binding exception");
-		}
-		return node;
-	}
-	
 	public static void main(String[] args) throws P2PNodeException {
 		//this may be overridden by a CLA
 		Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
@@ -219,8 +138,8 @@ public class ChordServer {
 		}
 		Diagnostic.traceNoSource(DiagnosticLevel.RUN, "Starting RMI Chord node with local address: " + server_address_parameter + " and known node address: " + known_address_parameter );
 		try {
-			IChordNode node = deployNode( local_node_address, known_node_address );
-		} catch (RemoteException e) {
+			IChordNode node = ChordNodeImpl.deployNode( local_node_address, known_node_address );
+		}  catch (RemoteException e) {
 			ErrorHandling.hardError( "Exception in initialising node: node already initialised? (potential key/address reuse" );
 		}
 

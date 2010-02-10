@@ -37,6 +37,7 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 	
 	// Private State
 	private ChordNodeImpl cni;
+	private boolean node_failed = false; // used in simulation to make node inaccessible
 	
 	public ChordNodeProxy( ChordNodeImpl cni ) {
 		this.cni = cni;
@@ -45,42 +46,52 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 	// IChordRemote Methods
 	
 	public InetSocketAddress getAddress() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getAddress();
 	}
 
 	public IKey getKey() throws RemoteException  {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getKey();
 	}
 	
 	public void notify(IChordRemoteReference potential_predecessor) throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		cni.notify(potential_predecessor);
 	}
 
 	public ArrayList<IChordRemoteReference> getSuccessorList() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getSuccessorList();
 	}
 	
 	public ArrayList<IChordRemoteReference> getFingerList() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getFingerList();
 	}
 	
 	public IChordRemoteReference getPredecessor() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getPredecessor();
 	}
 	
 	public IChordRemoteReference getSuccessor() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.getSuccessor();
 	}
 
 	public void isAlive() throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		cni.isAlive();
 	}
 
 	public Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) throws RemoteException  {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.nextHop(k);
 	}
 	
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.lookup(k);
 	}
 
@@ -113,6 +124,13 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 		} else if (!cni.equals(other.cni))
 			return false;
 		return true;
+	}
+
+	/* 
+	 * Stops the proxy from accessing the ChordNodeImpl
+	 */
+	public void destroy() {
+		node_failed = true;
 	}
 	
 	

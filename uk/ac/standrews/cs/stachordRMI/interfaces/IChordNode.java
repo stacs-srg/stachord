@@ -82,13 +82,6 @@ public interface IChordNode { // extends IChordRemote {
 	void setPredecessor(IChordRemoteReference p);
 
 	/**
-	 * Allows node failure to be simulated.
-	 *
-	 * @param failed
-	 */
-	void setSimulatingFailure(boolean failed);
-
-	/**
 	 * @return this node's finger table
 	 */
 	IFingerTable getFingerTable();
@@ -116,4 +109,7 @@ public interface IChordNode { // extends IChordRemote {
 	IChordRemoteReference getProxy();
 	
 	void showState();
+	
+	void destroy();
+
 }

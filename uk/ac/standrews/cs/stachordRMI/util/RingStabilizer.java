@@ -10,6 +10,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
  * Class which provides the functionality to wait for a Chord ring to become complete - i.e. to fully stabilize. 
@@ -30,6 +31,7 @@ public class RingStabilizer {
 				n.stabilize();
 			}
 		}
+		Diagnostic.trace("Stabilized ring.");
 	}
 	
 	/**
@@ -114,9 +116,9 @@ public class RingStabilizer {
 	private static boolean checkSuccessorStable(IChordRemote node) {
 
 		try {
-			IChordRemote successor = node.getSuccessor().getRemote();
+			IChordRemoteReference successor = node.getSuccessor();
 
-			return successor != null && successor.getPredecessor().getKey().equals(node.getKey());
+			return successor != null && successor.getRemote().getPredecessor().getKey().equals(node.getKey());
 		}
 
 		catch (Exception e) {
@@ -128,16 +130,19 @@ public class RingStabilizer {
 
 	private static boolean checkPredecessorStable(IChordRemote node) {
 
+		IChordRemoteReference predecessor = null;
 		try {
-			IChordRemote predecessor = node.getPredecessor().getRemote();
+			predecessor = node.getPredecessor();
+			if( predecessor == null ) {
+				Diagnostic.trace( "pred null" );
+			}
 
-			return predecessor != null && predecessor.getSuccessor().getKey().equals(node.getKey()); }
+			return predecessor != null && predecessor.getRemote().getSuccessor().getKey().equals(node.getKey()); }
 
 		catch (Exception e) {
-
-			ErrorHandling.exceptionError(e, "error calling getSuccessor on predecessor");
-			return false;
+				Diagnostic.trace( "Error calling getSuccessor on predecessor called from: " + node.toString() + " predecessor: " + ( (predecessor == null) ? "null" :predecessor.getKey() ) ) ;
 		}
+		return false;
 	}
 
 }
