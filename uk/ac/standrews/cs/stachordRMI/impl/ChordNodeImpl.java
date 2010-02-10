@@ -68,8 +68,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private boolean simulating_failure;
 	
 	public static IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
-
-
+	public static IEvent SUCCESSOR_STATE_EVENT = new Event("SuccessorStateEvent");
+	public static IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -539,10 +539,21 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param successor the new successor node
 	 */
 	private synchronized void setSuccessor(IChordRemoteReference successor) {	
-		this.successor = successor;		
+		
+		
 		setChanged();
 
-		notifyObservers( new Event("SuccessorStateEvent") );
+		
+		IChordRemoteReference oldSuccessor = this.successor;
+
+		this.successor = successor;		
+
+		if (oldSuccessor != null && !oldSuccessor.equals(successor)){
+			setChanged();
+			notifyObservers(SUCCESSOR_CHANGE_EVENT);
+		} else {
+		notifyObservers( SUCCESSOR_STATE_EVENT );
+		}
 	}
 
 	private boolean inSuccessorKeyRange(IKey k) {
