@@ -21,7 +21,6 @@ package uk.ac.standrews.cs.stachordRMI.util;
 import java.rmi.registry.LocateRegistry;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
@@ -121,7 +120,18 @@ public class ChordRingTraversor extends Thread {
 				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "# " + (current.getAddress().getPort()- 29999) + " : " + current.getAddress().getHostName() + " : " +
 						current.getAddress().getPort() + " : " + current.getKey().toString(10) + " : " + current.getKey() + " : " + current.getSuccessor().getKey());
 
+				if (current.getSuccessor() == null){
+					Diagnostic.trace("Node at port " + current.getAddress().getPort() + " does not have a successor.");
+					throw new Exception("Node at port " + current.getAddress().getPort() + " does not have a successor.");
+				}
+				
 				IChordRemote succ = current.getSuccessor().getRemote();
+				
+				if (current.getPredecessor() == null){
+					Diagnostic.trace("Node at port " + current.getAddress().getPort() + " does not have a predecessor.");
+					throw new Exception("Node at port " + current.getAddress().getPort() + " does not have a predecessor.");
+				}
+				
 				IChordRemote pred = current.getPredecessor().getRemote();
 				IKey current_key = current.getKey();
 				
@@ -144,7 +154,6 @@ public class ChordRingTraversor extends Thread {
 			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
 					+ ",RING_OPEN");
 		}
-
 	}
 
 	public static void main(String[] args) {
