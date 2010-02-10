@@ -142,7 +142,7 @@ public abstract class AbstractFingerTable implements IFingerTable {
 
 		}
 		catch (InvalidSegmentNumberException e) {
-			Diagnostic.trace(DiagnosticLevel.FULL, "invalid segment number");
+			// do nothing
 		}
 	}
 
