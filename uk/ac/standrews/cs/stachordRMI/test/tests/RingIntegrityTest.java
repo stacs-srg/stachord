@@ -35,7 +35,7 @@ public class RingIntegrityTest {
 		
 		System.setProperty("java.security.policy", RMI_POLICY_FILENAME); 
 		if (System.getSecurityManager() == null) {
-			ErrorHandling.error( "Cannot find secrity manager" );
+			ErrorHandling.error( "No secrity manager is set - creating one" );
 			System.setSecurityManager(new RMISecurityManager());
 		}
 		

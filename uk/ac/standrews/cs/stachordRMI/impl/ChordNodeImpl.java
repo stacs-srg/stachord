@@ -134,7 +134,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	public void destroy() {
 		maintenanceThread.stop(); // stop the maintenance thread
 		try {
-			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( CHORD_REMOTE_SERVICE ); // unhook the node from RMI
+			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
 		} catch ( Exception e ) {
 			ErrorHandling.error( "Failed to destroy node with key: ", key );
 		}
@@ -151,7 +151,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 */
 	public static IChordNode deployNode(InetSocketAddress local_address, InetSocketAddress known_node_address ) throws RemoteException, P2PNodeException {
 
-
 		IChordRemoteReference known_node_remote_ref = null;
 		
 		IKey node_key = new SHA1KeyFactory().generateKey(local_address);
@@ -162,7 +161,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		
 		if( known_node_address != null ) {
 			try {
-					Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
+					Diagnostic.trace( DiagnosticLevel.RUN, "Lookup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
 					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
 					known_node_remote_ref = new ChordRemoteReference( known_node_remote.getKey(), known_node_remote );
 			}
@@ -208,13 +207,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 				Diagnostic.trace( DiagnosticLevel.RUN, "Local Registry deployed at:" + local_address.getAddress() + ":" + local_address.getPort() );
 		}
 		catch (Exception e) {
-				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + CHORD_REMOTE_SERVICE + "\" interface due to registry failure");
+				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordNode.CHORD_REMOTE_SERVICE + "\" interface due to registry failure");
 		}
 		try {
-			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
+			local_registry.rebind( IChordNode.CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
 			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry [" + node + "]" );
 		} catch (Exception e) {
-			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + CHORD_REMOTE_SERVICE + "\" interface due to registry binding exception");
+			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordNode.CHORD_REMOTE_SERVICE + "\" interface due to registry binding exception");
 		}
 		return node;
 	}

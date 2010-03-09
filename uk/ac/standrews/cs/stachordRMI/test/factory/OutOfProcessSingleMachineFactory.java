@@ -65,6 +65,16 @@ public class OutOfProcessSingleMachineFactory implements INodeFactory {
 			// ******* Graham - This bit below is wierd - I took it apart to see what the error was..
 			// It can be folded back onto one line
 			
+			// Another test from al to check Security Manager
+			
+			try {
+				System.getSecurityManager().checkConnect( isa.getHostName(), isa.getPort() );
+			}
+			catch( Exception e ) {
+				ErrorHandling.error("Cannot connect to " +  isa.getHostName() + ":" + isa.getPort() );
+			}
+			
+			
 			Registry reg = null;
 			try {
 				reg = LocateRegistry.getRegistry( isa.getHostName(), isa.getPort() ); // isa.getHostName(), isa.getPort() == known_node_host, known_node_port
@@ -75,6 +85,7 @@ public class OutOfProcessSingleMachineFactory implements INodeFactory {
 				ErrorHandling.error( "registry is null" );
 			}
 			IChordRemote first = (IChordRemote) reg.lookup( IChordNode.CHORD_REMOTE_SERVICE );
+			// IChordRemote first = (IChordRemote) LocateRegistry.getRegistry( known_node_host, known_node_port ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
 			allNodes.add( first );
 		} catch (NotBoundException e1) {
 			ErrorHandling.hardError("Cannot find first deployed Chord Node.");
