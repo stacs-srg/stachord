@@ -76,6 +76,8 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
  * @author stuart, graham, al (RMI)
  */
+@Deprecated
+// use startNode or startRing
 public class ChordServer {
 
 	/**

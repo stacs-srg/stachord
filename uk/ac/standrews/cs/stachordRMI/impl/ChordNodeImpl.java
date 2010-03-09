@@ -76,15 +76,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	private IChordRemoteReference self_reference; 			// a local RMI refetrence to this node
 	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy
 
-	private IApplicationRegistry registry;
 	private Thread maintenanceThread;
-
 	
 	public static IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
 	public static IEvent SUCCESSOR_STATE_EVENT = new Event("SuccessorStateEvent");
 	public static IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
-	
-	public static final String CHORD_REMOTE_SERVICE = IChordRemote.class.getSimpleName();
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +163,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		if( known_node_address != null ) {
 			try {
 					Diagnostic.trace( DiagnosticLevel.RUN, "Lookupup RMI Chord node at address: " + known_node_address.getHostName()  + ":" + known_node_address.getPort() );
-					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( CHORD_REMOTE_SERVICE );
+					IChordRemote known_node_remote = (IChordRemote) LocateRegistry.getRegistry( known_node_address.getHostName(), known_node_address.getPort() ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
 					known_node_remote_ref = new ChordRemoteReference( known_node_remote.getKey(), known_node_remote );
 			}
 			catch (Exception e) {
@@ -212,13 +208,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 				Diagnostic.trace( DiagnosticLevel.RUN, "Local Registry deployed at:" + local_address.getAddress() + ":" + local_address.getPort() );
 		}
 		catch (Exception e) {
-				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry failure");
+				throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + CHORD_REMOTE_SERVICE + "\" interface due to registry failure");
 		}
 		try {
 			local_registry.rebind( CHORD_REMOTE_SERVICE, node.getProxy().getRemote() );
 			Diagnostic.trace( DiagnosticLevel.RUN, "Deployed RMI Chord node in local Registry [" + node + "]" );
 		} catch (Exception e) {
-			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + IChordRemote.class.getName() + "\" interface due to registry binding exception");
+			throw new P2PNodeException(P2PStatus.SERVICE_DEPLOYMENT_FAILURE, "could not deploy \"" + CHORD_REMOTE_SERVICE + "\" interface due to registry binding exception");
 		}
 		return node;
 	}
@@ -355,24 +351,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		else                        return new Pair<NextHopResultStatus, IChordRemoteReference>(NextHopResultStatus.NEXT_HOP, closestPrecedingNode(k));
 	}
 
-	public Object locateApplicationComponent(IKey k, AID application_id) throws P2PNodeException {
-
-		// Perhaps this method should be synchronized - the predecessor field
-		// can be set to null during the execution of this method.
-
-		
-
-		// Check that this node is the root node for k.
-		try {
-			if (inLocalKeyRange(k))
-				return registry.locateApplicationComponent(k, application_id);
-			else
-				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "this node (" + getKey() + ") is not the root for the specified key (" + k + ")");
-		}
-		catch (P2PNodeException e) {
-			throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "cannot resolve the root node for the specified key (" + k + ") because this node's routing state is currently incomplete. Predecessor is currently null.");
-		}
-	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 

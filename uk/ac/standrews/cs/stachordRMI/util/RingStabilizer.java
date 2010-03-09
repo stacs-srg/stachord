@@ -25,10 +25,15 @@ public class RingStabilizer {
 	 * node until this happens.
 	 * @param nodes_in_key_order All of the nodes in the chord ring sorted in key order.
 	 */
-	public static void waitForStableNetwork(SortedSet<IChordNode> nodes_in_key_order) {
+	public static void waitForStableNetwork(SortedSet<IChordRemote> nodes_in_key_order) {
 		while (!isRingStable(nodes_in_key_order)) {
-			for (IChordNode n:nodes_in_key_order){
-				n.stabilize();
+//			for (IChordRemote n:nodes_in_key_order){
+//				n.stabilize();
+//			}
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				
 			}
 		}
 		Diagnostic.trace("Stabilized ring.");
@@ -41,8 +46,8 @@ public class RingStabilizer {
 	 * @param unsorted_node_set	A set of nodes which has not been sorted by key value.
 	 * @return	Sorted set by key value.
 	 */
-	public static SortedSet<IChordNode> sortNodeSet(Set<IChordNode> unsorted_node_set){
-		SortedSet<IChordNode> nodes_in_key_order = new TreeSet<IChordNode>(new NodeComparator());  //comparator implemented at the bottom of this class.
+	public static SortedSet<IChordRemote> sortNodeSet(Set<IChordRemote> unsorted_node_set){
+		SortedSet<IChordRemote> nodes_in_key_order = new TreeSet<IChordRemote>(new NodeComparator());  //comparator implemented at the bottom of this class.
 		
 		nodes_in_key_order.addAll(unsorted_node_set);
 		
@@ -55,14 +60,12 @@ public class RingStabilizer {
 	 * 
 	 * @return true if the ring is stable
 	 */
-	private static boolean isRingStable(Set<IChordNode> nodes_in_key_order) {
+	private static boolean isRingStable(Set<IChordRemote> nodes_in_key_order) {
 		try {
 			for (int i=0; i<nodes_in_key_order.size();i++){
-				IChordNode nodes[]=nodes_in_key_order.toArray(new IChordNode[]{});
+				IChordRemote[] nodes=nodes_in_key_order.toArray(new IChordRemote[]{});
 
-				IChordNode node = nodes[i];
-
-				IChordRemote current = node.getProxy().getRemote();
+				IChordRemote current = nodes[i];
 
 				if (current.getPredecessor() == null) return false;
 

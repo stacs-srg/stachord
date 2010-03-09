@@ -25,8 +25,8 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
-import uk.ac.standrews.cs.stachordRMI.servers.ChordServer;
 
 /**
  * <p>Traverses a Chord ring to check that it is closed.
@@ -50,7 +50,7 @@ public class RingTraversor extends Thread {
 	private IChordRemote startNode;
 
 	public int traversal_interval =  10000;
-	
+
 	/**
 	 * Connect to a known node at the specified location, using a default interval if the traversal is to
 	 * be run multiple times as a seperate thread.
@@ -61,7 +61,7 @@ public class RingTraversor extends Thread {
 	public RingTraversor(String hostname, int port) {
 		
 		try {
-			this.startNode = (IChordRemote) LocateRegistry.getRegistry( hostname, port ).lookup( ChordServer.CHORD_REMOTE_SERVICE );
+			this.startNode = (IChordRemote) LocateRegistry.getRegistry( hostname, port ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
 		} catch (Exception e) {
 			ErrorHandling.hardError("Failed to find the known node in this chord ring [registry at: " + hostname + ":" + port + "]");
 		}

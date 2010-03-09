@@ -33,6 +33,8 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
  * @author graham
  */
 public interface IChordNode { // extends IChordRemote {
+	
+	public static final String CHORD_REMOTE_SERVICE = IChordNode.class.getSimpleName();
 	/**
 	 * Creates a new ring containing only this node.
 	 */
