@@ -143,8 +143,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-
 
 	/*
 	 *  Factory method for the creation of ChordNodes.

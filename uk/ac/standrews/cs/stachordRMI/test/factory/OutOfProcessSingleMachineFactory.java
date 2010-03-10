@@ -1,18 +1,19 @@
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
-import uk.ac.standrews.cs.nds.util.ErrorHandling;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
@@ -24,104 +25,98 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class OutOfProcessSingleMachineFactory implements INodeFactory {
+public class OutOfProcessSingleMachineFactory implements INetworkFactory {
 
-	private int known_node_port = 54446;
-	
-	private static final String known_node_host = "localhost";
-	private static final String this_host = "localhost";
+	private static final int REGISTRY_RETRY_INTERVAL = 2000;
 
-	
-	/**
-	 * Reference to the remote chord node which is responsible for ensuring the schema manager
-	 * is running. This node is not necessarily the actual location of the schema manager.
-	 */
+	private static int FIRST_NODE_PORT = 54446;
+	private static final String LOCAL_HOST = "localhost";
 
-	/**
-	 * <p>Set of nodes in the system sorted by key order.
-	 * 
-	 */
-	public SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
+	/***************** INodeFactory methods *****************/
 
-	/***************** INoideFactory methods  *****************/
-
-
-	public SortedSet<IChordRemote> makeNetwork( int number_of_nodes ) throws RemoteException, P2PNodeException {
+	public INetwork makeNetwork( int number_of_nodes ) throws P2PNodeException, IOException {
+		
+		final SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
+		final Map<IChordRemote, Process> processTable = new HashMap<IChordRemote, Process>();
+		
 		List<String> args = new ArrayList<String>();
-		args.add( known_node_host );
-		args.add( Integer.toString( known_node_port ) );
-		try {
-			Process p = Processes.runJavaProcess( StartRing.class, args );
-		} catch (IOException e) {
-			ErrorHandling.hardError("Failed to create first Chord Node.");
+		args.add( "-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
+		
+		Process firstNodeProcess = Processes.runJavaProcess( StartRing.class, args );
+
+		IChordRemote first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
+		allNodes.add( first );		
+		processTable.put(first, firstNodeProcess);
+
+		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
+			
+			args = new ArrayList<String>();
+
+			args.add( "-s" + LOCAL_HOST + ":" + port );
+			args.add( "-k" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
+
+			Process otherNodeProcess = Processes.runJavaProcess( StartNode.class, args );
+
+			IChordRemote next = bindToNode( LOCAL_HOST, port  );
+			allNodes.add( next );
+			processTable.put(next, otherNodeProcess);
 		}
-		try {
-			
-			
-			// *******  THIS IS WIERD TOO - THOUGHT THIS MIGHT BE THE PROBLEM _ IT ISN'T.
-			// WE DONT NEED isa below....
-			InetSocketAddress isa = new InetSocketAddress( known_node_host, known_node_port );
-			
-			// ******* Graham - This bit below is wierd - I took it apart to see what the error was..
-			// It can be folded back onto one line
-			
-			// Another test from al to check Security Manager
-			
-			try {
-				System.getSecurityManager().checkConnect( isa.getHostName(), isa.getPort() );
+		
+		// For next time, adjust first node port beyond the ports just used.
+		FIRST_NODE_PORT += number_of_nodes;
+
+		return new INetwork() {
+
+			public SortedSet<IChordRemote> getNodes() {
+				
+				return allNodes;
 			}
-			catch( Exception e ) {
-				ErrorHandling.error("Cannot connect to " +  isa.getHostName() + ":" + isa.getPort() );
+
+			public void killNode(IChordRemote node) {
+
+				processTable.get(node).destroy();
 			}
-			
+
+			public void killAllNodes() {
+				
+				for (IChordRemote node : getNodes()) {
+					killNode(node);
+				}
+			}			
+		};
+	}
+
+	private IChordRemote bindToNode(String host, int port) {
+		
+		IChordRemote node = null;
+		
+		while (node == null) {
+		
+			Diagnostic.trace("trying to bind to node");
 			
 			Registry reg = null;
 			try {
-				reg = LocateRegistry.getRegistry( isa.getHostName(), isa.getPort() ); // isa.getHostName(), isa.getPort() == known_node_host, known_node_port
-			} catch ( Exception e1) {
-				ErrorHandling.hardError("Cannot find Registry for first deployed Chord Node.");
+				reg = LocateRegistry.getRegistry( host, port );
+				node = (IChordRemote) reg.lookup( IChordNode.CHORD_REMOTE_SERVICE );
+				break;
 			}
-			if( reg == null ) {
-				ErrorHandling.error( "registry is null" );
+			catch (RemoteException e) {
+				Diagnostic.trace("registry location failed");
 			}
-			IChordRemote first = (IChordRemote) reg.lookup( IChordNode.CHORD_REMOTE_SERVICE );
-			// IChordRemote first = (IChordRemote) LocateRegistry.getRegistry( known_node_host, known_node_port ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
-			allNodes.add( first );
-		} catch (NotBoundException e1) {
-			ErrorHandling.hardError("Cannot find first deployed Chord Node.");
-		};
-
-		for( int port = known_node_port + 1; port < known_node_port + number_of_nodes; port++ ) {
-			args = new ArrayList<String>();
-			args.add( this_host );
-			args.add( Integer.toString( port ) );
-			args.add( known_node_host );
-			args.add( Integer.toString( known_node_port ) );
+			catch (NotBoundException e) {
+				Diagnostic.trace("binding to node in registry failed");
+			}
+			catch (Exception e) {
+				Diagnostic.trace("registry lookup failed");
+			}
+			
 			try {
-				Process p = Processes.runJavaProcess( StartNode.class, args );
-			} catch (IOException e) {
-				ErrorHandling.hardError("Failed to create Chord Node.");
+				Thread.sleep(REGISTRY_RETRY_INTERVAL);
 			}
-			try {
-				IChordRemote next = (IChordRemote) LocateRegistry.getRegistry( this_host, port  ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
-				allNodes.add( next );
-			} catch (NotBoundException e) {
-				ErrorHandling.hardError("Cannot find deployed Chord Node.");
+			catch (InterruptedException e) {
 			}
-
 		}
 
-
-		return allNodes;
+		return node;
 	}
-
-	public void deleteNode( IChordRemote node ) {
-		// TODO
-		//allNodes.remove(cn);
-		//cn.destroy();
-	}
-
 }
-
-
-

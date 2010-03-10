@@ -15,46 +15,49 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class InProcessFactory implements INodeFactory {
+public class InProcessFactory implements INetworkFactory {
 
-	private int known_node_port = 54446;
+	private static int FIRST_NODE_PORT = 54446;
+	private static final String LOCAL_HOST = "localhost";
 	
-	private static final String known_node_host = "localhost";
-	private static final String this_host = "localhost";
+	/***************** INodeFactory methods  *****************/
 	
-	/**
-	 * Reference to the remote chord node which is responsible for ensuring the schema manager
-	 * is running. This node is not necessarily the actual location of the schema manager.
-	 */
+	public INetwork makeNetwork( int number_of_nodes ) throws RemoteException, P2PNodeException {
+		
+		final SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
 
-	/**
-	 * <p>Set of nodes in the system sorted by key order.
-	 * 
-	 */
-	public SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
-
-	
-	/***************** INoideFactory methods  *****************/
-	
-	
-	public SortedSet<IChordRemote> makeNetwork( int number_of_nodes ) throws RemoteException, P2PNodeException {
-		IChordNode first = StartRing.startChordRing( known_node_host, known_node_port );
+		IChordNode first = StartRing.startChordRing( LOCAL_HOST, FIRST_NODE_PORT );
 		allNodes.add( first.getProxy().getRemote() );
-		for( int port = known_node_port + 1; port < known_node_port + number_of_nodes; port++ ) {
-			IChordNode next = StartNode.joinChordRing( this_host, port, known_node_host, known_node_port );
+		
+		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
+			
+			IChordNode next = StartNode.joinChordRing( LOCAL_HOST, port, LOCAL_HOST, FIRST_NODE_PORT );
 			allNodes.add( next.getProxy().getRemote() );
 		}
 				
+		// For next time, adjust first node port beyond the ports just used.
+		FIRST_NODE_PORT += number_of_nodes;
 
-		return allNodes;
+		return new INetwork() {
+
+			public SortedSet<IChordRemote> getNodes() {
+				
+				return allNodes;
+			}
+
+			public void killNode(IChordRemote node) {
+
+				// TODO
+				//allNodes.remove(cn);
+				//cn.destroy();
+			}
+
+			public void killAllNodes() {
+				
+				for (IChordRemote node : getNodes()) {
+					killNode(node);
+				}
+			}			
+		};
 	}
-	
-	public void deleteNode( IChordRemote node ) {
-		// TODO
-		//allNodes.remove(cn);
-		//cn.destroy();
-		
-	}
-
-
 }
