@@ -20,12 +20,13 @@ public abstract class RingIntegrityTests {
 	
 	protected INetworkFactory network_factory;
 	
-	private static final int[] RING_SIZES = {1,2,3,4,6,10};
+	private static final int[] RING_SIZES = {1,2,3,4,6,10,20};
 	
 	@Before
 	public void setUp() throws Exception {
 		
-		Diagnostic.setLevel(DiagnosticLevel.FULL);		
+//		Diagnostic.setLevel(DiagnosticLevel.FULL);		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);		
 	}
 	
 	@Test

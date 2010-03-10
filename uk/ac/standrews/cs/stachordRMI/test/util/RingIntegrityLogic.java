@@ -116,16 +116,15 @@ public class RingIntegrityLogic {
 			for (IChordRemoteReference finger_reference : node.getFingerList()) {
 				
 				IChordRemote finger = finger_reference.getRemote();
-
+				
 				// Check that the finger is not this node.
 				if (finger.getKey().equals(node.getKey())) return false;
 
-				// Check that the finger is further in ring distance than the previous finger.
-				if (previous_finger != null) {
-
-					if (!node.getKey().firstCloserInRingThanSecond(previous_finger.getKey(), finger.getKey())) return false;
-					previous_finger = finger;
-				}
+				// Check that the finger is closer in ring distance than the previous finger,
+				// since the finger table is ordered with farthest finger first.
+				if (previous_finger != null && !node.getKey().firstCloserInRingThanSecond(finger.getKey(), previous_finger.getKey())) return false;
+				
+				previous_finger = finger;
 			}
 		}
 

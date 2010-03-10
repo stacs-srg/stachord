@@ -231,7 +231,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public IKey getKey() {
 
-		// This method is RAFDA-cached in remote references, so a call to a remote instance should never fail.
 		return key;
 	}
 
@@ -261,8 +260,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		 * equal to the current node's successor's key).
 		 */
 
-		long start_time = System.currentTimeMillis();
-
 		if (k.equals(key) || successor.getKey().equals( this.getKey() ) ) {
 			return self_reference;
 		}
@@ -273,7 +270,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		}
 
 		try {
-			return findNonLocalSuccessor(k, start_time);
+			return findNonLocalSuccessor(k);
 		} catch (P2PNodeException e) {
 			throw new RemoteException();
 		}
@@ -547,7 +544,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		findWorkingSuccessor();
 	}
 
-	private IChordRemoteReference findNonLocalSuccessor(IKey k, long start_time)  throws P2PNodeException {
+	private IChordRemoteReference findNonLocalSuccessor(IKey k)  throws P2PNodeException {
 
 		// Get the first hop.
 		IChordRemoteReference next = closestPrecedingNode(k);
