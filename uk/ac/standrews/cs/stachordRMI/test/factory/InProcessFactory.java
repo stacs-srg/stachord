@@ -15,11 +15,8 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class InProcessFactory implements INetworkFactory {
+public class InProcessFactory extends AbstractNetworkFactory implements INetworkFactory {
 
-	private static int FIRST_NODE_PORT = 54446;
-	private static final String LOCAL_HOST = "localhost";
-	
 	/***************** INodeFactory methods  *****************/
 	
 	public INetwork makeNetwork( int number_of_nodes ) throws RemoteException, P2PNodeException {
@@ -31,7 +28,8 @@ public class InProcessFactory implements INetworkFactory {
 		
 		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
 			
-			IChordNode next = StartNode.joinChordRing( LOCAL_HOST, port, LOCAL_HOST, FIRST_NODE_PORT );
+			int join_port = randomPort(FIRST_NODE_PORT, port);
+			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port);
 			allNodes.add( next.getProxy().getRemote() );
 		}
 				

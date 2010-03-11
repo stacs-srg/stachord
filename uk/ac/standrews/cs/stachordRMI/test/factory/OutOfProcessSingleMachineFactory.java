@@ -25,7 +25,7 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class OutOfProcessSingleMachineFactory implements INetworkFactory {
+public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory implements INetworkFactory {
 
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
 
@@ -50,10 +50,12 @@ public class OutOfProcessSingleMachineFactory implements INetworkFactory {
 
 		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
 			
+			int join_port = randomPort(FIRST_NODE_PORT, port);
+
 			args = new ArrayList<String>();
 
 			args.add( "-s" + LOCAL_HOST + ":" + port );
-			args.add( "-k" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
+			args.add( "-k" + LOCAL_HOST + ":" + join_port );
 
 			Process otherNodeProcess = Processes.runJavaProcess( StartNode.class, args );
 

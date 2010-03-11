@@ -1,7 +1,5 @@
 package uk.ac.standrews.cs.stachordRMI.test.ringIntegrity;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.SortedSet;
 
@@ -24,8 +22,7 @@ public abstract class RingIntegrityTests {
 	
 	@Before
 	public void setUp() throws Exception {
-		
-//		Diagnostic.setLevel(DiagnosticLevel.FULL);		
+			
 		Diagnostic.setLevel(DiagnosticLevel.NONE);		
 	}
 	
@@ -36,6 +33,26 @@ public abstract class RingIntegrityTests {
 			
 			Diagnostic.trace("testing stabilization for ring size: " + ring_size);
 			ringStabilises(ring_size);
+		}
+	}
+	
+	@Test
+	public void fingersConsistent() throws P2PNodeException, IOException {
+
+		for (int ring_size : RING_SIZES) {
+			
+			Diagnostic.trace("testing finger tables for ring size: " + ring_size);
+			fingersConsistent(ring_size);
+		}
+	}
+	
+	@Test
+	public void successorsConsistent() throws P2PNodeException, IOException {
+
+		for (int ring_size : RING_SIZES) {
+			
+			Diagnostic.trace("testing successor lists for ring size: " + ring_size);
+			successorsConsistent(ring_size);
 		}
 	}
 	
@@ -52,17 +69,7 @@ public abstract class RingIntegrityTests {
 		RingIntegrityLogic.waitForStableNetwork(nodes);
 	}
 	
-	@Test
-	public void fingersConsistent() throws P2PNodeException, IOException {
-
-		for (int ring_size : RING_SIZES) {
-			
-			Diagnostic.trace("testing finger tables for ring size: " + ring_size);
-			assertTrue(fingersConsistent(ring_size));
-		}
-	}
-	
-	private boolean fingersConsistent(int ring_size) throws P2PNodeException, IOException {
+	private void fingersConsistent(int ring_size) throws P2PNodeException, IOException {
 
 		INetwork network = network_factory.makeNetwork(ring_size);
 		waitForStableRing(network.getNodes());
@@ -71,8 +78,21 @@ public abstract class RingIntegrityTests {
 		try { Thread.sleep(10000); }
 		catch (InterruptedException e) {}
 		
-		boolean consistent = RingIntegrityLogic.checkFingersConsistent(network.getNodes());
+		RingIntegrityLogic.checkFingersConsistent(network.getNodes());
 		network.killAllNodes();
-		return consistent;
+	}
+	
+	
+	private void successorsConsistent(int ring_size) throws P2PNodeException, IOException {
+		
+		INetwork network = network_factory.makeNetwork(ring_size);
+		waitForStableRing(network.getNodes());
+		
+		// How long to wait for successor lists to be built?
+		try { Thread.sleep(10000); }
+		catch (InterruptedException e) {}
+		
+		RingIntegrityLogic.checkSuccessorsConsistent(network.getNodes());
+		network.killAllNodes();
 	}
 }
