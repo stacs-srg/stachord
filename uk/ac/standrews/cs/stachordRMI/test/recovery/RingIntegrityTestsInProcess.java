@@ -1,4 +1,4 @@
-package uk.ac.standrews.cs.stachordRMI.test.tests;
+package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
 import org.junit.Before;
 

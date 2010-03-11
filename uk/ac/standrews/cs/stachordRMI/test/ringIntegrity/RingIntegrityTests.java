@@ -1,4 +1,4 @@
-package uk.ac.standrews.cs.stachordRMI.test.tests;
+package uk.ac.standrews.cs.stachordRMI.test.ringIntegrity;
 
 import static org.junit.Assert.assertTrue;
 
