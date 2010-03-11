@@ -4,7 +4,7 @@ import org.junit.Before;
 
 import uk.ac.standrews.cs.stachordRMI.test.factory.InProcessFactory;
 
-public class RingIntegrityTestsInProcess extends RingIntegrityTests {
+public class RecoveryTestsInProcess extends RecoveryTests {
 	
 	@Before
 	public void setUp() throws Exception {

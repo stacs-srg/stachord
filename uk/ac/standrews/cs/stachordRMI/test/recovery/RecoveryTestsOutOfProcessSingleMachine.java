@@ -4,7 +4,7 @@ import org.junit.Before;
 
 import uk.ac.standrews.cs.stachordRMI.test.factory.OutOfProcessSingleMachineFactory;
 
-public class RingIntegrityTestsOutOfProcessSingleMachine extends RingIntegrityTests {
+public class RecoveryTestsOutOfProcessSingleMachine extends RecoveryTests {
 	
 	@Before
 	public void setUp() throws Exception {

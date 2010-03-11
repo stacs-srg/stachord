@@ -19,13 +19,10 @@
 package uk.ac.standrews.cs.stachordRMI.interfaces;
 
 import java.net.InetSocketAddress;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 
 /**
  * Defines locally accessible Chord node functionality.
@@ -47,19 +44,7 @@ public interface IChordNode { // extends IChordRemote {
 	 * @throws RemoteException 
 	 * @throws P2PNodeException if a failure occurs during the join protocol
 	 */
-	boolean join(IChordRemoteReference known_node) throws RemoteException;
-
-	/**
-	 * Executes the stabilization protocol.
-	 * If the predecessor of this node's current successor is not this node, a new node has joined between this node and
-	 * this node's successor. If the new node in between has a key that is
-	 * between this node's key, and its successor's key, this node will set its
-	 * successor to be the new node and will call the new node's notify method
-	 * to tell the new node that it is its predecessor. If the new node is not
-	 * in between, this node will call notify on the existing successor telling
-	 * it to set its predecessor back to this node.
-	 */
-	void stabilize();
+	void join(IChordRemoteReference known_node) throws RemoteException;
 
 	/**
 	 * Check whether the node's predecessor has failed, and drops reference if so.

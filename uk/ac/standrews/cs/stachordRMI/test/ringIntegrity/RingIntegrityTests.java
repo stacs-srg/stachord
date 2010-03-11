@@ -1,7 +1,6 @@
 package uk.ac.standrews.cs.stachordRMI.test.ringIntegrity;
 
 import java.io.IOException;
-import java.util.SortedSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.util.RingIntegrityLogic;
@@ -74,8 +72,7 @@ public abstract class RingIntegrityTests {
 		
 		RingIntegrityLogic.checkFingersConsistent(network.getNodes());
 		network.killAllNodes();
-	}
-	
+	}	
 	
 	private void successorsConsistent(int ring_size) throws P2PNodeException, IOException {
 		

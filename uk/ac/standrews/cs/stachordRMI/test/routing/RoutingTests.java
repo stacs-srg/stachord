@@ -50,11 +50,11 @@ public abstract class RoutingTests {
 		INetwork network = network_factory.makeNetwork(ring_size);
 		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
 		
-		routing(network.getNodes());
+		checkRouting(network.getNodes());
 		network.killAllNodes();
 	}
 	
-	private void routing(SortedSet<IChordRemote> nodes) throws RemoteException {
+	public static void checkRouting(SortedSet<IChordRemote> nodes) throws RemoteException {
 
 		for (IChordRemote node1 : nodes) {
 			for (IChordRemote node2 : nodes) {
@@ -63,7 +63,7 @@ public abstract class RoutingTests {
 		}
 	}
 
-	private void checkRouting(IChordRemote source, IChordRemote expected_target, int ring_size) throws RemoteException {
+	private static void checkRouting(IChordRemote source, IChordRemote expected_target, int ring_size) throws RemoteException {
 
 		// Check that a slightly smaller key than the target's key routes to the node.
 		assertEquals(expected_target.getKey(),
@@ -80,7 +80,7 @@ public abstract class RoutingTests {
 		else                assertNotSame(expected_target.getKey(), result_for_larger_key.getKey());
 	}
 
-	private IChordRemote lookupWithRetry(IChordRemote source, IKey key) {
+	private static IChordRemote lookupWithRetry(IChordRemote source, IKey key) {
 		
 		while (true) {
 			try {

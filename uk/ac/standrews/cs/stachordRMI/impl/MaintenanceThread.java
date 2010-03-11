@@ -18,20 +18,30 @@
  */
 package uk.ac.standrews.cs.stachordRMI.impl;
 
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
-
-
-public abstract class MaintenanceThread extends Thread{
+public abstract class MaintenanceThread extends Thread {
 	
-	protected final IChordNode node;
+	protected final ChordNodeImpl node;
 	protected boolean running = true;
 	
-	public MaintenanceThread(IChordNode node){
-		this.node=node;
+	public MaintenanceThread(ChordNodeImpl node){
+		this.node = node;
 	}
 	
-	public void stopMaintenanceThread() {
-		running = true;
+	public void stopThread() {
+		running = false;
 		interrupt();
 	}
+	
+	
+//	protected final ChordNodeImpl node;
+//	protected boolean running = true;
+//	
+//	public MaintenanceThread(ChordNodeImpl node){
+//		this.node=node;
+//	}
+//	
+//	public void stopMaintenanceThread() {
+//		running = true;
+//		interrupt();
+//	}
 }

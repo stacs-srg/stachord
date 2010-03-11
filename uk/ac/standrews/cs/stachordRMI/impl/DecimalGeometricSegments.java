@@ -115,7 +115,7 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 
 		if (arg1 instanceof Event) {
 
-			if (((Event) arg1).getType().equals("SuccessorStateEvent")) {
+			if (((Event) arg1).getType().equals(ChordNodeImpl.SUCCESSOR_STATE_EVENT_TYPE)) {
 				newSuccessor();
 			}
 		}
