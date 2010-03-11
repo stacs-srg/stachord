@@ -51,7 +51,7 @@ public class StartRing extends AbstractServer {
 		IChordNode chordNode = ChordNodeImpl.deployNode(localChordAddress, null);
 
 		Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "Started local Chord node on : " + hostname + ":" + port + 
-				" : initialized with key :" + chordNode.getKey().toString(10) + " : " + chordNode.getKey()  );
+				" : initialized with key: " + chordNode.getKey());
 
 		return chordNode;
 	}

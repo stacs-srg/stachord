@@ -75,8 +75,7 @@ public class StartNode extends AbstractServer {
 		IChordNode chordNode = ChordNodeImpl.deployNode(localChordAddress, knownHostAddress);
 
 		Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "Started local Chord node on : " + 
-				hostname + " : " + port + " : initialized with key :" + chordNode.getKey().toString(10) + 
-				" : " + chordNode.getKey() + chordNode.getSuccessor().getKey());
+				hostname + " : " + port + " : initialized with key: " + chordNode.getKey());
 
 		return chordNode;
 	}

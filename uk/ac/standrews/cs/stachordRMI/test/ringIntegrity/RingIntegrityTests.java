@@ -59,20 +59,14 @@ public abstract class RingIntegrityTests {
 	private void ringStabilises(int ring_size) throws P2PNodeException, IOException {
 
 		INetwork network = network_factory.makeNetwork(ring_size);
-		waitForStableRing(network.getNodes());
+		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
 		network.killAllNodes();
 	}
 
-	private void waitForStableRing(SortedSet<IChordRemote> nodes) {
-
-		Diagnostic.traceNoEvent(DiagnosticLevel.FULL, "WAITING FOR RING TO STABILIZE::::::");
-		RingIntegrityLogic.waitForStableNetwork(nodes);
-	}
-	
 	private void fingersConsistent(int ring_size) throws P2PNodeException, IOException {
 
 		INetwork network = network_factory.makeNetwork(ring_size);
-		waitForStableRing(network.getNodes());
+		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
 		
 		// How long to wait for finger tables to be built?
 		try { Thread.sleep(10000); }
@@ -86,7 +80,7 @@ public abstract class RingIntegrityTests {
 	private void successorsConsistent(int ring_size) throws P2PNodeException, IOException {
 		
 		INetwork network = network_factory.makeNetwork(ring_size);
-		waitForStableRing(network.getNodes());
+		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
 		
 		// How long to wait for successor lists to be built?
 		try { Thread.sleep(10000); }
