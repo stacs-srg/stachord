@@ -419,11 +419,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	public synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
 		
 
-		IChordRemoteReference oldPredecessor = predecessor;
+		IChordRemoteReference old_predecessor = predecessor;
 
 		predecessor = new_predecessor;
 
-		if (oldPredecessor != null && !oldPredecessor.equals(new_predecessor)){
+		if (new_predecessor != null && !new_predecessor.equals(old_predecessor)){
 			setChanged();
 			notifyObservers(PREDECESSOR_CHANGE_EVENT);
 		}
@@ -502,7 +502,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			IKey key_of_predecessor_of_successor;
 			key_of_predecessor_of_successor = predecessor_of_successor.getKey();
 
-			if (inSuccessorKeyRange(key_of_predecessor_of_successor)) {
+			if (inSuccessorKeyRange(key_of_predecessor_of_successor) && !key_of_predecessor_of_successor.equals(successor.getKey())) {
 
 				// The successor's predecessor is more suitable as this node's successor.
 				setSuccessor(predecessor_of_successor);

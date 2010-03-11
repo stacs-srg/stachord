@@ -46,7 +46,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 public class RingTraversor extends Thread {
 
 	private final boolean traverse = true;
-	
+
 	private IChordRemote startNode;
 
 	public int traversal_interval =  10000;
@@ -59,15 +59,15 @@ public class RingTraversor extends Thread {
 	 * @param port		Port on which the known node is running.
 	 */
 	public RingTraversor(String hostname, int port) {
-		
+
 		try {
 			this.startNode = (IChordRemote) LocateRegistry.getRegistry( hostname, port ).lookup( IChordNode.CHORD_REMOTE_SERVICE );
 		} catch (Exception e) {
 			ErrorHandling.hardError("Failed to find the known node in this chord ring [registry at: " + hostname + ":" + port + "]");
 		}
-		
+
 	}
-	
+
 	/**
 	 * Connect to a known node at the specified location, using the specifed interval if the traversal to be run multiple times as a
 	 * seperate thread.
@@ -78,22 +78,22 @@ public class RingTraversor extends Thread {
 	 */
 	public RingTraversor(String hostname, int port, int interval) {
 		this(hostname, port);
-		
+
 		this.traversal_interval = interval;
 	}
 
 
 	@Override
 	public void run() {
-		
+
 		Diagnostic.traceNoEvent(DiagnosticLevel.FINAL, "ChordRingTraversor running. Checking ring every " + traversal_interval / 1000 + " seconds.");
-		
+
 		try {
-			
+
 			while (traverse) {
 
 				traverseJChordRing(startNode);
-				
+
 				try {
 					sleep(traversal_interval);
 				} catch (InterruptedException e) {
@@ -105,7 +105,7 @@ public class RingTraversor extends Thread {
 		}
 	}
 
-	
+
 	// from TestUtils.traverseJChordRing(startNode, nodes.size());
 	//
 	public static boolean traverseJChordRing(IChordRemote startNode) {
@@ -117,69 +117,78 @@ public class RingTraversor extends Thread {
 			IChordRemote current = startNode;
 
 			do {
-				Diagnostic.traceNoEvent(DiagnosticLevel.FULL, current.getAddress().getHostName() + ":" + (current.getAddress().getPort() ) + 
-						" Key:" + current.getKey() + " Pred: " + current.getPredecessor().getKey() + " Succ: " + current.getSuccessor().getKey() );
-				
+
+				if (current.getPredecessor() != null && current.getSuccessor() != null){
+					Diagnostic.traceNoEvent(DiagnosticLevel.FULL, current.getAddress().getHostName() + ":" + (current.getAddress().getPort() ) + 
+							" Key:" + current.getKey() + " Pred: " + current.getPredecessor().getKey() + " Succ: " + current.getSuccessor().getKey() );
+				}
 
 				if (current.getSuccessor() == null){
 					Diagnostic.trace("Node at port " + current.getAddress().getPort() + " does not have a successor.");
 					throw new Exception("Node at port " + current.getAddress().getPort() + " does not have a successor.");
 				}
-				
+
 				IChordRemote succ = current.getSuccessor().getRemote();
-				
+
 				if (current.getPredecessor() == null){
 					Diagnostic.trace("Node at port " + current.getAddress().getPort() + " does not have a predecessor.");
 					throw new Exception("Node at port " + current.getAddress().getPort() + " does not have a predecessor.");
 				}
-				
+
 				IChordRemote pred = current.getPredecessor().getRemote();
 				IKey current_key = current.getKey();
 				
-				
-				if (succ != null && !succ.getPredecessor().getKey().equals(current_key)){
-					Diagnostic.trace("Predecessor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+				if (pred.getSuccessor() != null){
+					if (pred != null && !pred.getSuccessor().getKey().equals(current_key)){
+						Diagnostic.trace("Successor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+					}
+					Diagnostic.trace("Sucessor of predecessor : " + pred.getSuccessor().getKey());
+				} else {
+					Diagnostic.trace("Predecessor [" + pred.getKey() + "] has a null successor.");
 				}
-				if (pred != null && !pred.getSuccessor().getKey().equals(current_key)){
-					Diagnostic.trace("Predecessor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+				if (succ.getPredecessor() != null){
+					if (succ != null && !succ.getPredecessor().getKey().equals(current_key)){
+						Diagnostic.trace("Predecessor of " + current_key + " doesn't match [" + succ.getPredecessor().getKey() + "]");
+					}
+				} else {
+					Diagnostic.trace("Successor [" + succ.getKey() + "] has a null predecessor.");
 				}
 				
+
 				current = succ;
-				
+
 				count++;
 			} while (current != null && !current.getKey().equals(startNode.getKey()));
-				
-			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
-					+ ",RING_CLOSED");
+
+			Diagnostic.trace("RESULT: after " + count + " iteration(s), RING_CLOSED");
 			return true;
 		} catch (Exception e) {
-			Diagnostic.trace("Ring traversor event " + "," + System.currentTimeMillis() + "," + count
-					+ ",RING_OPEN");
+			Diagnostic.trace("RESULT: after " + count + " iteration(s), RING_OPEN");
 			return false;
 		}
 	}
 
 	public static void main(String[] args) {
 		Diagnostic.setLevel(DiagnosticLevel.FULL);
-		
+
 		if (args.length == 2) { //Just hostname and port specified, use default interval.
-			
+
 			String hostname = args[0];
 			int port = Integer.parseInt(args[1]);
-			
+
 			RingTraversor traverser = new RingTraversor(hostname, port);
-			
+
 			traverser.start();
 		} else if (args.length == 3) { //Hostname, port and interval specified. 
 			String hostname = args[0];
 			int port = Integer.parseInt(args[1]);
-			
+
 			int interval = Integer.parseInt(args[2]);
 
 			RingTraversor traverser = new RingTraversor(hostname, port, interval);
-			
+
 			traverser.start();
-			
+
 		} else {
 			usage();
 		}
