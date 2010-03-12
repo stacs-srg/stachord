@@ -38,7 +38,6 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.factories.CustomSocketFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
@@ -244,21 +243,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		 * key is greater than the current node's key, and less than or
 		 * equal to the current node's successor's key).
 		 */
-		if (k.equals(key) || successor.getKey().equals(getKey() ) ) {
-			return self_reference;
-		}
-
+		
 		// If the key lies between this node and its successor, return the successor.
-		if (inSuccessorKeyRange(k)) {
-			return successor;
-		}
-
-		try {
-			return findNonLocalSuccessor(k);
-		} 
-		catch (P2PNodeException e) {
-			throw new RemoteException();
-		}
+		if (k.equals(key) || successor.getKey().equals(getKey() ) ) return self_reference;
+		else if (inSuccessorKeyRange(k))                            return successor;
+		else                                                        return findNonLocalSuccessor(k);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -493,12 +482,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	}
 
 	private void handleSuccessorError(Exception e) {
+		
 		Diagnostic.trace(DiagnosticLevel.FULL, this, ": error calling successor ", successor, ": ", e);
 
 		findWorkingSuccessor();
 	}
 
-	private IChordRemoteReference findNonLocalSuccessor(IKey k)  throws P2PNodeException {
+	private IChordRemoteReference findNonLocalSuccessor(IKey k) throws RemoteException {
 
 		// Get the first hop.
 		IChordRemoteReference next = closestPrecedingNode(k);
@@ -506,8 +496,24 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 		while (true) {
 
-			Pair<NextHopResultStatus, IChordRemoteReference> result = getNextHop(k, next, hop_count);
+			Pair<NextHopResultStatus, IChordRemoteReference> result;
 
+			try {
+				// Get the next hop.
+				result = next.getRemote().nextHop(k);
+			}
+			catch (RemoteException e) {
+
+				// Only the first hop in the chain is finger on this node.
+				if (hop_count == 0) {
+					
+					Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", next.getKey());
+					suggestSuspectedFingerFailure(next);
+				}
+
+				throw e;
+			}
+			
 			switch (result.first) {
 
 				case NEXT_HOP: {
@@ -527,30 +533,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			}
 
 			hop_count++;
-		}
-	}
-
-	private Pair<NextHopResultStatus, IChordRemoteReference> getNextHop(IKey k, IChordRemoteReference next, int hop_count) throws P2PNodeException {
-
-		try {
-			// Get the next hop.
-			return next.getRemote().nextHop(k);
-		}
-		catch (Exception e) {
-
-			try { 
-
-				Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", NetworkUtil.formatHostAddress(next.getRemote().getAddress()));
-
-				// Only the first hop in the chain is finger on this node.
-				if (hop_count == 0) suggestSuspectedFingerFailure(next);
-
-				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "a failure ocurred when trying to determine the successor for key " + k + ": " + e.getMessage());
-			}
-			catch( RemoteException e1 ) {
-
-				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "Multiple failures ocurred when trying to determine the successor" );
-			}
 		}
 	}
 
