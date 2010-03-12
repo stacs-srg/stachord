@@ -564,7 +564,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 				Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", NetworkUtil.formatHostAddress(next.getRemote().getAddress()));
 
-				// Only the first hop in the chain is to a finger.
+				// Only the first hop in the chain is finger on this node.
 				if (hop_count == 0) {
 					suggestSuspectedFingerFailure(next);
 				}

@@ -222,8 +222,8 @@ public abstract class AbstractFingerTable implements IFingerTable {
 				entry = getEntryByKey(suggestedNode.getKey());
 
 				if (entry != null) {
-					synchronized (segments) {
-						segments.remove(entry);
+					synchronized (segments) {						// This code doesn't have to remove the entry.
+						segments.remove(entry);						// It could mark it as suspect, it could try and fix it....
 					}
 					Diagnostic.trace(DiagnosticLevel.RUN, "removing node "
 									+ suggestedNode.getRemote().getAddress()
