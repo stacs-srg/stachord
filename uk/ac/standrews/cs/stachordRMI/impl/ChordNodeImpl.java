@@ -41,14 +41,11 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.factories.CustomSocketFactory;
-import uk.ac.standrews.cs.stachordRMI.factories.GeometricFingerTableFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTable;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTableFactory;
 import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
 
 /**
@@ -64,7 +61,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	private IChordRemoteReference predecessor, successor;
 	private SuccessorList successor_list;
-	private IFingerTable finger_table;
+	private FingerTable finger_table;
 	
 	private IChordRemoteReference self_reference; 			// a local RMI reference to this node
 	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy
@@ -87,23 +84,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 	 * @param bus an event bus
 	 */
 	private ChordNodeImpl(InetSocketAddress local_address, IKey key ) {
-		this(local_address, key, new GeometricFingerTableFactory());
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Default constructor used in deserialisation.
-	 */
-	protected ChordNodeImpl() {
-		// Deliberately empty.
-	}
-	
-	/**
-	 * Standard constructor.
-	 */
-	private ChordNodeImpl(InetSocketAddress local_address, IKey key, IFingerTableFactory fingerTableFactory ) {
-
+		
 		this.local_address = local_address;
 		this.key = key;
 
@@ -116,9 +97,19 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		self_proxy = new ChordNodeProxy( this );
 		self_reference = new ChordRemoteReference( key,self_proxy  );
 
-		finger_table = fingerTableFactory.makeFingerTable(this);
+		SegmentCalculator src = new SegmentCalculator(this,2.0);
+		finger_table = new FingerTable(this,src);
 
 		Diagnostic.trace(DiagnosticLevel.INIT, "initialised with key: ", key);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Default constructor used in deserialisation.
+	 */
+	protected ChordNodeImpl() {
+		// Deliberately empty.
 	}
 	
 	/**
@@ -148,7 +139,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		
 		IKey node_key = new SHA1KeyFactory().generateKey(local_address);
 		Diagnostic.trace( DiagnosticLevel.RUN, "Node Key: " + node_key );
-		ChordNodeImpl node;
 		
 		// Setup/join the ring
 		
@@ -163,7 +153,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			}
 		}
 		
-		node = new ChordNodeImpl( local_address, node_key );
+		ChordNodeImpl node = new ChordNodeImpl( local_address, node_key );
 
 		if (known_node_remote_ref == null) {
 			Diagnostic.trace( DiagnosticLevel.RUN, "Creating a new ring" );
@@ -175,7 +165,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		}
 		
 		// Start maintenance thread
-		MaintenanceThread thread_for_maintenance = new DefaultMaintenanceThread(node);
+		MaintenanceThread thread_for_maintenance = new MaintenanceThread(node);
 		thread_for_maintenance.start();
 		node.setMaintenanceThread( thread_for_maintenance );
 		
@@ -247,7 +237,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 		
-
 		/* If the key specified is greater than this node's key, and less than or equal
 		 * to this node's successor's key, return this node's successor.
 		 * Else iteratively call findSuccessor on nodes preceding the given
@@ -270,11 +259,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		catch (P2PNodeException e) {
 			throw new RemoteException();
 		}
-	}
-
-	public int routingStateSize() {
-
-		return finger_table.size();
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -396,11 +380,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		finger_table.fixNextFinger();
 	}
 
-	public synchronized void fixAllFingers() {
-		
-		finger_table.fixAllFingers();
-	}
-
 	public synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
 
 		IChordRemoteReference old_predecessor = predecessor;
@@ -413,7 +392,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		}
 	}
 
-	public IFingerTable getFingerTable() {
+	public FingerTable getFingerTable() {
 
 		return finger_table;
 	}
@@ -525,27 +504,26 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		IChordRemoteReference next = closestPrecedingNode(k);
 		int hop_count = 0;
 
-
 		while (true) {
 
 			Pair<NextHopResultStatus, IChordRemoteReference> result = getNextHop(k, next, hop_count);
 
 			switch (result.first) {
 
-			case NEXT_HOP: {
-				next = result.second;
-				break;
-			}
-
-			case FINAL: {
-				next = result.second;
-				return next;
-			}
-
-			default: {
-
-				ErrorHandling.hardError("nextHop call returned NextHopResult with unrecognised code");
-			}
+				case NEXT_HOP: {
+					next = result.second;
+					break;
+				}
+	
+				case FINAL: {
+					next = result.second;
+					return next;
+				}
+	
+				default: {
+	
+					ErrorHandling.hardError("nextHop call returned NextHopResult with unrecognised code");
+				}
 			}
 
 			hop_count++;
@@ -565,12 +543,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 				Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", NetworkUtil.formatHostAddress(next.getRemote().getAddress()));
 
 				// Only the first hop in the chain is finger on this node.
-				if (hop_count == 0) {
-					suggestSuspectedFingerFailure(next);
-				}
+				if (hop_count == 0) suggestSuspectedFingerFailure(next);
+
 				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "a failure ocurred when trying to determine the successor for key " + k + ": " + e.getMessage());
 			}
 			catch( RemoteException e1 ) {
+
 				throw new P2PNodeException(P2PStatus.LOOKUP_FAILURE, "Multiple failures ocurred when trying to determine the successor" );
 			}
 		}
@@ -620,12 +598,12 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			try {
 				join(predecessor);
 			}
-			catch (Exception e1) {
+			catch (Exception e1) {   // RemoteException if predecessor has failed, or NullPointerException if it's already null
 
 				try {
 					joinUsingFinger();
 				}
-				catch (Exception e2) {
+				catch (NoReachableNodeException e2) {
 
 					// Couldn't contact any known node in current ring, so admit defeat and partition ring.
 					createRing();
@@ -633,13 +611,21 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 			}
 		}
 	}
-
-	private void joinUsingFinger() throws RemoteException {
+	
+	private void joinUsingFinger() throws NoReachableNodeException {
 
 		for (IChordRemoteReference node : finger_table.getFingers()) {
-			join(node);
-			return;
+
+			try {
+				join(node);
+				return;
+			}
+			catch (RemoteException e2) {
+				// Ignore and try next finger.
+			}
 		}
+
+		throw new NoReachableNodeException();
 	}
 
 	private void suggestSuspectedFingerFailure(IChordRemoteReference node) {
@@ -672,3 +658,41 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote  {
 		System.out.println( toStringFull() );
 	}
 }
+
+class MaintenanceThread extends Thread {
+	
+	public static final int DEFAULT_WAIT_PERIOD = 1000;
+	protected final ChordNodeImpl node;
+	protected boolean running = true;
+	
+	public MaintenanceThread(ChordNodeImpl node){
+		this.node = node;
+	}
+	
+	public void stopThread() {
+		running = false;
+		interrupt();
+	}
+
+	@Override
+	public void run() {
+			
+			try {
+				while (running) {
+					try {
+						sleep(DEFAULT_WAIT_PERIOD);
+					}
+					catch (InterruptedException e) {}
+	
+					node.checkPredecessor();
+					node.stabilize();
+					node.fixNextFinger();
+				}
+				Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + node.getKey());
+			}
+			catch (OutOfMemoryError e) {
+				ErrorHandling.exceptionError(e, "maintenance thread out of memory" );
+			}
+		}
+}
+

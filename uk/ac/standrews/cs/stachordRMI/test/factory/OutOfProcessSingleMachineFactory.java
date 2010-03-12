@@ -1,5 +1,7 @@
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -29,14 +31,15 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
 
-	private static int FIRST_NODE_PORT = 54446;
+	private static int FIRST_NODE_PORT = 54451; //54446;
+	
 	private static final String LOCAL_HOST = "localhost";
 
 	/***************** INodeFactory methods *****************/
 
 	public INetwork makeNetwork( int number_of_nodes ) throws P2PNodeException, IOException {
 		
-		final SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
+		final SortedSet<IChordRemote> nodes = new TreeSet<IChordRemote>(new NodeComparator());
 		final Map<IChordRemote, Process> processTable = new HashMap<IChordRemote, Process>();
 		
 		List<String> args = new ArrayList<String>();
@@ -45,7 +48,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		Process firstNodeProcess = Processes.runJavaProcess( StartRing.class, args );
 
 		IChordRemote first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
-		allNodes.add( first );		
+		nodes.add( first );		
 		processTable.put(first, firstNodeProcess);
 
 		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
@@ -60,7 +63,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 			Process otherNodeProcess = Processes.runJavaProcess( StartNode.class, args );
 
 			IChordRemote next = bindToNode( LOCAL_HOST, port  );
-			allNodes.add( next );
+			nodes.add( next );
 			processTable.put(next, otherNodeProcess);
 		}
 		
@@ -71,19 +74,26 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 			public SortedSet<IChordRemote> getNodes() {
 				
-				return allNodes;
+				return nodes;
 			}
 
 			public void killNode(IChordRemote node) {
 
+				int network_size = nodes.size();
+				assertTrue(nodes.contains(node));
+				
 				processTable.get(node).destroy();
+				nodes.remove(node);
+				
+				assertTrue(nodes.size() == network_size - 1);
 			}
 
 			public void killAllNodes() {
 				
 				for (IChordRemote node : getNodes()) {
-					killNode(node);
+					processTable.get(node).destroy();
 				}
+				nodes.removeAll(nodes);
 			}			
 		};
 	}

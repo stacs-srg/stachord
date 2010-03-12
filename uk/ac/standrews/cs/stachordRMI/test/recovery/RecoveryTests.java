@@ -1,11 +1,12 @@
 package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.SortedSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +24,8 @@ public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 	
-	private static final int[] RING_SIZES = {2,3,4,6,10,20};
+//	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
+	private static final int[] RING_SIZES = {4};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -34,7 +36,7 @@ public abstract class RecoveryTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+		Diagnostic.setLevel(DiagnosticLevel.FULL);		
 	}
 	
 	@Test
@@ -58,13 +60,20 @@ public abstract class RecoveryTests {
 	
 	private void recovery(INetwork network) throws P2PNodeException, IOException {
 
+		System.out.println("initial network size: " + network.getNodes().size());
 		killPartOfNetwork(network);
+		System.out.println("final network size: " + network.getNodes().size());
 		
+		System.out.println("rec1");
 		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		System.out.println("rec2");
 		RingIntegrityLogic.checkFingersConsistent(network.getNodes());
-		RingIntegrityLogic.checkSuccessorsConsistent(network.getNodes());
+		System.out.println("rec3");
+		RingIntegrityLogic.waitForConsistentSuccessorLists(network.getNodes());
+		System.out.println("rec4");
 		
 		RoutingTests.checkRouting(network.getNodes());
+		System.out.println("rec5");
 	}
 
 	private void killPartOfNetwork(INetwork network) {
@@ -72,18 +81,26 @@ public abstract class RecoveryTests {
 		IChordRemote[] node_array = network.getNodes().toArray(new IChordRemote[]{});
 
 		int network_size = node_array.length;
-		int number_to_kill = Math.min(1, (int)(PROPORTION_TO_KILL * network_size));
+		int number_to_kill = (int) Math.max(1, (int)PROPORTION_TO_KILL * (double)network_size);
 		
 		Set<Integer> victim_indices = pickRandom(number_to_kill, network_size);
 		
 		for (int victim_index : victim_indices) {
+			
+			System.out.println("killing node: " + victim_index);
+			
 			IChordRemote victim = node_array[victim_index];
+			
+			System.out.print("network contains victim: ");
+			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
+			
 			network.killNode(victim);
 			
 			// Wait for it to die.
 			while (true) {
 				try {
 					victim.isAlive();
+					Diagnostic.trace(DiagnosticLevel.FULL, "victim not dead yet");
 					Thread.sleep(DEATH_CHECK_INTERVAL);
 				}
 				catch (RemoteException e) {
@@ -92,8 +109,19 @@ public abstract class RecoveryTests {
 				catch (InterruptedException e) { }
 			}
 			
-			network.getNodes().remove(victim);
+//			System.out.println("network size before removing: " + network.getNodes().size());
+//			System.out.print("network contains victim: ");
+//			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
+//			network.getNodes().remove(victim);
+//			System.out.print("network contains victim: ");
+//			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
+//			System.out.println("network size after removing: " + network.getNodes().size());
 		}
+		
+		System.out.println("original network size: " + network_size);
+		System.out.println("number to kill: " + number_to_kill);
+		System.out.println("actual network size: " + network.getNodes().size());
+		assertEquals(network.getNodes().size(), network_size - number_to_kill);
 	}
 
 	/**

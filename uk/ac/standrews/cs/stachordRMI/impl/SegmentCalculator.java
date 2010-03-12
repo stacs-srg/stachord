@@ -23,7 +23,6 @@ package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,22 +34,31 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.InvalidSegmentNumberException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachordRMI.interfaces.ISegmentRangeCalculator;
 import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
 
 /**
  * @author stuart
  */
-public class DecimalGeometricSegments extends AbstractSegmentCalculator implements ISegmentRangeCalculator, Observer {
+public class SegmentCalculator implements Observer {
 
+	protected static final int NO_VIABLE_SEGMENTS = -1;
+	
 	private static final double DEFAULT_DECIMAL_CONSTANT = 2.0;
 
 	private BigDecimal decimalConstant;
 	private IKey succKey;
 
-	public DecimalGeometricSegments(IChordNode localNode, double decimalConstant) {
+	protected IChordNode node;
 
-		super(localNode);
+	protected int last_segment_number;
+
+	protected int current_segment;
+
+	public SegmentCalculator(IChordNode localNode, double decimalConstant) {
+
+		this.node = localNode;
+		current_segment = NO_VIABLE_SEGMENTS;
+
 		((Observable)localNode).addObserver(this);
 		if(decimalConstant<=1.0) {
 			this.decimalConstant=new BigDecimal(DEFAULT_DECIMAL_CONSTANT);
@@ -60,7 +68,6 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 		last_segment_number=calculateLastSegmentNumber();
 	}
 
-	@Override
 	protected int calculateLastSegmentNumber(){
 		int max=-1;
 		BigInteger distance;
@@ -70,7 +77,6 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 		return max;
 	}
 
-	@Override
 	protected BigInteger calculateDistance(int exponent){
 		if(exponent>0){
 			BigDecimal value=decimalConstant;
@@ -87,7 +93,6 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 	 * further away (in ring distance) than this node's successor.
 	 * @throws InvalidSegmentNumberException
 	 */
-	@Override
 	protected int nextSegment() throws InvalidSegmentNumberException {
 
 		int counter=0;
@@ -168,5 +173,113 @@ public class DecimalGeometricSegments extends AbstractSegmentCalculator implemen
 		} 
 
 		return last_segment_number - segment_counter + 1;
+	}
+
+	public IKey nextSegmentLowerBound() throws InvalidSegmentNumberException {
+	
+		return segmentLowerBound(nextSegment());
+	}
+
+	public KeyRange currentSegmentRange() throws InvalidSegmentNumberException {
+	
+		return segmentRange(current_segment);
+	}
+
+	public KeyRange segmentRange(int segment_number)
+			throws InvalidSegmentNumberException {
+			
+				if (validSegmentNumber(segment_number))
+					return new KeyRange(lowerBound(segment_number), upperBound(segment_number));
+				else
+					throw new InvalidSegmentNumberException();
+			}
+
+	public int getCurrentSegment() {
+	
+		return current_segment;
+	}
+
+	public IChordNode getNode() {
+		return node;
+	}
+
+	protected IKey segmentLowerBound(int segmentNumber)
+			throws InvalidSegmentNumberException {
+			
+				return lowerBound(segmentNumber);
+			}
+
+	private boolean validSegmentNumber(int segment_number) {
+	
+		return segment_number >= 0 && segment_number <= last_segment_number;
+	}
+
+	private IKey lowerBound(int segmentNumber)
+			throws InvalidSegmentNumberException {
+			
+				if (validSegmentNumber(segmentNumber)) {
+			
+					BigInteger distance_round_ring = calculateDistance(segmentNumber);
+					return new Key(node.getKey().keyValue().add(distance_round_ring));
+				} else {
+					throw new InvalidSegmentNumberException();
+				}
+			}
+
+	private IKey upperBound(int segmentNumber)
+			throws InvalidSegmentNumberException {
+			
+				if (validSegmentNumber(segmentNumber)) {
+			
+					BigInteger distance_round_ring = calculateDistance(segmentNumber+1);
+					distance_round_ring=distance_round_ring.subtract(BigInteger.ONE);
+					return new Key(node.getKey().keyValue().add(distance_round_ring));
+				} else {
+					throw new InvalidSegmentNumberException();
+				}
+			}
+}
+
+class KeyRange {
+
+	private final IKey lower_bound;
+	private final IKey upper_bound;
+
+	/**
+	 * Creates a new key range.
+	 * 
+	 * @param lower_bound the lower bound
+	 * @param upper_bound the upper bound
+	 */
+	public KeyRange(IKey lower_bound, IKey upper_bound) {
+
+		this(lower_bound, upper_bound, true);
+	}
+
+	/**
+	 * Creates a new key range with the specified lower bound optionally included.
+	 * 
+	 * @param lower_bound the lower bound
+	 * @param upper_bound the upper bound
+	 * @param include_lower_bound true if the specified lower bound should be included in the range
+	 */
+	public KeyRange(IKey lower_bound, IKey upper_bound, boolean include_lower_bound) {
+
+		this.lower_bound = include_lower_bound ? lower_bound : new Key(lower_bound.keyValue().add(BigInteger.ONE));
+		this.upper_bound = upper_bound;
+	}
+
+	/**
+	 * @return the lower bound
+	 */
+	public IKey getLowerBound() {
+		return lower_bound;
+	}
+
+	/**
+	 * @return the upper bound
+	 */
+	public IKey getUpperBound() {
+		return upper_bound;
 	}
 }

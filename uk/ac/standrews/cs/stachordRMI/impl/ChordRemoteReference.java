@@ -14,6 +14,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
  */
 public class ChordRemoteReference implements IChordRemoteReference, Serializable {
 
+	private static final long serialVersionUID = -7911452718429786447L;
 	private IKey key;
 	private IChordRemote reference;
 	

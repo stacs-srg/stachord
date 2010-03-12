@@ -24,9 +24,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 public class SuccessorList {
@@ -61,9 +59,7 @@ public class SuccessorList {
 				next.getRemote().isAlive();
 				return next;
 			}
-			catch (Exception e) {
-				// local_node.recordEvent(Constants.SUCCESSOR_ACCESS_EVENT, Constants.FIELD_ACCESS_FAILED);
-			}
+			catch (RemoteException e) {}
 		}
 		throw new NoReachableNodeException();
 	}
@@ -80,20 +76,14 @@ public class SuccessorList {
 	 * followed by the first (MAX_SIZE-1) elements of the successor's successor
 	 * list.
 	 */
-	protected boolean refreshList() {
-
-		ArrayList<IChordRemoteReference> removed = null;
-		ArrayList<IChordRemoteReference> new_list = null;
+	protected synchronized void refreshList() {
 
 		// This is a new ring or we have collapsed back to a single node.
 		if (successor_list.size() > 0) {
 
 			// The successor list is not empty.
-			removed = successor_list;
-			new_list = new ArrayList<IChordRemoteReference>();
+			successor_list = new ArrayList<IChordRemoteReference>();
 		}
-
-		return generateSuccessorListChangeEvent(null, removed, new_list);
 	}
 
 	/**
@@ -101,15 +91,11 @@ public class SuccessorList {
 	 * followed by the first (MAX_SIZE-1) elements of the successor's successor
 	 * list.
 	 */
-	protected boolean refreshList(List<IChordRemoteReference> successor_list_of_successor) {
+	protected synchronized void refreshList(List<IChordRemoteReference> successor_list_of_successor) {
 
 		IChordRemoteReference successor = local_node.getSuccessor();
 
-		ArrayList<IChordRemoteReference> added = null;
-		ArrayList<IChordRemoteReference> removed = null;
-		ArrayList<IChordRemoteReference> new_list = null;
-
-		new_list = new ArrayList<IChordRemoteReference>();
+		ArrayList<IChordRemoteReference> new_list = new ArrayList<IChordRemoteReference>();
 
 		int numElements = Math.min(MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
 
@@ -130,102 +116,11 @@ public class SuccessorList {
 		}
 
 		new_list.add(0, successor);
-
-		added =   addedNodes(successor_list, new_list);
-		removed = removedNodes(successor_list, new_list);
-
-		return generateSuccessorListChangeEvent(added, removed, new_list);
-	}
-
-	private boolean generateSuccessorListChangeEvent(ArrayList<IChordRemoteReference> added, ArrayList<IChordRemoteReference> removed, ArrayList<IChordRemoteReference> new_list) {
-
-		if (added != null || removed != null) {
-
-			// for the autonomic management we check if successor list is
-			// different and monitor a state change of the successor list
-
-			successor_list = new_list;
-
-			KeyRange keyRange = null;
-			IChordRemoteReference pred = local_node.getPredecessor();
-
-			/*
-			 * This node's predecessor may be null.
-			 */
-			if (pred != null) {
-				IKey pred_key;
-				pred_key = pred.getKey();
-				keyRange = new KeyRange(pred_key, local_node.getKey(), false);
-				
-			}
-
-			return true;
-		}
-		else return false;
+		
+		successor_list = new_list;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Computes the set of nodes that are in the successor list received from
-	 * this node's successor and which are not in this node's current successor
-	 * list.
-	 * 
-	 * @param current_list the entries (in ring order) in this node's current successor list
-	 * @param new_list the successor list entries (in ring order) received from this node's successor, which does not contain this node's successor,
-	 * assuming that this node's successor has been added to the start of the list.
-	 */
-	private ArrayList<IChordRemoteReference> addedNodes(List<IChordRemoteReference> current_list, List<IChordRemoteReference> new_list) {
-
-		// For each node in new_list, if the node is not in currentList, add the node to added.
-		ArrayList<IChordRemoteReference> added = null;
-
-		for (IChordRemoteReference node : new_list)
-			if (!containsNode(current_list, node)) {
-
-				if (added == null) {
-					added = new ArrayList<IChordRemoteReference>();
-				}
-				added.add(node);
-			}
-
-		return added;
-	}
-
-	/**
-	 * Computes the set of nodes that are in this node's current successor list
-	 * and which are not in the successor list received form this node's
-	 * successor.
-	 * 
-	 * @param current_list the entries (in ring order) in this node's current successor list
-	 * @param new_list the successor list entries (in ring order) received from this node's successor, which does not contain this node's successor,
-	 * assuming that this node's successor has been added to the start of the list.
-	 */
-	private ArrayList<IChordRemoteReference> removedNodes(List<IChordRemoteReference> current_list, List<IChordRemoteReference> new_list) {
-
-		// For each node in currentList, if the node is not in newList, add the node to removed.
-
-		ArrayList<IChordRemoteReference> removed = null;
-
-		for (IChordRemoteReference node : current_list)
-			if (!containsNode(new_list, node)) {
-
-				if (removed == null) {
-					removed = new ArrayList<IChordRemoteReference>();
-				}
-				removed.add(node);
-			}
-
-		return removed;
-	}
-
-	private boolean containsNode(List<IChordRemoteReference> list, IChordRemoteReference node) {
-
-		for (IChordRemoteReference list_element : list)
-			if (list_element.getKey().equals(node.getKey())) return true;
-
-		return false;
-	}
 	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

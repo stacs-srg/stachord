@@ -21,40 +21,42 @@
  */
 package uk.ac.standrews.cs.stachordRMI.impl;
 
-import java.rmi.RemoteException;
+import java.math.BigInteger;
 import java.util.Comparator;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 
-
 /**
- * @author stuart
+ * Comparator for ring segments, relative to a given node.
  */
-public class NodeSegmentStructComparator implements Comparator<NodeSegmentStruct> {
+public class SegmentComparator implements Comparator<Segment> {
 
-	private final IChordNode localNode;
+	private final IChordNode local_node;
 
-	public NodeSegmentStructComparator(IChordNode localNode){
-		this.localNode=localNode;
+	/**
+	 * @param local_node
+	 */
+	public SegmentComparator(IChordNode local_node){
+		this.local_node = local_node;
 	}
 
-	public int compare(NodeSegmentStruct kss0, NodeSegmentStruct kss1) {
+	public int compare(Segment segment1, Segment segment2) {
 
-		if(kss0==null)return -1;
-		if(kss1==null)return 1;
+		if (segment1 == null) return -1;
+		if (segment2 == null) return 1;
 
-		IKey k0 = kss0.fingerKey;
-		IKey k1 = kss1.fingerKey;
-		if(kss0.equals(kss1))
-			return 0;
-		else {
-				if(localNode.getKey().ringDistanceTo(k0).compareTo(localNode.getKey().ringDistanceTo(k1))<0)
-					return 1;
-				else
-					return -1;
-		}
+		if (segment1.equals(segment2)) return 0;
 
+		IKey key1 = segment1.getKey();
+		IKey key2 = segment2.getKey();
+
+		IKey local_key = null;
+		local_key = local_node.getKey();
+
+		BigInteger distance_to_segment1 = local_key.ringDistanceTo(key1);
+		BigInteger distance_to_segment2 = local_key.ringDistanceTo(key2);
+
+		return distance_to_segment1.compareTo(distance_to_segment2) < 0 ? 1 : -1;
 	}
-
 }

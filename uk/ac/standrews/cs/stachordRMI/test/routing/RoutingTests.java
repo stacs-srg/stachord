@@ -65,28 +65,35 @@ public abstract class RoutingTests {
 
 	private static void checkRouting(IChordRemote source, IChordRemote expected_target, int ring_size) throws RemoteException {
 
+		System.out.println("cr1");
 		// Check that a slightly smaller key than the target's key routes to the node.
 		assertEquals(expected_target.getKey(),
 				lookupWithRetry(source, new Key(expected_target.getKey().keyValue().subtract(BigInteger.ONE))).getKey());
 
+		System.out.println("cr2");
 		// Check that the target's own key routes to the target.
 		assertEquals(expected_target.getKey(), lookupWithRetry(source, expected_target.getKey()).getKey());
 
+		System.out.println("cr3");
 		// Check that a slightly larger key than the node's key doesn't route to the node,
 		// except when there is only one node, when it should do.
 		IChordRemote result_for_larger_key = lookupWithRetry(source, new Key(expected_target.getKey().keyValue().add(BigInteger.ONE)));
 
 		if (ring_size == 1) assertEquals (expected_target.getKey(), result_for_larger_key.getKey());
 		else                assertNotSame(expected_target.getKey(), result_for_larger_key.getKey());
+		System.out.println("cr4");
 	}
 
-	private static IChordRemote lookupWithRetry(IChordRemote source, IKey key) {
+	private static IChordRemote lookupWithRetry(IChordRemote source, IKey key) throws RemoteException {
 		
 		while (true) {
 			try {
 				return source.lookup(key).getRemote();
 			}
 			catch (RemoteException e) {
+				
+				System.out.println("lookup exception: " + e.getMessage());
+				System.out.println("retrying lookup of " + key + " from " + source.getKey());
 				try { Thread.sleep(LOOKUP_RETRY_INTERVAL); }
 				catch (InterruptedException e1) {}
 			}

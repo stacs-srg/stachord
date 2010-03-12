@@ -26,43 +26,37 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import uk.ac.standrews.cs.nds.eventModel.IEventGenerator;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IDistanceCalculator;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.util.FormatNodeInfo;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.InvalidSegmentNumberException;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IFingerTable;
-import uk.ac.standrews.cs.stachordRMI.interfaces.ISegmentRangeCalculator;
 import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
 
 /**
- * Skeleton finger table implementation.
+ * Finger table implementation.
  */
-public abstract class AbstractFingerTable implements IFingerTable {
+public class FingerTable {
 
 	private final IChordNode node;
-	private final ISegmentRangeCalculator segment_calculator;
-	private IEventGenerator event_generator;
+	private final SegmentCalculator segment_calculator;
 
-	private final SortedSet<RingSegment> segments;
+	private final SortedSet<Segment> segments;
+	protected IDistanceCalculator distance_calculator;
 
-	public AbstractFingerTable(IChordNode node, ISegmentRangeCalculator segment_calculator) {
+	public FingerTable(IChordNode node, SegmentCalculator segment_calculator) {
 
 		this.node = node;
 		this.segment_calculator = segment_calculator;
 
-		TreeSet<RingSegment> ts = new TreeSet<RingSegment>(new RingSegmentComparator(node));
+		TreeSet<Segment> ts = new TreeSet<Segment>(new SegmentComparator(node));
 		segments = Collections.synchronizedSortedSet(ts);
 	}
 
@@ -77,11 +71,11 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		boolean newFingerTableEntryForSegment = false;
 
 		// Create a RingSegment to put in the finger table
-		RingSegment nss = new RingSegment(finger, segmentNumber);
+		Segment nss = new Segment(finger, segmentNumber);
 
 		// Default policy - remove any existing entry whose segment number is
 		// equal to segment_calculator.getCurrentSegment()
-		RingSegment entry;
+		Segment entry;
 		do {
 			//old entry
 			entry = getEntryBySegmentNumber(segmentNumber);
@@ -113,15 +107,14 @@ public abstract class AbstractFingerTable implements IFingerTable {
 			try {
 				IChordRemoteReference finger = (IChordRemoteReference)node.lookup(target_key);
 				
-				// node is of type IChordNode
 				if (finger != null &&
 						! finger.getKey().equals( node.getKey() ) &&
 							! finger.getKey().equals( node.getSuccessor().getKey() ) ) {
-						return addFinger(finger, segmentNumber);
+					return addFinger(finger, segmentNumber);
 				}
 			}
 			catch (RemoteException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "Remote Exeption routing to: " + target_key + " lookup failure ?"); // Al
+				Diagnostic.trace(DiagnosticLevel.FULL, "Remote Exception routing to: " + target_key + " lookup failure ?"); // Al
 			}
 		}
 
@@ -138,8 +131,7 @@ public abstract class AbstractFingerTable implements IFingerTable {
 
 			int segment = segment_calculator.getCurrentSegment();
 
-			boolean fingerTableChange = fixFinger(target_key, segment);
-
+			fixFinger(target_key, segment);
 		}
 		catch (InvalidSegmentNumberException e) {
 			// do nothing
@@ -161,18 +153,18 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		}
 	}
 
-	private RingSegment getEntryBySegmentNumber(int segmentNumber) {
+	private Segment getEntryBySegmentNumber(int segmentNumber) {
 		synchronized (segments) {
-			for (RingSegment segment : segments)
+			for (Segment segment : segments)
 				if (segment.getSegmentNumber() == segmentNumber) return segment;
 		}
 		return null;
 	}
 
-	private RingSegment getEntryByKey(IKey k) {
+	private Segment getEntryByKey(IKey k) {
 
 		synchronized (segments) {
-			for (RingSegment segment : segments)
+			for (Segment segment : segments)
 				if (segment.getKey().equals(k)) return segment;
 		}
 		return null;
@@ -185,7 +177,7 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		// by RingSegmentComparator. Thus the TreeSet's iterator runs from
 		// largest to smallest key - which is nice.
 		synchronized (segments) {
-			for (RingSegment segment : segments) {
+			for (Segment segment : segments) {
 				IChordRemoteReference next = segment.getFinger();
 				if (next != null && SegmentArithmetic.inOpenSegment(segment.getKey(), node.getKey(), k))
 					return next;
@@ -194,36 +186,16 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		throw new NoPrecedingNodeException();
 	}
 
-	/**
-	 * The finger table implementation cannot contain this node or this node's successor.
-	 *
-	 * @param suggestedNode suggests a ChordNode that might be added to the finger table
-	 */
-	public void notifyExistence(IChordRemoteReference suggestedNode) {
-
-			if (suggestedNode != null && !suggestedNode.equals(node) && !suggestedNode.equals(node.getSuccessor())) {
-
-				try {
-					IKey key = suggestedNode.getKey();
-					int segmentNumber = segment_calculator.calculateSegmentNumber(key);
-					addFinger(suggestedNode, segmentNumber);
-				}
-				catch (InvalidSegmentNumberException e) {
-					// Ignore suggestions for nodes which lie outwith the set of defined segments
-				}
-			}
-	}
-
 	public void notifySuspectedFailure(IChordRemoteReference suggestedNode) {
 
-		RingSegment entry = null;
+		Segment entry = null;
 		do {
 			try {
 				entry = getEntryByKey(suggestedNode.getKey());
 
 				if (entry != null) {
-					synchronized (segments) {						// This code doesn't have to remove the entry.
-						segments.remove(entry);						// It could mark it as suspect, it could try and fix it....
+					synchronized (segments) {
+						segments.remove(entry);
 					}
 					Diagnostic.trace(DiagnosticLevel.RUN, "removing node "
 									+ suggestedNode.getRemote().getAddress()
@@ -248,7 +220,7 @@ public abstract class AbstractFingerTable implements IFingerTable {
 			return buffer.toString();
 		}
 		synchronized (segments) {
-			for (RingSegment segment : segments){
+			for (Segment segment : segments){
 				try {
 					IChordRemoteReference j = segment.getFinger();
 					if (j != null) {
@@ -275,7 +247,7 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		String substr = "\nNode At Position :\t" + 0;
 
 		synchronized (segments) {
-			Iterator<RingSegment> i = segments.iterator();
+			Iterator<Segment> i = segments.iterator();
 			IChordRemoteReference finger;
 			if (!i.hasNext())
 				return "Finger table is empty";
@@ -322,26 +294,14 @@ public abstract class AbstractFingerTable implements IFingerTable {
 		return fingerString;
 	}
 
-	public void setEventGenerator(IEventGenerator event_generator) {
-		this.event_generator = event_generator;
-	}
-
 	public ArrayList<IChordRemoteReference> getFingers() {
 
 		ArrayList<IChordRemoteReference> fingers = new ArrayList<IChordRemoteReference>();
 		synchronized (segments) {
-			for (RingSegment segment : segments) {
+			for (Segment segment : segments) {
 				fingers.add(segment.getFinger());
 			}
 		}
 		return fingers;
-	}
-
-	public ISegmentRangeCalculator getSegmentCalculator() {
-		return segment_calculator;
-	}
-
-	public IChordNode getNode() {
-		return node;
 	}
 }
