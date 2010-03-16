@@ -28,11 +28,6 @@ import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
-/**
- * Implementation of Chord node.
- * 
- * @author sja7, stuart, al, graham
- */
 public class ChordNodeProxy implements IChordRemote, Remote  {
 	
 	// Private State
@@ -132,8 +127,11 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 	public void destroy() {
 		node_failed = true;
 	}
-	
-	
+
+	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
+		cni.enableFingerTableMaintenance(enabled);
+	}	
 }
 
 

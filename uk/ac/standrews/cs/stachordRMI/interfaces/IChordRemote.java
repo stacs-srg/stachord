@@ -95,4 +95,6 @@ public interface IChordRemote extends Remote {
 	Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) throws RemoteException;
 	
 	IChordRemoteReference lookup( IKey key ) throws RemoteException;
+
+	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException;
 }

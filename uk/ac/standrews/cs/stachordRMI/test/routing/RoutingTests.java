@@ -1,25 +1,18 @@
 package uk.ac.standrews.cs.stachordRMI.test.routing;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-
 import java.io.IOException;
-import java.math.BigInteger;
-import java.rmi.RemoteException;
-import java.util.SortedSet;
+import java.rmi.NotBoundException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
-import uk.ac.standrews.cs.stachordRMI.test.util.RingIntegrityLogic;
+import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RoutingTests {
 	
@@ -27,76 +20,34 @@ public abstract class RoutingTests {
 	
 	private static final int[] RING_SIZES = {1,2,3,4,6,10,20};
 
-	private static final long LOOKUP_RETRY_INTERVAL = 2000;
-	
 	@Before
 	public void setUp() throws Exception {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+		ChordNodeImpl.setTestMode(true);                 // Cause hard fault in case of failures, since there shouldn't be any.
 	}
 	
 	@Test
-	public void routing() throws P2PNodeException, IOException {
+	public void routingBecomesCorrect() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
+			System.out.println();
 			Diagnostic.trace("testing routing for ring size: " + ring_size);
-			routing(ring_size);
+			
+			routingBecomesCorrect(ring_size, AbstractNetworkFactory.RANDOM);
+			routingBecomesCorrect(ring_size, AbstractNetworkFactory.EVEN);
+			routingBecomesCorrect(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
-	private void routing(int ring_size) throws P2PNodeException, IOException {
+	private void routingBecomesCorrect(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size);
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		INetwork network = network_factory.makeNetwork(ring_size, network_type);
 		
-		checkRouting(network.getNodes());
+		TestLogic.waitForStableRing(network.getNodes());
+		TestLogic.waitForCorrectRouting(network.getNodes());
+		
 		network.killAllNodes();
-	}
-	
-	public static void checkRouting(SortedSet<IChordRemote> nodes) throws RemoteException {
-
-		for (IChordRemote node1 : nodes) {
-			for (IChordRemote node2 : nodes) {
-				checkRouting(node1, node2, nodes.size());
-			}
-		}
-	}
-
-	private static void checkRouting(IChordRemote source, IChordRemote expected_target, int ring_size) throws RemoteException {
-
-		System.out.println("cr1");
-		// Check that a slightly smaller key than the target's key routes to the node.
-		assertEquals(expected_target.getKey(),
-				lookupWithRetry(source, new Key(expected_target.getKey().keyValue().subtract(BigInteger.ONE))).getKey());
-
-		System.out.println("cr2");
-		// Check that the target's own key routes to the target.
-		assertEquals(expected_target.getKey(), lookupWithRetry(source, expected_target.getKey()).getKey());
-
-		System.out.println("cr3");
-		// Check that a slightly larger key than the node's key doesn't route to the node,
-		// except when there is only one node, when it should do.
-		IChordRemote result_for_larger_key = lookupWithRetry(source, new Key(expected_target.getKey().keyValue().add(BigInteger.ONE)));
-
-		if (ring_size == 1) assertEquals (expected_target.getKey(), result_for_larger_key.getKey());
-		else                assertNotSame(expected_target.getKey(), result_for_larger_key.getKey());
-		System.out.println("cr4");
-	}
-
-	private static IChordRemote lookupWithRetry(IChordRemote source, IKey key) throws RemoteException {
-		
-		while (true) {
-			try {
-				return source.lookup(key).getRemote();
-			}
-			catch (RemoteException e) {
-				
-				System.out.println("lookup exception: " + e.getMessage());
-				System.out.println("retrying lookup of " + key + " from " + source.getKey());
-				try { Thread.sleep(LOOKUP_RETRY_INTERVAL); }
-				catch (InterruptedException e1) {}
-			}
-		}
 	}
 }

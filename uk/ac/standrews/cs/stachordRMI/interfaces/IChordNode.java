@@ -28,55 +28,9 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
  *
  * @author graham
  */
-public interface IChordNode { // extends IChordRemote {
+public interface IChordNode {
 	
 	public static final String CHORD_REMOTE_SERVICE = IChordNode.class.getSimpleName();
-	
-//	/**
-//	 * Creates a new ring containing only this node.
-//	 */
-//	void createRing();
-
-//	/**
-//	 * Joins an existing ring containing a specified known node.
-//	 *
-//	 * @param known_node a node on an existing ring
-//	 * @throws RemoteException 
-//	 * @throws P2PNodeException if a failure occurs during the join protocol
-//	 */
-//	void join(IChordRemoteReference known_node) throws RemoteException;
-
-//	/**
-//	 * Check whether the node's predecessor has failed, and drops reference if so.
-//	 */
-//	void checkPredecessor();
-
-//	/**
-//	 * Updates an entry in this node's finger table.
-//	 */
-//	void fixNextFinger();
-
-//	/**
-//	 * Sets the predecessor node in key space.
-//	 *
-//	 * @param p the new predecessor node
-//	 */
-//	void setPredecessor(IChordRemoteReference p);
-
-//	/**
-//	 * @return this node's finger table
-//	 */
-//	FingerTable getFingerTable();
-
-//	/**
-//	 * Determines whether the specified key lies in this node's key range.
-//	 * 
-//	 * @param k a key
-//	 * @return true if k lies in this node's key range
-//	 * @throws  
-//	 * @throws P2PNodeException if this node's key range is unknown due to incomplete peer state.
-//	 */
-//	boolean inLocalKeyRange(IKey k) throws P2PNodeException ;
 	
 	IChordRemoteReference lookup( IKey key ) throws RemoteException;
 	

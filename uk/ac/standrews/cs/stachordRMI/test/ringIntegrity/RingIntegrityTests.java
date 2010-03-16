@@ -1,16 +1,18 @@
 package uk.ac.standrews.cs.stachordRMI.test.ringIntegrity;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
-import uk.ac.standrews.cs.stachordRMI.test.util.RingIntegrityLogic;
+import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RingIntegrityTests {
 	
@@ -21,69 +23,76 @@ public abstract class RingIntegrityTests {
 	@Before
 	public void setUp() throws Exception {
 			
-		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
+		ChordNodeImpl.setTestMode(true);                 // Cause hard fault in case of failures, since there shouldn't be any.
 	}
 	
 	@Test
-	public void ringStabilises() throws P2PNodeException, IOException {
+	public void ringBecomesStable() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
+			System.out.println();
 			Diagnostic.trace("testing stabilization for ring size: " + ring_size);
-			ringStabilises(ring_size);
+			
+			ringBecomesStable(ring_size, AbstractNetworkFactory.RANDOM);
+			ringBecomesStable(ring_size, AbstractNetworkFactory.EVEN);
+			ringBecomesStable(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
 	@Test
-	public void fingersConsistent() throws P2PNodeException, IOException {
+	public void fingerTablesBecomeComplete() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
+			System.out.println();
 			Diagnostic.trace("testing finger tables for ring size: " + ring_size);
-			fingersConsistent(ring_size);
+			
+			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.RANDOM);
+			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.EVEN);
+			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
 	@Test
-	public void successorsConsistent() throws P2PNodeException, IOException {
+	public void successorListsBecomeComplete() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
+			System.out.println();
 			Diagnostic.trace("testing successor lists for ring size: " + ring_size);
-			successorsConsistent(ring_size);
+			
+			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.RANDOM);
+			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.EVEN);
+			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
-	private void ringStabilises(int ring_size) throws P2PNodeException, IOException {
+	private void ringBecomesStable(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size);
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		TestLogic.waitForStableRing(network.getNodes());
 		network.killAllNodes();
 	}
 
-	private void fingersConsistent(int ring_size) throws P2PNodeException, IOException {
+	private void fingerTablesBecomeComplete(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size);
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		INetwork network = network_factory.makeNetwork(ring_size, network_type);
 		
-		// How long to wait for finger tables to be built?
-		try { Thread.sleep(10000); }
-		catch (InterruptedException e) {}
+		TestLogic.waitForStableRing(network.getNodes());		
+		TestLogic.waitForCompleteFingerTables(network.getNodes());
 		
-		RingIntegrityLogic.checkFingersConsistent(network.getNodes());
 		network.killAllNodes();
 	}	
 	
-	private void successorsConsistent(int ring_size) throws P2PNodeException, IOException {
+	private void successorListsBecomeComplete(int ring_size, String network_type) throws IOException, NotBoundException {
 		
-		INetwork network = network_factory.makeNetwork(ring_size);
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		INetwork network = network_factory.makeNetwork(ring_size, network_type);
 		
-		// How long to wait for successor lists to be built?
-		try { Thread.sleep(10000); }
-		catch (InterruptedException e) {}
+		TestLogic.waitForStableRing(network.getNodes());
+		TestLogic.waitForCompleteSuccessorLists(network.getNodes());
 		
-		RingIntegrityLogic.checkSuccessorsConsistent(network.getNodes());
 		network.killAllNodes();
 	}
 }

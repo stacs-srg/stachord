@@ -35,16 +35,10 @@ public class ChordRemoteReference implements IChordRemoteReference, Serializable
 		this.reference = reference;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference#getKey()
-	 */
 	public IKey getKey() {
 		return key;
 	}
 
-	/* (non-Javadoc)
-	 * @see uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference#getRemote()
-	 */
 	public IChordRemote getRemote() {
 		return reference;
 	}

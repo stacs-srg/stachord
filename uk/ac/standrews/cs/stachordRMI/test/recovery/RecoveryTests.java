@@ -3,6 +3,7 @@ package uk.ac.standrews.cs.stachordRMI.test.recovery;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashSet;
 import java.util.Random;
@@ -11,21 +12,22 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.routing.RoutingTests;
-import uk.ac.standrews.cs.stachordRMI.test.util.RingIntegrityLogic;
+import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 	
-//	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
-	private static final int[] RING_SIZES = {4};
+	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
+//	private static final int[] RING_SIZES = {20};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -36,44 +38,58 @@ public abstract class RecoveryTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		Diagnostic.setLevel(DiagnosticLevel.FULL);		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+		ChordNodeImpl.setTestMode(false);                 // No hard fault in case of failures, since there will be some...
 	}
 	
 	@Test
-	public void recovery() throws P2PNodeException, IOException {
+	public void recovery() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
 			Diagnostic.trace("testing recovery for ring size: " + ring_size);
-			recovery(ring_size);
+			recovery(ring_size, AbstractNetworkFactory.RANDOM);
+			recovery(ring_size, AbstractNetworkFactory.EVEN);
+			recovery(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
-	private void recovery(int ring_size) throws P2PNodeException, IOException {
+	private void recovery(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size);
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
+		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		TestLogic.waitForStableRing(network.getNodes());
 		
 		recovery(network);
 		network.killAllNodes();
 	}
 	
-	private void recovery(INetwork network) throws P2PNodeException, IOException {
+	private void recovery(INetwork network) throws IOException {
+		
+		// Routing should still eventually work even in the absence of finger table maintenance.
+		enableFingerTableMaintenance(network, false);
 
-		System.out.println("initial network size: " + network.getNodes().size());
 		killPartOfNetwork(network);
-		System.out.println("final network size: " + network.getNodes().size());
 		
-		System.out.println("rec1");
-		RingIntegrityLogic.waitForStableNetwork(network.getNodes());
-		System.out.println("rec2");
-		RingIntegrityLogic.checkFingersConsistent(network.getNodes());
-		System.out.println("rec3");
-		RingIntegrityLogic.waitForConsistentSuccessorLists(network.getNodes());
-		System.out.println("rec4");
+		System.out.println("testing routing");
+		TestLogic.waitForCorrectRouting(network.getNodes());
+
+		// Turn on maintenance again.
+		enableFingerTableMaintenance(network, true);
 		
-		RoutingTests.checkRouting(network.getNodes());
-		System.out.println("rec5");
+//		System.out.println("waiting for stable ring");
+		TestLogic.waitForStableRing(network.getNodes());
+//		System.out.println("waiting for consistent fingers");
+		TestLogic.waitForCompleteFingerTables(network.getNodes());
+//		System.out.println("waiting for consistent successor lists");
+		TestLogic.waitForCompleteSuccessorLists(network.getNodes());
+		
+//		System.out.println("testing routing");
+		TestLogic.waitForCorrectRouting(network.getNodes());
+	}
+
+	private void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {
+		
+		for (IChordRemote node : network.getNodes()) node.enableFingerTableMaintenance(enabled);
 	}
 
 	private void killPartOfNetwork(INetwork network) {
@@ -81,26 +97,19 @@ public abstract class RecoveryTests {
 		IChordRemote[] node_array = network.getNodes().toArray(new IChordRemote[]{});
 
 		int network_size = node_array.length;
-		int number_to_kill = (int) Math.max(1, (int)PROPORTION_TO_KILL * (double)network_size);
+		int number_to_kill = (int) Math.max(1, (int)(PROPORTION_TO_KILL * (double)network_size));
 		
 		Set<Integer> victim_indices = pickRandom(number_to_kill, network_size);
 		
 		for (int victim_index : victim_indices) {
 			
-			System.out.println("killing node: " + victim_index);
-			
-			IChordRemote victim = node_array[victim_index];
-			
-			System.out.print("network contains victim: ");
-			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
-			
+			IChordRemote victim = node_array[victim_index];			
 			network.killNode(victim);
 			
 			// Wait for it to die.
 			while (true) {
 				try {
 					victim.isAlive();
-					Diagnostic.trace(DiagnosticLevel.FULL, "victim not dead yet");
 					Thread.sleep(DEATH_CHECK_INTERVAL);
 				}
 				catch (RemoteException e) {
@@ -108,19 +117,8 @@ public abstract class RecoveryTests {
 				}
 				catch (InterruptedException e) { }
 			}
-			
-//			System.out.println("network size before removing: " + network.getNodes().size());
-//			System.out.print("network contains victim: ");
-//			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
-//			network.getNodes().remove(victim);
-//			System.out.print("network contains victim: ");
-//			System.out.println(network.getNodes().contains(victim) ? "yes" : "no");
-//			System.out.println("network size after removing: " + network.getNodes().size());
 		}
 		
-		System.out.println("original network size: " + network_size);
-		System.out.println("number to kill: " + number_to_kill);
-		System.out.println("actual network size: " + network.getNodes().size());
 		assertEquals(network.getNodes().size(), network_size - number_to_kill);
 	}
 

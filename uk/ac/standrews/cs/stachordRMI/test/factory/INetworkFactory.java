@@ -1,10 +1,10 @@
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.IOException;
-
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 
 public interface INetworkFactory {
 
-	INetwork makeNetwork(int number_of_nodes) throws P2PNodeException, IOException;
+	INetwork makeNetwork(int number_of_nodes, String network_type) throws RemoteException, IOException, NotBoundException;
 }

@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
@@ -37,11 +37,11 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	/***************** INodeFactory methods *****************/
 
-	public INetwork makeNetwork( int number_of_nodes ) throws P2PNodeException, IOException {
+	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException {
 		
 		final SortedSet<IChordRemote> nodes = new TreeSet<IChordRemote>(new NodeComparator());
 		final Map<IChordRemote, Process> processTable = new HashMap<IChordRemote, Process>();
-		
+
 		List<String> args = new ArrayList<String>();
 		args.add( "-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
 		
@@ -104,8 +104,6 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		
 		while (node == null) {
 		
-			Diagnostic.trace("trying to bind to node");
-			
 			Registry reg = null;
 			try {
 				reg = LocateRegistry.getRegistry( host, port );
@@ -113,13 +111,13 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 				break;
 			}
 			catch (RemoteException e) {
-				Diagnostic.trace("registry location failed");
+				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed");
 			}
 			catch (NotBoundException e) {
-				Diagnostic.trace("binding to node in registry failed");
+				Diagnostic.trace(DiagnosticLevel.FULL, "binding to node in registry failed");
 			}
 			catch (Exception e) {
-				Diagnostic.trace("registry lookup failed");
+				Diagnostic.trace(DiagnosticLevel.FULL, "registry lookup failed");
 			}
 			
 			try {

@@ -12,7 +12,7 @@ public class CustomSocketFactory implements RMIServerSocketFactory {
 	private ServerSocket theSocket = null;
 	private InetAddress addr;
 	
-	public CustomSocketFactory(InetAddress addr) throws IOException{
+	public CustomSocketFactory(InetAddress addr) {
 		this.addr = addr;
 	}
 	
@@ -26,5 +26,4 @@ public class CustomSocketFactory implements RMIServerSocketFactory {
 	public ServerSocket getServerSocket(){
 		return theSocket;
 	}
-
 }

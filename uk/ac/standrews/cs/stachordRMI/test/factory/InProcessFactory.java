@@ -1,10 +1,15 @@
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
+import static org.junit.Assert.fail;
+
+import java.math.BigInteger;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
+import uk.ac.standrews.cs.nds.p2p.impl.Key;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.servers.StartNode;
@@ -17,20 +22,22 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  */
 public class InProcessFactory extends AbstractNetworkFactory implements INetworkFactory {
 
-	/***************** INodeFactory methods  *****************/
-	
-	public INetwork makeNetwork( int number_of_nodes ) throws RemoteException, P2PNodeException {
+	public INetwork makeNetwork(int number_of_nodes, String network_type) throws RemoteException, NotBoundException {
 		
-		final SortedSet<IChordRemote> allNodes = new TreeSet<IChordRemote>(new NodeComparator());
+		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
-		IChordNode first = StartRing.startChordRing( LOCAL_HOST, FIRST_NODE_PORT );
-		allNodes.add( first.getProxy().getRemote() );
+		final SortedSet<IChordRemote> nodes = new TreeSet<IChordRemote>(new NodeComparator());
 		
-		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
+		IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
+
+		IChordNode first = StartRing.startChordRing(LOCAL_HOST, FIRST_NODE_PORT, node_keys[0]);
+		nodes.add( first.getProxy().getRemote() );
+		
+		for (int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++) {
 			
 			int join_port = randomPort(FIRST_NODE_PORT, port);
-			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port);
-			allNodes.add( next.getProxy().getRemote() );
+			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port, node_keys[port - FIRST_NODE_PORT]);
+			nodes.add( next.getProxy().getRemote() );
 		}
 				
 		// For next time, adjust first node port beyond the ports just used.
@@ -40,7 +47,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 			public SortedSet<IChordRemote> getNodes() {
 				
-				return allNodes;
+				return nodes;
 			}
 
 			public void killNode(IChordRemote node) {

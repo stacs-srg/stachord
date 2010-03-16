@@ -76,13 +76,13 @@ public class SuccessorList {
 	 * followed by the first (MAX_SIZE-1) elements of the successor's successor
 	 * list.
 	 */
-	protected synchronized void refreshList() {
+	protected void refreshList() {
 
 		// This is a new ring or we have collapsed back to a single node.
 		if (successor_list.size() > 0) {
 
 			// The successor list is not empty.
-			successor_list = new ArrayList<IChordRemoteReference>();
+			successor_list.removeAll(successor_list);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class SuccessorList {
 	 * followed by the first (MAX_SIZE-1) elements of the successor's successor
 	 * list.
 	 */
-	protected synchronized void refreshList(List<IChordRemoteReference> successor_list_of_successor) {
+	protected boolean refreshList(List<IChordRemoteReference> successor_list_of_successor) {
 
 		IChordRemoteReference successor = local_node.getSuccessor();
 
@@ -107,21 +107,35 @@ public class SuccessorList {
 		for (int i = 0; i < numElements; i++) {
 
 			IChordRemoteReference node = successor_list_of_successor.get(i);
-
-			if (node.getKey().equals(local_node.getKey())) {
-				break;
-			}
+			if (node.getKey().equals(local_node.getKey())) break;
 
 			new_list.add(node);
 		}
 
 		new_list.add(0, successor);
 		
-		successor_list = new_list;
+		if (different(new_list, successor_list)) {
+		
+			successor_list.removeAll(successor_list);
+			successor_list.addAll(new_list);
+			return true;
+		}
+		else return false;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
+	private boolean different(ArrayList<IChordRemoteReference> list1, ArrayList<IChordRemoteReference> list2) {
+		
+		if (list1.size() != list2.size()) return true;
+		
+		for (int i = 0; i < list1.size(); i++) {
+			if (!list1.get(i).equals(list2.get(i))) return true;
+		}
+		
+		return false;
+	}
+
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append( "Successors: " );
