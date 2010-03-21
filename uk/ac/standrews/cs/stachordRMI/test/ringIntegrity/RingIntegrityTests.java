@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
@@ -24,7 +23,6 @@ public abstract class RingIntegrityTests {
 	public void setUp() throws Exception {
 			
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
-		ChordNodeImpl.setTestMode(true);                 // Cause hard fault in case of failures, since there shouldn't be any.
 	}
 	
 	@Test

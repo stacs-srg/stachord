@@ -31,7 +31,7 @@ public class StartRing extends AbstractServer {
 
 		setup(args);
 
-//		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: " + local_address + " on port: " + local_port );
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: " + local_address + " on port: " + local_port );
 
 		startChordRing( local_address, local_port );
 	}

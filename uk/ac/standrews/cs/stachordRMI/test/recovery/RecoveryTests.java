@@ -14,20 +14,18 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
-import uk.ac.standrews.cs.stachordRMI.test.routing.RoutingTests;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 	
-	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
-//	private static final int[] RING_SIZES = {20};
+//	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
+	private static final int[] RING_SIZES = {2,3,4};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -38,63 +36,58 @@ public abstract class RecoveryTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		Diagnostic.setLevel(DiagnosticLevel.NONE);		
-		ChordNodeImpl.setTestMode(false);                 // No hard fault in case of failures, since there will be some...
+		Diagnostic.setLevel(DiagnosticLevel.FULL);		
 	}
 	
 	@Test
-	public void recovery() throws IOException, NotBoundException {
+	public void ringRecovers() throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
-			Diagnostic.trace("testing recovery for ring size: " + ring_size);
-			recovery(ring_size, AbstractNetworkFactory.RANDOM);
-			recovery(ring_size, AbstractNetworkFactory.EVEN);
-			recovery(ring_size, AbstractNetworkFactory.CLUSTERED);
+			System.out.println("testing recovery for ring size: " + ring_size);
+			
+			ringRecovers(ring_size, AbstractNetworkFactory.RANDOM);
+			ringRecovers(ring_size, AbstractNetworkFactory.EVEN);
+			ringRecovers(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
-	private void recovery(int ring_size, String network_type) throws IOException, NotBoundException {
+	private void ringRecovers(int ring_size, String network_type) throws IOException, NotBoundException {
 
 		INetwork network = network_factory.makeNetwork(ring_size, network_type);
 		TestLogic.waitForStableRing(network.getNodes());
 		
-		recovery(network);
+		ringRecovers(network);
 		network.killAllNodes();
 	}
 	
-	private void recovery(INetwork network) throws IOException {
+	private void ringRecovers(INetwork network) throws IOException {
 		
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
 
 		killPartOfNetwork(network);
 		
-		System.out.println("testing routing");
 		TestLogic.waitForCorrectRouting(network.getNodes());
 
 		// Turn on maintenance again.
 		enableFingerTableMaintenance(network, true);
 		
-//		System.out.println("waiting for stable ring");
 		TestLogic.waitForStableRing(network.getNodes());
-//		System.out.println("waiting for consistent fingers");
 		TestLogic.waitForCompleteFingerTables(network.getNodes());
-//		System.out.println("waiting for consistent successor lists");
 		TestLogic.waitForCompleteSuccessorLists(network.getNodes());
 		
-//		System.out.println("testing routing");
 		TestLogic.waitForCorrectRouting(network.getNodes());
 	}
 
 	private void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {
 		
-		for (IChordRemote node : network.getNodes()) node.enableFingerTableMaintenance(enabled);
+		for (IChordRemoteReference node : network.getNodes()) node.getRemote().enableFingerTableMaintenance(enabled);
 	}
 
 	private void killPartOfNetwork(INetwork network) {
 		
-		IChordRemote[] node_array = network.getNodes().toArray(new IChordRemote[]{});
+		IChordRemoteReference[] node_array = network.getNodes().toArray(new IChordRemoteReference[]{});
 
 		int network_size = node_array.length;
 		int number_to_kill = (int) Math.max(1, (int)(PROPORTION_TO_KILL * (double)network_size));
@@ -103,13 +96,13 @@ public abstract class RecoveryTests {
 		
 		for (int victim_index : victim_indices) {
 			
-			IChordRemote victim = node_array[victim_index];			
+			IChordRemoteReference victim = node_array[victim_index];			
 			network.killNode(victim);
 			
 			// Wait for it to die.
 			while (true) {
 				try {
-					victim.isAlive();
+					victim.getRemote().isAlive();
 					Thread.sleep(DEATH_CHECK_INTERVAL);
 				}
 				catch (RemoteException e) {

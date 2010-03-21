@@ -97,4 +97,6 @@ public interface IChordRemote extends Remote {
 	IChordRemoteReference lookup( IKey key ) throws RemoteException;
 
 	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException;
+
+	public void fingerFailure(IChordRemoteReference broken_finger) throws RemoteException;
 }

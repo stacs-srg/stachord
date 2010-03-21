@@ -45,7 +45,7 @@ public class StartNode extends AbstractServer {
 		String known_address = NetworkUtil.extractHostName(known_address_parameter);
 		int known_port =       NetworkUtil.extractPortNumber(known_address_parameter);
 
-//		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: " + local_address + " on port: " + local_port + ", known node: " + known_address + " on port: " + known_port);
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: " + local_address + " on port: " + local_port + ", known node: " + known_address + " on port: " + known_port);
 
 		joinChordRing( local_address, local_port, known_address, known_port );
 	}

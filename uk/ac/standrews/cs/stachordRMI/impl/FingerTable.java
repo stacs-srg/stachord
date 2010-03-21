@@ -81,7 +81,6 @@ public class FingerTable {
 
 	public synchronized IChordRemoteReference closestPrecedingNode(IKey k) throws NoPrecedingNodeException {
 
-//		System.out.println("closestPrecedingNode(" + k + ")");
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
 			IChordRemoteReference finger = fingers[i];
@@ -89,19 +88,11 @@ public class FingerTable {
 			// Finger may be null if it hasn't been fixed for the first time,
 			// or if its failure has been detected.
 			
-//			System.out.println("checking finger " + i + ": " + finger.getKey());
-//			
-//			System.out.println("node key: " + node.getKey());
-//			System.out.println("finger key: " + finger.getKey());
-//			System.out.println("k: " + k);
-			
 			// Looking for finger that lies before k from position of this node.
 			// Ignore fingers pointing to this node.
 			if (finger != null && !node.getKey().equals(finger.getKey()) && node.getKey().firstCloserInRingThanSecond(finger.getKey(), k)) {
-//				System.out.println("match");
 				return finger;
 			}
-//			System.out.println("no match");
 		}
 
 		throw new NoPrecedingNodeException();
@@ -111,9 +102,8 @@ public class FingerTable {
 
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
-			if (fingers[i].getKey().equals(broken_finger.getKey())) {
+			if (fingers[i] != null && fingers[i].getKey().equals(broken_finger.getKey())) {
 				fingers[i] = null;
-				break;
 			}
 		}
 	}
@@ -163,17 +153,14 @@ public class FingerTable {
 	private boolean fixFinger(int finger_index) {
 
 		try {
-//			System.out.println("fixing finger: " + finger_index);
 			IKey target_key = finger_targets[finger_index];
 			IChordRemoteReference finger = node.lookup(target_key);
 			
 			boolean changed = fingers[finger_index] == null || !fingers[finger_index].getKey().equals(finger.getKey());
 			fingers[finger_index] = finger;
-//			System.out.println("ff2");
 			return changed;
 		}
 		catch (RemoteException e) {
-//			System.out.println("ff3");
 			return false;
 		}
 	}

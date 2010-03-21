@@ -90,9 +90,6 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 		return cni.lookup(k);
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -101,24 +98,17 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ChordNodeProxy other = (ChordNodeProxy) obj;
-		if (cni == null) {
-			if (other.cni != null)
-				return false;
-		} else if (!cni.equals(other.cni))
-			return false;
-		return true;
+		
+		if (obj instanceof ChordNodeProxy) {
+			
+			ChordNodeProxy other = (ChordNodeProxy) obj;
+			
+			return (cni == null && other.cni == null) ||
+			       (cni != null && other.cni != null && cni.equals(other.cni));
+		}
+		else return false;
 	}
 
 	/* 
@@ -131,7 +121,10 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
 		cni.enableFingerTableMaintenance(enabled);
+	}
+
+	public void fingerFailure(IChordRemoteReference broken_finger) throws RemoteException {
+		if( node_failed ) throw new RemoteException(); // to simulate failure
+		cni.fingerFailure(broken_finger);
 	}	
 }
-
-

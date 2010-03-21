@@ -1,5 +1,6 @@
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -17,8 +18,10 @@ import java.util.TreeSet;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.StartNode;
 import uk.ac.standrews.cs.stachordRMI.servers.StartRing;
 import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
@@ -31,7 +34,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
 
-	private static int FIRST_NODE_PORT = 54451; //54446;
+	private static int FIRST_NODE_PORT = 54466;
 	
 	private static final String LOCAL_HOST = "localhost";
 
@@ -39,31 +42,31 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException {
 		
-		final SortedSet<IChordRemote> nodes = new TreeSet<IChordRemote>(new NodeComparator());
-		final Map<IChordRemote, Process> processTable = new HashMap<IChordRemote, Process>();
+		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
+		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
 
 		List<String> args = new ArrayList<String>();
 		args.add( "-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
 		
-		Process firstNodeProcess = Processes.runJavaProcess( StartRing.class, args );
+		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
 
-		IChordRemote first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
-		nodes.add( first );		
+		IChordRemoteReference first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
+		nodes.add(first);
 		processTable.put(first, firstNodeProcess);
 
-		for( int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++ ) {
+		for (int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++) {
 			
 			int join_port = randomPort(FIRST_NODE_PORT, port);
 
 			args = new ArrayList<String>();
 
-			args.add( "-s" + LOCAL_HOST + ":" + port );
-			args.add( "-k" + LOCAL_HOST + ":" + join_port );
+			args.add("-s" + LOCAL_HOST + ":" + port);
+			args.add("-k" + LOCAL_HOST + ":" + join_port);
 
-			Process otherNodeProcess = Processes.runJavaProcess( StartNode.class, args );
+			Process otherNodeProcess = Processes.runJavaProcess(StartNode.class, args);
 
-			IChordRemote next = bindToNode( LOCAL_HOST, port  );
-			nodes.add( next );
+			IChordRemoteReference next = bindToNode(LOCAL_HOST, port);
+			nodes.add(next);
 			processTable.put(next, otherNodeProcess);
 		}
 		
@@ -72,43 +75,46 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 		return new INetwork() {
 
-			public SortedSet<IChordRemote> getNodes() {
+			public SortedSet<IChordRemoteReference> getNodes() {
 				
 				return nodes;
 			}
 
-			public void killNode(IChordRemote node) {
+			public void killNode(IChordRemoteReference node) {
 
-				int network_size = nodes.size();
-				assertTrue(nodes.contains(node));
-				
-				processTable.get(node).destroy();
-				nodes.remove(node);
-				
-				assertTrue(nodes.size() == network_size - 1);
+				synchronized (nodes) {
+					int network_size = nodes.size();
+					assertTrue(nodes.contains(node));
+
+					processTable.get(node).destroy();
+					
+					assertTrue(nodes.contains(node));
+					assertTrue(nodes.remove(node));
+					assertEquals(nodes.size(), network_size - 1);
+				}
 			}
 
 			public void killAllNodes() {
 				
-				for (IChordRemote node : getNodes()) {
-					processTable.get(node).destroy();
+				synchronized (nodes) {
+				
+					for (IChordRemoteReference node : getNodes()) {
+						processTable.get(node).destroy();
+					}
+					nodes.removeAll(nodes);
 				}
-				nodes.removeAll(nodes);
-			}			
+			}
 		};
 	}
 
-	private IChordRemote bindToNode(String host, int port) {
+	private IChordRemoteReference bindToNode(String host, int port) {
 		
-		IChordRemote node = null;
+		while (true) {
 		
-		while (node == null) {
-		
-			Registry reg = null;
 			try {
-				reg = LocateRegistry.getRegistry( host, port );
-				node = (IChordRemote) reg.lookup( IChordNode.CHORD_REMOTE_SERVICE );
-				break;
+				Registry reg = LocateRegistry.getRegistry(host, port);
+				IChordRemote remote = (IChordRemote) reg.lookup(IChordNode.CHORD_REMOTE_SERVICE);
+				return new ChordRemoteReference(remote.getKey(), remote);
 			}
 			catch (RemoteException e) {
 				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed");
@@ -126,7 +132,5 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 			catch (InterruptedException e) {
 			}
 		}
-
-		return node;
 	}
 }

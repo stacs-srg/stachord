@@ -56,5 +56,4 @@ public class ChordRemoteReference implements IChordRemoteReference, Serializable
 		}
 		return "ChordRemoteReference to: " + key + " " + ref;
 	}
-
 }

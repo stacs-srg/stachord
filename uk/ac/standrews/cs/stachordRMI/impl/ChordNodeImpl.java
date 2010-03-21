@@ -54,7 +54,7 @@ import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
  * 
  * @author sja7, stuart, al, graham
  */
-public class ChordNodeImpl extends Observable implements IChordNode, Remote, Observer  {
+public class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Remote, Observer  {
 
 	private InetSocketAddress local_address;
 	private IKey key;
@@ -106,8 +106,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote, Obs
 
 		self_proxy = new ChordNodeProxy(this);
 		self_reference = new ChordRemoteReference(key, self_proxy);
-		
-//		Diagnostic.trace(DiagnosticLevel.FULL, "initialised with key: ", key);
 
 		// Setup/join the ring
 		
@@ -206,7 +204,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, Remote, Obs
 		 * equal to the current node's successor's key).
 		 */
 		
-//		System.out.println("lookup of key: " + k);
+//		System.out.println("from: " + key + " lookup of key: " + k);
 //		System.out.println("lookup1");
 		
 		if (k.equals(key) || successor.getKey().equals(key) ) {// If the key is equal to this node's, or the ring currently only has one node...
@@ -219,7 +217,8 @@ return self_reference;
 return successor;
 		
 		}
-		else                                                  {		//System.out.println("lookup4");
+		else                                                  {		
+//			System.out.println("lookup4");
 return findNonLocalSuccessor(k);
 		
 		}
@@ -506,12 +505,19 @@ return findNonLocalSuccessor(k);
 
 	private IChordRemoteReference findNonLocalSuccessor(IKey k) throws RemoteException {
 
-//		System.out.println("fnls for key: " + k);
-		// Get the first hop.
-		IChordRemoteReference next = closestPrecedingNode(k);
-		int hop_count = 0;
+//		System.out.println("from: " + key + " fnls for key: " + k);
+		// Keep track of the hop before the next one, in case the next one turns out to have failed
+		// and the one before it has to be notified so it can update its finger table.
+		IChordRemoteReference current_hop = self_reference;
 		
-//		System.out.println("found closest preceding (" + k + ") = " + next.getKey());
+		// Get the first hop.
+		IChordRemoteReference next_hop = closestPrecedingNode(k);
+		
+//		System.out.println(">>>>> initially:");
+//		System.out.println("current_hop: " + current_hop.getKey());
+//		System.out.println("next_hop: " + next_hop.getKey());
+//		
+//		System.out.println("found closest preceding (" + k + ") = " + next_hop.getKey());
 
 		while (true) {
 
@@ -520,21 +526,24 @@ return findNonLocalSuccessor(k);
 
 			try {
 				// Get the next hop.
-//				System.out.println("calling nextHop(" + k + ") on: " + next.getKey());
-				result = next.getRemote().nextHop(k);
+//				System.out.println("calling nextHop(" + k + ") on: " + next_hop.getKey());
+				result = next_hop.getRemote().nextHop(k);
 //				System.out.println("result of nextHop: " + result.second.getKey());
 //				System.out.println("fnls3");
 			}
 			catch (RemoteException e) {
 
 //				System.out.println("fnls4");
-				// Only the first hop in the chain is finger on this node.
-				if (hop_count == 0) {
 					
-					Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", next.getKey());
-					finger_table.fingerFailure(next);
-				}
-
+					Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", next_hop.getKey());
+//					System.out.println("fnls4.1");
+//					
+//					
+//					System.out.println("notifying failure of: "+ next_hop.getKey() + " to: " + current_hop.getKey());
+					current_hop.getRemote().fingerFailure(next_hop);
+//					System.out.println("fnls4.2");
+//
+//				System.out.println("fnls4.3");
 				throw e;
 			}
 			
@@ -544,13 +553,27 @@ return findNonLocalSuccessor(k);
 			switch (result.first) {
 
 				case NEXT_HOP: {
-					next = result.second;
+					current_hop = next_hop;
+					next_hop = result.second;
+
+					
+//					System.out.println(">>>>> now:");
+//					System.out.println("current_hop: " + current_hop.getKey());
+//					System.out.println("next_hop: " + next_hop.getKey());
+					
+
 					break;
 				}
 	
 				case FINAL: {
-					next = result.second;
-					return next;
+					current_hop = next_hop;
+					next_hop = result.second;
+//					System.out.println(">>>>> now:");
+//					System.out.println("current_hop: " + current_hop.getKey());
+//					System.out.println("next_hop: " + next_hop.getKey());
+					
+
+					return next_hop;
 				}
 	
 				default: {
@@ -559,11 +582,14 @@ return findNonLocalSuccessor(k);
 				}
 			}
 //			System.out.println("fnls6");
-
-			hop_count++;
 		}
 	}
 	
+	public void fingerFailure(IChordRemoteReference broken_finger) {
+		
+		finger_table.fingerFailure(broken_finger);
+	}
+
 	/**
 	 * Sets the successor node in key space.
 	 * 

@@ -1,9 +1,5 @@
 package uk.ac.standrews.cs.stachordRMI.test.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -26,39 +22,36 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 public class TestLogic {
 
 	private static final int WAIT_DELAY = 5000;
-	
-
 
 	/**
 	 * Wait for the set of nodes in the ring to stabilize. The {@link #uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode.stabilize()} operation will be called on each
 	 * node until this happens.
 	 * @param nodes All of the nodes in the chord ring sorted in key order.
 	 */
-	public static void waitForStableRing(SortedSet<IChordRemote> nodes) {
+	public static void waitForStableRing(SortedSet<IChordRemoteReference> nodes) {
 		
 		while (!ringStable(nodes)) {
-//			System.out.println("not stable yet...");
 			sleep();
 		}
 
 		Diagnostic.trace(DiagnosticLevel.RUN, "ring is stable");
 	}
 
-	public static void waitForCompleteFingerTables(SortedSet<IChordRemote> nodes) {
+	public static void waitForCompleteFingerTables(SortedSet<IChordRemoteReference> nodes) {
 		
 		while (!fingerTablesComplete(nodes)) sleep();
 
 		Diagnostic.trace(DiagnosticLevel.RUN, "finger tables are complete");
 	}
 
-	public static void waitForCompleteSuccessorLists(SortedSet<IChordRemote> nodes) {
+	public static void waitForCompleteSuccessorLists(SortedSet<IChordRemoteReference> nodes) {
 		
 		while (!successorListsComplete(nodes)) sleep();
 
 		Diagnostic.trace(DiagnosticLevel.RUN, "successor lists are consistent");
 	}
 
-	public static void waitForCorrectRouting(SortedSet<IChordRemote> nodes) {
+	public static void waitForCorrectRouting(SortedSet<IChordRemoteReference> nodes) {
 		
 		while (!routingCorrect(nodes)) sleep();
 
@@ -70,21 +63,21 @@ public class TestLogic {
 	 * 
 	 * @return true if the ring is stable
 	 */
-	private static boolean ringStable(SortedSet<IChordRemote> nodes) {
+	private static boolean ringStable(SortedSet<IChordRemoteReference> nodes) {
 		
 		try {
-			IChordRemote[] node_array = nodes.toArray(new IChordRemote[]{});
+			IChordRemoteReference[] node_array = nodes.toArray(new IChordRemoteReference[]{});
 			
 			if (node_array.length == 1) {
 				
 				// Single-node ring, so stable if predecessor is null and successor is self.
-				IChordRemote node = node_array[0];
+				IChordRemote node = node_array[0].getRemote();
 				return node.getPredecessor() == null && node.getSuccessor().getKey().equals(node.getKey());
 			}
 			else {
 				for (int i = 0; i < nodes.size(); i++) {
 	
-					IChordRemote current = node_array[i];
+					IChordRemote current = node_array[i].getRemote();
 	
 					if (current.getPredecessor() == null) return false;
 	
@@ -151,74 +144,60 @@ public class TestLogic {
 		}
 	}
 	
-	public static boolean fingerTablesComplete(SortedSet<IChordRemote> nodes) {
+	public static boolean fingerTablesComplete(SortedSet<IChordRemoteReference> nodes) {
 		
 		// Completeness criteria:
 		// 1. The ring distance from a node's key to its fingers' keys never decreases going up the table.
 		// 2. No finger table entry is null.
 
-		for (IChordRemote node : nodes) {
+		for (IChordRemoteReference node : nodes) {
 
 			IChordRemoteReference previous_finger_reference = null;
 
 			// For each finger...
 			try {
 				int finger_number = 0;
-//				System.out.println("\n\n");
-//				System.out.println("node: " + node.getKey());
-				for (IChordRemoteReference finger_reference : node.getFingerList()) {
-					
-//					System.out.println("finger number: " + finger_number);
-//					System.out.println("finger reference: " + finger_reference == null ? "null" : finger_reference.getKey());
 
+				for (IChordRemoteReference finger_reference : node.getRemote().getFingerList()) {
+					
 					// Check that the finger is not this node.
 					if (finger_reference == null) return false; // { System.out.println("afc1"); return false;}
 					else {
 
 						// Check that the finger is not closer in ring distance than the previous non-null finger.
 						// Treat self-reference as the full ring distance, so ignore case where finger points to this node.
-						if (previous_finger_reference != null && !finger_reference.getKey().equals(node.getKey()) && node.getKey().firstCloserInRingThanSecond(finger_reference.getKey(), previous_finger_reference.getKey())) {
+						if (previous_finger_reference != null && !finger_reference.getKey().equals(node.getKey()) &&
+								node.getKey().firstCloserInRingThanSecond(finger_reference.getKey(), previous_finger_reference.getKey())) {
 							
-//							System.out.println("afc2"); 
-//							
-//							System.out.println("previous finger reference: " + previous_finger_reference.getKey());
-							
-							
-							return false;}
+							return false;
+						}
 						
 						previous_finger_reference = finger_reference;
 					}
 					finger_number++;
 				}
 			}
-			catch (RemoteException e) { return false; } // { { System.out.println("afc3"); return false;} }
+			catch (RemoteException e) { return false; }
 		}
 		
 		return true;
 	}
 	
-	public static boolean successorListsComplete(SortedSet<IChordRemote> nodes) {
+	public static boolean successorListsComplete(SortedSet<IChordRemoteReference> nodes) {
 		
-		IChordRemote[] node_array = nodes.toArray(new IChordRemote[]{});
+		IChordRemoteReference[] node_array = nodes.toArray(new IChordRemoteReference[]{});
 		
 		// Check the successor list of each node.
 		for (int i = 0; i < nodes.size(); i++) {
 			
-			IChordRemote node = node_array[i];
-			
-//			System.out.println("checking node: " + i);
+			IChordRemote node = node_array[i].getRemote();
 
 			List<IChordRemoteReference> successor_list;
 			try {
 				successor_list = node.getSuccessorList();
-				
-//				System.out.println("successor list: " + successor_list);
 
 				// The length of the successor lists should be MIN(max_successor_list_length, number_of_nodes - 1).
 				if (successor_list.size() != Math.min(SuccessorList.MAX_SUCCESSOR_LIST_SIZE, nodes.size() - 1)) {
-//					System.out.println("asc1");
-//					System.out.println("successor_list.size: " + successor_list.size());
-//					System.out.println("nodes.size: " + nodes.size());
 					return false;
 				}
 	
@@ -232,27 +211,24 @@ public class TestLogic {
 						expected_successor_index = 0;
 					}
 	
-					if(!node_array[expected_successor_index].getKey().equals(successor_list.get(j).getKey())) {
-//						System.out.println("asc2");
+					if (!node_array[expected_successor_index].getKey().equals(successor_list.get(j).getKey())) {
 						return false;
 					}
 	
 					expected_successor_index++;
 				}
 			}
-			catch (RemoteException e) { 
-//				System.out.println("asc3");
-return false; }
+			catch (RemoteException e) { return false; }
 		}
 		
 		return true;
 	}
 	
-	public static boolean routingCorrect(SortedSet<IChordRemote> nodes) {
+	public static boolean routingCorrect(SortedSet<IChordRemoteReference> nodes) {
 
-		for (IChordRemote node1 : nodes) {
-			for (IChordRemote node2 : nodes) {
-				if (!routingCorrect(node1, node2, nodes.size())) return false;
+		for (IChordRemoteReference node1 : nodes) {
+			for (IChordRemoteReference node2 : nodes) {
+				if (!routingCorrect(node1.getRemote(), node2.getRemote(), nodes.size())) return false;
 			}
 		}
 		return true;
@@ -284,9 +260,7 @@ return false; }
 	
 			if (!successor_of_target.getKey().equals(result_for_larger_key.getKey())) return false;
 		}
-		catch (RemoteException e) {
-			return false;
-		}
+		catch (RemoteException e) { return false; }
 		
 		return true;
 	}
