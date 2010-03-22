@@ -43,4 +43,6 @@ public interface IChordNode {
 	IChordRemoteReference getPredecessor();
 	
 	IChordRemoteReference getProxy();
+	
+	boolean inLocalKeyRange(IKey k);
 }

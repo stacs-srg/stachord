@@ -32,8 +32,6 @@ import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.eventModel.Event;
 import uk.ac.standrews.cs.nds.eventModel.IEvent;
-import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
-import uk.ac.standrews.cs.nds.p2p.impl.P2PStatus;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
@@ -70,7 +68,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 	private MaintenanceThread maintenance_thread;
 	private boolean finger_table_maintenance_enabled = true;
-	private static boolean test_mode = false;
 	
 	public static final String PREDECESSOR_CHANGE_EVENT_TYPE =    "PREDECESSOR_CHANGE_EVENT";
 	public static final String SUCCESSOR_STATE_EVENT_TYPE =       "SUCCESSOR_STATE_EVENT";
@@ -139,11 +136,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	/**
 	 * Default constructor used in deserialisation.
 	 */
-	protected ChordNodeImpl() {
-		// Deliberately empty.
-		
-		// TODO check whether still needed with RMI.
-	}
+//	protected ChordNodeImpl() {
+//		// Deliberately empty.
+//		
+//		// TODO check whether still needed with RMI.
+//	}
 	
 	/**
 	 * Standard destructor.
@@ -381,9 +378,11 @@ return findNonLocalSuccessor(k);
 
 		return finger_table;
 	}
-	
-	public static void setTestMode(boolean test_mode) {
-		ChordNodeImpl.test_mode = test_mode;
+
+	public boolean inLocalKeyRange(IKey k) {
+
+		// This is never called when the predecessor is null.
+		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,12 +394,6 @@ return findNonLocalSuccessor(k);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private boolean inLocalKeyRange(IKey k) {
-
-		// This is never called when the predecessor is null.
-		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
-	}
 
 	/**
 	 * Returns the closest preceding node from the finger table, or the successor if there
@@ -492,12 +485,6 @@ return findNonLocalSuccessor(k);
 	}
 
 	private void handleSuccessorError(Exception e) {
-		
-		if (test_mode) {
-			e.printStackTrace(System.err);
-			ErrorHandling.hardError("successor error when testing without failure\nplease tell Graham\n" +
-				"current state: " + toStringFull());
-		}
 		
 		Diagnostic.trace(DiagnosticLevel.FULL, this, ": error calling successor ", successor, ": ", e);
 		findWorkingSuccessor();
