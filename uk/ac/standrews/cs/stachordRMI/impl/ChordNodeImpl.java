@@ -38,7 +38,6 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.factories.CustomSocketFactory;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachordRMI.impl.exceptions.NoReachableNodeException;
@@ -63,8 +62,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	private SuccessorList successor_list;
 	private FingerTable finger_table;
 	
-	private IChordRemoteReference self_reference; 			// a local RMI reference to this node
-	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy
+	private IChordRemoteReference self_reference; 			// A local RMI reference to this node.
+	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy.
 
 	private MaintenanceThread maintenance_thread;
 	private boolean finger_table_maintenance_enabled = true;
@@ -116,7 +115,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			join(known_node_remote_ref);
 		}
 		
-		// Now start RMI listening
+		// Now start RMI listening.
 		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
 
 		// Register the service with the registry.
@@ -132,53 +131,34 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	/**
-	 * Default constructor used in deserialisation.
-	 */
-//	protected ChordNodeImpl() {
-//		// Deliberately empty.
-//		
-//		// TODO check whether still needed with RMI.
-//	}
 	
 	/**
 	 * Standard destructor.
 	 */
 	public void destroy() {
 		
-		maintenance_thread.stopThread(); // stop the maintenance thread
+		maintenance_thread.stopThread(); // Stop the maintenance thread.
 		try {
 			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
 		}
 		catch ( Exception e ) {
 			ErrorHandling.error( "Failed to destroy node with key: ", key );
 		}
-		self_proxy.destroy(); // stop incoming message being processed by this node
+		self_proxy.destroy();            // Stop incoming message being processed by this node.
 		Diagnostic.trace("Successfully destroyed Node with key: ", key);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// INetworkNodeRepresentation
 
 	public InetSocketAddress getAddress() {
 
 		return local_address;
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// IP2PNodeRepresentation
-
 	public IKey getKey() {
 
 		return key;
 	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// Comparable<IP2PNode>
 
 	public int compareTo(IP2PNode other) {
 
@@ -188,8 +168,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// IP2PNode
 
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 		
@@ -201,23 +179,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		 * equal to the current node's successor's key).
 		 */
 		
-//		System.out.println("from: " + key + " lookup of key: " + k);
-//		System.out.println("lookup1");
-		
-		if (k.equals(key) || successor.getKey().equals(key) ) {// If the key is equal to this node's, or the ring currently only has one node...
-//			System.out.println("lookup2");
-return self_reference;
-		
+		if (k.equals(key) || successor.getKey().equals(key) ) {
+			
+			// If the key is equal to this node's, or the ring currently only has one node...
+			return self_reference;
 		}
-		else if (inSuccessorKeyRange(k))                      {// If the key lies between this node and its successor, return the successor.
-//			System.out.println("lookup3");
-return successor;
-		
-		}
-		else                                                  {		
-//			System.out.println("lookup4");
-return findNonLocalSuccessor(k);
-		
+		else {		
+			return findNonLocalSuccessor(k);
 		}
 	}
 
@@ -271,13 +239,13 @@ return findNonLocalSuccessor(k);
 	public void isAlive() {
 	}
 
-	public Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) {
+	public NextHopResult nextHop(IKey k) {
 
 		// Check whether the key lies in the range between this node and its successor,
 		// in which case the successor represents the final hop.
 
-		if (inSuccessorKeyRange(k)) return new Pair<NextHopResultStatus, IChordRemoteReference>(NextHopResultStatus.FINAL, successor);
-		else                        return new Pair<NextHopResultStatus, IChordRemoteReference>(NextHopResultStatus.NEXT_HOP, closestPrecedingNode(k));
+		if (inSuccessorKeyRange(k)) return new NextHopResult(true, successor);
+		else                        return new NextHopResult(false, closestPrecedingNode(k));
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,33 +280,26 @@ return findNonLocalSuccessor(k);
 	 * in between, this node will call notify on the existing successor telling
 	 * it to set its predecessor back to this node.
 	 */
-	public synchronized void stabilize() {
+	protected synchronized void stabilize() {
 
 		try {
-//System.out.println("stab1");
 			// Find predecessor of this node's successor.
 			IChordRemoteReference predecessor_of_successor = getPredecessorOfSuccessor();
 
-//			System.out.println("stab2");
 			// Check whether that is a better successor for this node than its current successor.
 			// This may update this node's successor pointer.
 			checkForBetterSuccessor(predecessor_of_successor);
 
-//			System.out.println("stab3");
 			// Notify this node's successor (which may have just changed) that this node may be its predecessor.
 			notifySuccessor();
 
-//			System.out.println("stab4");
 			// Update this node's successor list from its successor's.
 			refreshSuccessorList();
-//			System.out.println("stab5");
 		}
 		catch (RemoteException e) {
 			
-//			System.out.println("stab6");
 			// Error contacting successor.
 			handleSuccessorError(e);
-//			System.out.println("stab7");
 		}
 	}
 
@@ -405,11 +366,7 @@ return findNonLocalSuccessor(k);
 	private IChordRemoteReference closestPrecedingNode(IKey k) {
 
 		try {
-//			System.out.println("cpn1");
-			IChordRemoteReference closestPrecedingNode = finger_table.closestPrecedingNode(k);
-//			System.out.println("cpn2");
-			return closestPrecedingNode;
-//			return finger_table.closestPrecedingNode(k);
+			return finger_table.closestPrecedingNode(k);
 		}
 		catch (NoPrecedingNodeException e) {
 			return successor;
@@ -425,16 +382,8 @@ return findNonLocalSuccessor(k);
 	}
 
 	private IChordRemoteReference getPredecessorOfSuccessor() throws RemoteException {
-
-		// Sometimes throws NPE.
 		
-//		if (successor == null) {
-//			System.err.println("null successor for node: " + getKey());
-//		}
-		
-		
-		IChordRemote remote = successor.getRemote();
-		return remote.getPredecessor();
+		return successor.getRemote().getPredecessor();
 	}
 
 	private void checkForBetterSuccessor(IChordRemoteReference predecessor_of_successor) {
@@ -454,14 +403,7 @@ return findNonLocalSuccessor(k);
 
 	private void notifySuccessor() throws RemoteException {
 
-//		try {
-//		System.out.println("ns1");
-			successor.getRemote().notify(self_reference);
-//			System.out.println("ns2");
-//		}
-//		catch (RemoteException e) {
-//			handleSuccessorError( e );
-//		}
+		successor.getRemote().notify(self_reference);
 	}
 
 	private void refreshSuccessorList() {
@@ -469,7 +411,6 @@ return findNonLocalSuccessor(k);
 		if (!successor.getKey().equals(getKey())) {
 
 			try {
-//				System.out.println(">>>>>>>>>>>>>>>> getting successor list");
 				List<IChordRemoteReference> successor_list_of_successor = successor.getRemote().getSuccessorList();
 				
 				if (successor_list.refreshList(successor_list_of_successor)) {
@@ -490,86 +431,34 @@ return findNonLocalSuccessor(k);
 		findWorkingSuccessor();
 	}
 
-	private IChordRemoteReference findNonLocalSuccessor(IKey k) throws RemoteException {
+	private IChordRemoteReference findNonLocalSuccessor(IKey key) throws RemoteException {
 
-//		System.out.println("from: " + key + " fnls for key: " + k);
 		// Keep track of the hop before the next one, in case the next one turns out to have failed
 		// and the one before it has to be notified so it can update its finger table.
-		IChordRemoteReference current_hop = self_reference;
+		IChordRemote current_hop = this;
 		
 		// Get the first hop.
-		IChordRemoteReference next_hop = closestPrecedingNode(k);
-		
-//		System.out.println(">>>>> initially:");
-//		System.out.println("current_hop: " + current_hop.getKey());
-//		System.out.println("next_hop: " + next_hop.getKey());
-//		
-//		System.out.println("found closest preceding (" + k + ") = " + next_hop.getKey());
+		NextHopResult result = nextHop(key);
 
-		while (true) {
-
-//			System.out.println("fnls2");
-			Pair<NextHopResultStatus, IChordRemoteReference> result;
+		while (!result.hopIsFinal()) {
 
 			try {
 				// Get the next hop.
-//				System.out.println("calling nextHop(" + k + ") on: " + next_hop.getKey());
-				result = next_hop.getRemote().nextHop(k);
-//				System.out.println("result of nextHop: " + result.second.getKey());
-//				System.out.println("fnls3");
+				result = result.getHop().getRemote().nextHop(key);
+				
+				// Remember this hop.
+				current_hop = result.getHop().getRemote();
 			}
 			catch (RemoteException e) {
 
-//				System.out.println("fnls4");
-					
-					Diagnostic.trace(DiagnosticLevel.RUN, this, ": signalling suspected failure of ", next_hop.getKey());
-//					System.out.println("fnls4.1");
-//					
-//					
-//					System.out.println("notifying failure of: "+ next_hop.getKey() + " to: " + current_hop.getKey());
-					current_hop.getRemote().fingerFailure(next_hop);
-//					System.out.println("fnls4.2");
-//
-//				System.out.println("fnls4.3");
+				// This finger appears to have failed.
+				// Tell the node whose finger table contains the finger about the failure.
+				current_hop.fingerFailure(result.getHop());
 				throw e;
 			}
-			
-			// TODO tidy and make status just a boolean
-			
-//			System.out.println("fnls5");
-			switch (result.first) {
-
-				case NEXT_HOP: {
-					current_hop = next_hop;
-					next_hop = result.second;
-
-					
-//					System.out.println(">>>>> now:");
-//					System.out.println("current_hop: " + current_hop.getKey());
-//					System.out.println("next_hop: " + next_hop.getKey());
-					
-
-					break;
-				}
-	
-				case FINAL: {
-					current_hop = next_hop;
-					next_hop = result.second;
-//					System.out.println(">>>>> now:");
-//					System.out.println("current_hop: " + current_hop.getKey());
-//					System.out.println("next_hop: " + next_hop.getKey());
-					
-
-					return next_hop;
-				}
-	
-				default: {
-	
-					ErrorHandling.hardError("nextHop call returned NextHopResult with unrecognised code");
-				}
-			}
-//			System.out.println("fnls6");
 		}
+		
+		return result.getHop();
 	}
 	
 	public void fingerFailure(IChordRemoteReference broken_finger) {
@@ -610,24 +499,22 @@ return findNonLocalSuccessor(k);
 	private synchronized void findWorkingSuccessor() {
 
 		try {
-//			System.out.println("fws1");
 			IChordRemoteReference new_successor = successor_list.findFirstWorkingNode();
 			setSuccessor(new_successor);
 		}
 		catch (NoReachableNodeException e) {
 
 			try {
-//				System.out.println("fws2");
 				join(predecessor);
 			}
-			catch (Exception e1) {   // RemoteException if predecessor has failed, or NullPointerException if it's already null
+			catch (Exception e1) {
+				
+				// RemoteException if predecessor has failed, or NullPointerException if it's already null
 
 				try {
-//					System.out.println("fws3");
 					joinUsingFinger();
 				}
 				catch (NoReachableNodeException e2) {
-//					System.out.println("fws4");
 
 					// Couldn't contact any known node in current ring, so admit defeat and partition ring.
 					createRing();
@@ -740,14 +627,12 @@ class MaintenanceThread extends Thread {
 				sleep(DEFAULT_WAIT_PERIOD);
 			}
 			catch (InterruptedException e) {}
+			
+			// TODO add toggles for other operations.
 
-//			System.out.println("maint1");
 			node.checkPredecessor();
-//			System.out.println("maint2");
 			node.stabilize();
-//			System.out.println("maint3");
 			if (node.fingerTableMaintenanceEnabled()) node.fixNextFinger();
-//			System.out.println("maint4");
 		}
 		Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + node.getKey());
 	}

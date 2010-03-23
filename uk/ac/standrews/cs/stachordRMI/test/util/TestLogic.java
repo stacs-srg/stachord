@@ -24,8 +24,7 @@ public class TestLogic {
 	private static final int WAIT_DELAY = 5000;
 
 	/**
-	 * Wait for the set of nodes in the ring to stabilize. The {@link #uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode.stabilize()} operation will be called on each
-	 * node until this happens.
+	 * Wait for the set of nodes in the ring to stabilize.
 	 * @param nodes All of the nodes in the chord ring sorted in key order.
 	 */
 	public static void waitForStableRing(SortedSet<IChordRemoteReference> nodes) {

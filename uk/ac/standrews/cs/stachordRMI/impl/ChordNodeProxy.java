@@ -24,7 +24,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.util.Pair;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
@@ -80,7 +79,7 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 		cni.isAlive();
 	}
 
-	public Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) throws RemoteException  {
+	public NextHopResult nextHop(IKey k) throws RemoteException  {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
 		return cni.nextHop(k);
 	}

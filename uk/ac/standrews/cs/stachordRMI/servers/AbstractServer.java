@@ -15,7 +15,7 @@ import uk.ac.standrews.cs.nds.util.NetworkUtil;
  */
 public abstract class AbstractServer  {
 	
-	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.FULL;
+	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 	
 	protected static String local_address = "";
 	protected static int local_port = 0;

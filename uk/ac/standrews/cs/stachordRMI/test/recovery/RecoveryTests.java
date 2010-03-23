@@ -36,7 +36,7 @@ public abstract class RecoveryTests {
 	@Before
 	public void setUp() throws Exception {
 		
-		Diagnostic.setLevel(DiagnosticLevel.FULL);		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);		
 	}
 	
 	@Test

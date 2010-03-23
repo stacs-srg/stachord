@@ -24,8 +24,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.util.Pair;
-import uk.ac.standrews.cs.stachordRMI.impl.NextHopResultStatus;
+import uk.ac.standrews.cs.stachordRMI.impl.NextHopResult;
 
 /**
  * Defines remotely accessible Chord node functionality.
@@ -92,7 +91,7 @@ public interface IChordRemote extends Remote {
 	 * @param k a key
 	 * @return the next hop towards the successor of the specified key
 	 */
-	Pair<NextHopResultStatus, IChordRemoteReference> nextHop(IKey k) throws RemoteException;
+	NextHopResult nextHop(IKey k) throws RemoteException;
 	
 	IChordRemoteReference lookup( IKey key ) throws RemoteException;
 
