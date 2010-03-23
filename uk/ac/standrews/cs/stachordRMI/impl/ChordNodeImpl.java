@@ -192,7 +192,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			return self_reference;
 		}
 		else {		
-			return findNonLocalSuccessor(k);
+			return findSuccessor(k);
 		}
 	}
 
@@ -438,34 +438,34 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		findWorkingSuccessor();
 	}
 
-	private IChordRemoteReference findNonLocalSuccessor(IKey key) throws RemoteException {
+	private IChordRemoteReference findSuccessor(IKey key) throws RemoteException {
+		
+		// Get the first hop.
+		NextHopResult next_hop = nextHop(key);
 
 		// Keep track of the hop before the next one, in case the next one turns out to have failed
 		// and the one before it has to be notified so it can update its finger table.
 		IChordRemote current_hop = this;
-		
-		// Get the first hop.
-		NextHopResult result = nextHop(key);
 
-		while (!result.hopIsFinal()) {
+		while (!next_hop.isFinalHop()) {
 
 			try {
 				// Get the next hop.
-				result = result.getHop().getRemote().nextHop(key);
+				next_hop = next_hop.getNode().getRemote().nextHop(key);
 				
-				// Remember this hop.
-				current_hop = result.getHop().getRemote();
+				// Remember it.
+				current_hop = next_hop.getNode().getRemote();
 			}
 			catch (RemoteException e) {
 
 				// This finger appears to have failed.
 				// Tell the node whose finger table contains the finger about the failure.
-				current_hop.fingerFailure(result.getHop());
+				current_hop.fingerFailure(next_hop.getNode());
 				throw e;
 			}
 		}
 		
-		return result.getHop();
+		return next_hop.getNode();
 	}
 	
 	public void fingerFailure(IChordRemoteReference broken_finger) {
@@ -610,6 +610,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		return finger_table_maintenance_enabled;
 	}
 }
+
+// TODO anonymous class
 
 class MaintenanceThread extends Thread {
 	

@@ -8,20 +8,20 @@ public class NextHopResult implements Serializable {
 
 	private static final long serialVersionUID = 2162948760764524096L;
 	
-	private boolean hop_is_final;
+	private boolean is_final_hop;
 	private IChordRemoteReference hop;
 
-	public NextHopResult(boolean hop_is_final, IChordRemoteReference hop) {
+	public NextHopResult(boolean is_final_hop, IChordRemoteReference node) {
 
-		this.hop_is_final = hop_is_final;
-		this.hop = hop;
+		this.is_final_hop = is_final_hop;
+		this.hop = node;
 	}
 
-	public boolean hopIsFinal() {
-		return hop_is_final;
+	public boolean isFinalHop() {
+		return is_final_hop;
 	}
 
-	public IChordRemoteReference getHop() {
+	public IChordRemoteReference getNode() {
 		return hop;
 	}
 }
