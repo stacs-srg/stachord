@@ -89,6 +89,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
 		
+		this(local_address, known_node_address, key, DiagnosticLevel.NONE);
+	}
+	
+	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key, DiagnosticLevel diagnosticLevel) throws RemoteException, NotBoundException {
+		
 		this.local_address = local_address;
 		this.key = key;
 
@@ -127,7 +132,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		maintenance_thread = new MaintenanceThread(this);
 		maintenance_thread.start();
 		
-		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+		Diagnostic.setLevel(diagnosticLevel);		
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
