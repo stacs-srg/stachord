@@ -15,21 +15,10 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 public class ChordRemoteReference implements IChordRemoteReference, Serializable {
 
 	private static final long serialVersionUID = -7911452718429786447L;
+	
 	private IKey key;
 	private IChordRemote reference;
 	
-	/**
-	 * Null constructor for RMI
-	 * 
-	 */	public ChordRemoteReference() {
-		this.key = null;
-		this.reference = null;
-	}
-	
-	/**
-	 * @param key - the key of a remote reference
-	 * @param reference - the remote reference
-	 */
 	public ChordRemoteReference(IKey key, IChordRemote reference) {
 		this.key = key;
 		this.reference = reference;

@@ -115,6 +115,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			createRing();
 		}
 		else {
+			
+			// TODO see whether RMI-specific code can be factored out.
+			
 			Registry registry = LocateRegistry.getRegistry(known_node_address.getHostName(), known_node_address.getPort());
 			IChordRemote known_node_remote = (IChordRemote) registry.lookup(IChordNode.CHORD_REMOTE_SERVICE);
 			IChordRemoteReference known_node_remote_ref = new ChordRemoteReference(known_node_remote.getKey(), known_node_remote);

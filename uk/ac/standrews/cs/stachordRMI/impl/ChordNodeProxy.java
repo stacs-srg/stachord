@@ -29,71 +29,70 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 public class ChordNodeProxy implements IChordRemote, Remote  {
 	
-	// Private State
-	private ChordNodeImpl cni;
-	private boolean node_failed = false; // used in simulation to make node inaccessible
+	private ChordNodeImpl node;
+	private boolean node_failed = false; // Used in simulation to make node inaccessible.
 	
-	public ChordNodeProxy( ChordNodeImpl cni ) {
-		this.cni = cni;
+	public ChordNodeProxy(ChordNodeImpl node) {
+		this.node = node;
 	}
 	
 	// IChordRemote Methods
 	
 	public InetSocketAddress getAddress() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getAddress();
+		return node.getAddress();
 	}
 
 	public IKey getKey() throws RemoteException  {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getKey();
+		return node.getKey();
 	}
 	
 	public void notify(IChordRemoteReference potential_predecessor) throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		cni.notify(potential_predecessor);
+		node.notify(potential_predecessor);
 	}
 
 	public ArrayList<IChordRemoteReference> getSuccessorList() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getSuccessorList();
+		return node.getSuccessorList();
 	}
 	
 	public ArrayList<IChordRemoteReference> getFingerList() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getFingerList();
+		return node.getFingerList();
 	}
 	
 	public IChordRemoteReference getPredecessor() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getPredecessor();
+		return node.getPredecessor();
 	}
 	
 	public IChordRemoteReference getSuccessor() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.getSuccessor();
+		return node.getSuccessor();
 	}
 
 	public void isAlive() throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		cni.isAlive();
+		node.isAlive();
 	}
 
 	public NextHopResult nextHop(IKey k) throws RemoteException  {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.nextHop(k);
+		return node.nextHop(k);
 	}
 	
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		return cni.lookup(k);
+		return node.lookup(k);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cni == null) ? 0 : cni.hashCode());
+		result = prime * result + ((node == null) ? 0 : node.hashCode());
 		return result;
 	}
 
@@ -104,8 +103,8 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 			
 			ChordNodeProxy other = (ChordNodeProxy) obj;
 			
-			return (cni == null && other.cni == null) ||
-			       (cni != null && other.cni != null && cni.equals(other.cni));
+			return (node == null && other.node == null) ||
+			       (node != null && other.node != null && node.equals(other.node));
 		}
 		else return false;
 	}
@@ -119,11 +118,11 @@ public class ChordNodeProxy implements IChordRemote, Remote  {
 
 	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		cni.enableFingerTableMaintenance(enabled);
+		node.enableFingerTableMaintenance(enabled);
 	}
 
 	public void fingerFailure(IChordRemoteReference broken_finger) throws RemoteException {
 		if( node_failed ) throw new RemoteException(); // to simulate failure
-		cni.fingerFailure(broken_finger);
+		node.fingerFailure(broken_finger);
 	}	
 }
