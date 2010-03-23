@@ -1,6 +1,6 @@
 /*
  *  StAChord Library
- *  Copyright (C) 2004-2008 Distributed Systems Architecture Research Group
+ *  Copyright (C) 2004-2010 Distributed Systems Architecture Research Group
  *  http://asa.cs.st-andrews.ac.uk/
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -65,7 +65,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	private IChordRemoteReference self_reference; 			// A local RMI reference to this node.
 	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy.
 
-	private MaintenanceThread maintenance_thread;
+	private boolean predecessor_maintenance_enabled = true;
+	private boolean stabilization_enabled = true;
 	private boolean finger_table_maintenance_enabled = true;
 	
 	public static final String PREDECESSOR_CHANGE_EVENT_TYPE =    "PREDECESSOR_CHANGE_EVENT";
@@ -129,8 +130,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		
 		addObserver(this);
 
-		maintenance_thread = new MaintenanceThread(this);
-		maintenance_thread.start();
+		startMaintenanceThread();
 		
 		if (diagnosticLevel != null){
 			Diagnostic.setLevel(diagnosticLevel);
@@ -138,21 +138,23 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/**
-	 * Standard destructor.
-	 */
+
 	public void destroy() {
 		
-		maintenance_thread.stopThread(); // Stop the maintenance thread.
+		// Stop the maintenance thread.
+		shutdownMaintenanceThread(); // Stop the maintenance thread.
+		
 		try {
 			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
 		}
 		catch ( Exception e ) {
-			ErrorHandling.error( "Failed to destroy node with key: ", key );
+			ErrorHandling.exceptionError(e, "failed to destroy node: ", key );
 		}
-		self_proxy.destroy();            // Stop incoming message being processed by this node.
-		Diagnostic.trace("Successfully destroyed Node with key: ", key);
+		
+		// Stop incoming message being processed by this node.
+		self_proxy.destroy();           
+
+		Diagnostic.trace(DiagnosticLevel.FULL, "Destroyed node: ", key);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,14 +179,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
-		
-		/* If the key specified is greater than this node's key, and less than or equal
-		 * to this node's successor's key, return this node's successor.
-		 * Else iteratively call findSuccessor on nodes preceding the given
-		 * key, until a suitable successor for the key is found (when the
-		 * key is greater than the current node's key, and less than or
-		 * equal to the current node's successor's key).
-		 */
 		
 		if (k.equals(key) || successor.getKey().equals(key) ) {
 			
@@ -277,17 +271,110 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		setSuccessor(initial_successor);
 	}
 
+	public boolean inLocalKeyRange(IKey k) {
+
+		// This is never called when the predecessor is null.
+		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
+	}
+
+	public void fingerFailure(IChordRemoteReference broken_finger) {
+		
+		finger_table.fingerFailure(broken_finger);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public int hashCode() {
+
+		return hash_code;
+	}
+
+	public IChordRemoteReference getProxy() {
+		return self_reference;
+	}
+
+	@Override
+	public String toString() {
+		return "key: " + key + " local_address: " + local_address;
+	}
+
+	public String toStringFull() {
+		return
+		"Node state" + "\n" + 
+		"key: " + key + "\n" + 
+		"local_address: " + local_address + "\n" + 
+		"predecessor: " + predecessor + "\n" + 
+		"successor: " + successor + "\n" + 
+		"successor_list: " +  successor_list + "\n" + 
+		"finger_table: " + finger_table;
+	}
+
+	public void showState() {
+		System.out.println( toStringFull() );
+	}
+
+	public void update(Observable o, Object arg) {
+		
+		String event_type = ((Event)arg).getType();
+		Diagnostic.trace(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>>update: " + event_type);
+		
+		if (event_type.equals(SUCCESSOR_STATE_EVENT_TYPE)) {
+			
+			Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
+		}
+		
+		if (event_type.equals(SUCCESSOR_CHANGE_EVENT_TYPE)) {
+			
+			Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
+		}
+		
+		if (event_type.equals(PREDECESSOR_CHANGE_EVENT_TYPE)) {
+			
+			Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getKey() : "null"));
+		}
+		
+		if (event_type.equals(SUCCESSOR_LIST_CHANGE_EVENT_TYPE)) {
+			
+			Diagnostic.trace(DiagnosticLevel.FULL, "successor list now: ", successor_list);
+		}
+		
+		if (event_type.equals(FINGER_TABLE_CHANGE_EVENT_TYPE)) {
+			
+			Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
+		}
+	}
+
+	public void enablePredecessorMaintenance(boolean enabled) {
+		predecessor_maintenance_enabled  = enabled;
+	}
+
+	public boolean predecessorMaintenanceEnabled() {
+		return predecessor_maintenance_enabled;
+	}
+
+	public void enableStabilization(boolean enabled) {
+		stabilization_enabled  = enabled;
+	}
+
+	public boolean stabilizationEnabled() {
+		return stabilization_enabled;
+	}
+
+	public void enableFingerTableMaintenance(boolean enabled) {
+		finger_table_maintenance_enabled  = enabled;
+	}
+
+	public boolean fingerTableMaintenanceEnabled() {
+		return finger_table_maintenance_enabled;
+	}
+	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Executes the stabilization protocol.
-	 * If the predecessor of this node's current successor is not this node, a new node has joined between this node and
-	 * this node's successor. If the new node in between has a key that is
-	 * between this node's key, and its successor's key, this node will set its
-	 * successor to be the new node and will call the new node's notify method
-	 * to tell the new node that it is its predecessor. If the new node is not
-	 * in between, this node will call notify on the existing successor telling
-	 * it to set its predecessor back to this node.
 	 */
-	protected synchronized void stabilize() {
+	private synchronized void stabilize() {
 
 		try {
 			// Find predecessor of this node's successor.
@@ -310,7 +397,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 	}
 
-	public synchronized void checkPredecessor() {
+	private synchronized void checkPredecessor() {
 
 		try {
 			pingPredecessor();
@@ -320,7 +407,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 	}
 
-	public synchronized void fixNextFinger() {
+	private synchronized void fixNextFinger() {
 		
 		if (finger_table.fixNextFinger()) {
 			
@@ -329,7 +416,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 	}
 
-	public synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
+	private synchronized void setPredecessor(IChordRemoteReference new_predecessor) {
 
 		IChordRemoteReference old_predecessor = predecessor;
 
@@ -341,27 +428,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			notifyObservers(PREDECESSOR_CHANGE_EVENT);
 		}
 	}
-
-	public FingerTable getFingerTable() {
-
-		return finger_table;
-	}
-
-	public boolean inLocalKeyRange(IKey k) {
-
-		// This is never called when the predecessor is null.
-		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	@Override
-	public int hashCode() {
-
-		return hash_code;
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Returns the closest preceding node from the finger table, or the successor if there
@@ -468,11 +534,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		return next_hop.getNode();
 	}
 	
-	public void fingerFailure(IChordRemoteReference broken_finger) {
-		
-		finger_table.fingerFailure(broken_finger);
-	}
-
 	/**
 	 * Sets the successor node in key space.
 	 * 
@@ -547,102 +608,34 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		throw new NoReachableNodeException();
 	}
 
-	public IChordRemoteReference getProxy() {
-		return self_reference;
-	}
-
-	@Override
-	public String toString() {
-		return "key: " + key + " local_address: " + local_address;
-	}
-
-	public String toStringFull() {
-		return
-		"Node state" + "\n" + 
-		"key: " + key + "\n" + 
-		"local_address: " + local_address + "\n" + 
-		"predecessor: " + predecessor + "\n" + 
-		"successor: " + successor + "\n" + 
-		"successor_list: " +  successor_list + "\n" + 
-		"finger_table: " + finger_table;
-	}
-
-	public void showState() {
-		System.out.println( toStringFull() );
-	}
-
-	public void update(Observable o, Object arg) {
+	private void startMaintenanceThread() {
 		
-		String event_type = ((Event)arg).getType();
-		Diagnostic.trace(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>>update: " + event_type);
-		
-		if (event_type.equals(SUCCESSOR_STATE_EVENT_TYPE)) {
+		new Thread() {
 			
-			Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
-		}
-		
-		if (event_type.equals(SUCCESSOR_CHANGE_EVENT_TYPE)) {
-			
-			Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
-		}
-		
-		if (event_type.equals(PREDECESSOR_CHANGE_EVENT_TYPE)) {
-			
-			Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getKey() : "null"));
-		}
-		
-		if (event_type.equals(SUCCESSOR_LIST_CHANGE_EVENT_TYPE)) {
-			
-			Diagnostic.trace(DiagnosticLevel.FULL, "successor list now: ", successor_list);
-		}
-		
-		if (event_type.equals(FINGER_TABLE_CHANGE_EVENT_TYPE)) {
-			
-			Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
-		}
-	}
+			public static final int WAIT_PERIOD = 1000;
 
-	public void enableFingerTableMaintenance(boolean enabled) {
-		finger_table_maintenance_enabled  = enabled;
-	}
+			@Override
+			public void run() {
 
-	public boolean fingerTableMaintenanceEnabled() {
-		return finger_table_maintenance_enabled;
-	}
-}
+				while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled()) {
+					try {
+						sleep(WAIT_PERIOD);
+					}
+					catch (InterruptedException e) {}
 
-// TODO anonymous class
-
-class MaintenanceThread extends Thread {
-	
-	public static final int DEFAULT_WAIT_PERIOD = 1000;
-	protected final ChordNodeImpl node;
-	protected boolean running = true;
-	
-	public MaintenanceThread(ChordNodeImpl node){
-		this.node = node;
-	}
-	
-	public void stopThread() {
-		running = false;
-		interrupt();
-	}
-
-	@Override
-	public void run() {
-
-		while (running) {
-			try {
-				sleep(DEFAULT_WAIT_PERIOD);
+					if (predecessorMaintenanceEnabled()) checkPredecessor();
+					if (stabilizationEnabled())          stabilize();
+					if (fingerTableMaintenanceEnabled()) fixNextFinger();
+				}
+				Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + getKey());
 			}
-			catch (InterruptedException e) {}
-			
-			// TODO add toggles for other operations.
-
-			node.checkPredecessor();
-			node.stabilize();
-			if (node.fingerTableMaintenanceEnabled()) node.fixNextFinger();
-		}
-		Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + node.getKey());
+		}.start();
+	}
+	
+	private void shutdownMaintenanceThread() {
+		
+		enablePredecessorMaintenance(false);
+		enableStabilization(false);
+		enableFingerTableMaintenance(false);
 	}
 }
