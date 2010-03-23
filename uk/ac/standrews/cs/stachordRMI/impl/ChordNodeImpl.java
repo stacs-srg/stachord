@@ -132,7 +132,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		maintenance_thread = new MaintenanceThread(this);
 		maintenance_thread.start();
 		
-		Diagnostic.setLevel(diagnosticLevel);		
+		//Diagnostic.setLevel(diagnosticLevel);		
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
