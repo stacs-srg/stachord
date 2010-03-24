@@ -22,16 +22,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import uk.ac.standrews.cs.stachordRMI.test.recovery.RecoveryTestsOutOfProcessSingleMachine;
-import uk.ac.standrews.cs.stachordRMI.test.ringIntegrity.RingIntegrityTestsOutOfProcessSingleMachine;
-import uk.ac.standrews.cs.stachordRMI.test.routing.RoutingTestsOutOfProcessSingleMachine;
 
 /**
  * Tests run on each build.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	RingIntegrityTestsOutOfProcessSingleMachine.class,
-	RoutingTestsOutOfProcessSingleMachine.class,
 	RecoveryTestsOutOfProcessSingleMachine.class
 })
 public class CheckInTests {
