@@ -34,13 +34,15 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
 
-	private static int FIRST_NODE_PORT = 54466;
+	private static int FIRST_NODE_PORT = 54498;
 	
 	private static final String LOCAL_HOST = "localhost";
 
 	/***************** INodeFactory methods *****************/
 
 	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException {
+		
+		// TODO fix for all network types.
 		
 		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
