@@ -11,5 +11,5 @@ public class RecoveryTestsInProcess extends RecoveryTests {
 		
 		super.setUp();
 		network_factory = new InProcessFactory();
-	}
+	} 
 }
