@@ -13,7 +13,7 @@ public class CustomSocketFactory implements RMIServerSocketFactory {
 	
 	public CustomSocketFactory(InetAddress address) {
 		this.address = address;
-	}
+	} 
 	
 	public ServerSocket createServerSocket(int port) throws IOException {
 		
