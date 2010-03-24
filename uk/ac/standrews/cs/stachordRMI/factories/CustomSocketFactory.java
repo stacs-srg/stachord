@@ -6,24 +6,24 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.rmi.server.RMIServerSocketFactory;
 
-
 public class CustomSocketFactory implements RMIServerSocketFactory {
 
-	private ServerSocket theSocket = null;
-	private InetAddress addr;
+	private ServerSocket server_socket;
+	private InetAddress address;
 	
-	public CustomSocketFactory(InetAddress addr) {
-		this.addr = addr;
+	public CustomSocketFactory(InetAddress address) {
+		this.address = address;
 	}
 	
 	public ServerSocket createServerSocket(int port) throws IOException {
-		InetSocketAddress sa = new InetSocketAddress(addr,port);
-		theSocket = new ServerSocket();
-		theSocket.bind(sa);
-		return theSocket;
+		
+		server_socket = new ServerSocket();
+		server_socket.bind(new InetSocketAddress(address, port));
+		
+		return server_socket;
 	}
 	
 	public ServerSocket getServerSocket(){
-		return theSocket;
+		return server_socket;
 	}
 }
