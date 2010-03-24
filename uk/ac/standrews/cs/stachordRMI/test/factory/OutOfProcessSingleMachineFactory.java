@@ -49,6 +49,8 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		args.add( "-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
 		
 		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
+		
+		System.out.println("first port: " + FIRST_NODE_PORT);
 
 		IChordRemoteReference first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
 		nodes.add(first);
@@ -61,7 +63,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 			args = new ArrayList<String>();
 
 			args.add("-s" + LOCAL_HOST + ":" + port);
-			args.add("-k" + LOCAL_HOST + ":" + join_port);
+			args.add("-k" + LOCAL_HOST + ":" + join_port); 
 
 			Process otherNodeProcess = Processes.runJavaProcess(StartNode.class, args);
 
