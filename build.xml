@@ -27,7 +27,7 @@
 	<target name="do-test">
 		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
 			<formatter type="xml"/>
-			<test name="uk.ac.standrews.cs.javacompiler.test.CheckInTests" todir="junit"/>
+			<test name="uk.ac.standrews.cs.stachordRMI.test.CheckInTests" todir="junit"/>
 			<classpath path="${classpath}"/>
 		</junit>
 	</target>
