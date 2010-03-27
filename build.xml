@@ -1,0 +1,85 @@
+<project>
+
+	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs" />
+
+	<!-- Initialise release directory structure. -->
+	<target name="do-init-release">
+		<mkdir dir="bin" />
+		<mkdir dir="doc" />
+		<mkdir dir="junit" />
+	</target>
+
+	<!-- Compile current version. -->
+	<target name="do-compile" depends="remove-class-files">
+		<javac srcdir="." includes="uk/**" classpath="${classpath}">
+			<compilerarg value="-Xlint:unchecked" />
+		</javac>
+	</target>
+	
+	<!-- Delete any existing .class files to force complete recompilation. -->
+	<target name="remove-class-files">
+		<delete failonerror="false">
+			<fileset dir="." includes="**/*.class"/>
+		</delete>
+	</target>
+
+	<!-- Run check-in tests. -->
+	<target name="do-test">
+		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
+			<formatter type="xml"/>
+			<test name="uk.ac.standrews.cs.javacompiler.test.CheckInTests" todir="junit"/>
+			<classpath path="${classpath}"/>
+		</junit>
+	</target>
+	
+	<!-- Generate project jar. -->
+	<target name="project-jar">
+		<jar jarfile="bin/stachordRMI.jar" basedir="." includes="uk/**" />
+	</target>
+
+	<!-- Generate javadoc. -->
+	<target name="release-doc">
+		<javadoc
+				classpath="${classpath}" sourcepath="." destdir="doc" packagenames="uk.ac.standrews.cs.stachordRMI.*"
+				access="public" linksource="yes" source="1.5" nodeprecated="false" nodeprecatedlist="false"
+				noindex="false" nonavbar="false" notree="false" splitindex="false" use="false" author="true" version="true" verbose="true">
+
+			<!-- Link to Java API from generated documentation. -->
+			<link href="${doc-java}" />
+		</javadoc>
+	</target>
+
+	<!-- Run style check. -->
+	<target name="do-checkstyle">
+		<checkstyle config="checkstyle-config.xml" failOnViolation="false">
+			<formatter type="xml" tofile="checkstyle-result.xml" />
+			<fileset dir="." includes="**/*.java" />
+			<classpath path="${classpath}" />
+		</checkstyle>
+	</target>
+	
+	<!-- Run bug scan. -->
+	<target name="do-findbugs">
+
+	    <findbugs home="${lib-findbugs-dir}" output="xml:withMessages" outputFile="findbugs.xml" >
+	        <auxClasspath path="${classpath}" />
+	        <sourcePath path="." />
+	        <class location="bin/stachordRMI.jar" />
+	    </findbugs>
+    </target>
+	
+	<property name="lib-junit-4.1"        location="/projects/systems/InstallerSoftware/junit4.1/junit-4.1.jar" />
+	<property name="lib-checkstyle-dir"   location="/projects/systems/InstallerSoftware/checkstyle-5.1" />
+	<property name="lib-findbugs-dir"     location="/projects/systems/InstallerSoftware/findbugs-1.3.9" />
+	<property name="lib-nds"              location="../../nds/lastStable/archive/bin/nds.jar" />
+	<property name="lib-tools"            location="/usr/java/default/lib/tools.jar" />
+	<property name="lib-checkstyle"       location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
+
+	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}" />
+    <property name="doc-java"        value="http://java.sun.com/j2se/1.5.0/docs/api/" />
+
+	<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
+
+	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+	
+</project>
