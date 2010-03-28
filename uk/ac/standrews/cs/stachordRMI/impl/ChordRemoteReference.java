@@ -31,7 +31,7 @@ public class ChordRemoteReference implements IChordRemoteReference, Serializable
 	public IChordRemote getRemote() {
 		return reference;
 	}
-	
+
 	@Override
 	public int hashCode() {
 

@@ -17,8 +17,8 @@ public abstract class AbstractServer  {
 	
 	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 	
-	protected static String local_address = "";
-	protected static int local_port = 0;
+	static String local_address = "";
+	static int local_port = 0;
 
 	public static void setup( String[] args ) {
 		

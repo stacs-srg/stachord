@@ -24,7 +24,7 @@ public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 
-	private static final int[] RING_SIZES = {2,3,4,5,6};
+	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 

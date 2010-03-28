@@ -82,7 +82,7 @@ public class SuccessorList {
 		if (successor_list.size() > 0) {
 
 			// The successor list is not empty.
-			successor_list.removeAll(successor_list);
+			successor_list.clear();
 		}
 	}
 
@@ -116,7 +116,7 @@ public class SuccessorList {
 		
 		if (different(new_list, successor_list)) {
 		
-			successor_list.removeAll(successor_list);
+			successor_list.clear();
 			successor_list.addAll(new_list);
 			return true;
 		}
