@@ -32,6 +32,12 @@ public class ChordRemoteReference implements IChordRemoteReference, Serializable
 		return reference;
 	}
 	
+	@Override
+	public int hashCode() {
+
+		return 31 + ((key == null) ? 0 : key.hashCode());
+	}
+
 	public boolean equals( Object o ) {
 		return o instanceof ChordRemoteReference && key.equals( ((ChordRemoteReference) o).getKey() );
 	}

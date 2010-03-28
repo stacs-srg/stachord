@@ -75,11 +75,11 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	public static final String SUCCESSOR_LIST_CHANGE_EVENT_TYPE = "SUCCESSOR_LIST_CHANGE_EVENT";
 	public static final String FINGER_TABLE_CHANGE_EVENT_TYPE =   "FINGER_TABLE_CHANGE_EVENT";
 
-	public static IEvent PREDECESSOR_CHANGE_EVENT =    new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
-	public static IEvent SUCCESSOR_STATE_EVENT =       new Event(SUCCESSOR_STATE_EVENT_TYPE);
-	public static IEvent SUCCESSOR_CHANGE_EVENT =      new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
-	public static IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
-	public static IEvent FINGER_TABLE_CHANGE_EVENT =   new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
+	public static final IEvent PREDECESSOR_CHANGE_EVENT =    new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
+	public static final IEvent SUCCESSOR_STATE_EVENT =       new Event(SUCCESSOR_STATE_EVENT_TYPE);
+	public static final IEvent SUCCESSOR_CHANGE_EVENT =      new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
+	public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
+	public static final IEvent FINGER_TABLE_CHANGE_EVENT =   new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 

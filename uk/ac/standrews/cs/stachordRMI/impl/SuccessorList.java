@@ -29,7 +29,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 public class SuccessorList {
 
-	public static int MAX_SUCCESSOR_LIST_SIZE = 5;
+	public static final int MAX_SUCCESSOR_LIST_SIZE = 5;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
