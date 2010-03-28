@@ -28,7 +28,7 @@ import uk.ac.standrews.cs.stachordRMI.test.recovery.RecoveryTestsOutOfProcessSin
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	//RecoveryTestsOutOfProcessSingleMachine.class
+	RecoveryTestsOutOfProcessSingleMachine.class
 })
 public class CheckInTests {
 	// Empty.

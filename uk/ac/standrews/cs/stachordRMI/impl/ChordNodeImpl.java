@@ -519,16 +519,14 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		while (!next_hop.isFinalHop()) {
 
 			try {
-				// Get the next hop.
-				next_hop = next_hop.getNode().getRemote().nextHop(key);
+				// Remember the previous value of next_hop.
+				IChordRemote previous_next_hop = next_hop.getNode().getRemote();
 				
-				// Remember it.
-				current_hop = next_hop.getNode().getRemote();
+				next_hop =    previous_next_hop.nextHop(key);
+				current_hop = previous_next_hop;
 			}
 			catch (RemoteException e) {
 
-				// This finger appears to have failed.
-				// Tell the node whose finger table contains the finger about the failure.
 				current_hop.fingerFailure(next_hop.getNode());
 				throw e;
 			}

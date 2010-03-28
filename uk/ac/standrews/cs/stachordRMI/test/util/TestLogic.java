@@ -227,17 +227,19 @@ public class TestLogic {
 
 		for (IChordRemoteReference node1 : nodes) {
 			for (IChordRemoteReference node2 : nodes) {
-				if (!routingCorrect(node1.getRemote(), node2.getRemote(), nodes.size())) return false;
+				if (!routingCorrect(node1, node2, nodes.size())) {
+					return false;
+				}
 			}
 		}
 		return true;
 	}
 
-	private static boolean routingCorrect(IChordRemote source, IChordRemote expected_target, int ring_size) {
+	private static boolean routingCorrect(IChordRemoteReference source, IChordRemoteReference expected_target, int ring_size) {
 
 		try {
-			IChordRemoteReference predecessor_of_target = expected_target.getPredecessor();
-			IChordRemoteReference successor_of_target = expected_target.getSuccessor();
+			IChordRemoteReference predecessor_of_target = expected_target.getRemote().getPredecessor();
+			IChordRemoteReference successor_of_target = expected_target.getRemote().getSuccessor();
 			
 			// Check that a slightly smaller key than the target's key routes to the node, except
 			// in the pathological case where the target has a predecessor with a key one less than it.
@@ -264,13 +266,15 @@ public class TestLogic {
 		return true;
 	}
 
-	private static IChordRemote lookupWithRetry(IChordRemote source, IKey key) throws RemoteException {
+	private static IChordRemote lookupWithRetry(IChordRemoteReference source, IKey key) throws RemoteException {
 		
 		while (true) {
 			try {
-				return source.lookup(key).getRemote();
+				return source.getRemote().lookup(key).getRemote();
 			}
-			catch (RemoteException e) { sleep(); }
+			catch (RemoteException e) { 
+				System.out.println("lookup failed from source: " + source.getKey() + " of key " + key);
+				sleep(); }
 		}
 	}
 	

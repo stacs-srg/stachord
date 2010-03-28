@@ -23,9 +23,8 @@ import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
-	
-//	private static final int[] RING_SIZES = {2,3,4,5,6,10,20};
-	private static final int[] RING_SIZES = {4};
+
+	private static final int[] RING_SIZES = {2,3,4};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -65,7 +64,7 @@ public abstract class RecoveryTests {
 		
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
-
+		
 		killPartOfNetwork(network);
 		
 		TestLogic.waitForCorrectRouting(network.getNodes());
@@ -74,7 +73,9 @@ public abstract class RecoveryTests {
 		enableFingerTableMaintenance(network, true);
 		
 		TestLogic.waitForStableRing(network.getNodes());
+
 		TestLogic.waitForCompleteFingerTables(network.getNodes());
+
 		TestLogic.waitForCompleteSuccessorLists(network.getNodes());
 		
 		TestLogic.waitForCorrectRouting(network.getNodes());
