@@ -105,7 +105,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 					for (IChordRemoteReference node : getNodes()) {
 						processTable.get(node).destroy();
 					}
-					nodes.removeAll(nodes);
+					nodes.clear();
 				}
 			}
 		};

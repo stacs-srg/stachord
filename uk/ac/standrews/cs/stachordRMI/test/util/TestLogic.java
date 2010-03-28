@@ -272,9 +272,7 @@ public class TestLogic {
 			try {
 				return source.getRemote().lookup(key).getRemote();
 			}
-			catch (RemoteException e) { 
-				System.out.println("lookup failed from source: " + source.getKey() + " of key " + key);
-				sleep(); }
+			catch (RemoteException e) { sleep(); }
 		}
 	}
 	

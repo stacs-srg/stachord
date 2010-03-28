@@ -15,8 +15,8 @@ public abstract class AbstractNetworkFactory {
 	public static final String EVEN = "EVEN";              // Nodes evenly distributed around the ring.
 	public static final String CLUSTERED = "CLUSTERED";    // Nodes clustered tightly in one region of the ring.
 
-	protected static int FIRST_NODE_PORT = 54446;
-	protected static final String LOCAL_HOST = "localhost";
+	static int FIRST_NODE_PORT = 54446;
+	static final String LOCAL_HOST = "localhost";
 	
 	private static Random random = new Random(FIRST_NODE_PORT);
 	
