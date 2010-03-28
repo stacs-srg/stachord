@@ -24,7 +24,7 @@ public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 
-	private static final int[] RING_SIZES = {2,3,4};
+	private static final int[] RING_SIZES = {2,3,4,5,6};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -45,9 +45,9 @@ public abstract class RecoveryTests {
 			
 			System.out.println("testing recovery for ring size: " + ring_size);
 			
-//			ringRecovers(ring_size, AbstractNetworkFactory.RANDOM);
-			ringRecovers(ring_size, AbstractNetworkFactory.EVEN);
-			ringRecovers(ring_size, AbstractNetworkFactory.CLUSTERED);
+			ringRecovers(ring_size, AbstractNetworkFactory.RANDOM);
+//			ringRecovers(ring_size, AbstractNetworkFactory.EVEN);
+//			ringRecovers(ring_size, AbstractNetworkFactory.CLUSTERED);
 		}
 	}
 	
