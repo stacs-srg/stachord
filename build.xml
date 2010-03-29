@@ -61,7 +61,7 @@
 	<!-- Run bug scan. -->
 	<target name="do-findbugs">
 
-	    <findbugs home="${lib-findbugs-dir}" output="xml:withMessages" outputFile="findbugs.xml" >
+	    <findbugs home="${lib-findbugs-dir}" output="xml:withMessages" outputFile="findbugs.xml" excludeFilter="findbugs-exclude.xml">
 	        <auxClasspath path="${classpath}" />
 	        <sourcePath path="." />
 	        <class location="bin/stachordRMI.jar" />

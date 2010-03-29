@@ -19,7 +19,6 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.net.InetSocketAddress;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -27,7 +26,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
-public class ChordNodeProxy implements IChordRemote, Remote  {
+public class ChordNodeProxy implements IChordRemote {
 	
 	private ChordNodeImpl node;
 	private boolean node_failed = false; // Used in simulation to make node inaccessible.

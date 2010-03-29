@@ -1,0 +1,6 @@
+<FindBugsFilter>
+     <Match>
+       <Class name="uk.ac.standrews.cs.stachordRMI.impl.ChordRemoteReference" />
+       <Bug code="SE_BAD_FIELD" />
+     </Match>
+</FindBugsFilter>
