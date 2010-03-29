@@ -27,13 +27,13 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 
 public class StartRing extends AbstractServer {
 
-	public static void main( String[] args ) throws RemoteException, NotBoundException {
+	public static void main(String[] args) throws RemoteException, NotBoundException {
 
 		setup(args);
 
-		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: " + local_address + " on port: " + local_port );
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
-		startChordRing( local_address, local_port );
+		startChordRing(local_address, local_port, server_key);
 	}
 
 	public static IChordNode startChordRing(String hostname, int port) throws RemoteException, NotBoundException {

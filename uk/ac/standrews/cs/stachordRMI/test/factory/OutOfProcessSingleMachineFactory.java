@@ -2,6 +2,7 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
@@ -15,6 +16,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import uk.ac.standrews.cs.nds.p2p.impl.Key;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
@@ -42,14 +45,17 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException {
 		
-		// TODO fix for all network types.
+		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
+
+		IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
 		
 		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
 
 		List<String> args = new ArrayList<String>();
-		args.add( "-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT );
-		
+		args.add("-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT);
+		addKeyArg(node_keys[0], args);
+
 		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
 		
 		System.out.println("first port: " + FIRST_NODE_PORT);
@@ -66,6 +72,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 			args.add("-s" + LOCAL_HOST + ":" + port);
 			args.add("-k" + LOCAL_HOST + ":" + join_port); 
+			addKeyArg(node_keys[port - FIRST_NODE_PORT], args);
 
 			Process otherNodeProcess = Processes.runJavaProcess(StartNode.class, args);
 
@@ -109,6 +116,11 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 				}
 			}
 		};
+	}
+
+	private void addKeyArg(IKey key, List<String> args) {
+
+		if (key != null) args.add("-x" + key.toString(Key.DEFAULT_RADIX)); 
 	}
 
 	private IChordRemoteReference bindToNode(String host, int port) {

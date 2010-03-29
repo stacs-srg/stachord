@@ -39,15 +39,30 @@ public abstract class RecoveryTests {
 	}
 	
 	@Test
-	public void ringRecovers() throws IOException, NotBoundException {
+	public void ringRecoversRandom() throws IOException, NotBoundException {
+			
+		ringRecovers(AbstractNetworkFactory.RANDOM);
+	}
+	
+	@Test
+	public void ringRecoversEven() throws IOException, NotBoundException {
+		
+		ringRecovers(AbstractNetworkFactory.EVEN);
+	}
+
+	@Test
+	public void ringRecoversClustered() throws IOException, NotBoundException {
+		
+		ringRecovers(AbstractNetworkFactory.CLUSTERED);
+	}
+
+	private void ringRecovers(String network_type) throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
-			System.out.println("testing recovery for ring size: " + ring_size);
+			System.out.println("testing recovery for ring size: " + ring_size + ", network type: " + network_type);
 			
-			ringRecovers(ring_size, AbstractNetworkFactory.RANDOM);
-//			ringRecovers(ring_size, AbstractNetworkFactory.EVEN);
-//			ringRecovers(ring_size, AbstractNetworkFactory.CLUSTERED);
+			ringRecovers(ring_size, network_type);
 		}
 	}
 	

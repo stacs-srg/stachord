@@ -59,10 +59,6 @@ public abstract class AbstractNetworkFactory {
 			}
 		}
 		
-//		System.out.println("network type: " + network_type);
-//		System.out.println("keys:");
-//		for (int i = 0; i < number_of_nodes; i++) System.out.println(node_keys[i]);
-		
 		return node_keys;
 	}
 }

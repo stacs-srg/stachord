@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 
 public class StartNode extends AbstractServer {
 
-	public static void main ( String[] args ) throws RemoteException, NotBoundException {
+	public static void main(String[] args) throws RemoteException, NotBoundException {
 		
 		setup(args);
 		
@@ -45,9 +45,9 @@ public class StartNode extends AbstractServer {
 		String known_address = NetworkUtil.extractHostName(known_address_parameter);
 		int known_port =       NetworkUtil.extractPortNumber(known_address_parameter);
 
-		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: " + local_address + " on port: " + local_port + ", known node: " + known_address + " on port: " + known_port);
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 
-		joinChordRing( local_address, local_port, known_address, known_port );
+		joinChordRing(local_address, local_port, known_address, known_port, server_key);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class StartNode extends AbstractServer {
 	 * @throws RemoteException 
 	 * @throws NotBoundException 
 	 */
-	public static IChordNode joinChordRing( String hostname, int port, String known_address, int known_port ) throws RemoteException, NotBoundException {
+	public static IChordNode joinChordRing(String hostname, int port, String known_address, int known_port) throws RemoteException, NotBoundException {
 
 		return joinChordRing(hostname, port, known_address, known_port, null);
 	}
