@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -48,6 +49,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
 		IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
+		int[] node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
 		
 		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
@@ -58,21 +60,22 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 
 		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
 		
-		System.out.println("first port: " + FIRST_NODE_PORT);
+		System.out.println("first port: " + node_ports[0]);
 
-		IChordRemoteReference first = bindToNode(LOCAL_HOST, FIRST_NODE_PORT);
+		IChordRemoteReference first = bindToNode(LOCAL_HOST, node_ports[0]);
 		nodes.add(first);
 		processTable.put(first, firstNodeProcess);
 
-		for (int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++) {
+		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
 			
-			int join_port = randomPort(FIRST_NODE_PORT, port);
+			int port = node_ports[port_index];
+			int join_port = node_ports[randomPortIndex(0, port_index)];
 
 			args = new ArrayList<String>();
 
 			args.add("-s" + LOCAL_HOST + ":" + port);
 			args.add("-k" + LOCAL_HOST + ":" + join_port); 
-			addKeyArg(node_keys[port - FIRST_NODE_PORT], args);
+			addKeyArg(node_keys[port_index], args);
 
 			Process otherNodeProcess = Processes.runJavaProcess(StartNode.class, args);
 
@@ -82,7 +85,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		}
 		
 		// For next time, adjust first node port beyond the ports just used.
-		FIRST_NODE_PORT += number_of_nodes;
+		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
 
 		return new INetwork() {
 
@@ -116,6 +119,20 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 				}
 			}
 		};
+	}
+
+	private int[] generatePorts(int first_port, int number_of_nodes) throws SocketException {
+
+		int[] ports = new int[number_of_nodes];
+		int port = first_port;
+		
+		for (int i = 0; i < number_of_nodes; i++) {
+			port = nextFreePort(port);
+			ports[i] = port;
+			port++;
+		}
+		
+		return ports;
 	}
 
 	private void addKeyArg(IKey key, List<String> args) {

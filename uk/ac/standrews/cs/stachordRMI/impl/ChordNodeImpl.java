@@ -19,6 +19,7 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
  
 import java.net.InetSocketAddress;
+import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -116,11 +117,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 		else {
 			
-			// TODO see whether RMI-specific code can be factored out.
-			
-			Registry registry = LocateRegistry.getRegistry(known_node_address.getHostName(), known_node_address.getPort());
-			IChordRemote known_node_remote = (IChordRemote) registry.lookup(IChordNode.CHORD_REMOTE_SERVICE);
-			IChordRemoteReference known_node_remote_ref = new ChordRemoteReference(known_node_remote.getKey(), known_node_remote);
+			IChordRemoteReference known_node_remote_ref = bindToNode(known_node_address);
 			join(known_node_remote_ref);
 		}
 		
@@ -138,6 +135,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		if (diagnosticLevel != null){
 			Diagnostic.setLevel(diagnosticLevel);
 		}
+	}
+
+	private IChordRemoteReference bindToNode(InetSocketAddress node_address) throws RemoteException, NotBoundException, AccessException {
+		
+		Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort());
+		IChordRemote node = (IChordRemote) registry.lookup(IChordNode.CHORD_REMOTE_SERVICE);
+		return new ChordRemoteReference(node.getKey(), node);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
