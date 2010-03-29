@@ -11,6 +11,8 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 
 public abstract class AbstractNetworkFactory {
 	
+	// TODO check for ports already in use.
+	
 	public static final String RANDOM = "RANDOM";          // Nodes randomly distributed around the ring.
 	public static final String EVEN = "EVEN";              // Nodes evenly distributed around the ring.
 	public static final String CLUSTERED = "CLUSTERED";    // Nodes clustered tightly in one region of the ring.
