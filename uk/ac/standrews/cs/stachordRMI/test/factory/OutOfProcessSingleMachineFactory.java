@@ -55,7 +55,7 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
 
 		List<String> args = new ArrayList<String>();
-		args.add("-s" + LOCAL_HOST + ":" + FIRST_NODE_PORT);
+		args.add("-s" + LOCAL_HOST + ":" + node_ports[0]);
 		addKeyArg(node_keys[0], args);
 
 		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
