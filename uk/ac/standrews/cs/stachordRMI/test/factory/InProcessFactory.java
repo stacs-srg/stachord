@@ -7,7 +7,6 @@ import java.rmi.RemoteException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
@@ -52,7 +51,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 			public void killNode(IChordRemoteReference node) {
 
 				// TODO implement killNode for inProcess.
-				throw new NotImplementedException();
+				throw new RuntimeException("killNode not implemented");
 				//allNodes.remove(cn);
 				//cn.destroy();
 			}

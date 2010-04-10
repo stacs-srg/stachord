@@ -65,7 +65,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	private IChordRemoteReference successor;
 	private final SuccessorList successor_list;
 	private final FingerTable finger_table;
-	
+
 	private boolean predecessor_maintenance_enabled =  true;
 	private boolean stabilization_enabled =            true;
 	private boolean finger_table_maintenance_enabled = true;
@@ -83,7 +83,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	public static final IEvent SUCCESSOR_CHANGE_EVENT =      new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
 	public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
 	public static final IEvent FINGER_TABLE_CHANGE_EVENT =   new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
-	
+
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
 
 		this(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
