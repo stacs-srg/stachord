@@ -7,8 +7,6 @@ import java.rmi.RemoteException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.sun.org.apache.xml.internal.utils.UnImplNode;
-
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
