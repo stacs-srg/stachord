@@ -34,7 +34,7 @@ public class SuccessorList {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private final ChordNodeImpl local_node;
-	private ArrayList<IChordRemoteReference> successor_list;
+	private final ArrayList<IChordRemoteReference> successor_list;
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +114,8 @@ public class SuccessorList {
 
 		new_list.add(0, successor);
 		
-		if (different(new_list, successor_list)) {
+//		if (different(new_list, successor_list)) {
+		if (!new_list.equals(successor_list)) {
 		
 			successor_list.clear();
 			successor_list.addAll(new_list);

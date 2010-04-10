@@ -54,22 +54,24 @@ import uk.ac.standrews.cs.stachordRMI.util.SegmentArithmetic;
  */
 public class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Remote, Observer  {
 
-	private InetSocketAddress local_address;
-	private IKey key;
-	private int hash_code;
+	private final InetSocketAddress local_address;
+	private final IKey key;
+	private final int hash_code;
+
+	private final IChordRemoteReference self_reference; 			// A local RMI reference to this node.
+	private final ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy.
 
 	private IChordRemoteReference predecessor;
 	private IChordRemoteReference successor;
-	private SuccessorList successor_list;
-	private FingerTable finger_table;
+	private final SuccessorList successor_list;
+	private final FingerTable finger_table;
 	
-	private IChordRemoteReference self_reference; 			// A local RMI reference to this node.
-	private ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy.
-
-	private boolean predecessor_maintenance_enabled = true;
-	private boolean stabilization_enabled = true;
+	private boolean predecessor_maintenance_enabled =  true;
+	private boolean stabilization_enabled =            true;
 	private boolean finger_table_maintenance_enabled = true;
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	public static final String PREDECESSOR_CHANGE_EVENT_TYPE =    "PREDECESSOR_CHANGE_EVENT";
 	public static final String SUCCESSOR_STATE_EVENT_TYPE =       "SUCCESSOR_STATE_EVENT";
 	public static final String SUCCESSOR_CHANGE_EVENT_TYPE =      "SUCCESSOR_CHANGE_EVENT";
@@ -82,8 +84,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
 	public static final IEvent FINGER_TABLE_CHANGE_EVENT =   new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
 	
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
 
 		this(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
