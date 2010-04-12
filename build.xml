@@ -1,6 +1,6 @@
 <project>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs" />
+	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd" />
 
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
@@ -68,18 +68,34 @@
 	    </findbugs>
     </target>
 	
+	<!-- Run PMD check. -->
+	<target name="do-pmd">
+	    <pmd rulesetfiles="rulesets/favorites.xml, rulesets/basic.xml, rulesets/controversial.xml, rulesets/naming.xml, rulesets/strings.xml">
+	        <formatter type="xml" toFile="pmd.xml"/>
+	        <fileset dir=".">
+	            <include name="**/*.java"/>
+	        </fileset>
+	    </pmd>
+	</target>
+	
 	<property name="lib-junit-4.1"        location="/projects/systems/InstallerSoftware/junit4.1/junit-4.1.jar" />
 	<property name="lib-checkstyle-dir"   location="/projects/systems/InstallerSoftware/checkstyle-5.1" />
 	<property name="lib-findbugs-dir"     location="/projects/systems/InstallerSoftware/findbugs-1.3.9" />
-	<property name="lib-nds"              location="../../nds/lastStable/archive/bin/nds.jar" />
-	<property name="lib-tools"            location="/usr/java/default/lib/tools.jar" />
-	<property name="lib-checkstyle"       location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
+	<property name="lib-pmd-dir"          location="/projects/systems/InstallerSoftware/pmd-4.2.5/lib" />
 
-	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}" />
+	<property name="lib-checkstyle"       location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
+	<property name="lib-pmd"              location="${lib-pmd-dir}/pmd-4.2.5.jar" />
+
+	<property name="classpath"       value=".:lib/mindterm.jar:lib/mailapi.jar:${lib-junit-4.1}" />
     <property name="doc-java"        value="http://java.sun.com/j2se/1.5.0/docs/api/" />
+    <property name="doc-mindterm"    value="http://www.appgate.com/products/80_MindTerm/80_API_Documentation/" />
 
 	<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
 
 	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+	
+	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+		<classpath><pathelement location="${lib-pmd}"/></classpath>
+	</taskdef>
 	
 </project>
