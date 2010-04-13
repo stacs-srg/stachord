@@ -120,7 +120,7 @@
 	
 	<!-- Run duplicate code check. -->
 	<target name="do-cpd">
-	    <cpd minimumTokenCount="100" outputFile="cpd.xml">
+	    <cpd minimumTokenCount="100" format="xml" outputFile="cpd.xml">
 	        <fileset dir=".">
 	            <include name="**/*.java"/>
 	        </fileset>
