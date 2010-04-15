@@ -5,6 +5,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 
@@ -22,15 +24,13 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
  * 
  * @author al
  */
-
 public class StartRing extends AbstractServer {
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {
 
 		setup(args);
 
-//		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
-		System.out.println( "Starting new RMI Chord ring with address: "+ local_address+ " on port: "+ local_port+ " with key: "+ server_key);
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
 		startChordRing(local_address, local_port, server_key);
 	}

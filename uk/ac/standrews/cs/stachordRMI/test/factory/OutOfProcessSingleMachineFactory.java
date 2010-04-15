@@ -48,8 +48,8 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		
 		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
-		IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
-		int[] node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
+		final IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
+		final int[] node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
 		
 		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
@@ -59,8 +59,6 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 		addKeyArg(node_keys[0], args);
 
 		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
-		
-		System.out.println("first port: " + node_ports[0]);
 
 		IChordRemoteReference first = bindToNode(LOCAL_HOST, node_ports[0]);
 		nodes.add(first);
@@ -111,7 +109,6 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 			public void killAllNodes() {
 				
 				synchronized (nodes) {
-				
 					for (IChordRemoteReference node : getNodes()) {
 						processTable.get(node).destroy();
 					}
@@ -119,20 +116,6 @@ public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory imp
 				}
 			}
 		};
-	}
-
-	private int[] generatePorts(int first_port, int number_of_nodes) throws SocketException {
-
-		int[] ports = new int[number_of_nodes];
-		int port = first_port;
-		
-		for (int i = 0; i < number_of_nodes; i++) {
-			port = nextFreePort(port);
-			ports[i] = port;
-			port++;
-		}
-		
-		return ports;
 	}
 
 	private void addKeyArg(IKey key, List<String> args) {

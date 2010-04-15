@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 import uk.ac.standrews.cs.nds.p2p.exceptions.P2PNodeException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.CommandLineArgs;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
@@ -30,7 +32,6 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
  * 
  * @author al
  */
-
 public class StartNode extends AbstractServer {
 
 	public static void main(String[] args) throws RemoteException, NotBoundException {
@@ -43,8 +44,7 @@ public class StartNode extends AbstractServer {
 		String known_address = NetworkUtil.extractHostName(known_address_parameter);
 		int known_port =       NetworkUtil.extractPortNumber(known_address_parameter);
 
-//		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
-		System.out.println( "Joining RMI Chord ring with address: "+ local_address+ " on port: "+ local_port+ ", known node: "+ known_address+ " on port: "+ known_port+ " with key: "+ server_key);
+		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 
 		joinChordRing(local_address, local_port, known_address, known_port, server_key);
 	}

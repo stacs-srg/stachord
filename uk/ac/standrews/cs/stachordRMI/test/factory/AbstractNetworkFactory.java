@@ -33,7 +33,7 @@ public abstract class AbstractNetworkFactory {
 		return lower + random.nextInt(upper - lower);
 	}
 	
-	protected int nextFreePort(int port) throws SocketException {
+	private int nextFreePort(int port) throws SocketException {
 
 		while (!free(port)) {
 			port++;
@@ -85,5 +85,19 @@ public abstract class AbstractNetworkFactory {
 		}
 		
 		return node_keys;
+	}
+	
+	protected int[] generatePorts(int first_port, int number_of_nodes) throws SocketException {
+
+		int[] ports = new int[number_of_nodes];
+		int port = first_port;
+		
+		for (int i = 0; i < number_of_nodes; i++) {
+			port = nextFreePort(port);
+			ports[i] = port;
+			port++;
+		}
+		
+		return ports;
 	}
 }

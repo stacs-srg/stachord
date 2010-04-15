@@ -2,8 +2,8 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -21,26 +21,29 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
  */
 public class InProcessFactory extends AbstractNetworkFactory implements INetworkFactory {
 
-	public INetwork makeNetwork(int number_of_nodes, String network_type) throws RemoteException, NotBoundException {
+	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException, NotBoundException {
 		
 		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
+		final IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
+		final int[] node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
+		
 		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		
-		IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
-
 		IChordNode first = StartRing.startChordRing(LOCAL_HOST, FIRST_NODE_PORT, node_keys[0]);
 		nodes.add(first.getProxy());
 		
-		for (int port = FIRST_NODE_PORT + 1; port < FIRST_NODE_PORT + number_of_nodes; port++) {
+		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
 			
-			int join_port = randomPortIndex(FIRST_NODE_PORT, port);
+			int port = node_ports[port_index];
+			int join_port = node_ports[randomPortIndex(0, port_index)];
+
 			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port, node_keys[port - FIRST_NODE_PORT]);
 			nodes.add(next.getProxy());
 		}
 				
 		// For next time, adjust first node port beyond the ports just used.
-		FIRST_NODE_PORT += number_of_nodes;
+		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
 
 		return new INetwork() {
 
@@ -51,15 +54,19 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 			public void killNode(IChordRemoteReference node) {
 
-				nodes.remove(node);
-				((ChordNodeProxy)node.getRemote()).destroy();
+				synchronized (nodes) {
+					nodes.remove(node);
+					((ChordNodeProxy)node.getRemote()).destroy();
+				}
 			}
 
 			public void killAllNodes() {
 				
-				nodes.clear();
-				for (IChordRemoteReference node : getNodes()) {
-					((ChordNodeProxy)node.getRemote()).destroy();
+				synchronized (nodes) {
+					for (IChordRemoteReference node : getNodes()) {
+						((ChordNodeProxy)node.getRemote()).destroy();
+					}
+					nodes.clear();
 				}
 			}			
 		};
