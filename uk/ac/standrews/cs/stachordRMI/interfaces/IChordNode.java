@@ -45,4 +45,6 @@ public interface IChordNode {
 	IChordRemoteReference getProxy();
 	
 	boolean inLocalKeyRange(IKey k);
+
+	void destroy();
 }

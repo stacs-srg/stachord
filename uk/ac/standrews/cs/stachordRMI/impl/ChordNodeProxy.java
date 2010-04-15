@@ -112,7 +112,10 @@ public class ChordNodeProxy implements IChordRemote {
 	 * Stops the proxy from accessing the ChordNodeImpl
 	 */
 	public void destroy() {
+		
+		boolean already_failed = node_failed;
 		node_failed = true;
+		if (!already_failed) node.destroy();
 	}
 
 	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException {

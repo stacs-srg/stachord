@@ -55,7 +55,6 @@ public abstract class AbstractNetworkFactory {
 		}
 	}
 
-
 	protected IKey[] generateNodeKeys(String network_type, int number_of_nodes) {
 		
 		IKey[] node_keys = new IKey[number_of_nodes];

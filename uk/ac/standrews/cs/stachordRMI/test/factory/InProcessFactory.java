@@ -8,6 +8,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeProxy;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.StartNode;
@@ -50,16 +51,15 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 			public void killNode(IChordRemoteReference node) {
 
-				// TODO implement killNode for inProcess.
-				throw new RuntimeException("killNode not implemented");
-				//allNodes.remove(cn);
-				//cn.destroy();
+				nodes.remove(node);
+				((ChordNodeProxy)node.getRemote()).destroy();
 			}
 
 			public void killAllNodes() {
 				
+				nodes.clear();
 				for (IChordRemoteReference node : getNodes()) {
-					killNode(node);
+					((ChordNodeProxy)node.getRemote()).destroy();
 				}
 			}			
 		};
