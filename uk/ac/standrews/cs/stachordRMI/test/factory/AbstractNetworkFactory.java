@@ -25,7 +25,7 @@ public abstract class AbstractNetworkFactory {
 
 	private static final int MAX_PORT = 65535;
 
-	static int FIRST_NODE_PORT = 54446;
+	static int FIRST_NODE_PORT = 54496;
 
 	static final String LOCAL_HOST = "localhost";
 	
