@@ -2,10 +2,8 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -15,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -28,7 +25,6 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.StartNode;
 import uk.ac.standrews.cs.stachordRMI.servers.StartRing;
-import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
 
 /**
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
@@ -37,21 +33,14 @@ import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
 public class OutOfProcessSingleMachineFactory extends AbstractNetworkFactory implements INetworkFactory {
 
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
-
-	private static int FIRST_NODE_PORT = 54498;
-	
 	private static final String LOCAL_HOST = "localhost";
 
 	/***************** INodeFactory methods *****************/
 
 	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException {
 		
-		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
-
-		final IKey[] node_keys = generateNodeKeys(network_type, number_of_nodes);
-		final int[] node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
+		initNetwork(number_of_nodes, network_type);
 		
-		final SortedSet<IChordRemoteReference> nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		final Map<IChordRemoteReference, Process> processTable = new HashMap<IChordRemoteReference, Process>();
 
 		List<String> args = new ArrayList<String>();
