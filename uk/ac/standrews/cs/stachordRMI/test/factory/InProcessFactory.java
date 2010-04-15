@@ -20,7 +20,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 		
 		initNetwork(number_of_nodes, network_type);
 		
-		IChordNode first = StartRing.startChordRing(LOCAL_HOST, FIRST_NODE_PORT, node_keys[0]);
+		IChordNode first = StartRing.startChordRing(LOCAL_HOST, node_ports[0], node_keys[0]);
 		nodes.add(first.getProxy());
 		
 		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
@@ -34,7 +34,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 		// For next time, adjust first node port beyond the ports just used.
 		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
-		System.out.println("set first_node_port to " + FIRST_NODE_PORT);
+		System.out.println(">>>>>>>> set first_node_port to " + FIRST_NODE_PORT);
 
 		return new INetwork() {
 

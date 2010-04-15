@@ -42,6 +42,7 @@ public abstract class AbstractNetworkFactory {
 		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
 		node_keys = generateNodeKeys(network_type, number_of_nodes);
+		System.out.println(">>>>>>>> first_node_port is " + FIRST_NODE_PORT);
 		node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
 		
 		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
