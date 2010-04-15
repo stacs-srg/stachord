@@ -18,20 +18,27 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 	public INetwork makeNetwork(int number_of_nodes, String network_type) throws IOException, NotBoundException {
 		
+		System.out.println("ipf_mn1");
 		initNetwork(number_of_nodes, network_type);
+		System.out.println("ipf_mn2");
 		
 		IChordNode first = StartRing.startChordRing(LOCAL_HOST, node_ports[0], node_keys[0]);
+		System.out.println("ipf_mn3");
 		nodes.add(first.getProxy());
+		System.out.println("ipf_mn4");
 		
 		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
 			
+			System.out.println("ipf_mn5");
 			int port = node_ports[port_index];
 			int join_port = node_ports[randomPortIndex(0, port_index)];
 
 			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port, node_keys[port - FIRST_NODE_PORT]);
 			nodes.add(next.getProxy());
+			System.out.println("ipf_mn6");
 		}
 
+		System.out.println("ipf_mn7");
 		// For next time, adjust first node port beyond the ports just used.
 		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
 		System.out.println(">>>>>>>> set first_node_port to " + FIRST_NODE_PORT);
