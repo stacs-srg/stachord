@@ -34,6 +34,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 
 		// For next time, adjust first node port beyond the ports just used.
 		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
+		System.out.println("set first_node_port to " + FIRST_NODE_PORT);
 
 		return new INetwork() {
 

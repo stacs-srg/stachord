@@ -53,29 +53,6 @@ public abstract class AbstractNetworkFactory {
 		return lower + random.nextInt(upper - lower);
 	}
 	
-	private int nextFreePort(int port) throws SocketException {
-
-		while (!free(port)) {
-			port++;
-			if (port >= MAX_PORT) throw new SocketException("ran out of ports");
-		}
-
-		System.out.println("free port: " + port);
-		return port;
-	}
-
-	private boolean free(int port) {
-
-		try {
-			ServerSocket server_socket = new ServerSocket(port, 0);
-			server_socket.close();
-			return true;
-		}
-		catch (IOException e) {
-			return false;
-		}
-	}
-
 	protected IKey[] generateNodeKeys(String network_type, int number_of_nodes) {
 		
 		IKey[] node_keys = new IKey[number_of_nodes];
@@ -120,5 +97,28 @@ public abstract class AbstractNetworkFactory {
 		}
 		
 		return ports;
+	}
+	
+	private int nextFreePort(int port) throws SocketException {
+
+		while (!free(port)) {
+			port++;
+			if (port >= MAX_PORT) throw new SocketException("ran out of ports");
+		}
+
+		System.out.println("free port: " + port);
+		return port;
+	}
+
+	private boolean free(int port) {
+
+		try {
+			ServerSocket server_socket = new ServerSocket(port, 0);
+			server_socket.close();
+			return true;
+		}
+		catch (IOException e) {
+			return false;
+		}
 	}
 }
