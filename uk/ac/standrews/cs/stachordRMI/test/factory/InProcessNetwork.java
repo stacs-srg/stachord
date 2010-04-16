@@ -2,7 +2,6 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeProxy;
@@ -20,21 +19,7 @@ public class InProcessNetwork extends AbstractNetwork {
 
 		super(number_of_nodes, network_type);
 		
-		IChordRemoteReference first = createFirstNode(node_ports[0], node_keys[0]);
-		nodes.add(first);
-		
-		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
-			
-			int port =      node_ports[port_index];
-			int join_port = node_ports[randomPortIndex(0, port_index)];
-			IKey key =      node_keys[port_index];
-			
-			IChordRemoteReference next = createJoiningNode(port, join_port, key);
-			nodes.add(next);
-		}
-
-		// For next time, adjust first node port beyond the ports just used.
-		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
+		setupNetwork(number_of_nodes);
 	}
 
 	public void killNode(IChordRemoteReference node) {
@@ -55,12 +40,12 @@ public class InProcessNetwork extends AbstractNetwork {
 		}
 	}
 
-	private IChordRemoteReference createFirstNode(int port, IKey key) throws RemoteException, NotBoundException {
+	protected IChordRemoteReference createFirstNode(int port, IKey key) throws IOException, NotBoundException {
 		
 		return StartRing.startChordRing(LOCAL_HOST, port, key).getProxy();
 	}
 
-	private IChordRemoteReference createJoiningNode(int port, int join_port, IKey key) throws RemoteException, NotBoundException {
+	protected IChordRemoteReference createJoiningNode(int port, int join_port, IKey key) throws IOException, NotBoundException {
 		
 		return StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port, key).getProxy();
 	}

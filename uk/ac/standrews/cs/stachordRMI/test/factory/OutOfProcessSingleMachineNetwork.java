@@ -22,6 +22,7 @@ import uk.ac.standrews.cs.stachordRMI.impl.ChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachordRMI.servers.AbstractServer;
 import uk.ac.standrews.cs.stachordRMI.servers.StartNode;
 import uk.ac.standrews.cs.stachordRMI.servers.StartRing;
 
@@ -36,35 +37,13 @@ public class OutOfProcessSingleMachineNetwork extends AbstractNetwork {
 
 	final Map<IChordRemoteReference, Process> process_table;
 
-	public OutOfProcessSingleMachineNetwork(int number_of_nodes, String network_type) throws IOException {
+	public OutOfProcessSingleMachineNetwork(int number_of_nodes, String network_type) throws IOException, NotBoundException {
 		
 		super(number_of_nodes, network_type);
 		
 		process_table = new HashMap<IChordRemoteReference, Process>();
 
-		IChordRemoteReference first = createFirstNode(node_ports[0], node_keys[0], process_table);
-		nodes.add(first);
-
-		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
-			
-			int port = node_ports[port_index];
-			int join_port = node_ports[randomPortIndex(0, port_index)];
-
-			List<String> args = new ArrayList<String>();
-
-			args.add("-s" + LOCAL_HOST + ":" + port);
-			args.add("-k" + LOCAL_HOST + ":" + join_port); 
-			addKeyArg(node_keys[port_index], args);
-
-			Process otherNodeProcess = Processes.runJavaProcess(StartNode.class, args);
-
-			IChordRemoteReference next = bindToNode(LOCAL_HOST, port);
-			nodes.add(next);
-			process_table.put(next, otherNodeProcess);
-		}
-		
-		// For next time, adjust first node port beyond the ports just used.
-		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
+		setupNetwork(number_of_nodes);
 	}
 
 	public void killNode(IChordRemoteReference node) {
@@ -92,17 +71,35 @@ public class OutOfProcessSingleMachineNetwork extends AbstractNetwork {
 		}
 	}
 
-	private IChordRemoteReference createFirstNode(int port, IKey key, Map<IChordRemoteReference, Process> processTable) throws IOException {
+	protected IChordRemoteReference createFirstNode(int port, IKey key) throws IOException, NotBoundException {
 		
 		List<String> args = new ArrayList<String>();
+		
 		args.add("-s" + LOCAL_HOST + ":" + port);
 		addKeyArg(key, args);
+		
+		return createNode(port, args, StartRing.class);
+	}
 
-		Process firstNodeProcess = Processes.runJavaProcess(StartRing.class, args);
+	protected IChordRemoteReference createJoiningNode(int port, int join_port, IKey key) throws IOException, NotBoundException {
+		
+		List<String> args = new ArrayList<String>();
 
-		IChordRemoteReference first = bindToNode(LOCAL_HOST, port);
-		processTable.put(first, firstNodeProcess);
-		return first;
+		args.add("-s" + LOCAL_HOST + ":" + port);
+		args.add("-k" + LOCAL_HOST + ":" + join_port); 
+		addKeyArg(key, args);
+
+		return createNode(port, args, StartNode.class);
+	}
+
+	private IChordRemoteReference createNode(int port, List<String> args, Class<? extends AbstractServer> node_class) throws IOException {
+		
+		Process p = Processes.runJavaProcess(node_class, args);
+
+		IChordRemoteReference node = bindToNode(LOCAL_HOST, port);
+		process_table.put(node, p);
+		
+		return node;
 	}
 
 	private void addKeyArg(IKey key, List<String> args) {

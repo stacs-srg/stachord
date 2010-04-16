@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.rmi.NotBoundException;
 import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -43,6 +44,34 @@ public abstract class AbstractNetwork implements INetwork {
 		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 	}
 
+	public SortedSet<IChordRemoteReference> getNodes() {
+		
+		return nodes;
+	}
+
+	protected abstract IChordRemoteReference createFirstNode(int port, IKey key) throws IOException, NotBoundException;
+
+	protected abstract IChordRemoteReference createJoiningNode(int port, int join_port, IKey key) throws IOException, NotBoundException;
+
+	protected void setupNetwork(int number_of_nodes) throws IOException, NotBoundException {
+				
+		IChordRemoteReference first = createFirstNode(node_ports[0], node_keys[0]);
+		nodes.add(first);
+	
+		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
+			
+			int port =      node_ports[port_index];
+			int join_port = node_ports[randomPortIndex(0, port_index)];
+			IKey key =      node_keys[port_index];
+	
+			IChordRemoteReference next = createJoiningNode(port, join_port, key);
+			nodes.add(next);
+		}
+		
+		// For next time, adjust first node port beyond the ports just used.
+		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
+	}
+	
 	// Generates a random port such that lower <= port < upper.
 	protected int randomPortIndex(int lower, int upper) {
 		
@@ -115,10 +144,5 @@ public abstract class AbstractNetwork implements INetwork {
 		catch (IOException e) {
 			return false;
 		}
-	}
-
-	public SortedSet<IChordRemoteReference> getNodes() {
-		
-		return nodes;
 	}
 }
