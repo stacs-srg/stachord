@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
@@ -33,9 +33,9 @@ public abstract class RoutingTests {
 			System.out.println();
 			Diagnostic.trace("testing routing for ring size: " + ring_size);
 			
-			routingBecomesCorrect(ring_size, AbstractNetworkFactory.RANDOM);
-			routingBecomesCorrect(ring_size, AbstractNetworkFactory.EVEN);
-			routingBecomesCorrect(ring_size, AbstractNetworkFactory.CLUSTERED);
+			routingBecomesCorrect(ring_size, AbstractNetwork.RANDOM);
+			routingBecomesCorrect(ring_size, AbstractNetwork.EVEN);
+			routingBecomesCorrect(ring_size, AbstractNetwork.CLUSTERED);
 		}
 	}
 	

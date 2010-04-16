@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.SocketException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -17,7 +15,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.util.NodeComparator;
 
-public abstract class AbstractNetworkFactory {
+public abstract class AbstractNetwork implements INetwork {
 	
 	public static final String RANDOM = "RANDOM";          // Nodes randomly distributed around the ring.
 	public static final String EVEN = "EVEN";              // Nodes evenly distributed around the ring.
@@ -35,9 +33,7 @@ public abstract class AbstractNetworkFactory {
 	int[] node_ports;
 	SortedSet<IChordRemoteReference> nodes;
 	
-	public abstract INetwork makeNetwork(int number_of_nodes, String network_type) throws RemoteException, IOException, NotBoundException;
-
-	protected void initNetwork(int number_of_nodes, String network_type) throws SocketException {
+	public AbstractNetwork(int number_of_nodes, String network_type) throws SocketException {
 		
 		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
 
@@ -106,7 +102,6 @@ public abstract class AbstractNetworkFactory {
 			if (port >= MAX_PORT) throw new SocketException("ran out of ports");
 		}
 
-		System.out.println("free port: " + port);
 		return port;
 	}
 
@@ -120,5 +115,10 @@ public abstract class AbstractNetworkFactory {
 		catch (IOException e) {
 			return false;
 		}
+	}
+
+	public SortedSet<IChordRemoteReference> getNodes() {
+		
+		return nodes;
 	}
 }

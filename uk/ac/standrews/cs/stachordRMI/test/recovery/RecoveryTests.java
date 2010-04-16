@@ -15,7 +15,7 @@ import org.junit.Test;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
@@ -24,7 +24,7 @@ public abstract class RecoveryTests {
 	
 	protected INetworkFactory network_factory;
 
-	private static final int[] RING_SIZES = {2,3,4};
+	private static final int[] RING_SIZES = {2,3,4,5,10,20};
 
 	private static final double PROPORTION_TO_KILL = 0.2;
 
@@ -41,19 +41,19 @@ public abstract class RecoveryTests {
 	@Test
 	public void ringRecoversRandom() throws IOException, NotBoundException {
 			
-		ringRecovers(AbstractNetworkFactory.RANDOM);
+		ringRecovers(AbstractNetwork.RANDOM);
 	}
 	
 	@Test
 	public void ringRecoversEven() throws IOException, NotBoundException {
 		
-		ringRecovers(AbstractNetworkFactory.EVEN);
+		ringRecovers(AbstractNetwork.EVEN);
 	}
 
 	@Test
 	public void ringRecoversClustered() throws IOException, NotBoundException {
 		
-		ringRecovers(AbstractNetworkFactory.CLUSTERED);
+		ringRecovers(AbstractNetwork.CLUSTERED);
 	}
 
 	private void ringRecovers(String network_type) throws IOException, NotBoundException {

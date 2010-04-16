@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetworkFactory;
+import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
@@ -33,9 +33,9 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing stabilization for ring size: " + ring_size);
 			
-			ringBecomesStable(ring_size, AbstractNetworkFactory.RANDOM);
-			ringBecomesStable(ring_size, AbstractNetworkFactory.EVEN);
-			ringBecomesStable(ring_size, AbstractNetworkFactory.CLUSTERED);
+			ringBecomesStable(ring_size, AbstractNetwork.RANDOM);
+			ringBecomesStable(ring_size, AbstractNetwork.EVEN);
+			ringBecomesStable(ring_size, AbstractNetwork.CLUSTERED);
 		}
 	}
 	
@@ -47,9 +47,9 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing finger tables for ring size: " + ring_size);
 			
-			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.RANDOM);
-			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.EVEN);
-			fingerTablesBecomeComplete(ring_size, AbstractNetworkFactory.CLUSTERED);
+			fingerTablesBecomeComplete(ring_size, AbstractNetwork.RANDOM);
+			fingerTablesBecomeComplete(ring_size, AbstractNetwork.EVEN);
+			fingerTablesBecomeComplete(ring_size, AbstractNetwork.CLUSTERED);
 		}
 	}
 	
@@ -61,9 +61,9 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing successor lists for ring size: " + ring_size);
 			
-			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.RANDOM);
-			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.EVEN);
-			successorListsBecomeComplete(ring_size, AbstractNetworkFactory.CLUSTERED);
+			successorListsBecomeComplete(ring_size, AbstractNetwork.RANDOM);
+			successorListsBecomeComplete(ring_size, AbstractNetwork.EVEN);
+			successorListsBecomeComplete(ring_size, AbstractNetwork.CLUSTERED);
 		}
 	}
 	
