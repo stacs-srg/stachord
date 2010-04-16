@@ -36,6 +36,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 			int join_port = node_ports[randomPortIndex(0, port_index)];
 			System.out.println("ipf_mn5.2");
 
+			System.out.println(port + " " + FIRST_NODE_PORT + " " + node_keys.length);
 			IChordNode next = StartNode.joinChordRing(LOCAL_HOST, port, LOCAL_HOST, join_port, node_keys[port - FIRST_NODE_PORT]);
 			System.out.println("ipf_mn5.3");
 			nodes.add(next.getProxy());
