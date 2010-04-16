@@ -42,8 +42,6 @@ public class StartRing extends AbstractServer {
 
 	public static IChordNode startChordRing(String hostname, int port, IKey node_key) throws RemoteException, NotBoundException {
 
-		System.out.println("startChordRing: " + hostname + " " + port + " " + node_key);
-
 		InetSocketAddress localChordAddress = new InetSocketAddress(hostname, port);
 
 		if (node_key == null) return new ChordNodeImpl(localChordAddress, null);
