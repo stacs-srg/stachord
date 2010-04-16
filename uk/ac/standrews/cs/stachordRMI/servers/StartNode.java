@@ -79,9 +79,6 @@ public class StartNode extends AbstractServer {
 	 */
 	public static IChordNode joinChordRing( String hostname, int port, String known_address, int known_port, IKey node_key) throws RemoteException, NotBoundException {
 
-		System.out.println("joinChordRing: " + hostname + " " + port + " " + known_address + " " + known_port + " " + node_key);
-		
-		
 		InetSocketAddress localChordAddress = new InetSocketAddress(hostname, port);
 		InetSocketAddress knownHostAddress =  new InetSocketAddress(known_address, known_port);
 
