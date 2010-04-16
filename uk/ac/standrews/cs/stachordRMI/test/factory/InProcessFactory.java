@@ -27,6 +27,7 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 		nodes.add(first.getProxy());
 		System.out.println("ipf_mn4");
 		
+		try {
 		for (int port_index = 1; port_index < number_of_nodes; port_index++) {
 			
 			System.out.println("ipf_mn5");
@@ -39,6 +40,10 @@ public class InProcessFactory extends AbstractNetworkFactory implements INetwork
 			System.out.println("ipf_mn5.3");
 			nodes.add(next.getProxy());
 			System.out.println("ipf_mn6");
+		}
+		}
+		catch (Throwable t) {
+			System.out.println(">>>>>>>>>>>> error: " + t.getMessage());
 		}
 
 		System.out.println("ipf_mn7");
