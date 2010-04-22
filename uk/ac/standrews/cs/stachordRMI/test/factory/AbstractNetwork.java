@@ -25,6 +25,7 @@ public abstract class AbstractNetwork implements INetwork {
 	private static final int MAX_PORT = 65535;
 
 	static int FIRST_NODE_PORT = 54496;
+	static final Object sync = new Object();
 
 	static final String LOCAL_HOST = "localhost";
 	
@@ -36,12 +37,17 @@ public abstract class AbstractNetwork implements INetwork {
 	
 	public AbstractNetwork(int number_of_nodes, String network_type) throws SocketException {
 		
-		if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
-
-		node_keys = generateNodeKeys(network_type, number_of_nodes);
-		node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
-		
-		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
+		synchronized (sync) {
+			if (!network_type.equals(RANDOM) && !network_type.equals(EVEN) && !network_type.equals(CLUSTERED)) fail("unknown network type");
+	
+			node_keys = generateNodeKeys(network_type, number_of_nodes);
+			node_ports = generatePorts(FIRST_NODE_PORT, number_of_nodes);
+			
+			nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
+			
+			// For next time, adjust first node port beyond the ports just used.
+			FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
+		}
 	}
 
 	public SortedSet<IChordRemoteReference> getNodes() {
@@ -67,9 +73,6 @@ public abstract class AbstractNetwork implements INetwork {
 			IChordRemoteReference next = createJoiningNode(port, join_port, key);
 			nodes.add(next);
 		}
-		
-		// For next time, adjust first node port beyond the ports just used.
-		FIRST_NODE_PORT = node_ports[number_of_nodes - 1] + 1;
 	}
 	
 	// Generates a random port such that lower <= port < upper.
