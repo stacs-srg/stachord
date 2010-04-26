@@ -8,14 +8,12 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
-import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
+import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
+import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RoutingTests {
-	
-	protected INetworkFactory network_factory;
 	
 	private static final int[] RING_SIZES = {1,2,3,4,6,10,20};
 
@@ -33,15 +31,15 @@ public abstract class RoutingTests {
 			System.out.println();
 			Diagnostic.trace("testing routing for ring size: " + ring_size);
 			
-			routingBecomesCorrect(ring_size, AbstractNetwork.RANDOM);
-			routingBecomesCorrect(ring_size, AbstractNetwork.EVEN);
-			routingBecomesCorrect(ring_size, AbstractNetwork.CLUSTERED);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.RANDOM);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.EVEN);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.CLUSTERED);
 		}
 	}
 	
 	private void routingBecomesCorrect(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		INetwork network = new SingleMachineNetwork(ring_size, network_type);
 		
 		TestLogic.waitForStableRing(network.getNodes());
 		TestLogic.waitForCorrectRouting(network.getNodes());

@@ -59,7 +59,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	private final int hash_code;
 
 	private final IChordRemoteReference self_reference; 			// A local RMI reference to this node.
-	private final ChordNodeProxy self_proxy;						// The RMI reference actually references this proxy.
 
 	private IChordRemoteReference predecessor;
 	private IChordRemoteReference successor;
@@ -107,8 +106,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		successor_list = new SuccessorList(this);
 		finger_table = new FingerTable(this);
 
-		self_proxy = new ChordNodeProxy(this);
-		self_reference = new ChordRemoteReference(key, self_proxy);
+		self_reference = new ChordRemoteReference(key, this);
 
 		// Setup/join the ring
 		
@@ -146,22 +144,19 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public void destroy() {
+	public void shutDown() {
 		
 		// Stop the maintenance thread.
-		shutdownMaintenanceThread(); // Stop the maintenance thread.
+		shutdownMaintenanceThread();
 		
 		try {
-			LocateRegistry.getRegistry( local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
+			LocateRegistry.getRegistry(local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
 		}
 		catch ( Exception e ) {
 			ErrorHandling.exceptionError(e, "failed to destroy node: ", key );
-		}
-		
-		// Stop incoming message being processed by this node.
-		self_proxy.destroy();           
+		}         
 
-		Diagnostic.trace(DiagnosticLevel.FULL, "Destroyed node: ", key);
+		Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

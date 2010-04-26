@@ -23,9 +23,9 @@ public abstract class AbstractServer  {
 	static int local_port = 0;
 	static IKey server_key = null;
 
-	public static void setup( String[] args ) {
+	public static void setup(String[] args) {
 		
-		//this may be overridden by a CLA
+		// This may be overridden by a CLA.
 		Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
 
 		Diagnostic.setTimestampFlag(true);
@@ -45,6 +45,6 @@ public abstract class AbstractServer  {
 
 	private static void usage() {
 			
-		ErrorHandling.hardError( "Usage: -s[host][:port]" );
+		ErrorHandling.hardError( "Usage: -s[host][:port] [-x[key]]" );
 	}
 }

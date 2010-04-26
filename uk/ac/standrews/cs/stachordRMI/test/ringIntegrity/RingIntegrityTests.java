@@ -8,14 +8,12 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.test.factory.AbstractNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
-import uk.ac.standrews.cs.stachordRMI.test.factory.INetworkFactory;
+import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
+import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public abstract class RingIntegrityTests {
-	
-	protected INetworkFactory network_factory;
 	
 	private static final int[] RING_SIZES = {1,2,3,4,6,10,20};
 	
@@ -33,9 +31,9 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing stabilization for ring size: " + ring_size);
 			
-			ringBecomesStable(ring_size, AbstractNetwork.RANDOM);
-			ringBecomesStable(ring_size, AbstractNetwork.EVEN);
-			ringBecomesStable(ring_size, AbstractNetwork.CLUSTERED);
+			ringBecomesStable(ring_size, MultipleMachineNetwork.RANDOM);
+			ringBecomesStable(ring_size, MultipleMachineNetwork.EVEN);
+			ringBecomesStable(ring_size, MultipleMachineNetwork.CLUSTERED);
 		}
 	}
 	
@@ -47,9 +45,9 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing finger tables for ring size: " + ring_size);
 			
-			fingerTablesBecomeComplete(ring_size, AbstractNetwork.RANDOM);
-			fingerTablesBecomeComplete(ring_size, AbstractNetwork.EVEN);
-			fingerTablesBecomeComplete(ring_size, AbstractNetwork.CLUSTERED);
+			fingerTablesBecomeComplete(ring_size, MultipleMachineNetwork.RANDOM);
+			fingerTablesBecomeComplete(ring_size, MultipleMachineNetwork.EVEN);
+			fingerTablesBecomeComplete(ring_size, MultipleMachineNetwork.CLUSTERED);
 		}
 	}
 	
@@ -61,22 +59,22 @@ public abstract class RingIntegrityTests {
 			System.out.println();
 			Diagnostic.trace("testing successor lists for ring size: " + ring_size);
 			
-			successorListsBecomeComplete(ring_size, AbstractNetwork.RANDOM);
-			successorListsBecomeComplete(ring_size, AbstractNetwork.EVEN);
-			successorListsBecomeComplete(ring_size, AbstractNetwork.CLUSTERED);
+			successorListsBecomeComplete(ring_size, MultipleMachineNetwork.RANDOM);
+			successorListsBecomeComplete(ring_size, MultipleMachineNetwork.EVEN);
+			successorListsBecomeComplete(ring_size, MultipleMachineNetwork.CLUSTERED);
 		}
 	}
 	
 	private void ringBecomesStable(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		INetwork network = new SingleMachineNetwork(ring_size, network_type);
 		TestLogic.waitForStableRing(network.getNodes());
 		network.killAllNodes();
 	}
 
 	private void fingerTablesBecomeComplete(int ring_size, String network_type) throws IOException, NotBoundException {
 
-		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		INetwork network = new SingleMachineNetwork(ring_size, network_type);
 		
 		TestLogic.waitForStableRing(network.getNodes());		
 		TestLogic.waitForCompleteFingerTables(network.getNodes());
@@ -86,7 +84,7 @@ public abstract class RingIntegrityTests {
 	
 	private void successorListsBecomeComplete(int ring_size, String network_type) throws IOException, NotBoundException {
 		
-		INetwork network = network_factory.makeNetwork(ring_size, network_type);
+		INetwork network = new SingleMachineNetwork(ring_size, network_type);
 		
 		TestLogic.waitForStableRing(network.getNodes());
 		TestLogic.waitForCompleteSuccessorLists(network.getNodes());

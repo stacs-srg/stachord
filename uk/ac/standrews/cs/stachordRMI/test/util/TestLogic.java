@@ -1,8 +1,14 @@
 package uk.ac.standrews.cs.stachordRMI.test.util;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.SortedSet;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
@@ -12,6 +18,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.impl.SuccessorList;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
 
 /**
  * Class which provides the functionality to wait for a Chord ring to become complete - i.e. to fully stabilize. 
@@ -21,6 +28,12 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
  */
 public class TestLogic {
 
+	private static final double PROPORTION_TO_KILL = 0.2;
+
+	private static final long DEATH_CHECK_INTERVAL = 2000;
+	
+	private static final int RANDOM_SEED = 32423545;
+	
 	private static final int WAIT_DELAY = 5000;
 
 	/**
@@ -287,5 +300,86 @@ public class TestLogic {
 		
 		try { Thread.sleep(WAIT_DELAY); }
 		catch (InterruptedException e) {}
+	}
+
+	public static void ringRecovers(INetwork network) throws IOException {
+		
+		waitForStableRing(network.getNodes());
+		
+		// Routing should still eventually work even in the absence of finger table maintenance.
+		enableFingerTableMaintenance(network, false);
+		
+		killPartOfNetwork(network);
+		
+		waitForCorrectRouting(network.getNodes());
+	
+		// Turn on maintenance again.
+		enableFingerTableMaintenance(network, true);
+		
+		waitForStableRing(network.getNodes());
+	
+		waitForCompleteFingerTables(network.getNodes());
+	
+		waitForCompleteSuccessorLists(network.getNodes());
+		
+		waitForCorrectRouting(network.getNodes());
+		
+		network.killAllNodes();
+	}
+
+	public static void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {
+		
+		for (IChordRemoteReference node : network.getNodes()) node.getRemote().enableFingerTableMaintenance(enabled);
+	}
+
+	public static void killPartOfNetwork(INetwork network) {
+		
+		IChordRemoteReference[] node_array = network.getNodes().toArray(new IChordRemoteReference[]{});
+	
+		int network_size = node_array.length;
+		int number_to_kill = (int) Math.max(1, (int)(PROPORTION_TO_KILL * (double)network_size));
+		
+		Set<Integer> victim_indices = pickRandom(number_to_kill, network_size);
+		
+		for (int victim_index : victim_indices) {
+			
+			IChordRemoteReference victim = node_array[victim_index];			
+			network.killNode(victim);
+			
+			// Wait for it to die.
+			while (true) {
+				try {
+					victim.getRemote().isAlive();
+					Thread.sleep(DEATH_CHECK_INTERVAL);
+				}
+				catch (RemoteException e) {
+					break;
+				}
+				catch (InterruptedException e) { }
+			}
+		}
+		
+		assertEquals(network.getNodes().size(), network_size - number_to_kill);
+	}
+
+	/**
+	 * Returns a randomly selected subset of integers in a given range.
+	 * @param number_to_select
+	 * @param range
+	 * @return a set of size number_to_select containing integers from 0 to range-1 inclusive
+	 */
+	private static Set<Integer> pickRandom(int number_to_select, int range) {
+		
+		Set<Integer> set = new HashSet<Integer>();
+		Random random = new Random(RANDOM_SEED);
+		
+		for (int i = 0; i < number_to_select; i++) {
+			int choice = -1;
+			while (choice == -1 || set.contains(choice))
+				choice = random.nextInt(range);
+			set.add(choice);
+		}
+		
+		return set;
 	}
 }

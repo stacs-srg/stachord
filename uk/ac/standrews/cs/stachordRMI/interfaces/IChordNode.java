@@ -46,5 +46,5 @@ public interface IChordNode {
 	
 	boolean inLocalKeyRange(IKey k);
 
-	void destroy();
+	void shutDown();
 }

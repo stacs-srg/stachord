@@ -21,16 +21,14 @@ package uk.ac.standrews.cs.stachordRMI.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.ac.standrews.cs.stachordRMI.test.recovery.RecoveryTestsInProcess;
-import uk.ac.standrews.cs.stachordRMI.test.recovery.RecoveryTestsOutOfProcessSingleMachine;
+import uk.ac.standrews.cs.stachordRMI.test.recovery.SingleMachineRecoveryTests;
 
 /**
  * Tests run on each build.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	RecoveryTestsInProcess.class,
-	RecoveryTestsOutOfProcessSingleMachine.class
+	SingleMachineRecoveryTests.class
 })
 public class CheckInTests {
 	// Empty.
