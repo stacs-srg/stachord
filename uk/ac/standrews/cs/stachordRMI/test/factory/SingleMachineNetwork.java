@@ -33,4 +33,9 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 		// Ignore node_descriptor for local process.
 		return Processes.runJavaProcess(node_class, args);
 	}
+	
+	protected String getHost(NodeDescriptor node_descriptor) {
+		
+		return LOCAL_HOST;
+	}
 }

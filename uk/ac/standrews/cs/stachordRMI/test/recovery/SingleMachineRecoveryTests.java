@@ -1,6 +1,5 @@
 package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
-
 import java.io.IOException;
 import java.rmi.NotBoundException;
 
@@ -15,7 +14,7 @@ import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public class SingleMachineRecoveryTests {
 	
-	private static final int[] RING_SIZES = {2,3,4,5};
+	private static final int[] RING_SIZES = {2,3,4,5,10,20};
 
 	@Before
 	public void setUp() throws Exception {

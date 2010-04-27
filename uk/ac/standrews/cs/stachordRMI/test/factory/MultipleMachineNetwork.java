@@ -49,9 +49,7 @@ public class MultipleMachineNetwork implements INetwork {
 	static int next_port = 54496;
 	static final Object sync = new Object();
 	private static final int REGISTRY_RETRY_INTERVAL = 2000;
-	private static final int REGISTRY_TIMEOUT_INTERVAL = 10000;
-
-	static final String LOCAL_HOST = "localhost";
+	private static final int REGISTRY_TIMEOUT_INTERVAL = 20000;
 	
 	private static Random random = new Random(45974927);
 	
@@ -110,6 +108,11 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		return null;
 	}
+	
+	protected String getHost(NodeDescriptor node_descriptor) {
+		
+		return node_descriptor.ssh_client_wrapper.getServer().getHostName();
+	}
 
 	protected IChordRemoteReference createFirstNode(final NodeDescriptor node_descriptor, final IKey key) throws IOException, NotBoundException, SSH2Exception {
 		
@@ -119,7 +122,7 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + LOCAL_HOST + ":" + local_port);
+				args.add("-s" + NetworkUtil.formatHostAddress(getHost(node_descriptor), local_port));
 				addKeyArg(key, args);
 				
 				return args;
@@ -137,7 +140,7 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + LOCAL_HOST + ":" + local_port);
+				args.add("-s" + NetworkUtil.formatHostAddress(getHost(node_descriptor), local_port));
 				args.add("-k" + NetworkUtil.formatHostAddress(known_node.getRemote().getAddress())); 
 				addKeyArg(key, args);
 				
@@ -198,12 +201,14 @@ public class MultipleMachineNetwork implements INetwork {
 		while (true) {
 		
 			try {
+
 				Registry reg = LocateRegistry.getRegistry(host, port);
 				IChordRemote remote = (IChordRemote) reg.lookup(IChordNode.CHORD_REMOTE_SERVICE);
+
 				return new ChordRemoteReference(remote.getKey(), remote);
 			}
 			catch (RemoteException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed");
+				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed: " + e.getMessage());
 			}
 			catch (NotBoundException e) {
 				Diagnostic.trace(DiagnosticLevel.FULL, "binding to node in registry failed");
@@ -262,7 +267,7 @@ public class MultipleMachineNetwork implements INetwork {
 			Process p = runProcess(node_descriptor, node_class, args);
 			
 			try {
-				node = bindToNode(LOCAL_HOST, port);
+				node = bindToNode(getHost(node_descriptor), port);
 				process_table.put(node, p);
 				finished = true;
 			}
