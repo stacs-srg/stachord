@@ -28,11 +28,13 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
+import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public class SingleMachineRecoveryTests {
+	
+	// TODO Make this work on Windows.
 	
 	private static final int[] RING_SIZES = {2,3,4,5,10,20};
 
@@ -45,22 +47,22 @@ public class SingleMachineRecoveryTests {
 	@Test
 	public void ringRecoversRandom() throws IOException, NotBoundException {
 			
-		ringRecovers(MultipleMachineNetwork.RANDOM);
+		ringRecovers(KeyDistribution.RANDOM);
 	}
 	
 	@Test
 	public void ringRecoversEven() throws IOException, NotBoundException {
 		
-		ringRecovers(MultipleMachineNetwork.EVEN);
+		ringRecovers(KeyDistribution.EVEN);
 	}
 
 	@Test
 	public void ringRecoversClustered() throws IOException, NotBoundException {
 		
-		ringRecovers(MultipleMachineNetwork.CLUSTERED);
+		ringRecovers(KeyDistribution.CLUSTERED);
 	}
 
-	private void ringRecovers(String network_type) throws IOException, NotBoundException {
+	private void ringRecovers(KeyDistribution network_type) throws IOException, NotBoundException {
 
 		for (int ring_size : RING_SIZES) {
 			
@@ -70,7 +72,7 @@ public class SingleMachineRecoveryTests {
 		}
 	}
 	
-	private void ringRecovers(int ring_size, String network_type) throws IOException, NotBoundException {
+	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException {
 		
 		TestLogic.ringRecovers(new SingleMachineNetwork(ring_size, network_type));
 	}
