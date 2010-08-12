@@ -20,19 +20,34 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
+import java.io.File;
+import java.net.URL;
+
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 
 public class NodeDescriptor {
 
-	public final SSH2ConnectionWrapper ssh_client_wrapper;
-	public final String java_version;
-	public final ClassPath class_path;
+	public SSH2ConnectionWrapper ssh_client_wrapper;
+	public String java_version;
+	public ClassPath class_path;
+	public URL[] lib_urls;
+	public File wget_path;
+	public File lib_install_dir;
 	
 	public NodeDescriptor(SSH2ConnectionWrapper ssh_client_wrapper, String java_version, ClassPath class_path) {
 
 		this.ssh_client_wrapper = ssh_client_wrapper;
 		this.java_version = java_version;
 		this.class_path = class_path;
+	}
+
+	public NodeDescriptor(SSH2ConnectionWrapper ssh_client_wrapper, String java_version, URL[] lib_urls, File wget_path, File lib_install_dir) {
+
+		this.ssh_client_wrapper = ssh_client_wrapper;
+		this.java_version = java_version;
+		this.lib_urls = lib_urls;
+		this.wget_path = wget_path;
+		this.lib_install_dir = lib_install_dir;
 	}
 }
