@@ -21,6 +21,7 @@
 package uk.ac.standrews.cs.stachordRMI.impl;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -28,26 +29,35 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
- * A class to hold cached keys and remote references
+ * Holds a reference to a remote Chord node, with a locally cached copy of its key and IP address.
  *
- * @author al
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
 public class ChordRemoteReference implements IChordRemoteReference, Serializable {
 
 	private static final long serialVersionUID = -7911452718429786447L;
 	
 	private IKey key;
+	private InetSocketAddress address;
 	private IChordRemote reference;
 	
-	public ChordRemoteReference(IKey key, IChordRemote reference) {
+	public ChordRemoteReference(IKey key, IChordRemote reference) throws RemoteException {
 		this.key = key;
 		this.reference = reference;
+		
+		address = reference.getAddress();
 	}
 
 	public IKey getKey() {
 		return key;
 	}
 
+	public InetSocketAddress getAddress() {
+
+		return address;
+	}
+	
 	public IChordRemote getRemote() {
 		return reference;
 	}

@@ -21,11 +21,12 @@
 package uk.ac.standrews.cs.stachordRMI.interfaces;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 
 /**
- * An interface to hold a cached Key and a remote reference
+ * Interface to hold a remote reference to a Chord node, with a cached key and address.
  *
  * @author al
  */
@@ -35,6 +36,11 @@ public interface IChordRemoteReference extends Serializable {
 	 * @return the key associated with this reference
 	 */
 	IKey getKey();
+	
+	/**
+	 * @return the address associated with this reference
+	 */
+	InetSocketAddress getAddress();
 	
 	/**
 	 * @return the remote reference
