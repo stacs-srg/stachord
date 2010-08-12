@@ -50,7 +50,7 @@ public class FingerTable {
 	// exceeds this size, but the finger table may become more sparse than ideal.
 	private static final int MAX_ASSUMED_RING_SIZE = 1000;
 	
-	// The ratio between successive fingers.
+	// The ratio between successive finger targets.
 	private static final BigInteger INTER_FINGER_RATIO = new BigInteger("2");
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////

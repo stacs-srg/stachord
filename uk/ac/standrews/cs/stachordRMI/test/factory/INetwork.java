@@ -24,11 +24,27 @@ import java.util.SortedSet;
 
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
+/**
+ * Interface representing a set of Chord nodes.
+ *
+ * @author graham
+ */
 public interface INetwork {
 
+	/**
+	 * Returns a new sorted set containing the nodes.
+	 * @return the nodes in the network, sorted in ascending key order.
+	 */
 	SortedSet<IChordRemoteReference> getNodes();
 	
+	/**
+	 * Kills a given node and removes it from the network.
+	 * @param node the node to be killed
+	 */
 	void killNode(IChordRemoteReference node);
 	
+	/**
+	 * Kills all nodes and removes them from the network.
+	 */
 	void killAllNodes();
 }
