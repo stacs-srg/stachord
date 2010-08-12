@@ -22,6 +22,7 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Arrays;
 
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
@@ -46,7 +47,7 @@ public class NodeDescriptor {
 
 		this.ssh_client_wrapper = ssh_client_wrapper;
 		this.java_version = java_version;
-		this.lib_urls = lib_urls;
+		this.lib_urls = Arrays.copyOf(lib_urls, lib_urls.length);     // Be paranoid about later external modification of array.
 		this.wget_path = wget_path;
 		this.lib_install_dir = lib_install_dir;
 	}
