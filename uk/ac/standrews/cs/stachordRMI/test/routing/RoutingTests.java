@@ -29,7 +29,7 @@ import org.junit.Test;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.test.factory.INetwork;
-import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
+import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
@@ -51,13 +51,13 @@ public abstract class RoutingTests {
 			System.out.println();
 			Diagnostic.trace("testing routing for ring size: " + ring_size);
 			
-			routingBecomesCorrect(ring_size, KeyDistribution.RANDOM);
-			routingBecomesCorrect(ring_size, KeyDistribution.EVEN);
-			routingBecomesCorrect(ring_size, KeyDistribution.CLUSTERED);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.RANDOM);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.EVEN);
+			routingBecomesCorrect(ring_size, MultipleMachineNetwork.CLUSTERED);
 		}
 	}
 	
-	private void routingBecomesCorrect(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException {
+	private void routingBecomesCorrect(int ring_size, String network_type) throws IOException, NotBoundException {
 
 		INetwork network = new SingleMachineNetwork(ring_size, network_type);
 		
