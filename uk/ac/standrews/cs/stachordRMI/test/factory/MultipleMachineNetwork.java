@@ -160,7 +160,20 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	protected String getHost(NodeDescriptor node_descriptor) {
+		
+		return node_descriptor.ssh_client_wrapper.getServer().getHostName();
+	}
 
+	protected Process runProcess(NodeDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
+		
+		if (node_descriptor.lib_urls != null) {
+			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.lib_urls, node_descriptor.wget_path, node_descriptor.lib_install_dir, true);
+		}
+		else {
+			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.class_path);
+		}
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,11 +190,6 @@ public class MultipleMachineNetwork implements INetwork {
 		return null;
 	}
 	
-	protected String getHost(NodeDescriptor node_descriptor) {
-		
-		return node_descriptor.ssh_client_wrapper.getServer().getHostName();
-	}
-
 	private interface ArgGen {
 		List<String> getArgs(int local_port);
 	}
@@ -324,15 +332,5 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 		
 		return node;
-	}
-
-	protected Process runProcess(NodeDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
-		
-		if (node_descriptor.lib_urls != null) {
-			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.lib_urls, node_descriptor.wget_path, node_descriptor.lib_install_dir, true);
-		}
-		else {
-			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.class_path);
-		}
 	}
 }
