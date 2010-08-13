@@ -53,7 +53,7 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	@Test
+	//@Test
 	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
@@ -139,7 +139,7 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	@Test
+	//@Test
 	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.FULL);
@@ -193,7 +193,7 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	@Test
+	//@Test
 	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
