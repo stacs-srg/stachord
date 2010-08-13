@@ -36,7 +36,7 @@ public class SingleMachineRecoveryTests {
 	
 	// TODO Make this work on Windows.
 	
-	private static final int[] RING_SIZES = {2,3,4,5,10,20};
+	private static final int[] RING_SIZES = {1,2,3,4,5,10,20};
 
 	@Before
 	public void setUp() throws Exception {
