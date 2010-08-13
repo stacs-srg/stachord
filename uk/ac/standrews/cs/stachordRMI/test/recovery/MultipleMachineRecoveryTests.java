@@ -20,38 +20,41 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
-
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.rmi.NotBoundException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
+import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
+import uk.ac.standrews.cs.stachordRMI.test.factory.NetworkUtil;
 import uk.ac.standrews.cs.stachordRMI.test.factory.NodeDescriptor;
-import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
+import uk.ac.standrews.cs.stachordRMI.test.factory.UnequalArrayLengthsException;
 
 import com.mindbright.ssh2.SSH2Exception;
 
 public class MultipleMachineRecoveryTests {
-
-	private static Map<InetAddress, SSH2ConnectionWrapper> connection_cache = new HashMap<InetAddress, SSH2ConnectionWrapper>();
 	
+	// These tests could be refactored to reduce code duplication, but it seems useful to keep them as self-contained examples.
+
+	/**
+	 * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
+	 * 
+	 * @throws IOException
+	 * @throws NotBoundException
+	 * @throws SSH2Exception
+	 * @throws UnequalArrayLengthsException 
+	 */
 	@Test
-	public void multiMachineTest() throws IOException, NotBoundException, SSH2Exception {
+	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -70,11 +73,87 @@ public class MultipleMachineRecoveryTests {
 		};
 		
 		ClassPath[] class_paths = new ClassPath[] {
-			new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
-			new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
-			new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
-			new ClassPath("/user/graham/nds.jar:/user/graham/stachordRMI.jar"),
-			new ClassPath("/user/graham/nds.jar:/user/graham/stachordRMI.jar")
+				new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+				new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+			};
+
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses);
+		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
+			
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+
+		System.out.println(">>>>> recovery test completed");
+	}
+	
+	/**
+	 * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
+	 * 
+	 * @throws IOException
+	 * @throws NotBoundException
+	 * @throws SSH2Exception
+	 * @throws UnequalArrayLengthsException 
+	 */
+	@Test
+	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
+
+		InetAddress[] addresses = new InetAddress[] {
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk")
+			};
+			
+			String[] java_versions = new String[] {
+				"1.6.0_03",
+				"1.6.0_03",
+				"1.6.0_20",
+				"1.6.0_20"
+			};
+			
+			ClassPath[] class_paths = new ClassPath[] {
+					new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+					new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+					new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+					new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+				};
+			
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
+		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
+			
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+
+		System.out.println(">>>>> recovery test completed");
+	}
+
+	/**
+	 * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
+	 * 
+	 * @throws IOException
+	 * @throws NotBoundException
+	 * @throws SSH2Exception
+	 * @throws UnequalArrayLengthsException 
+	 */
+	@Test
+	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
+
+		InetAddress[] addresses = new InetAddress[] {
+			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("mini.cs.st-andrews.ac.uk")
+		};
+		
+		String[] java_versions = new String[] {
+			"1.6.0_03",
+			"1.6.0_03",
+			"1.6.0_20",
+			"1.6.0_20"
 		};
 		
 		URL[] lib_urls = new URL[] {
@@ -96,91 +175,65 @@ public class MultipleMachineRecoveryTests {
 				new File(Processes.DEFAULT_TEMP_PATH_MAC)
 			};
 			
-//		SSH2ConnectionWrapper[] connections = createPublicKeyConnections(addresses);
-
-		// Create 
-		 SSH2ConnectionWrapper[] connections = createUsernamePasswordConnections(addresses);
-	
-//		NodeDescriptor[] node_descriptors1 = createNodeDescriptors(connections, java_versions, class_paths);
-		NodeDescriptor[] node_descriptors = createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses);
+		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
-		TestLogic.ringRecovers(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 
 		System.out.println(">>>>> recovery test completed");
 	}
 
-	private static SSH2ConnectionWrapper[] createUsernamePasswordConnections(InetAddress[] addresses) throws IOException {
+	/**
+	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
+	 * 
+	 * @throws IOException
+	 * @throws NotBoundException
+	 * @throws SSH2Exception
+	 * @throws UnequalArrayLengthsException 
+	 */
+	@Test
+	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
-		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		for (int i = 0; i < addresses.length; i++) {
-			connections[i] = createUsernamePasswordConnection(addresses[i]);
-		}
-		return connections;
-	}
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-	private static SSH2ConnectionWrapper[] createPublicKeyConnections(InetAddress[] addresses) throws IOException {
-
-		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		for (int i = 0; i < addresses.length; i++) {
-			connections[i] = createPublicKeyConnection(addresses[i]);
-		}
-		return connections;
-	}
-
-	protected static NodeDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, ClassPath[] class_paths) {
+		InetAddress[] addresses = new InetAddress[] {
+			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("mini.cs.st-andrews.ac.uk")
+		};
 		
-		NodeDescriptor[] node_descriptors = new NodeDescriptor[connections.length];
-		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new NodeDescriptor(connections[i], java_versions[i], class_paths[i]);
-		}
-		return node_descriptors;
-	}
-
-	protected static NodeDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, URL[] lib_urls, File[] wget_paths, File[] lib_install_dirs) {
+		String[] java_versions = new String[] {
+			"1.6.0_03",
+			"1.6.0_03",
+			"1.6.0_20",
+			"1.6.0_20"
+		};
 		
-		NodeDescriptor[] node_descriptors = new NodeDescriptor[connections.length];
-		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new NodeDescriptor(connections[i], java_versions[i], lib_urls, wget_paths[i], lib_install_dirs[i]);
-		}
-		return node_descriptors;
-	}
-
-	protected static SSH2ConnectionWrapper createUsernamePasswordConnection(InetAddress address) throws IOException {
-		
-		SSH2ConnectionWrapper wrapper = connection_cache.get(address);
-		
-		if (wrapper != null) return wrapper;
-		else {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		URL[] lib_urls = new URL[] {
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
+			};
 			
-			System.out.print("enter remote username for " + address.getCanonicalHostName() + ": ");
-			String username = reader.readLine();
-				
-			String password = MaskedStringInput.getMaskedString("enter remote password for " + address.getCanonicalHostName() + ":");
-		
-			wrapper = new SSH2ConnectionWrapper(address, username, password);
-			connection_cache.put(address, wrapper);
-			return wrapper;
-		}
-	}
-	
-	protected static SSH2ConnectionWrapper createPublicKeyConnection(InetAddress address) throws IOException {
-		
-		SSH2ConnectionWrapper wrapper = connection_cache.get(address);
-		
-		if (wrapper != null) return wrapper;
-		else {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		File[] wget_paths = new File[] {
+				new File(Processes.DEFAULT_WGET_PATH_LINUX),
+				new File(Processes.DEFAULT_WGET_PATH_LINUX),
+				new File(Processes.DEFAULT_WGET_PATH_MAC),
+				new File(Processes.DEFAULT_WGET_PATH_MAC)
+			};
 			
-			System.out.print("enter remote username for " + address.getCanonicalHostName() + ": ");
-			String username = reader.readLine();
+		File[] lib_install_dirs = new File[] {
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
+				new File(Processes.DEFAULT_TEMP_PATH_MAC),
+				new File(Processes.DEFAULT_TEMP_PATH_MAC)
+			};
 			
-			String private_key_file_path = new File(new File(System.getProperty("user.home"), ".ssh"), "id_rsa").getAbsolutePath();
-			String pass_phrase = MaskedStringInput.getMaskedString("enter SSH passphrase for " + address.getCanonicalHostName() + ":");
-		
-			wrapper = new SSH2ConnectionWrapper(address, username, private_key_file_path, pass_phrase);
-			connection_cache.put(address, wrapper);
-			return wrapper;
-		}
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
+		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+			
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+
+		System.out.println(">>>>> recovery test completed");
 	}
 }

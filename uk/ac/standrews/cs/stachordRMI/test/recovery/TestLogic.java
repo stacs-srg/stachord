@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package uk.ac.standrews.cs.stachordRMI.test.util;
+package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
 import static org.junit.Assert.assertEquals;
 
@@ -322,7 +322,7 @@ public class TestLogic {
 		catch (InterruptedException e) {}
 	}
 
-	public static void ringRecovers(INetwork network) throws IOException {
+	public static void ringRecoversFromNodeFailure(INetwork network) throws IOException {
 		
 		waitForStableRing(network.getNodes());
 		

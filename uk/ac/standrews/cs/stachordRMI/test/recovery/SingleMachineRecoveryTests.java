@@ -30,7 +30,6 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
-import uk.ac.standrews.cs.stachordRMI.test.util.TestLogic;
 
 public class SingleMachineRecoveryTests {
 	
@@ -74,6 +73,6 @@ public class SingleMachineRecoveryTests {
 	
 	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException {
 		
-		TestLogic.ringRecovers(new SingleMachineNetwork(ring_size, network_type));
+		TestLogic.ringRecoversFromNodeFailure(new SingleMachineNetwork(ring_size, network_type));
 	}
 }
