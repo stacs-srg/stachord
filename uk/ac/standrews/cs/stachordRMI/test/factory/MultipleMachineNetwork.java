@@ -103,6 +103,9 @@ public class MultipleMachineNetwork implements INetwork {
 			node_keys = generateNodeKeys(key_distribution, node_descriptors.length);
 			nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 			
+			System.out.println("creating node: " + node_descriptors[0]);
+			
+			
 			IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
 			nodes.add(first);
 		
@@ -111,6 +114,8 @@ public class MultipleMachineNetwork implements INetwork {
 				IChordRemoteReference known_node = pickRandomElement(nodes);
 				IKey key = node_keys[node_index];
 		
+				System.out.println("creating node: " + node_descriptors[node_index]);
+				
 				IChordRemoteReference next = createJoiningNode(node_descriptors[node_index], known_node, key);
 				nodes.add(next);
 			}
@@ -316,17 +321,20 @@ public class MultipleMachineNetwork implements INetwork {
 		while (!finished) {
 			
 			int port = next_port++;
+			System.out.println("port: " + port);
 		
 			List<String> args = arg_gen.getArgs(port);
 			
 			Process p = runProcess(node_descriptor, node_class, args);
 			
 			try {
+				System.out.println("trying to bind to port: " + port);
 				node = bindToNode(getHost(node_descriptor), port);
 				process_table.put(node, p);
 				finished = true;
 			}
 			catch (TimeoutException e) {
+				System.out.println("connection timed out");
 				Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
 			}
 		}

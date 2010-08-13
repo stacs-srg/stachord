@@ -101,24 +101,21 @@ public class MultipleMachineRecoveryTests {
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		InetAddress[] addresses = new InetAddress[] {
-				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-				InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
-				InetAddress.getByName("mini.cs.st-andrews.ac.uk")
+				InetAddress.getByName("compute-0-33"),
+				InetAddress.getByName("compute-0-34"),
+				InetAddress.getByName("compute-0-35")
 			};
 			
 			String[] java_versions = new String[] {
-				"1.6.0_03",
-				"1.6.0_03",
-				"1.6.0_20",
-				"1.6.0_20"
+					"1.6.0_07",
+					"1.6.0_07",
+					"1.6.0_07"
 			};
 			
 			ClassPath[] class_paths = new ClassPath[] {
-					new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
-					new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
-					new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
-					new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar"),
+					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar"),
+					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar")
 				};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
@@ -127,6 +124,11 @@ public class MultipleMachineRecoveryTests {
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 
 		System.out.println(">>>>> recovery test completed");
+	}
+	
+	public static void main(String[] args) throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+		
+		new MultipleMachineRecoveryTests().multiMachineTestPublicKeyNoLibraryInstallation();
 	}
 
 	/**
@@ -140,20 +142,20 @@ public class MultipleMachineRecoveryTests {
 	@Test
 	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+		Diagnostic.setLevel(DiagnosticLevel.FULL);
 
 		InetAddress[] addresses = new InetAddress[] {
 			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
 			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("mini.cs.st-andrews.ac.uk")
+			InetAddress.getByName("blub.cs.st-andrews.ac.uk"),
+			InetAddress.getByName("blub.cs.st-andrews.ac.uk")
 		};
 		
 		String[] java_versions = new String[] {
 			"1.6.0_03",
 			"1.6.0_03",
-			"1.6.0_20",
-			"1.6.0_20"
+			"1.6.0_07",
+			"1.6.0_07"
 		};
 		
 		URL[] lib_urls = new URL[] {
@@ -164,15 +166,15 @@ public class MultipleMachineRecoveryTests {
 		File[] wget_paths = new File[] {
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_MAC),
-				new File(Processes.DEFAULT_WGET_PATH_MAC)
+				new File(Processes.DEFAULT_WGET_PATH_LINUX),
+				new File(Processes.DEFAULT_WGET_PATH_LINUX)
 			};
 			
 		File[] lib_install_dirs = new File[] {
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_MAC),
-				new File(Processes.DEFAULT_TEMP_PATH_MAC)
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
 			};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses);

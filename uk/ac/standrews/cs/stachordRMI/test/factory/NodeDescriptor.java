@@ -51,4 +51,9 @@ public class NodeDescriptor {
 		this.wget_path = wget_path;
 		this.lib_install_dir = lib_install_dir;
 	}
+	
+	public String toString() {
+		
+		return ssh_client_wrapper.getServer().getCanonicalHostName();
+	}
 }
