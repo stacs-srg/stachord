@@ -58,15 +58,11 @@ public class MultipleMachineRecoveryTests {
 		InetAddress[] addresses = new InetAddress[] {
 			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
 			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("sword.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("sword.cs.st-andrews.ac.uk"),
 			InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
 			InetAddress.getByName("mini.cs.st-andrews.ac.uk")
 		};
 		
 		String[] java_versions = new String[] {
-			"1.6.0_03",
-			"1.6.0_03",
 			"1.6.0_03",
 			"1.6.0_03",
 			"1.6.0_20",
@@ -82,13 +78,11 @@ public class MultipleMachineRecoveryTests {
 		};
 		
 		URL[] lib_urls = new URL[] {
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastSuccessfulBuild/artifact/bin/nds.jar"),
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastSuccessfulBuild/artifact/bin/stachordRMI.jar")
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
 			};
 			
 		File[] wget_paths = new File[] {
-				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_MAC),
@@ -96,8 +90,6 @@ public class MultipleMachineRecoveryTests {
 			};
 			
 		File[] lib_install_dirs = new File[] {
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_MAC),
