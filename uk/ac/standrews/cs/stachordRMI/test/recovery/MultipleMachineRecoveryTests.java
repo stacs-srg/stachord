@@ -54,9 +54,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
+	 * @throws InterruptedException 
 	 */
 	//@Test
-	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -96,9 +97,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
+	 * @throws InterruptedException 
 	 */
 	//@Test
-	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -138,9 +140,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
+	 * @throws InterruptedException 
 	 */
 	//@Test
-	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.FULL);
 
@@ -192,9 +195,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
+	 * @throws InterruptedException 
 	 */
 	//@Test
-	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -244,9 +248,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
+	 * @throws InterruptedException 
 	 */
 	@Test
-	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 		

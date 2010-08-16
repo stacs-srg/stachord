@@ -40,7 +40,7 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 
 	static final String LOCAL_HOST = "localhost";
 
-	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException {
+	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, InterruptedException {
 		
 		try {
 			// The node descriptors will be null but that's OK because their values are ignored by the overriding methods below.

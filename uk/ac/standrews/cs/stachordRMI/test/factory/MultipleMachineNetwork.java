@@ -37,8 +37,11 @@ import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.util.ActionQueue;
+import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordRemoteReference;
@@ -87,39 +90,51 @@ public class MultipleMachineNetwork implements INetwork {
 	 * 
 	 * @throws IOException if the process for a node cannot be created
 	 * @throws SSH2Exception if communication with a remote host fails
+	 * @throws InterruptedException 
 	 */
-	public MultipleMachineNetwork(NodeDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception {
+	public MultipleMachineNetwork(NodeDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
 		
 		init(node_descriptors, key_distribution);
 	}
 
-	protected void init(NodeDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception {
+	protected void init(final NodeDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
 		
 		process_table = new HashMap<IChordRemoteReference, Process>();
-		
-		// Serialize creations of networks, since they update static field 'next_port'.
-		synchronized (sync) {
 			
-			node_keys = generateNodeKeys(key_distribution, node_descriptors.length);
-			nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
-			
-			System.out.println("creating node: " + node_descriptors[0]);
-			
-			
-			IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
-			nodes.add(first);
+		node_keys = generateNodeKeys(key_distribution, node_descriptors.length);
+		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		
-			for (int node_index = 1; node_index < node_descriptors.length; node_index++) {
+		System.out.println("creating node: " + node_descriptors[0]);
 		
-				IChordRemoteReference known_node = pickRandomElement(nodes);
-				IKey key = node_keys[node_index];
+		IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
+		nodes.add(first);
 		
-				System.out.println("creating node: " + node_descriptors[node_index]);
+		ActionQueue actions = new ActionQueue(node_descriptors.length, node_descriptors.length, 5000);
+	
+		for (int node_index = 1; node_index < node_descriptors.length; node_index++) {
+	
+			final int index = node_index;
+			
+			actions.enqueue(new ActionWithNoResult() {
 				
-				IChordRemoteReference next = createJoiningNode(node_descriptors[node_index], known_node, key);
-				nodes.add(next);
-			}
+				public void performAction() {
+					
+					IChordRemoteReference known_node = pickRandomElement(nodes);
+					IKey key = node_keys[index];
+			
+					System.out.println("creating node: " + node_descriptors[index]);
+					
+					try {
+						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key);
+						nodes.add(next);
+					} catch (Exception e) {
+						ErrorHandling.exceptionError(e);
+					}
+				}
+			});
 		}
+		
+		actions.blockUntilQueueEmpty();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +197,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private IChordRemoteReference pickRandomElement(SortedSet<IChordRemoteReference> nodes) {
+	private synchronized IChordRemoteReference pickRandomElement(SortedSet<IChordRemoteReference> nodes) {
 		
 		int index = randomIndex(0, nodes.size());
 		int count = 0;
@@ -192,6 +207,7 @@ public class MultipleMachineNetwork implements INetwork {
 			if (count++ == index) return reference;
 		}
 		
+		// Shouldn't reach here.
 		return null;
 	}
 	
@@ -320,7 +336,12 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		while (!finished) {
 			
-			int port = next_port++;
+			int port = 0;
+			
+			synchronized (sync) {
+				port = next_port++;
+			}
+			
 			System.out.println("port: " + port);
 		
 			List<String> args = arg_gen.getArgs(port);

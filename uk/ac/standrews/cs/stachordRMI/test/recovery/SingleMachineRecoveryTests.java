@@ -44,24 +44,24 @@ public class SingleMachineRecoveryTests {
 	}
 	
 	@Test
-	public void ringRecoversRandom() throws IOException, NotBoundException {
+	public void ringRecoversRandom() throws IOException, NotBoundException, InterruptedException {
 			
 		ringRecovers(KeyDistribution.RANDOM);
 	}
 	
 	@Test
-	public void ringRecoversEven() throws IOException, NotBoundException {
+	public void ringRecoversEven() throws IOException, NotBoundException, InterruptedException {
 		
 		ringRecovers(KeyDistribution.EVEN);
 	}
 
 	@Test
-	public void ringRecoversClustered() throws IOException, NotBoundException {
+	public void ringRecoversClustered() throws IOException, NotBoundException, InterruptedException {
 		
 		ringRecovers(KeyDistribution.CLUSTERED);
 	}
 
-	private void ringRecovers(KeyDistribution network_type) throws IOException, NotBoundException {
+	private void ringRecovers(KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException {
 
 		for (int ring_size : RING_SIZES) {
 			
@@ -71,7 +71,7 @@ public class SingleMachineRecoveryTests {
 		}
 	}
 	
-	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException {
+	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException {
 		
 		TestLogic.ringRecoversFromNodeFailure(new SingleMachineNetwork(ring_size, network_type));
 	}
