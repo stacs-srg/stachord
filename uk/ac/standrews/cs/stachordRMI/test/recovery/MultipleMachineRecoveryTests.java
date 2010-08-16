@@ -95,28 +95,31 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	@Test
+	//@Test
 	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		InetAddress[] addresses = new InetAddress[] {
-				InetAddress.getByName("compute-0-33"),
-				InetAddress.getByName("compute-0-34"),
-				InetAddress.getByName("compute-0-35")
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk")
 			};
 			
-			String[] java_versions = new String[] {
-					"1.6.0_07",
-					"1.6.0_07",
-					"1.6.0_07"
-			};
-			
-			ClassPath[] class_paths = new ClassPath[] {
-					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar"),
-					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar"),
-					new ClassPath("/home/graham/nds.jar:/home/graham/stachordRMI.jar")
-				};
+		String[] java_versions = new String[] {
+			"1.6.0_03",
+			"1.6.0_03",
+			"1.6.0_20",
+			"1.6.0_20"
+		};
+		
+		ClassPath[] class_paths = new ClassPath[] {
+				new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+				new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"),
+				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
+			};		
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
@@ -126,11 +129,6 @@ public class MultipleMachineRecoveryTests {
 		System.out.println(">>>>> recovery test completed");
 	}
 	
-	public static void main(String[] args) throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
-		
-		new MultipleMachineRecoveryTests().multiMachineTestPublicKeyNoLibraryInstallation();
-	}
-
 	/**
 	 * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
 	 * 
@@ -193,28 +191,28 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	//@Test
+	@Test
 	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		InetAddress[] addresses = new InetAddress[] {
-			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("mini.cs.st-andrews.ac.uk")
-		};
+				InetAddress.getByName("compute-0-33"),
+				InetAddress.getByName("compute-0-34"),
+				InetAddress.getByName("compute-0-35")
+			};
+			
+			String[] java_versions = new String[] {
+					"1.6.0_07",
+					"1.6.0_07",
+					"1.6.0_07"
+			};
 		
-		String[] java_versions = new String[] {
-			"1.6.0_03",
-			"1.6.0_03",
-			"1.6.0_20",
-			"1.6.0_20"
-		};
+		// TODO Revert to 'lastStableBuild' when testing has been re-enabled.
 		
 		URL[] lib_urls = new URL[] {
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastBuild/artifact/bin/nds.jar"),
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastBuild/artifact/bin/stachordRMI.jar")
 			};
 			
 		File[] wget_paths = new File[] {
