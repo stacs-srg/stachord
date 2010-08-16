@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
@@ -15,23 +13,24 @@ import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 
 public class NetworkUtil {
 
-	private static Map<InetAddress, SSH2ConnectionWrapper> password_connection_cache =   new HashMap<InetAddress, SSH2ConnectionWrapper>();
-	private static Map<InetAddress, SSH2ConnectionWrapper> public_key_connection_cache = new HashMap<InetAddress, SSH2ConnectionWrapper>();
-	
-	public static SSH2ConnectionWrapper[] createUsernamePasswordConnections(InetAddress[] addresses) throws IOException {
+	public static SSH2ConnectionWrapper[] createUsernamePasswordConnections(InetAddress[] addresses, boolean same_credentials_for_all) throws IOException {
 		
 		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		for (int i = 0; i < addresses.length; i++) {
-			connections[i] = createUsernamePasswordConnection(addresses[i]);
+		connections[0] = createUsernamePasswordConnection(addresses[0], null);
+
+		for (int i = 1; i < addresses.length; i++) {
+			connections[i] = createUsernamePasswordConnection(addresses[i], same_credentials_for_all ? connections[i-1] : null);
 		}
 		return connections;
 	}
 
-	public static SSH2ConnectionWrapper[] createPublicKeyConnections(InetAddress[] addresses) throws IOException {
+	public static SSH2ConnectionWrapper[] createPublicKeyConnections(InetAddress[] addresses, boolean same_credentials_for_all) throws IOException {
 
 		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		for (int i = 0; i < addresses.length; i++) {
-			connections[i] = createPublicKeyConnection(addresses[i]);
+		connections[0] = createPublicKeyConnection(addresses[0], null);
+		
+		for (int i = 1; i < addresses.length; i++) {
+			connections[i] = createPublicKeyConnection(addresses[i], same_credentials_for_all ? connections[i-1] : null);
 		}
 		return connections;
 	}
@@ -58,12 +57,10 @@ public class NetworkUtil {
 		return node_descriptors;
 	}
 
-	private static SSH2ConnectionWrapper createUsernamePasswordConnection(InetAddress address) throws IOException {
+	private static SSH2ConnectionWrapper createUsernamePasswordConnection(InetAddress address, SSH2ConnectionWrapper credentials_to_be_copied) throws IOException {
 		
-		SSH2ConnectionWrapper wrapper = password_connection_cache.get(address);
-		
-		if (wrapper != null) return wrapper;
-		else {
+		if (credentials_to_be_copied == null) {
+			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			
 			System.out.print("enter remote username for " + address.getCanonicalHostName() + ": ");
@@ -71,18 +68,18 @@ public class NetworkUtil {
 				
 			String password = MaskedStringInput.getMaskedString("enter remote password");
 		
-			wrapper = new SSH2ConnectionWrapper(address, username, password);
-			password_connection_cache.put(address, wrapper);
-			return wrapper;
+			return new SSH2ConnectionWrapper(address, username, password);
+		}
+		else {
+			
+			return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getPassword());
 		}
 	}
 	
-	private static SSH2ConnectionWrapper createPublicKeyConnection(InetAddress address) throws IOException {
+	private static SSH2ConnectionWrapper createPublicKeyConnection(InetAddress address, SSH2ConnectionWrapper credentials_to_be_copied) throws IOException {
 		
-		SSH2ConnectionWrapper wrapper = public_key_connection_cache.get(address);
+		if (credentials_to_be_copied == null) {
 		
-		if (wrapper != null) return wrapper;
-		else {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 			
 			System.out.print("enter remote username for " + address.getCanonicalHostName() + ": ");
@@ -91,9 +88,11 @@ public class NetworkUtil {
 			String private_key_file_path = new File(new File(System.getProperty("user.home"), ".ssh"), "id_rsa").getAbsolutePath();
 			String pass_phrase = MaskedStringInput.getMaskedString("enter SSH passphrase");
 		
-			wrapper = new SSH2ConnectionWrapper(address, username, private_key_file_path, pass_phrase);
-			public_key_connection_cache.put(address, wrapper);
-			return wrapper;
+			return new SSH2ConnectionWrapper(address, username, private_key_file_path, pass_phrase);
+		}
+		else {
+			
+			return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getKeyFile(), credentials_to_be_copied.getKeyPassword());
 		}
 	}
 	

@@ -79,7 +79,7 @@ public class MultipleMachineRecoveryTests {
 				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
 			};
 
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses);
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
@@ -121,7 +121,7 @@ public class MultipleMachineRecoveryTests {
 				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
 			};		
 			
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
@@ -175,7 +175,7 @@ public class MultipleMachineRecoveryTests {
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
 			};
 			
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses);
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
@@ -227,7 +227,7 @@ public class MultipleMachineRecoveryTests {
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
 			};
 			
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
