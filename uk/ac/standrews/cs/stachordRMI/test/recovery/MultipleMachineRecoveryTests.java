@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.rmi.NotBoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -191,7 +193,7 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 */
-	@Test
+	//@Test
 	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
@@ -207,6 +209,60 @@ public class MultipleMachineRecoveryTests {
 					"1.6.0_07",
 					"1.6.0_07"
 			};
+		
+		// TODO Revert to 'lastStableBuild' when testing has been re-enabled.
+		
+		URL[] lib_urls = new URL[] {
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastBuild/artifact/bin/nds.jar"),
+				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastBuild/artifact/bin/stachordRMI.jar")
+			};
+			
+		File[] wget_paths = new File[] {
+				new File(Processes.DEFAULT_WGET_PATH_LINUX),
+				new File(Processes.DEFAULT_WGET_PATH_LINUX),
+				new File(Processes.DEFAULT_WGET_PATH_LINUX)
+			};
+			
+		File[] lib_install_dirs = new File[] {
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
+			};
+			
+		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+			
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+
+		System.out.println(">>>>> recovery test completed");
+	}
+
+	/**
+	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
+	 * 
+	 * @throws IOException
+	 * @throws NotBoundException
+	 * @throws SSH2Exception
+	 * @throws UnequalArrayLengthsException 
+	 */
+	@Test
+	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException {
+		
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
+		
+		List<InetAddress> address_list = new ArrayList<InetAddress>();
+		
+		for (int index = 0; index < 10; index++) {
+			address_list.add(InetAddress.getByName("compute-0-" + index));
+		}
+
+		InetAddress[] addresses = address_list.toArray(new InetAddress[] {});
+			
+		String[] java_versions = new String[addresses.length];
+		
+		for (int index = 0; index < java_versions.length; index++) {
+			java_versions[index] = "1.6.0_07";
+		}
 		
 		// TODO Revert to 'lastStableBuild' when testing has been re-enabled.
 		
