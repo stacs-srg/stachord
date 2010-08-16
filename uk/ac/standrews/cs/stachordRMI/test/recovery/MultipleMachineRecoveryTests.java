@@ -271,17 +271,17 @@ public class MultipleMachineRecoveryTests {
 				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastBuild/artifact/bin/stachordRMI.jar")
 			};
 			
-		File[] wget_paths = new File[] {
-				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_LINUX)
-			};
-			
-		File[] lib_install_dirs = new File[] {
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
-			};
+		File[] wget_paths = new File[addresses.length];
+		
+		for (int index = 0; index < wget_paths.length; index++) {
+			wget_paths[index] = new File(Processes.DEFAULT_WGET_PATH_LINUX);
+		}
+
+		File[] lib_install_dirs = new File[addresses.length];
+		
+		for (int index = 0; index < lib_install_dirs.length; index++) {
+			lib_install_dirs[index] = new File(Processes.DEFAULT_TEMP_PATH_LINUX);
+		}
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
