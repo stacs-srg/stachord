@@ -218,15 +218,13 @@ public class MultipleMachineRecoveryTests {
 		File[] wget_paths = new File[] {
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_MAC),
-				new File(Processes.DEFAULT_WGET_PATH_MAC)
+				new File(Processes.DEFAULT_WGET_PATH_LINUX)
 			};
 			
 		File[] lib_install_dirs = new File[] {
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_MAC),
-				new File(Processes.DEFAULT_TEMP_PATH_MAC)
+				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
 			};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses);
