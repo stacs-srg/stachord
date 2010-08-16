@@ -127,7 +127,8 @@ public class MultipleMachineNetwork implements INetwork {
 					try {
 						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key);
 						nodes.add(next);
-					} catch (Exception e) {
+					}
+					catch (Exception e) {
 						ErrorHandling.exceptionError(e);
 					}
 				}
@@ -342,17 +343,18 @@ public class MultipleMachineNetwork implements INetwork {
 				port = next_port++;
 			}
 			
-			System.out.println("port: " + port);
+//			System.out.println("port: " + port);
 		
 			List<String> args = arg_gen.getArgs(port);
 			
 			Process p = runProcess(node_descriptor, node_class, args);
 			
 			try {
-				System.out.println("trying to bind to port: " + port);
+//				System.out.println("trying to bind to port: " + port);
 				node = bindToNode(getHost(node_descriptor), port);
 				process_table.put(node, p);
 				finished = true;
+				System.out.println("established connection to: " + getHost(node_descriptor) + ":" + port);
 			}
 			catch (TimeoutException e) {
 				System.out.println("connection timed out");
