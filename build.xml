@@ -1,6 +1,7 @@
 <project>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-crap4j, do-cpd" />
+<!--	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-crap4j, do-cpd" /> -->
+	<target name="build" depends="do-init-release, do-compile, project-jar" />
 
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
