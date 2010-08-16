@@ -136,7 +136,7 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 		
 		System.out.println("node count before block: " + nodes.size());
-		actions.blockUntilQueueEmpty();
+		actions.blockUntilNoUncompletedActions();
 		System.out.println("node count after block: " + nodes.size());
 	}
 

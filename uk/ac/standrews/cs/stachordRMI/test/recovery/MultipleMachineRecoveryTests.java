@@ -257,7 +257,7 @@ public class MultipleMachineRecoveryTests {
 		
 		List<InetAddress> address_list = new ArrayList<InetAddress>();
 		
-		for (int index = 0; index < 5; index++) {
+		for (int index = 0; index < 40; index++) {
 			address_list.add(InetAddress.getByName("compute-0-" + index));
 		}
 
