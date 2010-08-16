@@ -324,27 +324,39 @@ public class TestLogic {
 
 	public static void ringRecoversFromNodeFailure(INetwork network) throws IOException {
 		
+		System.out.println("rr1");
+		
 		waitForStableRing(network.getNodes());
 		
+		System.out.println("rr2");
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
 		
+		System.out.println("rr3");
 		killPartOfNetwork(network);
 		
+		System.out.println("rr4");
 		waitForCorrectRouting(network.getNodes());
 	
+		System.out.println("rr5");
 		// Turn on maintenance again.
 		enableFingerTableMaintenance(network, true);
 		
+		System.out.println("rr6");
 		waitForStableRing(network.getNodes());
 	
+		System.out.println("rr7");
 		waitForCompleteFingerTables(network.getNodes());
 	
+		System.out.println("rr8");
 		waitForCompleteSuccessorLists(network.getNodes());
 		
+		System.out.println("rr9");
 		waitForCorrectRouting(network.getNodes());
 		
+		System.out.println("rr10");
 		network.killAllNodes();
+		System.out.println("rr11");
 	}
 
 	public static void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {

@@ -122,7 +122,7 @@ public class MultipleMachineNetwork implements INetwork {
 					IChordRemoteReference known_node = pickRandomElement(nodes);
 					IKey key = node_keys[index];
 			
-					System.out.println("creating node: " + node_descriptors[index]);
+//					System.out.println("creating node: " + node_descriptors[index]);
 					
 					try {
 						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key);
