@@ -257,9 +257,12 @@ public class MultipleMachineRecoveryTests {
 		
 		List<InetAddress> address_list = new ArrayList<InetAddress>();
 		
-		for (int index = 0; index < 40; index++) {
+		for (int index = 0; index <= 57; index++) {
 			address_list.add(InetAddress.getByName("compute-0-" + index));
 		}
+		
+		address_list.remove("compute-0-42");
+		address_list.remove("compute-0-46");
 
 		InetAddress[] addresses = address_list.toArray(new InetAddress[] {});
 			
