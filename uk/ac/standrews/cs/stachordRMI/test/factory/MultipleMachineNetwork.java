@@ -104,8 +104,6 @@ public class MultipleMachineNetwork implements INetwork {
 		node_keys = generateNodeKeys(key_distribution, node_descriptors.length);
 		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		
-//		System.out.println("creating node: " + node_descriptors[0]);
-		
 		IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
 		nodes.add(first);
 		
@@ -121,8 +119,6 @@ public class MultipleMachineNetwork implements INetwork {
 					
 					IChordRemoteReference known_node = pickRandomElement(nodes);
 					IKey key = node_keys[index];
-			
-//					System.out.println("creating node: " + node_descriptors[index]);
 					
 					try {
 						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key);
@@ -135,9 +131,7 @@ public class MultipleMachineNetwork implements INetwork {
 			});
 		}
 		
-		System.out.println("node count before block: " + nodes.size());
 		actions.blockUntilNoUncompletedActions();
-		System.out.println("node count after block: " + nodes.size());
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
