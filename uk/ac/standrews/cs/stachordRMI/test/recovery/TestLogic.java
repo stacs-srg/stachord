@@ -100,8 +100,6 @@ public class TestLogic {
 		try {
 			IChordRemoteReference[] node_array = nodes.toArray(new IChordRemoteReference[]{});
 			
-			System.out.println("network size: " + node_array.length);
-			
 			if (node_array.length == 1) {
 				
 				// Single-node ring, so stable if predecessor is null and successor is self.
