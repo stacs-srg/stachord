@@ -109,7 +109,7 @@ public class MultipleMachineNetwork implements INetwork {
 		IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
 		nodes.add(first);
 		
-		ActionQueue actions = new ActionQueue(node_descriptors.length, 1, 5000);
+		ActionQueue actions = new ActionQueue(node_descriptors.length, 10, 5000);
 	
 		for (int node_index = 1; node_index < node_descriptors.length; node_index++) {
 	
