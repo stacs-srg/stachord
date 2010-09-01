@@ -60,6 +60,8 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class MultipleMachineNetwork implements INetwork {
 	
+	static final String LOCAL_HOST = "localhost";
+
 	private static int next_port = 54496;                         // The next port to be used; static to allow multiple concurrent networks.
 	private static final Object sync = new Object();              // Used for serializing network creation.
 	
@@ -76,11 +78,11 @@ public class MultipleMachineNetwork implements INetwork {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Disable arg-less constructor.
+	 * Needed for subclass SingleMachineNetwork, but shouldn't be generally accessible.
 	 */
 	protected MultipleMachineNetwork() {
 	}
-
+	
 	/**
 	 * @param node_descriptors a description of the target physical host for each Chord node to be created
 	 * @param key_distribution the required key distribution
@@ -89,8 +91,9 @@ public class MultipleMachineNetwork implements INetwork {
 	 * @throws SSH2Exception if communication with a remote host fails
 	 * @throws InterruptedException 
 	 */
-	public MultipleMachineNetwork(MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
+	public MultipleMachineNetwork(final MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
 		
+		// Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
 		init(node_descriptors, key_distribution);
 	}
 
@@ -176,18 +179,36 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	protected String getHost(MachineDescriptor node_descriptor) {
+	public static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception {
 		
-		return node_descriptor.ssh_client_wrapper.getServer().getHostName();
+		return createFirstNode(machine_descriptor, key, null);
 	}
 
-	protected Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
+	public static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key) throws IOException, SSH2Exception {
 		
-		if (node_descriptor.lib_urls != null) {
-			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.lib_urls, node_descriptor.wget_path, node_descriptor.lib_install_dir, true);
+		return createJoiningNode(machine_descriptor, known_node, key, null);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	protected static String getHost(MachineDescriptor node_descriptor) {
+		
+		if (node_descriptor != null) return node_descriptor.ssh_client_wrapper.getServer().getHostName();
+		else                         return LOCAL_HOST;
+	}
+
+	protected static Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
+		
+		if (node_descriptor != null) {
+			if (node_descriptor.lib_urls != null) {
+				return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.lib_urls, node_descriptor.wget_path, node_descriptor.lib_install_dir, true);
+			}
+			else {
+				return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.class_path);
+			}
 		}
 		else {
-			return Processes.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.class_path);
+			return Processes.runJavaProcess(node_class, args);
 		}
 	}
 
@@ -211,7 +232,7 @@ public class MultipleMachineNetwork implements INetwork {
 		List<String> getArgs(int local_port);
 	}
 
-	private IChordRemoteReference createFirstNode(final MachineDescriptor node_descriptor, final IKey key) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -219,17 +240,17 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + NetworkUtil.formatHostAddress(getHost(node_descriptor), local_port));
+				args.add("-s" + NetworkUtil.formatHostAddress(getHost(machine_descriptor), local_port));
 				addKeyArg(key, args);
 				
 				return args;
 			}
 		};
 		
-		return createNode(node_descriptor, arg_gen, StartRing.class);
+		return createNode(machine_descriptor, arg_gen, StartRing.class, process_table);
 	}
 
-	private IChordRemoteReference createJoiningNode(final MachineDescriptor node_descriptor, final IChordRemoteReference known_node, final IKey key) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -237,7 +258,7 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + NetworkUtil.formatHostAddress(getHost(node_descriptor), local_port));
+				args.add("-s" + NetworkUtil.formatHostAddress(getHost(machine_descriptor), local_port));
 				args.add("-k" + NetworkUtil.formatHostAddress(known_node.getAddress())); 
 				addKeyArg(key, args);
 				
@@ -245,7 +266,7 @@ public class MultipleMachineNetwork implements INetwork {
 			}
 		};
 		
-		return createNode(node_descriptor, arg_gen, StartNode.class);
+		return createNode(machine_descriptor, arg_gen, StartNode.class, process_table);
 	}
 
 	// Generates a random index such that lower <= index < upper.
@@ -286,12 +307,12 @@ public class MultipleMachineNetwork implements INetwork {
 		return node_keys;
 	}
 
-	private void addKeyArg(IKey key, List<String> args) {
+	private static void addKeyArg(IKey key, List<String> args) {
 	
 		if (key != null) args.add("-x" + key.toString(Key.DEFAULT_RADIX)); 
 	}
 
-	private IChordRemoteReference bindToNode(String host, int port) throws TimeoutException {
+	private static IChordRemoteReference bindToNode(String host, int port) throws TimeoutException {
 				
 		long start_time = System.currentTimeMillis();
 		
@@ -321,7 +342,7 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 
-	private IChordRemoteReference createNode(MachineDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createNode(MachineDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
 		
 		boolean finished = false;
 		IChordRemoteReference node = null;
@@ -340,7 +361,7 @@ public class MultipleMachineNetwork implements INetwork {
 			
 			try {
 				node = bindToNode(getHost(node_descriptor), port);
-				process_table.put(node, p);
+				if (process_table != null) process_table.put(node, p);
 				finished = true;
 			}
 			catch (TimeoutException e) {
