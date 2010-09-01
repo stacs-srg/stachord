@@ -129,16 +129,17 @@
 	    </cpd>
 	</target>
 	
-	<property name="lib-junit-4.1"        location="/projects/systems/InstallerSoftware/junit4.1/junit-4.1.jar" />
-	<property name="lib-checkstyle-dir"   location="/projects/systems/InstallerSoftware/checkstyle-5.1" />
-	<property name="lib-findbugs-dir"     location="/projects/systems/InstallerSoftware/findbugs-1.3.9" />
-	<property name="lib-pmd-dir"          location="/projects/systems/InstallerSoftware/pmd-4.2.5/lib" />
-	<property name="lib-crap4j-dir"       location="/projects/systems/InstallerSoftware/crap4j/lib" />
+	<property name="lib-junit-4.1"         location="/projects/systems/InstallerSoftware/junit4.1/junit-4.1.jar" />
+	<property name="lib-checkstyle-dir"    location="/projects/systems/InstallerSoftware/checkstyle-5.1" />
+	<property name="lib-findbugs-dir"      location="/projects/systems/InstallerSoftware/findbugs-1.3.9" />
+	<property name="lib-pmd-dir"           location="/projects/systems/InstallerSoftware/pmd-4.2.5/lib" />
+	<property name="lib-crap4j-dir"        location="/projects/systems/InstallerSoftware/crap4j/lib" />
 
-	<property name="lib-nds"              location="../../nds/lastStable/archive/bin/nds.jar" />
-	<property name="lib-tools"            location="/usr/java/default/lib/tools.jar" />
-	<property name="lib-checkstyle"       location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
-	<property name="lib-pmd"              location="${lib-pmd-dir}/pmd-4.2.5.jar" />
+	<property name="lib-nds"               location="../../nds/lastStable/archive/bin/nds.jar" />
+	<property name="lib-remote_management" location="../../remote_management/lastStable/archive/bin/remote_management.jar" />
+	<property name="lib-tools"             location="/usr/java/default/lib/tools.jar" />
+	<property name="lib-checkstyle"        location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
+	<property name="lib-pmd"               location="${lib-pmd-dir}/pmd-4.2.5.jar" />
 
 	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}" />
     <property name="doc-java"        value="http://java.sun.com/j2se/1.5.0/docs/api/" />
