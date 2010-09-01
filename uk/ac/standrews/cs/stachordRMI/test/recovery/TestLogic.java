@@ -324,25 +324,27 @@ public class TestLogic {
 
 	public static void ringRecoversFromNodeFailure(INetwork network) throws IOException {
 		
-		waitForStableRing(network.getNodes());
+		SortedSet<IChordRemoteReference> nodes = network.getNodes();
+		
+		waitForStableRing(nodes);
 		
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
 		
 		killPartOfNetwork(network);
 		
-		waitForCorrectRouting(network.getNodes());
+		waitForCorrectRouting(nodes);
 	
 		// Turn on maintenance again.
 		enableFingerTableMaintenance(network, true);
 		
-		waitForStableRing(network.getNodes());
+		waitForStableRing(nodes);
 	
-		waitForCompleteFingerTables(network.getNodes());
+		waitForCompleteFingerTables(nodes);
 	
-		waitForCompleteSuccessorLists(network.getNodes());
+		waitForCompleteSuccessorLists(nodes);
 		
-		waitForCorrectRouting(network.getNodes());
+		waitForCorrectRouting(nodes);
 		
 		network.killAllNodes();
 	}
