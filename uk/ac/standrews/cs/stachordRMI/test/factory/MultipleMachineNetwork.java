@@ -71,7 +71,7 @@ public class MultipleMachineNetwork implements INetwork {
 	private IKey[] node_keys;                                     // The keys of the nodes.
 	private TreeSet<IChordRemoteReference> nodes;                 // The nodes themselves.
 
-	protected Map<IChordRemoteReference, Process> process_table;  // Map to keep track of the process handle for each node.
+	private Map<IChordRemoteReference, Process> process_table;    // Map to keep track of the process handle for each node.
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,6 +147,8 @@ public class MultipleMachineNetwork implements INetwork {
 			if (nodes.contains(node)) {
 
 				int network_size = nodes.size();
+				
+				assert process_table.containsKey(node);
 
 				process_table.get(node).destroy();
 				process_table.remove(node);
@@ -165,6 +167,8 @@ public class MultipleMachineNetwork implements INetwork {
 			
 			for (IChordRemoteReference node : getNodes()) {
 				
+				assert process_table.containsKey(node);
+
 				process_table.get(node).destroy();
 				process_table.remove(node);
 			}
@@ -340,10 +344,8 @@ public class MultipleMachineNetwork implements INetwork {
 				node = bindToNode(getHost(node_descriptor), port);
 				process_table.put(node, p);
 				finished = true;
-				System.out.println("established connection to: " + getHost(node_descriptor) + ":" + port);
 			}
 			catch (TimeoutException e) {
-				System.out.println("connection timed out");
 				Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
 			}
 		}
