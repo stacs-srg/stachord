@@ -141,7 +141,7 @@
 	<property name="lib-checkstyle"        location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
 	<property name="lib-pmd"               location="${lib-pmd-dir}/pmd-4.2.5.jar" />
 
-	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}" />
+	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}:${lib-remote_management}" />
     <property name="doc-java"        value="http://java.sun.com/j2se/1.5.0/docs/api/" />
 
 	<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
