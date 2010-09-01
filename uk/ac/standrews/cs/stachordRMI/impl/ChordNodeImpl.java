@@ -140,7 +140,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public static IChordRemoteReference bindToNode(InetSocketAddress node_address) throws RemoteException, NotBoundException, AccessException {
-		
+
 		Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort());  // This doesn't make a remote call.
 		IChordRemote node = (IChordRemote) registry.lookup(IChordNode.CHORD_REMOTE_SERVICE);
 		return new ChordRemoteReference(node.getKey(), node);

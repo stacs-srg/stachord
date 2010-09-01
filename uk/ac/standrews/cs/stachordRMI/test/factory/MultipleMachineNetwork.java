@@ -184,6 +184,11 @@ public class MultipleMachineNetwork implements INetwork {
 		return createFirstNode(machine_descriptor, key, null);
 	}
 
+	public static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException {
+		
+		return createFirstNode(machine_descriptor, port, key, null);
+	}
+
 	public static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key) throws IOException, SSH2Exception {
 		
 		return createJoiningNode(machine_descriptor, known_node, key, null);
@@ -248,6 +253,24 @@ public class MultipleMachineNetwork implements INetwork {
 		};
 		
 		return createNode(machine_descriptor, arg_gen, StartRing.class, process_table);
+	}
+
+	private static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, int port, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
+		
+		ArgGen arg_gen = new ArgGen() {
+			
+			public List<String> getArgs(int local_port) {
+				
+				List<String> args = new ArrayList<String>();
+				
+				args.add("-s" + NetworkUtil.formatHostAddress(getHost(machine_descriptor), local_port));
+				addKeyArg(key, args);
+				
+				return args;
+			}
+		};
+		
+		return createNode(machine_descriptor, port, arg_gen, StartRing.class, process_table);
 	}
 
 	private static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
@@ -369,6 +392,21 @@ public class MultipleMachineNetwork implements INetwork {
 			}
 		}
 		
+		return node;
+	}
+
+	private static IChordRemoteReference createNode(MachineDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
+		
+		List<String> args = arg_gen.getArgs(port);
+
+		Process p = runProcess(node_descriptor, node_class, args);
+
+		IChordRemoteReference node = bindToNode(getHost(node_descriptor), port);
+		
+		if (process_table != null) {
+			process_table.put(node, p);
+		}
+
 		return node;
 	}
 }

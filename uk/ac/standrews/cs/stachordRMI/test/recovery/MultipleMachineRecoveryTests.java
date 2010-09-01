@@ -146,17 +146,17 @@ public class MultipleMachineRecoveryTests {
 		Diagnostic.setLevel(DiagnosticLevel.FULL);
 
 		InetAddress[] addresses = new InetAddress[] {
-			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("blub.cs.st-andrews.ac.uk"),
-			InetAddress.getByName("blub.cs.st-andrews.ac.uk")
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("beast.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk"),
+				InetAddress.getByName("mini.cs.st-andrews.ac.uk")
 		};
 		
 		String[] java_versions = new String[] {
-			"1.6.0_03",
-			"1.6.0_03",
-			"1.6.0_07",
-			"1.6.0_07"
+				"1.6.0_03",
+				"1.6.0_03",
+				"1.6.0_20",
+				"1.6.0_20"
 		};
 		
 		URL[] lib_urls = new URL[] {
@@ -167,15 +167,15 @@ public class MultipleMachineRecoveryTests {
 		File[] wget_paths = new File[] {
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
 				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_LINUX),
-				new File(Processes.DEFAULT_WGET_PATH_LINUX)
+				new File(Processes.DEFAULT_WGET_PATH_MAC),
+				new File(Processes.DEFAULT_WGET_PATH_MAC)
 			};
 			
 		File[] lib_install_dirs = new File[] {
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
 				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX),
-				new File(Processes.DEFAULT_TEMP_PATH_LINUX)
+				new File(Processes.DEFAULT_TEMP_PATH_MAC),
+				new File(Processes.DEFAULT_TEMP_PATH_MAC)
 			};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
