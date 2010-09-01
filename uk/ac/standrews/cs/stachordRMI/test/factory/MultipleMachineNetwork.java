@@ -104,7 +104,7 @@ public class MultipleMachineNetwork implements INetwork {
 		node_keys = generateNodeKeys(key_distribution, node_descriptors.length);
 		nodes = new TreeSet<IChordRemoteReference>(new NodeComparator());
 		
-		IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0]);
+		IChordRemoteReference first = createFirstNode(node_descriptors[0], node_keys[0], process_table);
 		nodes.add(first);
 		
 		ActionQueue actions = new ActionQueue(node_descriptors.length, 10, 5000);
@@ -121,7 +121,7 @@ public class MultipleMachineNetwork implements INetwork {
 					IKey key = node_keys[index];
 					
 					try {
-						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key);
+						IChordRemoteReference next = createJoiningNode(node_descriptors[index], known_node, key, process_table);
 						nodes.add(next);
 					}
 					catch (Exception e) {
