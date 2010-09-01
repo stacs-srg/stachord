@@ -33,10 +33,10 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
+import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.NetworkUtil;
-import uk.ac.standrews.cs.stachordRMI.test.factory.NodeDescriptor;
 import uk.ac.standrews.cs.stachordRMI.test.factory.UnequalArrayLengthsException;
 
 import com.mindbright.ssh2.SSH2Exception;
@@ -80,8 +80,8 @@ public class MultipleMachineRecoveryTests {
 				new ClassPath("/Users/graham/nds.jar:/Users/graham/stachordRMI.jar"),
 			};
 
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
-		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
+		SSH2ConnectionWrapper[] connections =  NetworkUtil.createUsernamePasswordConnections(addresses, true);
+		MachineDescriptor[] node_descriptors = NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 
@@ -124,7 +124,7 @@ public class MultipleMachineRecoveryTests {
 			};		
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
+		MachineDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 
@@ -179,7 +179,7 @@ public class MultipleMachineRecoveryTests {
 			};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
-		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		MachineDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 
@@ -232,7 +232,7 @@ public class MultipleMachineRecoveryTests {
 			};
 			
 		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		NodeDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		MachineDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
 

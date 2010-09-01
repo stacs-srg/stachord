@@ -26,6 +26,7 @@ import java.util.List;
 
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.Processes;
+import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.servers.AbstractServer;
 
 import com.mindbright.ssh2.SSH2Exception;
@@ -44,20 +45,20 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 		
 		try {
 			// The node descriptors will be null but that's OK because their values are ignored by the overriding methods below.
-			init(new NodeDescriptor[number_of_nodes], key_distribution);
+			init(new MachineDescriptor[number_of_nodes], key_distribution);
 		}
 		catch (SSH2Exception e) {
 			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
 		}
 	}
 
-	protected Process runProcess(NodeDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
+	protected Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
 		
 		// Ignore node_descriptor for local process.
 		return Processes.runJavaProcess(node_class, args);
 	}
 	
-	protected String getHost(NodeDescriptor node_descriptor) {
+	protected String getHost(MachineDescriptor node_descriptor) {
 		
 		// Ignore node_descriptor for local process.
 		return LOCAL_HOST;

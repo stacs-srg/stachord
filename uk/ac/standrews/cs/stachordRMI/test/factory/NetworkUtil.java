@@ -10,6 +10,7 @@ import java.net.URL;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
+import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
 
 public class NetworkUtil {
 
@@ -35,24 +36,24 @@ public class NetworkUtil {
 		return connections;
 	}
 
-	public static NodeDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, ClassPath[] class_paths) throws UnequalArrayLengthsException {
+	public static MachineDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, ClassPath[] class_paths) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, class_paths);
 		
-		NodeDescriptor[] node_descriptors = new NodeDescriptor[connections.length];
+		MachineDescriptor[] node_descriptors = new MachineDescriptor[connections.length];
 		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new NodeDescriptor(connections[i], java_versions[i], class_paths[i]);
+			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], class_paths[i]);
 		}
 		return node_descriptors;
 	}
 
-	public static NodeDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, URL[] lib_urls, File[] wget_paths, File[] lib_install_dirs) throws UnequalArrayLengthsException {
+	public static MachineDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, URL[] lib_urls, File[] wget_paths, File[] lib_install_dirs) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, wget_paths, lib_install_dirs);
 		
-		NodeDescriptor[] node_descriptors = new NodeDescriptor[connections.length];
+		MachineDescriptor[] node_descriptors = new MachineDescriptor[connections.length];
 		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new NodeDescriptor(connections[i], java_versions[i], lib_urls, wget_paths[i], lib_install_dirs[i]);
+			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], lib_urls, wget_paths[i], lib_install_dirs[i]);
 		}
 		return node_descriptors;
 	}
