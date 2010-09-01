@@ -133,11 +133,9 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	@SuppressWarnings("unchecked")
 	public SortedSet<IChordRemoteReference> getNodes() {
 		
-		// Clone set to prevent caller changing contents.
-		return (SortedSet<IChordRemoteReference>) nodes.clone();
+		return nodes;
 	}
 
 	public void killNode(IChordRemoteReference node) {
@@ -165,7 +163,7 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		synchronized (nodes) {
 			
-			for (IChordRemoteReference node : getNodes()) {
+			for (IChordRemoteReference node : nodes) {
 				
 				assert process_table.containsKey(node);
 
