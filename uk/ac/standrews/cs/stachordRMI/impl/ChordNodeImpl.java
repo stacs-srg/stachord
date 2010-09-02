@@ -96,7 +96,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	}
 	
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key, DiagnosticLevel diagnosticLevel) throws RemoteException, NotBoundException {
-		
+
+		System.out.println("cni1");
 		this.local_address = local_address;
 		this.key = key;
 
@@ -125,12 +126,15 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
 
 		// Register the service with the registry.
+		System.out.println("cni2");
 		Registry local_registry = LocateRegistry.createRegistry( local_address.getPort(), null, new CustomSocketFactory( local_address.getAddress() ) );
+		System.out.println("cni3");
 		local_registry.rebind( IChordNode.CHORD_REMOTE_SERVICE, getProxy().getRemote() );
 		
 		addObserver(this);
 
 		startMaintenanceThread();
+		System.out.println("cni4");
 		
 		if (diagnosticLevel != null){
 			Diagnostic.setLevel(diagnosticLevel);
