@@ -212,8 +212,6 @@ public class MultipleMachineRecoveryTests {
 					"1.6.0_07"
 			};
 		
-		// TODO Revert to 'lastStableBuild' when testing has been re-enabled.
-		
 		URL[] lib_urls = new URL[] {
 				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
 				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")

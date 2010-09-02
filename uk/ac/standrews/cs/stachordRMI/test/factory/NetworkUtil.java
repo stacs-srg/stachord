@@ -53,7 +53,7 @@ public class NetworkUtil {
 		
 		MachineDescriptor[] node_descriptors = new MachineDescriptor[connections.length];
 		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], lib_urls, wget_paths[i], lib_install_dirs[i]);
+			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], lib_urls, wget_paths[i].getAbsolutePath(), lib_install_dirs[i].getAbsolutePath());
 		}
 		return node_descriptors;
 	}

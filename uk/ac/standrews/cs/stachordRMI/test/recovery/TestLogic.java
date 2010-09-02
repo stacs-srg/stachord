@@ -326,27 +326,47 @@ public class TestLogic {
 		
 		SortedSet<IChordRemoteReference> nodes = network.getNodes();
 		
+		System.out.print("waiting for stable ring... ");
 		waitForStableRing(nodes);
+		System.out.println("done");
 		
+		System.out.print("disabling finger table maintenance... ");
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
+		System.out.println("done");
 		
+		System.out.print("killing part of network... ");
 		killPartOfNetwork(network);
+		System.out.println("done");
 		
+		System.out.print("waiting for correct routing... ");
 		waitForCorrectRouting(nodes);
+		System.out.println("done");
 	
+		System.out.print("enabling finger table maintenance... ");
 		// Turn on maintenance again.
 		enableFingerTableMaintenance(network, true);
+		System.out.println("done");
 		
+		System.out.print("waiting for stable ring... ");
 		waitForStableRing(nodes);
+		System.out.println("done");
 	
+		System.out.print("waiting for complete finger tables... ");
 		waitForCompleteFingerTables(nodes);
+		System.out.println("done");
 	
+		System.out.print("waiting for complete successor lists... ");
 		waitForCompleteSuccessorLists(nodes);
+		System.out.println("done");
 		
+		System.out.print("waiting for correct routing... ");
 		waitForCorrectRouting(nodes);
+		System.out.println("done");
 		
+		System.out.print("killing remaining nodes... ");
 		network.killAllNodes();
+		System.out.println("done");
 	}
 
 	public static void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {
