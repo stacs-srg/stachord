@@ -327,44 +327,54 @@ public class TestLogic {
 		SortedSet<IChordRemoteReference> nodes = network.getNodes();
 		
 		System.out.print("waiting for stable ring... ");
+		System.out.flush();
 		waitForStableRing(nodes);
 		System.out.println("done");
 		
 		System.out.print("disabling finger table maintenance... ");
+		System.out.flush();
 		// Routing should still eventually work even in the absence of finger table maintenance.
 		enableFingerTableMaintenance(network, false);
 		System.out.println("done");
 		
 		System.out.print("killing part of network... ");
+		System.out.flush();
 		killPartOfNetwork(network);
 		System.out.println("done");
 		
 		System.out.print("waiting for correct routing... ");
+		System.out.flush();
 		waitForCorrectRouting(nodes);
 		System.out.println("done");
 	
 		System.out.print("enabling finger table maintenance... ");
+		System.out.flush();
 		// Turn on maintenance again.
 		enableFingerTableMaintenance(network, true);
 		System.out.println("done");
 		
 		System.out.print("waiting for stable ring... ");
+		System.out.flush();
 		waitForStableRing(nodes);
 		System.out.println("done");
 	
 		System.out.print("waiting for complete finger tables... ");
+		System.out.flush();
 		waitForCompleteFingerTables(nodes);
 		System.out.println("done");
 	
 		System.out.print("waiting for complete successor lists... ");
+		System.out.flush();
 		waitForCompleteSuccessorLists(nodes);
 		System.out.println("done");
 		
 		System.out.print("waiting for correct routing... ");
+		System.out.flush();
 		waitForCorrectRouting(nodes);
 		System.out.println("done");
 		
 		System.out.print("killing remaining nodes... ");
+		System.out.flush();
 		network.killAllNodes();
 		System.out.println("done");
 	}
