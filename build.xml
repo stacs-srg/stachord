@@ -1,6 +1,6 @@
 <project>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-crap4j, do-cpd" />
+	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-cpd" />
 
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
@@ -80,46 +80,6 @@
 	    </pmd>
 	</target>
 	
-	<!-- Run Crap4j check. -->
-	<target name="do-crap4j">
-			<crap4j projectdir="." 
-				    outputDir="crap4j" 
-				    dontTest="false" debug="false">
-				
-				<classes>
-					<!-- put the project's class directories here. These are the classes you want crap numbers for -->
-					<pathElement location="." />
-				</classes>
-				
-				<srces>
-					<!-- The project's src folders -->
-					<pathElement location="." />
-				</srces>
-				
-				<testClasses>
-					<!-- The project's test classes. 
-					         Note, separating it from the project classes makes life so much easier
-					         but if you didn't, then you probably just want to repeat the classDir entry here -->
-					<pathElement location="." />
-				</testClasses>
-				
-				<libClasspath>
-					<!-- Put the dependent paths and libraries here. 
-					         This is for stuff necessary to your project, but not stuff you want analyzed -->
-					<fileset dir="lib">
-						<include name="**/*.jar" />
-					</fileset>
-					<!-- if you get errors loading any agitar classes, like the mock classes, add this entry -->
-					<!--
-					<fileset dir="${CRAP4J_HOME}/lib/com.agitar.eclipse.api_4.2.0.401405/lib/ext">
-					                    <include name="**/*.jar" />
-					                </fileset>
-					 -->               
-				</libClasspath>
-			
-			</crap4j>
-	</target>
-	
 	<!-- Run duplicate code check. -->
 	<target name="do-cpd">
 	    <cpd minimumTokenCount="100" format="xml" outputFile="cpd.xml">
@@ -155,13 +115,5 @@
 	<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask">
 		<classpath><pathelement location="${lib-pmd}"/></classpath>
 	</taskdef>
-	
-	<taskdef name="crap4j" classname="org.crap4j.anttask.Crap4jAntTask" >
-			<classpath>
-				<fileset dir="${lib-crap4j-dir}">
-					<include name="**/*.jar" />
-				</fileset>
-			</classpath>
-		</taskdef>
 	
 </project>
