@@ -416,30 +416,24 @@ public class MultipleMachineNetwork implements INetwork {
 	}
 
 	private static IChordRemoteReference createNode(MachineDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
-		
-		System.out.println("cn1");
+
 		List<String> args = arg_gen.getArgs(port);
 
-		System.out.println("cn2");
 		Process p = runProcess(node_descriptor, node_class, args);
 
-		System.out.println("cn3");
 		IChordRemoteReference node = bindToNode(getHost(node_descriptor), port);
 		
 		if (process_table != null) {
 			process_table.put(node, p);
 		}
-		System.out.println("cn4");
 
 		return node;
 	}
 
 	private static Process createNode(MachineDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException {
 		
-		System.out.println("cn1");
 		List<String> args = arg_gen.getArgs(port);
 
-		System.out.println("cn2");
 		return runProcess(node_descriptor, node_class, args);
 	}
 }
