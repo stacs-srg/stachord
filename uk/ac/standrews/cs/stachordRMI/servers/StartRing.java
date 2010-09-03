@@ -21,8 +21,6 @@
 package uk.ac.standrews.cs.stachordRMI.servers;
 
 import java.net.InetSocketAddress;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -44,15 +42,22 @@ import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
  */
 public class StartRing extends AbstractServer {
 
-	public static void main(String[] args) throws RemoteException, NotBoundException {
+	public static void main(String[] args) {
+		
+		Diagnostic.setLevel(DiagnosticLevel.FULL);
 
 		setup(args);
 
-		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
+		Diagnostic.trace(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
 		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
 
-		if (server_key == null) new ChordNodeImpl(local_socket_address, null);
-		else                    new ChordNodeImpl(local_socket_address, null, server_key);
+		try {
+			if (server_key == null) new ChordNodeImpl(local_socket_address, null);
+			else                    new ChordNodeImpl(local_socket_address, null, server_key);
+		}
+		catch (Exception e) {
+			Diagnostic.trace(DiagnosticLevel.FULL, "Failed to start new RMI Chord ring: " + e.getMessage());
+		}
 	}
 }
