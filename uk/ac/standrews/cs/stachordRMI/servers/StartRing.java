@@ -57,7 +57,9 @@ public class StartRing extends AbstractServer {
 			else                    new ChordNodeImpl(local_socket_address, null, server_key);
 		}
 		catch (Exception e) {
+			System.out.println("exception creating ring");
 			Diagnostic.trace(DiagnosticLevel.FULL, "Failed to start new RMI Chord ring: " + e.getMessage());
 		}
+		System.out.println("exiting main");
 	}
 }
