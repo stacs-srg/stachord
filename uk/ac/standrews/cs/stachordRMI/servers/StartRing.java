@@ -61,5 +61,6 @@ public class StartRing extends AbstractServer {
 			Diagnostic.trace(DiagnosticLevel.FULL, "Failed to start new RMI Chord ring: " + e.getMessage());
 		}
 		System.out.println("exiting main");
+		System.exit(0);
 	}
 }
