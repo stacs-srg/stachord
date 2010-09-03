@@ -90,14 +90,15 @@ public class MultipleMachineNetwork implements INetwork {
 	 * @throws IOException if the process for a node cannot be created
 	 * @throws SSH2Exception if communication with a remote host fails
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
-	public MultipleMachineNetwork(final MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
+	public MultipleMachineNetwork(final MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException {
 		
 		// Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
 		init(node_descriptors, key_distribution);
 	}
 
-	protected void init(final MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException {
+	protected void init(final MachineDescriptor[] node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException {
 		
 		process_table = new HashMap<IChordRemoteReference, Process>();
 			
@@ -179,7 +180,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception {
+	public static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException {
 		
 		return createFirstNode(machine_descriptor, key, null);
 	}
@@ -189,7 +190,7 @@ public class MultipleMachineNetwork implements INetwork {
 		return createFirstNode(machine_descriptor, port, key, null);
 	}
 
-	public static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key) throws IOException, SSH2Exception {
+	public static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key) throws IOException, SSH2Exception, TimeoutException {
 		
 		return createJoiningNode(machine_descriptor, known_node, key, null);
 	}
@@ -202,7 +203,7 @@ public class MultipleMachineNetwork implements INetwork {
 		else                         return LOCAL_HOST;
 	}
 
-	protected static Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception {
+	protected static Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException {
 		
 		if (node_descriptor != null) {
 			if (node_descriptor.lib_urls != null) {
@@ -237,7 +238,7 @@ public class MultipleMachineNetwork implements INetwork {
 		List<String> getArgs(int local_port);
 	}
 
-	private static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createFirstNode(final MachineDescriptor machine_descriptor, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -273,7 +274,7 @@ public class MultipleMachineNetwork implements INetwork {
 		return createNode(machine_descriptor, port, arg_gen, StartRing.class, process_table);
 	}
 
-	private static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createJoiningNode(final MachineDescriptor machine_descriptor, final IChordRemoteReference known_node, final IKey key, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -365,7 +366,7 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 
-	private static IChordRemoteReference createNode(MachineDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception {
+	private static IChordRemoteReference createNode(MachineDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class, Map<IChordRemoteReference, Process> process_table) throws IOException, SSH2Exception, TimeoutException {
 		
 		boolean finished = false;
 		IChordRemoteReference node = null;

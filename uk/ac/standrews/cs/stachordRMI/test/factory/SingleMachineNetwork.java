@@ -22,6 +22,7 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
@@ -44,6 +45,9 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 		}
 		catch (SSH2Exception e) {
 			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
+		}
+		catch (TimeoutException e) {
+			ErrorHandling.hardExceptionError(e, "unexpected timeout on local network creation");
 		}
 	}
 }

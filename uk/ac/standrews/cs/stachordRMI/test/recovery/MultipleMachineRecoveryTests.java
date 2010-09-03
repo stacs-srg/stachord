@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.rmi.NotBoundException;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
@@ -53,9 +54,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
+	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -96,9 +98,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
+	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -139,9 +142,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
+	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.FULL);
 
@@ -194,9 +198,10 @@ public class MultipleMachineRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
+	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 

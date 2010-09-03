@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
@@ -33,9 +34,10 @@ public class GangliaRecoveryTests {
 	 * @throws SSH2Exception
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	@Test
-	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException {
+	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 			
