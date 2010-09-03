@@ -99,6 +99,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 		this.local_address = local_address;
 		this.key = key;
+		
+		System.out.println("cni1");
 
 		hash_code = hashCode();
 
@@ -107,11 +109,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		
 		successor_list = new SuccessorList(this);
 		finger_table = new FingerTable(this);
+		System.out.println("cni2");
 
 		self_reference = new ChordRemoteReference(key, this);
 
 		// Setup/join the ring
 		
+		System.out.println("cni3");
 		if (known_node_address == null) {
 			createRing();
 		}
@@ -120,21 +124,26 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			IChordRemoteReference known_node_remote_ref = bindToNode(known_node_address);
 			join(known_node_remote_ref);
 		}
+		System.out.println("cni4");
 		
 		// Now start RMI listening.
 		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
+		System.out.println("cni5");
 
 		// Register the service with the registry.
 		Registry local_registry = LocateRegistry.createRegistry( local_address.getPort(), null, new CustomSocketFactory( local_address.getAddress() ) );
+		System.out.println("cni6");
 		local_registry.rebind( IChordNode.CHORD_REMOTE_SERVICE, getProxy().getRemote() );
 		
 		addObserver(this);
 
+		System.out.println("cni7");
 		startMaintenanceThread();
 		
 		if (diagnosticLevel != null){
 			Diagnostic.setLevel(diagnosticLevel);
 		}
+		System.out.println("cni8");
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
