@@ -126,21 +126,23 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 		System.out.println("cni4");
 		
-		// Now start RMI listening.
-		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
-		System.out.println("cni5");
+		// Get RMI registry.
+		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort(), null, new CustomSocketFactory(local_address.getAddress()) );
 
-		// Register the service with the registry.
-		Registry local_registry = LocateRegistry.createRegistry( local_address.getPort(), null, new CustomSocketFactory( local_address.getAddress() ) );
+		System.out.println("cni5");
+		// Start RMI listening.
+		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
+
 		System.out.println("cni6");
-		local_registry.rebind( IChordNode.CHORD_REMOTE_SERVICE, getProxy().getRemote() );
+		// Register the service with the registry.
+		local_registry.rebind(IChordNode.CHORD_REMOTE_SERVICE, getProxy().getRemote());
 		
 		addObserver(this);
 
 		System.out.println("cni7");
 		startMaintenanceThread();
 		
-		if (diagnosticLevel != null){
+		if (diagnosticLevel != null) {
 			Diagnostic.setLevel(diagnosticLevel);
 		}
 		System.out.println("cni8");
