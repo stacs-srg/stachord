@@ -6,55 +6,68 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
 
-public class NetworkUtil {
+public class NetworkUtil<ApplicationReference> {
 
-	public static SSH2ConnectionWrapper[] createUsernamePasswordConnections(InetAddress[] addresses, boolean same_credentials_for_all) throws IOException {
+	public List<SSH2ConnectionWrapper> createUsernamePasswordConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
 		
-		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		connections[0] = createUsernamePasswordConnection(addresses[0], null);
+		List<SSH2ConnectionWrapper> connections = new ArrayList<SSH2ConnectionWrapper>();
+		connections.add(createUsernamePasswordConnection(addresses.get(0), null));
+		SSH2ConnectionWrapper credentials_to_be_copied = same_credentials_for_all ? connections.get(0) : null;
 
-		for (int i = 1; i < addresses.length; i++) {
-			connections[i] = createUsernamePasswordConnection(addresses[i], same_credentials_for_all ? connections[i-1] : null);
+		for (InetAddress address : addresses) {
+			connections.add(createUsernamePasswordConnection(address, credentials_to_be_copied));
 		}
 		return connections;
 	}
 
-	public static SSH2ConnectionWrapper[] createPublicKeyConnections(InetAddress[] addresses, boolean same_credentials_for_all) throws IOException {
+	public List<SSH2ConnectionWrapper> createPublicKeyConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
 
-		SSH2ConnectionWrapper[] connections = new SSH2ConnectionWrapper[addresses.length];
-		connections[0] = createPublicKeyConnection(addresses[0], null);
+		List<SSH2ConnectionWrapper> connections = new ArrayList<SSH2ConnectionWrapper>();
+		connections.add(createPublicKeyConnection(addresses.get(0), null));
+		SSH2ConnectionWrapper credentials_to_be_copied = same_credentials_for_all ? connections.get(0) : null;
 		
-		for (int i = 1; i < addresses.length; i++) {
-			connections[i] = createPublicKeyConnection(addresses[i], same_credentials_for_all ? connections[i-1] : null);
+		for (InetAddress address : addresses) {
+			connections.add(createPublicKeyConnection(address, credentials_to_be_copied));
 		}
 		return connections;
 	}
 
-	public static MachineDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, ClassPath[] class_paths) throws UnequalArrayLengthsException {
+	public List<MachineDescriptor<ApplicationReference>> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, class_paths);
 		
-		MachineDescriptor[] node_descriptors = new MachineDescriptor[connections.length];
-		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], class_paths[i]);
+		List<MachineDescriptor<ApplicationReference>> node_descriptors = new ArrayList<MachineDescriptor<ApplicationReference>>();
+		
+		int i = 0;
+		for (SSH2ConnectionWrapper connection : connections) {
+
+			node_descriptors.add(new MachineDescriptor<ApplicationReference>(0, connection, java_versions.get(i), class_paths.get(i)));
+			i++;
 		}
 		return node_descriptors;
 	}
 
-	public static MachineDescriptor[] createNodeDescriptors(SSH2ConnectionWrapper[] connections, String[] java_versions, URL[] lib_urls, File[] wget_paths, File[] lib_install_dirs) throws UnequalArrayLengthsException {
+	public List<MachineDescriptor<ApplicationReference>> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, wget_paths, lib_install_dirs);
 		
-		MachineDescriptor[] node_descriptors = new MachineDescriptor[connections.length];
-		for (int i = 0; i < connections.length; i++) {
-			node_descriptors[i] = new MachineDescriptor(connections[i].getServer().getCanonicalHostName(), connections[i], java_versions[i], lib_urls, wget_paths[i].getAbsolutePath(), lib_install_dirs[i].getAbsolutePath());
+		List<MachineDescriptor<ApplicationReference>> node_descriptors = new ArrayList<MachineDescriptor<ApplicationReference>>();		
+		
+		int i = 0;
+		for (SSH2ConnectionWrapper connection : connections) {
+
+			node_descriptors.add(new MachineDescriptor<ApplicationReference>(0, connection, java_versions.get(i), lib_urls, wget_paths.get(i).getAbsolutePath(), lib_install_dirs.get(i).getAbsolutePath()));
+			i++;
 		}
+
 		return node_descriptors;
 	}
 
@@ -97,12 +110,12 @@ public class NetworkUtil {
 		}
 	}
 	
-	private static void checkEqualLengths(Object[]... arrays) throws UnequalArrayLengthsException {
+	private static void checkEqualLengths(List<?>... lists) throws UnequalArrayLengthsException {
 
-		int first_length = arrays[0].length;
+		int first_length = lists[0].size();
 		
-		for (Object[] array : arrays) {
-			if (array.length != first_length) throw new UnequalArrayLengthsException();
+		for (List<?> list : lists) {
+			if (list.size() != first_length) throw new UnequalArrayLengthsException();
 		}
 	}
 }

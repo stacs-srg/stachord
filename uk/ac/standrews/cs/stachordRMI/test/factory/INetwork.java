@@ -20,8 +20,9 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
-import java.util.SortedSet;
+import java.util.List;
 
+import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 /**
@@ -32,16 +33,16 @@ import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 public interface INetwork {
 
 	/**
-	 * Returns a new sorted set containing the nodes.
+	 * Returns a new list containing the nodes.
 	 * @return the nodes in the network, sorted in ascending key order.
 	 */
-	SortedSet<IChordRemoteReference> getNodes();
+	List<MachineDescriptor<IChordRemoteReference>> getNodes();
 	
 	/**
 	 * Kills a given node and removes it from the network.
 	 * @param node the node to be killed
 	 */
-	void killNode(IChordRemoteReference node);
+	void killNode(MachineDescriptor<IChordRemoteReference> node);
 	
 	/**
 	 * Kills all nodes and removes them from the network.

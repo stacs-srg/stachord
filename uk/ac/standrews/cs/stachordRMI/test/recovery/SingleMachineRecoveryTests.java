@@ -22,6 +22,7 @@ package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import uk.ac.standrews.cs.stachordRMI.test.factory.SingleMachineNetwork;
 
 public class SingleMachineRecoveryTests {
 	
+	private static final int CHECK_TIMEOUT = 600000;     // Allow 10 minutes for each check operation.
 	// TODO Make this work on Windows.
 	
 	private static final int[] RING_SIZES = {1,2,3,4,5,10,20};
@@ -44,35 +46,39 @@ public class SingleMachineRecoveryTests {
 	}
 	
 	@Test
-	public void ringRecoversRandom() throws IOException, NotBoundException, InterruptedException {
+	public void ringRecoversRandom() throws IOException, NotBoundException, InterruptedException, TimeoutException {
 			
 		ringRecovers(KeyDistribution.RANDOM);
 	}
 	
 	@Test
-	public void ringRecoversEven() throws IOException, NotBoundException, InterruptedException {
+	public void ringRecoversEven() throws IOException, NotBoundException, InterruptedException, TimeoutException {
 		
 		ringRecovers(KeyDistribution.EVEN);
 	}
 
 	@Test
-	public void ringRecoversClustered() throws IOException, NotBoundException, InterruptedException {
+	public void ringRecoversClustered() throws IOException, NotBoundException, InterruptedException, TimeoutException {
 		
 		ringRecovers(KeyDistribution.CLUSTERED);
 	}
 
-	private void ringRecovers(KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException {
+	private void ringRecovers(KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException, TimeoutException {
 
 		for (int ring_size : RING_SIZES) {
 			
-			System.out.println("testing recovery for ring size: " + ring_size + ", network type: " + network_type);
-			
+			System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
 			ringRecovers(ring_size, network_type);
+			System.out.println("\n>>>>>>>>>>>>>>>> Done");
 		}
 	}
 	
-	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException {
+	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, NotBoundException, InterruptedException, TimeoutException {
 		
-		TestLogic.ringRecoversFromNodeFailure(new SingleMachineNetwork(ring_size, network_type));
+		System.out.println("constructing ring... ");
+		SingleMachineNetwork network = new SingleMachineNetwork(ring_size, network_type);
+		System.out.println("done");
+
+		TestLogic.ringRecoversFromNodeFailure(network, CHECK_TIMEOUT);
 	}
 }

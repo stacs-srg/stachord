@@ -22,10 +22,14 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.io.IOException;
 import java.rmi.NotBoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
+import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
 import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 import com.mindbright.ssh2.SSH2Exception;
 
@@ -37,17 +41,27 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class SingleMachineNetwork extends MultipleMachineNetwork {
 
+	private static final String LOCAL_HOST = "localhost";
+
 	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, InterruptedException {
 		
 		try {
-			// The node descriptors will be null but that's OK.
-			init(new MachineDescriptor[number_of_nodes], key_distribution);
+			List<MachineDescriptor<IChordRemoteReference>> node_descriptors = new ArrayList<MachineDescriptor<IChordRemoteReference>>();
+			
+			for (int i = 0; i < number_of_nodes; i++) {
+				node_descriptors.add(new MachineDescriptor<IChordRemoteReference>(LOCAL_HOST));
+			}
+
+			init(node_descriptors, key_distribution);
 		}
 		catch (SSH2Exception e) {
 			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
 		}
 		catch (TimeoutException e) {
 			ErrorHandling.hardExceptionError(e, "unexpected timeout on local network creation");
+		}
+		catch (UnknownPlatformException e) {
+			ErrorHandling.hardExceptionError(e, "unexpected unknown platform on local network creation");
 		}
 	}
 }

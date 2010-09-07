@@ -16,7 +16,9 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
+import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
 import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 import uk.ac.standrews.cs.stachordRMI.test.factory.NetworkUtil;
@@ -35,33 +37,33 @@ public class GangliaRecoveryTests {
 	 * @throws UnequalArrayLengthsException 
 	 * @throws InterruptedException 
 	 * @throws TimeoutException 
+	 * @throws UnknownPlatformException 
 	 */
 	@Test
-	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException {
+	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
-			
-		// TODO Revert to 'lastStableBuild' when testing has been re-enabled.
 		
-		URL[] lib_urls = new URL[] {
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastBuild/artifact/bin/nds.jar"),
-				new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastBuild/artifact/bin/stachordRMI.jar")
-			};
+		List<URL> lib_urls = new ArrayList<URL>();
+		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"));
+		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
 			
-		InetAddress[] addresses = getGangliaNodeAddresses();
-		String[] java_versions =  getGangliaJavaVersions(addresses.length);
-		File[] wget_paths =       getGangliaWgetPaths(addresses.length);
-		File[] lib_install_dirs = getGangliaLibInstallDirs(addresses.length);
+		List<InetAddress> addresses = getGangliaNodeAddresses();
+		List<String> java_versions =  getGangliaJavaVersions(addresses.size());
+		List<File> wget_paths =       getGangliaWgetPaths(addresses.size());
+		List<File> lib_install_dirs = getGangliaLibInstallDirs(addresses.size());
+
+		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
+		
+		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
+		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
-		SSH2ConnectionWrapper[] connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		MachineDescriptor[] node_descriptors =   NetworkUtil.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
-			
-		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM));
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}
 
-	protected InetAddress[] getGangliaNodeAddresses() throws UnknownHostException {
+	protected List<InetAddress> getGangliaNodeAddresses() throws UnknownHostException {
 		
 		List<InetAddress> address_list = new ArrayList<InetAddress>();
 		
@@ -74,35 +76,35 @@ public class GangliaRecoveryTests {
 		address_list.remove(InetAddress.getByName("compute-0-46"));
 		address_list.remove(InetAddress.getByName("compute-0-53"));
 
-		return address_list.toArray(new InetAddress[] {});
+		return address_list;
 	}
 
-	protected File[] getGangliaLibInstallDirs(int number_of_nodes) {
+	protected List<File> getGangliaLibInstallDirs(int number_of_nodes) {
 		
-		File[] lib_install_dirs = new File[number_of_nodes];
+		List<File> lib_install_dirs = new ArrayList<File>();
 		
-		for (int index = 0; index < lib_install_dirs.length; index++) {
-			lib_install_dirs[index] = new File(Processes.DEFAULT_TEMP_PATH_LINUX);
+		for (int index = 0; index < number_of_nodes; index++) {
+			lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
 		}
 		return lib_install_dirs;
 	}
 
-	protected File[] getGangliaWgetPaths(int number_of_nodes) {
+	protected List<File> getGangliaWgetPaths(int number_of_nodes) {
 		
-		File[] wget_paths = new File[number_of_nodes];
+		List<File> wget_paths = new ArrayList<File>();
 		
-		for (int index = 0; index < wget_paths.length; index++) {
-			wget_paths[index] = new File(Processes.DEFAULT_WGET_PATH_LINUX);
+		for (int index = 0; index < number_of_nodes; index++) {
+			wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
 		}
 		return wget_paths;
 	}
 
-	protected String[] getGangliaJavaVersions(int number_of_nodes) {
+	protected List<String> getGangliaJavaVersions(int number_of_nodes) {
 		
-		String[] java_versions = new String[number_of_nodes];
+		List<String> java_versions = new ArrayList<String>();
 		
-		for (int index = 0; index < java_versions.length; index++) {
-			java_versions[index] = "1.6.0_07";
+		for (int index = 0; index < number_of_nodes; index++) {
+			java_versions.add("1.6.0_07");
 		}
 		return java_versions;
 	}
