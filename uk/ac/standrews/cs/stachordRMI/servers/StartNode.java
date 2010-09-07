@@ -64,8 +64,8 @@ public class StartNode extends AbstractServer {
 		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 
 		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-		InetSocketAddress known_socket_address =  new InetSocketAddress(known_address, known_port);
-
+		InetSocketAddress known_socket_address = new InetSocketAddress(known_address, known_port);
+		
 		if (server_key == null) new ChordNodeImpl(local_socket_address, known_socket_address);
 		else                    new ChordNodeImpl(local_socket_address, known_socket_address, server_key);
 	}

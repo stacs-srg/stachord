@@ -49,12 +49,13 @@ public class StartRing extends AbstractServer {
 		Diagnostic.trace(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
 		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-
+		
 		try {
 			if (server_key == null) new ChordNodeImpl(local_socket_address, null);
 			else                    new ChordNodeImpl(local_socket_address, null, server_key);
 		}
 		catch (Exception e) {
+
 			Diagnostic.trace(DiagnosticLevel.FULL, "Failed to start new RMI Chord ring: " + e.getMessage());
 		}
 	}

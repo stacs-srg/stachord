@@ -118,9 +118,12 @@ public class FingerTable {
 		
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
-			buffer.append("finger: " + i + " key: ");
-			buffer.append(fingers[i] != null ? fingers[i].getKey() : "null");
-			buffer.append(" address: " + fingers[i]);
+			buffer.append("finger: " + i);
+			if (fingers[i] == null) buffer.append(" null");
+			else {
+				buffer.append(" key: " +     fingers[i].getKey() );
+				buffer.append(" address: " + fingers[i].getAddress());
+			}
 			buffer.append("\n");
 		}
 		

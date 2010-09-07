@@ -73,12 +73,7 @@ public class ChordRemoteReference implements IChordRemoteReference, Serializable
 	}
 	
 	public String toString() {
-		String ref;
-		try {
-			ref = getRemote().getAddress().toString();
-		} catch (RemoteException e) {
-			ref = "--IP down--";
-		}
-		return "ChordRemoteReference to: " + key + " " + ref;
+		
+		return getRemote().toString();
 	}
 }

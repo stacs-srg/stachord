@@ -35,7 +35,7 @@ public class SuccessorList {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private final ChordNodeImpl local_node;
-	private final ArrayList<IChordRemoteReference> successor_list;
+	private final ArrayList<IChordRemoteReference> successor_list;     // Needs to be typed as implementation type for serialization.
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -127,17 +127,23 @@ public class SuccessorList {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append( "Successors: " );
-		if( successor_list.isEmpty() ) {
-			sb.append( "empty" );
-			
-		} else {
-			for( IChordRemoteReference ref : successor_list ) {
-				sb.append( ref.getKey() + "," );
-			}
-			sb.deleteCharAt( sb.length() - 1 );
+		
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("\n");
+		
+		if (successor_list.isEmpty()) {
+			buffer.append("empty");
 		}
-		return sb.toString();
+		else {
+			for (IChordRemoteReference successor : successor_list) {
+				
+				buffer.append("successor: ");
+				buffer.append(successor != null ? successor.getKey() : "null");
+				buffer.append(" address: " + successor.getAddress());
+				buffer.append("\n");
+			}
+		}
+		
+		return buffer.toString();
 	}
 }

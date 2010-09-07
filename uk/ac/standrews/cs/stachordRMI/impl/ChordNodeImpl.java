@@ -309,23 +309,33 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 	@Override
 	public String toString() {
+		return detailed ? toStringDetailed() : toStringTerse();
+	}
+
+	public String toStringTerse() {
 		return "key: " + key + " local_address: " + local_address;
 	}
 
-	public String toStringFull() {
+	public String toStringDetailed() {
 		return
 		"Node state" + "\n" + 
 		"key: " + key + "\n" + 
 		"local_address: " + local_address + "\n" + 
-		"predecessor: " + predecessor + "\n" + 
-		"successor: " + successor + "\n" + 
+		"predecessor: " + predecessor.getAddress() + "\n" + 
+		"successor: " + successor.getAddress() + "\n" + 
 		"successor_list: " +  successor_list + "\n" + 
 		"finger_table: " + finger_table;
 	}
 
 	public void showState() {
-		System.out.println( toStringFull() );
+		System.out.println(toStringDetailed());
 	}
+	
+	public void setToStringDetailed(boolean detailed) {
+		this.detailed = detailed;
+	}
+	
+	private boolean detailed = true;
 
 	public void update(Observable o, Object arg) {
 		
@@ -552,7 +562,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	 */
 	private synchronized void setSuccessor(IChordRemoteReference successor) {
 		
-		if (successor == null) ErrorHandling.hardError("setting successor to null\ncurrent state: " + toStringFull());
+		if (successor == null) ErrorHandling.hardError("setting successor to null\ncurrent state: " + toStringDetailed());
 		
 		IChordRemoteReference oldSuccessor = this.successor;
 		this.successor = successor;		

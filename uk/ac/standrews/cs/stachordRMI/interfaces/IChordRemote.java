@@ -95,9 +95,13 @@ public interface IChordRemote extends Remote {
 	 */
 	NextHopResult nextHop(IKey k) throws RemoteException;
 	
-	IChordRemoteReference lookup( IKey key ) throws RemoteException;
+	IChordRemoteReference lookup(IKey key) throws RemoteException;
 
 	public void enableFingerTableMaintenance(boolean enabled) throws RemoteException;
 
 	public void fingerFailure(IChordRemoteReference broken_finger) throws RemoteException;
+
+	String toStringDetailed() throws RemoteException;
+	
+	String toStringTerse() throws RemoteException;
 }
