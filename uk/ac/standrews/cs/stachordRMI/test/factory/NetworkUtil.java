@@ -22,8 +22,8 @@ public class NetworkUtil<ApplicationReference> {
 		connections.add(createUsernamePasswordConnection(addresses.get(0), null));
 		SSH2ConnectionWrapper credentials_to_be_copied = same_credentials_for_all ? connections.get(0) : null;
 
-		for (InetAddress address : addresses) {
-			connections.add(createUsernamePasswordConnection(address, credentials_to_be_copied));
+		for (int i = 1; i < addresses.size(); i++) {
+			connections.add(createUsernamePasswordConnection(addresses.get(i), credentials_to_be_copied));
 		}
 		return connections;
 	}
@@ -34,8 +34,8 @@ public class NetworkUtil<ApplicationReference> {
 		connections.add(createPublicKeyConnection(addresses.get(0), null));
 		SSH2ConnectionWrapper credentials_to_be_copied = same_credentials_for_all ? connections.get(0) : null;
 		
-		for (InetAddress address : addresses) {
-			connections.add(createPublicKeyConnection(address, credentials_to_be_copied));
+		for (int i = 1; i < addresses.size(); i++) {
+			connections.add(createPublicKeyConnection(addresses.get(i), credentials_to_be_copied));
 		}
 		return connections;
 	}

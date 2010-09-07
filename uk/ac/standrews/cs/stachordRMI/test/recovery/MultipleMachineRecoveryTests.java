@@ -150,7 +150,7 @@ public class MultipleMachineRecoveryTests {
 	@Test
 	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
 		
-		Diagnostic.setLevel(DiagnosticLevel.FULL);
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		List<InetAddress> addresses = new ArrayList<InetAddress>();
 		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
@@ -184,7 +184,7 @@ public class MultipleMachineRecoveryTests {
 		List<SSH2ConnectionWrapper> connections = network_util.createUsernamePasswordConnections(addresses, true);
 		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
-		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
 
 		System.out.println(">>>>> recovery test completed");
 	}
