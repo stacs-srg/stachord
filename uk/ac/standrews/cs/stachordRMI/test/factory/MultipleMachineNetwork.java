@@ -38,7 +38,7 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.AbstractServer;
@@ -65,7 +65,7 @@ public class MultipleMachineNetwork implements INetwork {
 	private static final int QUEUE_IDLE_TIMEOUT =  5000;     // The timeout for idle check job threads to die, in ms.
 
 	private IKey[] node_keys;                                          // The keys of the nodes.
-	private List<MachineDescriptor<IChordRemoteReference>> nodes;      // The nodes themselves.
+	private List<MachineDescriptor> nodes;      // The nodes themselves.
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -85,20 +85,20 @@ public class MultipleMachineNetwork implements INetwork {
 	 * @throws TimeoutException 
 	 * @throws UnknownPlatformException 
 	 */
-	public MultipleMachineNetwork(final List<MachineDescriptor<IChordRemoteReference>> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
+	public MultipleMachineNetwork(final List<MachineDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
 		
 		// Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
 		init(node_descriptors, key_distribution);
 	}
 
-	protected void init(final List<MachineDescriptor<IChordRemoteReference>> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
+	protected void init(final List<MachineDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
 			
 		node_keys = generateNodeKeys(key_distribution, node_descriptors.size());
 		nodes = node_descriptors;
 		
 		ActionQueue actions = new ActionQueue(node_descriptors.size(), QUEUE_MAX_THREADS, QUEUE_IDLE_TIMEOUT);
 		
-		final MachineDescriptor<IChordRemoteReference> known_node = node_descriptors.get(0);
+		final MachineDescriptor known_node = node_descriptors.get(0);
 		createFirstNode(known_node, node_keys[0]);
 
 		for (int node_index = 1; node_index < node_descriptors.size(); node_index++) {
@@ -127,12 +127,12 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public List<MachineDescriptor<IChordRemoteReference>> getNodes() {
+	public List<MachineDescriptor> getNodes() {
 		
 		return nodes;
 	}
 
-	public void killNode(MachineDescriptor<IChordRemoteReference> node) {
+	public void killNode(MachineDescriptor node) {
 		
 		synchronized (nodes) {
 			
@@ -154,7 +154,7 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		synchronized (nodes) {
 			
-			for (MachineDescriptor<IChordRemoteReference> node : nodes) {
+			for (MachineDescriptor node : nodes) {
 
 				node.process.destroy();
 			}
@@ -164,7 +164,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	public static void createFirstNode(final MachineDescriptor<IChordRemoteReference> machine_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	public static void createFirstNode(final MachineDescriptor machine_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -181,7 +181,7 @@ public class MultipleMachineNetwork implements INetwork {
 		createNodeProcessAndBindToApplication(machine_descriptor, port, arg_gen, StartRing.class);
 	}
 
-	public static void createFirstNode(final MachineDescriptor<IChordRemoteReference> machine_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	public static void createFirstNode(final MachineDescriptor machine_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -201,7 +201,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	protected static Process runProcess(MachineDescriptor<IChordRemoteReference> node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	protected static Process runProcess(MachineDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		if (node_descriptor.ssh_client_wrapper != null) {
 			if (node_descriptor.lib_urls != null) {
@@ -222,7 +222,7 @@ public class MultipleMachineNetwork implements INetwork {
 		List<String> getArgs(int local_port);
 	}
 
-	private static void createFirstNode(final MachineDescriptor<IChordRemoteReference> machine_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createFirstNode(final MachineDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -240,7 +240,7 @@ public class MultipleMachineNetwork implements INetwork {
 		createNode(machine_descriptor, arg_gen, StartRing.class);
 	}
 	
-	private static void createJoiningNode(final MachineDescriptor<IChordRemoteReference> machine_descriptor, final MachineDescriptor<IChordRemoteReference> known_node, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createJoiningNode(final MachineDescriptor machine_descriptor, final MachineDescriptor known_node, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -296,7 +296,7 @@ public class MultipleMachineNetwork implements INetwork {
 		if (key != null) args.add("-x" + key.toString(Key.DEFAULT_RADIX)); 
 	}
 
-	private static IChordRemoteReference bindToNode(MachineDescriptor<IChordRemoteReference> node_descriptor) throws TimeoutException {
+	private static IChordRemoteReference bindToNode(MachineDescriptor node_descriptor) throws TimeoutException {
 				
 		long start_time = System.currentTimeMillis();
 		
@@ -326,7 +326,7 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 
-	private static void createNode(MachineDescriptor<IChordRemoteReference> node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, UnknownPlatformException {
+	private static void createNode(MachineDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, UnknownPlatformException {
 		
 		boolean finished = false;
 		
@@ -353,14 +353,14 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 
-	private static void createNodeProcessAndBindToApplication(MachineDescriptor<IChordRemoteReference> node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createNodeProcessAndBindToApplication(MachineDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
 		createNodeProcess(node_descriptor, port, arg_gen, node_class);
 
 		node_descriptor.application_reference = bindToNode(node_descriptor);
 	}
 
-	private static void createNodeProcess(MachineDescriptor<IChordRemoteReference> node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createNodeProcess(MachineDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		List<String> args = arg_gen.getArgs(port);
 

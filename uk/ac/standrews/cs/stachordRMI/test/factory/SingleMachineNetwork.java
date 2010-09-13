@@ -28,8 +28,7 @@ import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
-import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 
 import com.mindbright.ssh2.SSH2Exception;
 
@@ -46,10 +45,10 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, InterruptedException {
 		
 		try {
-			List<MachineDescriptor<IChordRemoteReference>> node_descriptors = new ArrayList<MachineDescriptor<IChordRemoteReference>>();
+			List<MachineDescriptor> node_descriptors = new ArrayList<MachineDescriptor>();
 			
 			for (int i = 0; i < number_of_nodes; i++) {
-				node_descriptors.add(new MachineDescriptor<IChordRemoteReference>(LOCAL_HOST));
+				node_descriptors.add(new MachineDescriptor(LOCAL_HOST));
 			}
 
 			init(node_descriptors, key_distribution);

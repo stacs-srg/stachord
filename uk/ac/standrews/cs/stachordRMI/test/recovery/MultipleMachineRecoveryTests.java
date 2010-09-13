@@ -37,7 +37,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
@@ -86,7 +86,7 @@ public class MultipleMachineRecoveryTests {
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections =  network_util.createUsernamePasswordConnections(addresses, true);
-		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, class_paths);
+		List<MachineDescriptor> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
@@ -129,7 +129,7 @@ public class MultipleMachineRecoveryTests {
 			
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
-		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, class_paths);
+		List<MachineDescriptor> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, class_paths);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
@@ -182,7 +182,7 @@ public class MultipleMachineRecoveryTests {
 			
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createUsernamePasswordConnections(addresses, true);
-		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		List<MachineDescriptor> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
 
@@ -231,7 +231,7 @@ public class MultipleMachineRecoveryTests {
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
-		List<MachineDescriptor<IChordRemoteReference>> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		List<MachineDescriptor> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 

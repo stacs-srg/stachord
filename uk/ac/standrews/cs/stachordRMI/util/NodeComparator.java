@@ -23,18 +23,21 @@ package uk.ac.standrews.cs.stachordRMI.util;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
-public class NodeComparator implements Comparator<MachineDescriptor<IChordRemoteReference>>, Serializable {
+public class NodeComparator implements Comparator<MachineDescriptor>, Serializable {
 
 	private static final long serialVersionUID = -5679876714458357570L;
 
-	public int compare(MachineDescriptor<IChordRemoteReference> o1, MachineDescriptor<IChordRemoteReference> o2) {
+	public int compare(MachineDescriptor o1, MachineDescriptor o2) {
 		
 		if (o1 == null) return 1;
 		if (o2 == null) return -1;
 
-		return o1.application_reference.getKey().compareTo(o2.application_reference.getKey());
+		IChordRemoteReference application_reference1 = (IChordRemoteReference) o1.application_reference;
+		IChordRemoteReference application_reference2 = (IChordRemoteReference) o2.application_reference;
+		
+		return application_reference1.getKey().compareTo(application_reference2.getKey());
 	}
 }

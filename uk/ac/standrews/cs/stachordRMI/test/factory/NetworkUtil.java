@@ -12,7 +12,7 @@ import java.util.List;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 
 public class NetworkUtil<ApplicationReference> {
 
@@ -40,31 +40,31 @@ public class NetworkUtil<ApplicationReference> {
 		return connections;
 	}
 
-	public List<MachineDescriptor<ApplicationReference>> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
+	public List<MachineDescriptor> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, class_paths);
 		
-		List<MachineDescriptor<ApplicationReference>> node_descriptors = new ArrayList<MachineDescriptor<ApplicationReference>>();
+		List<MachineDescriptor> node_descriptors = new ArrayList<MachineDescriptor>();
 		
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new MachineDescriptor<ApplicationReference>(0, connection, java_versions.get(i), class_paths.get(i)));
+			node_descriptors.add(new MachineDescriptor(0, connection, java_versions.get(i), class_paths.get(i)));
 			i++;
 		}
 		return node_descriptors;
 	}
 
-	public List<MachineDescriptor<ApplicationReference>> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
+	public List<MachineDescriptor> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, wget_paths, lib_install_dirs);
 		
-		List<MachineDescriptor<ApplicationReference>> node_descriptors = new ArrayList<MachineDescriptor<ApplicationReference>>();		
+		List<MachineDescriptor> node_descriptors = new ArrayList<MachineDescriptor>();		
 		
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new MachineDescriptor<ApplicationReference>(0, connection, java_versions.get(i), lib_urls, wget_paths.get(i).getAbsolutePath(), lib_install_dirs.get(i).getAbsolutePath()));
+			node_descriptors.add(new MachineDescriptor(0, connection, java_versions.get(i), lib_urls, wget_paths.get(i).getAbsolutePath(), lib_install_dirs.get(i).getAbsolutePath()));
 			i++;
 		}
 

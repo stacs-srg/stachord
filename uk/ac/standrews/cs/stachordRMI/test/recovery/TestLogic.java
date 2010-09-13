@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.remote_management.infrastructure.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
 import uk.ac.standrews.cs.stachordRMI.impl.SuccessorList;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
@@ -58,7 +58,7 @@ public class TestLogic {
 	 * @param nodes All of the nodes in the chord ring sorted in key order.
 	 * @throws TimeoutException 
 	 */
-	public static void checkWithTimeout(List<MachineDescriptor<IChordRemoteReference>> nodes, IRingCheck checker, int test_timeout) throws TimeoutException {
+	public static void checkWithTimeout(List<MachineDescriptor> nodes, IRingCheck checker, int test_timeout) throws TimeoutException {
 		
 		long start_time = System.currentTimeMillis();
 		boolean timed_out = false;
@@ -93,16 +93,17 @@ public class TestLogic {
 		return System.currentTimeMillis() - start_time;
 	}
 
-	private static void dumpState(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+	private static void dumpState(List<MachineDescriptor> nodes) {
 
 		System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
 		
-		for (MachineDescriptor<IChordRemoteReference> machine_descriptor : nodes) {
+		for (MachineDescriptor machine_descriptor : nodes) {
 			
 			System.out.println(machine_descriptor);
 
 			try {
-				System.out.println(machine_descriptor.application_reference.getRemote().toStringDetailed());
+				IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
+				System.out.println(application_reference.getRemote().toStringDetailed());
 			}
 			catch (RemoteException e) {
 				System.out.println("application inaccessible");
@@ -115,16 +116,16 @@ public class TestLogic {
 
 	private interface IRingCheck {
 
-		boolean check(List<MachineDescriptor<IChordRemoteReference>> nodes);
+		boolean check(List<MachineDescriptor> nodes);
 		
 	}
 
-	public static void waitForStableRing(List<MachineDescriptor<IChordRemoteReference>> nodes, int test_timeout) throws TimeoutException {
+	public static void waitForStableRing(List<MachineDescriptor> nodes, int test_timeout) throws TimeoutException {
 		
 		checkWithTimeout(nodes, new IRingCheck() {
 
 			@Override
-			public boolean check(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+			public boolean check(List<MachineDescriptor> nodes) {
 				return ringStable(nodes);
 			}
 			
@@ -133,12 +134,12 @@ public class TestLogic {
 		Diagnostic.trace(DiagnosticLevel.RUN, "ring is stable");
 	}
 
-	public static void waitForCompleteFingerTables(List<MachineDescriptor<IChordRemoteReference>> nodes, int test_timeout) throws TimeoutException {
+	public static void waitForCompleteFingerTables(List<MachineDescriptor> nodes, int test_timeout) throws TimeoutException {
 		
 		checkWithTimeout(nodes, new IRingCheck() {
 
 			@Override
-			public boolean check(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+			public boolean check(List<MachineDescriptor> nodes) {
 				return fingerTablesComplete(nodes);
 			}
 			
@@ -147,12 +148,12 @@ public class TestLogic {
 		Diagnostic.trace(DiagnosticLevel.RUN, "finger tables are complete");
 	}
 
-	public static void waitForCompleteSuccessorLists(List<MachineDescriptor<IChordRemoteReference>> nodes, int test_timeout) throws TimeoutException {
+	public static void waitForCompleteSuccessorLists(List<MachineDescriptor> nodes, int test_timeout) throws TimeoutException {
 		
 		checkWithTimeout(nodes, new IRingCheck() {
 
 			@Override
-			public boolean check(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+			public boolean check(List<MachineDescriptor> nodes) {
 				return successorListsComplete(nodes);
 			}
 			
@@ -161,12 +162,12 @@ public class TestLogic {
 		Diagnostic.trace(DiagnosticLevel.RUN, "successor lists are consistent");
 	}
 
-	public static void waitForCorrectRouting(List<MachineDescriptor<IChordRemoteReference>> nodes, int test_timeout) throws TimeoutException {
+	public static void waitForCorrectRouting(List<MachineDescriptor> nodes, int test_timeout) throws TimeoutException {
 		
 		checkWithTimeout(nodes, new IRingCheck() {
 
 			@Override
-			public boolean check(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+			public boolean check(List<MachineDescriptor> nodes) {
 				return routingCorrect(nodes);
 			}
 			
@@ -180,18 +181,19 @@ public class TestLogic {
 	 * 
 	 * @return true if the ring is stable
 	 */
-	private static boolean ringStable(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+	private static boolean ringStable(List<MachineDescriptor> nodes) {
 		
 		try {
 			
 			if (nodes.size() == 1) {
 				
 				// Single-node ring, so stable if predecessor is null and successor is self.
-				IChordRemote node = nodes.get(0).application_reference.getRemote();
+				IChordRemoteReference application_reference = (IChordRemoteReference) nodes.get(0).application_reference;
+				IChordRemote node = application_reference.getRemote();
 				return node.getPredecessor() == null && node.getSuccessor().getKey().equals(node.getKey());
 			}
 			else {
-				for (MachineDescriptor<IChordRemoteReference> node : nodes) {
+				for (MachineDescriptor node : nodes) {
 					if (cycleLengthFrom(node, true) != nodes.size() || cycleLengthFrom(node, false) != nodes.size()) return false;
 				}
 			}
@@ -210,14 +212,14 @@ public class TestLogic {
 	 * @param forwards true if the ring should be traversed via successor pointers, false if it should be traversed via predecessor pointers
 	 * @return the length of the cycle containing the given node, or zero if there is no such cycle.
 	 */
-	private static int cycleLengthFrom(MachineDescriptor<IChordRemoteReference> start_node, boolean forwards) {
+	private static int cycleLengthFrom(MachineDescriptor start_node, boolean forwards) {
 
 		// Record the nodes that have already been encountered.
 		Set<IChordRemoteReference> nodes_encountered = new HashSet<IChordRemoteReference>();
 		
 		int cycle_length = 0;
 		
-		IChordRemoteReference node = start_node.application_reference;
+		IChordRemoteReference node = (IChordRemoteReference) start_node.application_reference;
 		
 		while (true) {
 			
@@ -239,15 +241,15 @@ public class TestLogic {
 		}
 	}
 	
-	public static boolean fingerTablesComplete(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+	public static boolean fingerTablesComplete(List<MachineDescriptor> nodes) {
 		
 		// Completeness criteria:
 		// 1. The ring distance from a node's key to its fingers' keys never decreases going up the table.
 		// 2. No finger table entry is null.
 
-		for (MachineDescriptor<IChordRemoteReference> machine_descriptor : nodes) {
+		for (MachineDescriptor machine_descriptor : nodes) {
 
-			IChordRemoteReference node = machine_descriptor.application_reference;
+			IChordRemoteReference node = (IChordRemoteReference) machine_descriptor.application_reference;
 			IChordRemoteReference previous_finger_reference = null;
 
 			// For each finger...
@@ -279,12 +281,13 @@ public class TestLogic {
 		return true;
 	}
 	
-	public static boolean successorListsComplete(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+	public static boolean successorListsComplete(List<MachineDescriptor> nodes) {
 		
 		// Check the successor list of each node.
-		for (MachineDescriptor<IChordRemoteReference> machine_descriptor : nodes) {
+		for (MachineDescriptor machine_descriptor : nodes) {
 			
-			IChordRemote node = machine_descriptor.application_reference.getRemote();
+			IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
+			IChordRemote node = application_reference.getRemote();
 
 			List<IChordRemoteReference> successor_list;
 			try {
@@ -310,11 +313,15 @@ public class TestLogic {
 		return true;
 	}
 	
-	public static boolean routingCorrect(List<MachineDescriptor<IChordRemoteReference>> nodes) {
+	public static boolean routingCorrect(List<MachineDescriptor> nodes) {
 
-		for (MachineDescriptor<IChordRemoteReference> machine_descriptor1 : nodes) {
-			for (MachineDescriptor<IChordRemoteReference> machine_descriptor2 : nodes) {
-				if (!routingCorrect(machine_descriptor1.application_reference, machine_descriptor2.application_reference, nodes.size())) {
+		for (MachineDescriptor machine_descriptor1 : nodes) {
+			for (MachineDescriptor machine_descriptor2 : nodes) {
+				
+				IChordRemoteReference application_reference1 = (IChordRemoteReference) machine_descriptor1.application_reference;
+				IChordRemoteReference application_reference2 = (IChordRemoteReference) machine_descriptor2.application_reference;
+				
+				if (!routingCorrect(application_reference1, application_reference2, nodes.size())) {
 					return false;
 				}
 			}
@@ -368,7 +375,7 @@ public class TestLogic {
 
 	public static void ringRecoversFromNodeFailure(INetwork network, int test_timeout) throws IOException, TimeoutException {
 		
-		List<MachineDescriptor<IChordRemoteReference>> nodes = network.getNodes();
+		List<MachineDescriptor> nodes = network.getNodes();
 		
 		try {
 			System.out.println("waiting for stable ring... ");
@@ -425,12 +432,15 @@ public class TestLogic {
 
 	public static void enableFingerTableMaintenance(INetwork network, boolean enabled) throws RemoteException {
 		
-		for (MachineDescriptor<IChordRemoteReference> machine_descriptor : network.getNodes()) machine_descriptor.application_reference.getRemote().enableFingerTableMaintenance(enabled);
+		for (MachineDescriptor machine_descriptor : network.getNodes()) {
+			IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
+			application_reference.getRemote().enableFingerTableMaintenance(enabled);
+		}
 	}
 
 	public static void killPartOfNetwork(INetwork network, int test_timeout) {
 		
-		List<MachineDescriptor<IChordRemoteReference>> nodes = network.getNodes();
+		List<MachineDescriptor> nodes = network.getNodes();
 		int network_size = nodes.size();
 		
 		// No point in killing off the only member of the network and expecting it to recover.
@@ -441,13 +451,15 @@ public class TestLogic {
 			
 			for (int victim_index : victim_indices) {
 				
-				MachineDescriptor<IChordRemoteReference> victim = nodes.get(victim_index);			
+				MachineDescriptor victim = nodes.get(victim_index);			
 				network.killNode(victim);
+
+				IChordRemoteReference application_reference = (IChordRemoteReference) victim.application_reference;
 				
 				// Wait for it to die.
 				while (true) {
 					try {
-						victim.application_reference.getRemote().isAlive();
+						application_reference.getRemote().isAlive();
 						Thread.sleep(DEATH_CHECK_INTERVAL);
 					}
 					catch (RemoteException e) {
