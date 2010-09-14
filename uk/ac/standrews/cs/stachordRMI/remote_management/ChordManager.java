@@ -58,7 +58,8 @@ public class ChordManager implements IApplicationManager {
 
 	@Override
 	public void deployApplication(MachineDescriptor machine_descriptor) throws Exception {
-			
+
+		System.out.println("deploying to: " + machine_descriptor.host);
 		MultipleMachineNetwork.createFirstNode(machine_descriptor, DEFAULT_RMI_REGISTRY_PORT);
 	}
 
