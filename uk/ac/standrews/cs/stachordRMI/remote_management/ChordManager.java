@@ -6,6 +6,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.remote_management.server.IApplicationManager;
@@ -59,7 +61,8 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void deployApplication(MachineDescriptor machine_descriptor) throws Exception {
 
-		System.out.println("deploying to: " + machine_descriptor.host);
+		Diagnostic.trace(DiagnosticLevel.RUN, "deploying to: " + machine_descriptor.host);
+		
 		MultipleMachineNetwork.createFirstNode(machine_descriptor, DEFAULT_RMI_REGISTRY_PORT);
 	}
 
