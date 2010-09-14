@@ -109,11 +109,11 @@
 	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
 	
 	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
-		<classpath><pathelement location="${lib-pmd}"/></classpath>
+		<classpath><pathelement location="${lib-pmd}:${lib-remote_management}"/></classpath>
 	</taskdef>
 
 	<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask">
-		<classpath><pathelement location="${lib-pmd}"/></classpath>
+		<classpath><pathelement location="${lib-pmd}:${lib-remote_management}"/></classpath>
 	</taskdef>
 	
 </project>
