@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.remote_management.server.UnknownPlatformException;
 
 import com.mindbright.ssh2.SSH2Exception;
 
