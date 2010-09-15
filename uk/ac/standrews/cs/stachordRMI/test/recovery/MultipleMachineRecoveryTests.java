@@ -31,13 +31,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
+import uk.ac.standrews.cs.remote_management.server.ClassPath;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.remote_management.server.ProcessInvocation;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
@@ -169,16 +169,16 @@ public class MultipleMachineRecoveryTests {
 		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
 			
 		List<File> wget_paths = new ArrayList<File>();
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_MAC));
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_MAC));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_MAC));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_MAC));
 			
 		List<File> lib_install_dirs = new ArrayList<File>();
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_MAC));
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_MAC));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_MAC));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_MAC));
 			
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createUsernamePasswordConnections(addresses, true);
@@ -220,14 +220,14 @@ public class MultipleMachineRecoveryTests {
 		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
 			
 		List<File> wget_paths = new ArrayList<File>();
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
-		wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
+		wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
 			
 		List<File> lib_install_dirs = new ArrayList<File>();
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
-		lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
+		lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);

@@ -14,10 +14,10 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Processes;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.remote_management.server.ProcessInvocation;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
@@ -84,7 +84,7 @@ public class GangliaRecoveryTests {
 		List<File> lib_install_dirs = new ArrayList<File>();
 		
 		for (int index = 0; index < number_of_nodes; index++) {
-			lib_install_dirs.add(new File(Processes.DEFAULT_TEMP_PATH_LINUX));
+			lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
 		}
 		return lib_install_dirs;
 	}
@@ -94,7 +94,7 @@ public class GangliaRecoveryTests {
 		List<File> wget_paths = new ArrayList<File>();
 		
 		for (int index = 0; index < number_of_nodes; index++) {
-			wget_paths.add(new File(Processes.DEFAULT_WGET_PATH_LINUX));
+			wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
 		}
 		return wget_paths;
 	}

@@ -9,9 +9,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
+import uk.ac.standrews.cs.remote_management.server.ClassPath;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
 
 public class NetworkUtil<ApplicationReference> {
