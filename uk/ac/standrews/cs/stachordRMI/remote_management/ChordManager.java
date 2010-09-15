@@ -11,7 +11,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.remote_management.server.IApplicationManager;
-import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 
@@ -24,7 +24,7 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void attemptApplicationCall(MachineDescriptor machine_descriptor) throws Exception {
+	public void attemptApplicationCall(HostDescriptor machine_descriptor) throws Exception {
 		
 		// Try to connect to the application on the default RMI port.
 		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(machine_descriptor.host, DEFAULT_RMI_REGISTRY_PORT);
@@ -59,7 +59,7 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void deployApplication(MachineDescriptor machine_descriptor) throws Exception {
+	public void deployApplication(HostDescriptor machine_descriptor) throws Exception {
 
 		Diagnostic.trace(DiagnosticLevel.RUN, "deploying to: " + machine_descriptor.host);
 		
@@ -67,7 +67,7 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void killApplication(MachineDescriptor machine_descriptor) {
+	public void killApplication(HostDescriptor machine_descriptor) {
 
 		if (machine_descriptor.process != null) machine_descriptor.process.destroy();
 	}

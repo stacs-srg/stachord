@@ -22,7 +22,7 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.util.List;
 
-import uk.ac.standrews.cs.remote_management.server.MachineDescriptor;
+import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
 
 /**
  * Interface representing a set of Chord nodes.
@@ -35,13 +35,13 @@ public interface INetwork {
 	 * Returns a new list containing the nodes.
 	 * @return the nodes in the network, sorted in ascending key order.
 	 */
-	List<MachineDescriptor> getNodes();
+	List<HostDescriptor> getNodes();
 	
 	/**
 	 * Kills a given node and removes it from the network.
 	 * @param node the node to be killed
 	 */
-	void killNode(MachineDescriptor node);
+	void killNode(HostDescriptor node);
 	
 	/**
 	 * Kills all nodes and removes them from the network.
