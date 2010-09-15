@@ -225,7 +225,9 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		// Case: predecessor is not null and potential_predecessor is in this node's current key range.
 		// A new node has joined between the current predecessor and this node.
 
-		if (!potential_predecessor.getKey().equals(getKey()) && (predecessor == null || inLocalKeyRange(potential_predecessor.getKey()))) {
+		IKey key_of_potential_predecessor = potential_predecessor.getKey();
+		
+		if (!key_of_potential_predecessor.equals(getKey()) && (predecessor == null || inLocalKeyRange(key_of_potential_predecessor))) {
 			 setPredecessor(potential_predecessor);
 		}
 	}
@@ -482,17 +484,17 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		return successor.getRemote().getPredecessor();
 	}
 
-	private void checkForBetterSuccessor(IChordRemoteReference predecessor_of_successor) {
+	private void checkForBetterSuccessor(IChordRemoteReference potential_successor) {
 
-		if (predecessor_of_successor != null) {
+		if (potential_successor != null) {
 
-			IKey key_of_predecessor_of_successor;
-			key_of_predecessor_of_successor = predecessor_of_successor.getKey();
+			IKey key_of_potential_successor = potential_successor.getKey();
 
-			if (inSuccessorKeyRange(key_of_predecessor_of_successor) && !key_of_predecessor_of_successor.equals(successor.getKey())) {
+			// Check whether the potential successor's key lies in this node's current successor's key range, and the potential successor is not the current successor.
+			if (inSuccessorKeyRange(key_of_potential_successor) && !key_of_potential_successor.equals(successor.getKey())) {
 
 				// The successor's predecessor is more suitable as this node's successor.
-				setSuccessor(predecessor_of_successor);
+				setSuccessor(potential_successor);
 			}
 		}
 	}

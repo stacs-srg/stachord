@@ -71,4 +71,10 @@ public class ChordManager implements IApplicationManager {
 
 		if (machine_descriptor.process != null) machine_descriptor.process.destroy();
 	}
+
+	@Override
+	public String getApplicationName() {
+
+		return "Chord";
+	}
 }
