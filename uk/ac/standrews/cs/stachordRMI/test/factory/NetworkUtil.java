@@ -11,8 +11,8 @@ import java.util.List;
 
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.remote_management.server.ClassPath;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.remote_management.util.ClassPath;
 
 public class NetworkUtil<ApplicationReference> {
 
@@ -40,7 +40,7 @@ public class NetworkUtil<ApplicationReference> {
 		return connections;
 	}
 
-	public List<HostDescriptor> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
+	public List<HostDescriptor> createHostDescriptorsWithoutLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, class_paths);
 		
@@ -55,7 +55,12 @@ public class NetworkUtil<ApplicationReference> {
 		return node_descriptors;
 	}
 
-	public List<HostDescriptor> createNodeDescriptors(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
+	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls) throws UnequalArrayLengthsException {
+
+		return createHostDescriptorsWithLibInstallation(connections, java_versions, lib_urls, null, null);
+	}
+
+	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
 		
 		checkEqualLengths(connections, java_versions, wget_paths, lib_install_dirs);
 		
@@ -64,7 +69,7 @@ public class NetworkUtil<ApplicationReference> {
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new HostDescriptor(0, connection, java_versions.get(i), lib_urls, wget_paths.get(i).getAbsolutePath(), lib_install_dirs.get(i).getAbsolutePath()));
+			node_descriptors.add(new HostDescriptor(0, connection, java_versions.get(i), lib_urls, wget_paths == null ? null : wget_paths.get(i).getAbsolutePath(), lib_install_dirs == null ? null : lib_install_dirs.get(i).getAbsolutePath()));
 			i++;
 		}
 

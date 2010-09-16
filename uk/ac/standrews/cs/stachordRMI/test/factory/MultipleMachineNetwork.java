@@ -20,6 +20,7 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachordRMI.test.factory;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.rmi.NotBoundException;
@@ -37,8 +38,8 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
-import uk.ac.standrews.cs.remote_management.server.ProcessInvocation;
 import uk.ac.standrews.cs.remote_management.server.UnknownPlatformException;
+import uk.ac.standrews.cs.remote_management.util.ProcessInvocation;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.servers.AbstractServer;
@@ -164,7 +165,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	public static void createFirstNode(final HostDescriptor machine_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	public static void createFirstNode(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -172,16 +173,16 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + NetworkUtil.formatHostAddress(machine_descriptor.host, local_port));
+				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
 				
 				return args;
 			}
 		};
 		
-		createNodeProcessAndBindToApplication(machine_descriptor, port, arg_gen, StartRing.class);
+		createNodeProcessAndBindToApplication(host_descriptor, port, arg_gen, StartRing.class);
 	}
 
-	public static void createFirstNode(final HostDescriptor machine_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	public static void createFirstNode(final HostDescriptor host_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -189,26 +190,26 @@ public class MultipleMachineNetwork implements INetwork {
 				
 				List<String> args = new ArrayList<String>();
 				
-				args.add("-s" + NetworkUtil.formatHostAddress(machine_descriptor.host, local_port));
+				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
 				addKeyArg(key, args);
 				
 				return args;
 			}
 		};
 		
-		createNodeProcessAndBindToApplication(machine_descriptor, port, arg_gen, StartRing.class);
+		createNodeProcessAndBindToApplication(host_descriptor, port, arg_gen, StartRing.class);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	protected static Process runProcess(HostDescriptor node_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	protected static Process runProcess(HostDescriptor host_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
-		if (node_descriptor.ssh_client_wrapper != null) {
-			if (node_descriptor.lib_urls != null) {
-				return ProcessInvocation.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.lib_urls, node_descriptor.wget_path, node_descriptor.lib_install_dir, true);
+		if (host_descriptor.ssh_client_wrapper != null) {
+			if (host_descriptor.lib_urls != null) {
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.java_version, host_descriptor.lib_urls, new File(host_descriptor.wget_path), new File(host_descriptor.lib_install_dir), true);
 			}
 			else {
-				return ProcessInvocation.runJavaProcess(node_class, args, node_descriptor.ssh_client_wrapper, node_descriptor.java_version, node_descriptor.class_path);
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.java_version, host_descriptor.class_path);
 			}
 		}
 		else {

@@ -16,7 +16,6 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
-import uk.ac.standrews.cs.remote_management.server.ProcessInvocation;
 import uk.ac.standrews.cs.remote_management.server.UnknownPlatformException;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
@@ -56,7 +55,7 @@ public class GangliaRecoveryTests {
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = network_util.createNodeDescriptors(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		List<HostDescriptor> node_descriptors = network_util.createHostDescriptorsWithLibInstallation(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
@@ -84,7 +83,7 @@ public class GangliaRecoveryTests {
 		List<File> lib_install_dirs = new ArrayList<File>();
 		
 		for (int index = 0; index < number_of_nodes; index++) {
-			lib_install_dirs.add(new File(ProcessInvocation.DEFAULT_TEMP_PATH_LINUX));
+			lib_install_dirs.add(null);                              // Add null for default temp path.
 		}
 		return lib_install_dirs;
 	}
@@ -94,7 +93,7 @@ public class GangliaRecoveryTests {
 		List<File> wget_paths = new ArrayList<File>();
 		
 		for (int index = 0; index < number_of_nodes; index++) {
-			wget_paths.add(new File(ProcessInvocation.DEFAULT_WGET_PATH_LINUX));
+			wget_paths.add(null);                                    // Add null for default wget path.
 		}
 		return wget_paths;
 	}
