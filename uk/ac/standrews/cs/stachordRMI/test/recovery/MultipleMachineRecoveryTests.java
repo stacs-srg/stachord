@@ -148,10 +148,11 @@ public class MultipleMachineRecoveryTests {
 		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
 		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
 		
-		List<URL> lib_urls = new ArrayList<URL>();
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"));
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"));
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
+		URL[] lib_urls = new URL[] {
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
+		};
 			
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createUsernamePasswordConnections(addresses, true);
@@ -183,10 +184,11 @@ public class MultipleMachineRecoveryTests {
 		addresses.add(InetAddress.getByName("compute-0-34"));
 		addresses.add(InetAddress.getByName("compute-0-35"));
 		
-		List<URL> lib_urls = new ArrayList<URL>();
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"));
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"));
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
+		URL[] lib_urls = new URL[] {
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
+		};
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);

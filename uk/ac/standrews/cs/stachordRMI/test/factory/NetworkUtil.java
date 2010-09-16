@@ -57,7 +57,7 @@ public class NetworkUtil<ApplicationReference> {
 		return node_descriptors;
 	}
 
-	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<URL> lib_urls) throws UnequalArrayLengthsException, SSH2Exception {
+	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, URL[] lib_urls) throws UnequalArrayLengthsException, SSH2Exception {
 		
 		List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();		
 		

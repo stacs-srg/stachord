@@ -62,8 +62,8 @@ public class MultipleMachineNetwork implements INetwork {
 	private static final int REGISTRY_RETRY_INTERVAL =    2000;        // Retry connecting to remote nodes at 2s intervals.
 	private static final int REGISTRY_TIMEOUT_INTERVAL = 20000;        // Give up after 20s.
 	
-	private static final int QUEUE_MAX_THREADS =     10;     // The maximum degree of concurrency for check jobs.
-	private static final int QUEUE_IDLE_TIMEOUT =  5000;     // The timeout for idle check job threads to die, in ms.
+	private static final int QUEUE_MAX_THREADS =     10;               // The maximum degree of concurrency for check jobs.
+	private static final int QUEUE_IDLE_TIMEOUT =  5000;               // The timeout for idle check job threads to die, in ms.
 
 	private IKey[] node_keys;                                          // The keys of the nodes.
 	private List<HostDescriptor> nodes;      // The nodes themselves.
@@ -205,8 +205,8 @@ public class MultipleMachineNetwork implements INetwork {
 	protected static Process runProcess(HostDescriptor host_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		if (host_descriptor.ssh_client_wrapper != null) {
-			if (host_descriptor.lib_urls != null) {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.lib_urls, true);
+			if (host_descriptor.application_urls != null) {
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true);
 			}
 			else {
 				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path);

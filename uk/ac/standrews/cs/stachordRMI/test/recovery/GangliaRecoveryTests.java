@@ -1,6 +1,5 @@
 package uk.ac.standrews.cs.stachordRMI.test.recovery;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
@@ -43,9 +42,10 @@ public class GangliaRecoveryTests {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 		
-		List<URL> lib_urls = new ArrayList<URL>();
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"));
-		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
+		URL[] lib_urls = new URL[] {
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
+			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
+		};
 			
 		List<InetAddress> addresses = getGangliaNodeAddresses();
 
