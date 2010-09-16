@@ -30,8 +30,8 @@ import uk.ac.standrews.cs.stachordRMI.test.recovery.SingleMachineRecoveryTests;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	DummyTest.class
-//	SingleMachineRecoveryTests.class
+//	DummyTest.class
+	SingleMachineRecoveryTests.class
 })
 public class CheckInTests {
 	// Empty.
