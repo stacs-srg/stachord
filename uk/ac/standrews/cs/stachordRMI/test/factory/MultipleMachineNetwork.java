@@ -206,10 +206,10 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		if (host_descriptor.ssh_client_wrapper != null) {
 			if (host_descriptor.lib_urls != null) {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.java_version, host_descriptor.lib_urls, new File(host_descriptor.wget_path), new File(host_descriptor.lib_install_dir), true);
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.lib_urls, true);
 			}
 			else {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.java_version, host_descriptor.class_path);
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path);
 			}
 		}
 		else {

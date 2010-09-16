@@ -9,6 +9,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mindbright.ssh2.SSH2Exception;
+
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
@@ -40,36 +42,29 @@ public class NetworkUtil<ApplicationReference> {
 		return connections;
 	}
 
-	public List<HostDescriptor> createHostDescriptorsWithoutLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<ClassPath> class_paths) throws UnequalArrayLengthsException {
+	public List<HostDescriptor> createHostDescriptorsWithoutLibInstallation(List<SSH2ConnectionWrapper> connections, List<ClassPath> class_paths) throws UnequalArrayLengthsException, SSH2Exception {
 		
-		checkEqualLengths(connections, java_versions, class_paths);
+		checkEqualLengths(connections, class_paths);
 		
 		List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
 		
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new HostDescriptor(0, connection, java_versions.get(i), class_paths.get(i)));
+			node_descriptors.add(new HostDescriptor(0, connection, class_paths.get(i)));
 			i++;
 		}
 		return node_descriptors;
 	}
 
-	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls) throws UnequalArrayLengthsException {
-
-		return createHostDescriptorsWithLibInstallation(connections, java_versions, lib_urls, null, null);
-	}
-
-	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<String> java_versions, List<URL> lib_urls, List<File> wget_paths, List<File> lib_install_dirs) throws UnequalArrayLengthsException {
-		
-		checkEqualLengths(connections, java_versions, wget_paths, lib_install_dirs);
+	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, List<URL> lib_urls) throws UnequalArrayLengthsException, SSH2Exception {
 		
 		List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();		
 		
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new HostDescriptor(0, connection, java_versions.get(i), lib_urls, wget_paths == null ? null : wget_paths.get(i).getAbsolutePath(), lib_install_dirs == null ? null : lib_install_dirs.get(i).getAbsolutePath()));
+			node_descriptors.add(new HostDescriptor(0, connection, lib_urls));
 			i++;
 		}
 

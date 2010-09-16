@@ -48,14 +48,11 @@ public class GangliaRecoveryTests {
 		lib_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar"));
 			
 		List<InetAddress> addresses = getGangliaNodeAddresses();
-		List<String> java_versions =  getGangliaJavaVersions(addresses.size());
-		List<File> wget_paths =       getGangliaWgetPaths(addresses.size());
-		List<File> lib_install_dirs = getGangliaLibInstallDirs(addresses.size());
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = network_util.createHostDescriptorsWithLibInstallation(connections, java_versions, lib_urls, wget_paths, lib_install_dirs);
+		List<HostDescriptor> node_descriptors = network_util.createHostDescriptorsWithLibInstallation(connections, lib_urls);
 			
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
@@ -76,35 +73,5 @@ public class GangliaRecoveryTests {
 		address_list.remove(InetAddress.getByName("compute-0-53"));
 
 		return address_list;
-	}
-
-	protected List<File> getGangliaLibInstallDirs(int number_of_nodes) {
-		
-		List<File> lib_install_dirs = new ArrayList<File>();
-		
-		for (int index = 0; index < number_of_nodes; index++) {
-			lib_install_dirs.add(null);                              // Add null for default temp path.
-		}
-		return lib_install_dirs;
-	}
-
-	protected List<File> getGangliaWgetPaths(int number_of_nodes) {
-		
-		List<File> wget_paths = new ArrayList<File>();
-		
-		for (int index = 0; index < number_of_nodes; index++) {
-			wget_paths.add(null);                                    // Add null for default wget path.
-		}
-		return wget_paths;
-	}
-
-	protected List<String> getGangliaJavaVersions(int number_of_nodes) {
-		
-		List<String> java_versions = new ArrayList<String>();
-		
-		for (int index = 0; index < number_of_nodes; index++) {
-			java_versions.add("1.6.0_07");
-		}
-		return java_versions;
 	}
 }
