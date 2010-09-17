@@ -5,13 +5,13 @@ import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
+import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
-import uk.ac.standrews.cs.remote_management.server.IApplicationManager;
-import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 

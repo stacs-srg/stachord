@@ -23,7 +23,7 @@ package uk.ac.standrews.cs.stachordRMI.util;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 
 public class NodeComparator implements Comparator<HostDescriptor>, Serializable {

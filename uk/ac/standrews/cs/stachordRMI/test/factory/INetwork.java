@@ -22,7 +22,7 @@ package uk.ac.standrews.cs.stachordRMI.test.factory;
 
 import java.util.List;
 
-import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 
 /**
  * Interface representing a set of Chord nodes.

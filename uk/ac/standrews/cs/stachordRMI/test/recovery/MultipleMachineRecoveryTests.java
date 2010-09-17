@@ -30,12 +30,12 @@ import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
+import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
+import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.nds.util.UnknownPlatformException;
-import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
 import uk.ac.standrews.cs.stachordRMI.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachordRMI.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
