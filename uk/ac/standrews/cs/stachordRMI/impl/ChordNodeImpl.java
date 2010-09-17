@@ -123,7 +123,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		
 		exposeNode(local_address);
 		
-		addObserver(this);
+		//addObserver(this);
 
 		startMaintenanceThread();
 		
@@ -323,8 +323,8 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		"Node state" + "\n" + 
 		"key: " + key + "\n" + 
 		"local_address: " + local_address + "\n" + 
-		"predecessor: " + predecessor.getAddress() + "\n" + 
-		"successor: " + successor.getAddress() + "\n" + 
+		"predecessor: " + ((predecessor != null)? predecessor.getAddress():"null") + "\n" + 
+		"successor: " + ((successor != null)? successor.getAddress():"null") + "\n" + 
 		"successor_list: " +  successor_list + "\n" + 
 		"finger_table: " + finger_table;
 	}
