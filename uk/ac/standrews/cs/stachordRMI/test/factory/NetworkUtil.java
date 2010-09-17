@@ -11,10 +11,10 @@ import java.util.List;
 
 import com.mindbright.ssh2.SSH2Exception;
 
+import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 import uk.ac.standrews.cs.nds.util.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.remote_management.server.HostDescriptor;
-import uk.ac.standrews.cs.remote_management.util.ClassPath;
 
 public class NetworkUtil<ApplicationReference> {
 
