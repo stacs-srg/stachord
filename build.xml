@@ -31,7 +31,7 @@
 			<!-- Run tests with assertions enabled. -->
 			<jvmarg value="-ea" />
 			<formatter type="xml"/>
-			<test name="uk.ac.standrews.cs.stachordRMI.test.CheckInTests" todir="junit"/>
+			<test name="uk.ac.standrews.cs.stachord.test.CheckInTests" todir="junit"/>
 			<classpath path="${classpath}"/>
 		</junit>
 	</target>
@@ -42,20 +42,20 @@
 			<!-- Run tests with assertions enabled. -->
 			<jvmarg value="-ea" />
 			<formatter type="xml"/>
-			<test name="uk.ac.standrews.cs.stachordRMI.test.NightlyTests" todir="junit"/>
+			<test name="uk.ac.standrews.cs.stachord.test.NightlyTests" todir="junit"/>
 			<classpath path="${classpath}"/>
 		</junit>
 	</target>
 	
 	<!-- Generate project jar. -->
 	<target name="project-jar">
-		<jar jarfile="bin/stachordRMI.jar" basedir="." includes="uk/**" />
+		<jar jarfile="bin/stachord.jar" basedir="." includes="uk/**" />
 	</target>
 
 	<!-- Generate javadoc. -->
 	<target name="release-doc">
 		<javadoc
-				classpath="${classpath}" sourcepath="." destdir="doc" packagenames="uk.ac.standrews.cs.stachordRMI.*"
+				classpath="${classpath}" sourcepath="." destdir="doc" packagenames="uk.ac.standrews.cs.stachord.*"
 				access="public" linksource="yes" source="1.5" nodeprecated="false" nodeprecatedlist="false"
 				noindex="false" nonavbar="false" notree="false" splitindex="false" use="false" author="true" version="true" verbose="true">
 
@@ -79,7 +79,7 @@
 	    <findbugs home="${lib-findbugs-dir}" output="xml:withMessages" outputFile="findbugs.xml" excludeFilter="findbugs-exclude.xml">
 	        <auxClasspath path="${classpath}" />
 	        <sourcePath path="." />
-	        <class location="bin/stachordRMI.jar" />
+	        <class location="bin/stachord.jar" />
 	    </findbugs>
     </target>
 	
