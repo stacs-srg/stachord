@@ -1,9 +1,6 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
-import java.rmi.AccessException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
@@ -53,13 +50,10 @@ public class ChordManager implements IApplicationManager {
 			}
 			
 		}, APPLICATION_CALL_TIMEOUT);
-		
-		// This is a bit horrible, but not sure how to tidy it while retaining the desired method signature.
+
 		// The exception will be null if the application call succeeded.
 		Exception e = exception_wrapper[0];
-		if (e instanceof AccessException)   throw e;
-		if (e instanceof RemoteException)   throw e;
-		if (e instanceof NotBoundException) throw e;
+		if (e != null) throw e;
 	}
 
 	@Override
@@ -75,17 +69,17 @@ public class ChordManager implements IApplicationManager {
 		
 		// If a process handle is available, use that since it will definitely kill only the original process.
 		if (machine_descriptor.process != null) {
-			System.out.println("process not null");
+
 			machine_descriptor.process.destroy();
+			machine_descriptor.process = null;
 		}
 		else {
 			// Otherwise, try to kill all StartRing processes.
 			try {
-				System.out.println("trying to kill processes matching: " + CHORD_APPLICATION_CLASSNAME);
 				ProcessInvocation.killProcesses(CHORD_APPLICATION_CLASSNAME, machine_descriptor.ssh_client_wrapper);
 			}
 			catch (Exception e) {
-				System.out.println("error trying to kill processes: " + e.getMessage());
+
 				ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
 			}
 		}
