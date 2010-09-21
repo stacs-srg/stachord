@@ -7,12 +7,15 @@ import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
+import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachordRMI.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachordRMI.servers.StartRing;
 import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 
 public class ChordManager implements IApplicationManager {
@@ -69,10 +72,17 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void killApplication(HostDescriptor machine_descriptor) {
 		
-		// TODO try to cope with processes without a process handle (i.e. created outwith current session) by
-		// doing a remote kill -9.
-
+		// If a process handle is available, use that since it will definitely kill only the original process.
 		if (machine_descriptor.process != null) machine_descriptor.process.destroy();
+		else {
+			// Otherwise, try to kill all StartRing processes.
+			try {
+				ProcessInvocation.killProcesses(StartRing.class.getCanonicalName(), machine_descriptor.ssh_client_wrapper);
+			}
+			catch (Exception e) {
+				ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
+			}
+		}
 	}
 
 	@Override
