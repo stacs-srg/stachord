@@ -20,6 +20,7 @@ import uk.ac.standrews.cs.stachordRMI.test.factory.MultipleMachineNetwork;
 
 public class ChordManager implements IApplicationManager {
 
+	private static final String CHORD_APPLICATION_CLASSNAME = StartRing.class.getCanonicalName();
 	private static final int DEFAULT_RMI_REGISTRY_PORT = 1099;     // The default RMI registry port.
 	private static final int APPLICATION_CALL_TIMEOUT = 10000;     // The timeout for attempted application calls, in ms.
 	
@@ -73,13 +74,18 @@ public class ChordManager implements IApplicationManager {
 	public void killApplication(HostDescriptor machine_descriptor) {
 		
 		// If a process handle is available, use that since it will definitely kill only the original process.
-		if (machine_descriptor.process != null) machine_descriptor.process.destroy();
+		if (machine_descriptor.process != null) {
+			System.out.println("process not null");
+			machine_descriptor.process.destroy();
+		}
 		else {
 			// Otherwise, try to kill all StartRing processes.
 			try {
-				ProcessInvocation.killProcesses(StartRing.class.getCanonicalName(), machine_descriptor.ssh_client_wrapper);
+				System.out.println("trying to kill processes matching: " + CHORD_APPLICATION_CLASSNAME);
+				ProcessInvocation.killProcesses(CHORD_APPLICATION_CLASSNAME, machine_descriptor.ssh_client_wrapper);
 			}
 			catch (Exception e) {
+				System.out.println("error trying to kill processes: " + e.getMessage());
 				ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
 			}
 		}
