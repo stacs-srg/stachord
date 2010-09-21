@@ -68,6 +68,9 @@ public class ChordManager implements IApplicationManager {
 
 	@Override
 	public void killApplication(HostDescriptor machine_descriptor) {
+		
+		// TODO try to cope with processes without a process handle (i.e. created outwith current session) by
+		// doing a remote kill -9.
 
 		if (machine_descriptor.process != null) machine_descriptor.process.destroy();
 	}
