@@ -2,6 +2,8 @@
 
 	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-cpd" />
 
+	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
+
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
 		<mkdir dir="bin" />
@@ -30,6 +32,17 @@
 			<jvmarg value="-ea" />
 			<formatter type="xml"/>
 			<test name="uk.ac.standrews.cs.stachordRMI.test.CheckInTests" todir="junit"/>
+			<classpath path="${classpath}"/>
+		</junit>
+	</target>
+	
+	<!-- Run nightly tests. -->
+	<target name="do-test-nightly">
+		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
+			<!-- Run tests with assertions enabled. -->
+			<jvmarg value="-ea" />
+			<formatter type="xml"/>
+			<test name="uk.ac.standrews.cs.stachordRMI.test.NightlyTests" todir="junit"/>
 			<classpath path="${classpath}"/>
 		</junit>
 	</target>

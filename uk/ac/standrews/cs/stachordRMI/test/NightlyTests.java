@@ -23,13 +23,15 @@ package uk.ac.standrews.cs.stachordRMI.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import uk.ac.standrews.cs.stachordRMI.test.recovery.SingleMachineRecoveryTests;
+
 /**
- * Tests run on each build.
+ * Tests run nightly.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	DummyTest.class
+	SingleMachineRecoveryTests.class
 })
-public class CheckInTests {
+public class NightlyTests {
 	// Empty.
 }
