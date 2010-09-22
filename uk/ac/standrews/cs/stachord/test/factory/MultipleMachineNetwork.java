@@ -63,6 +63,8 @@ public class MultipleMachineNetwork implements INetwork {
 	
 	private static final int QUEUE_MAX_THREADS =     10;               // The maximum degree of concurrency for check jobs.
 	private static final int QUEUE_IDLE_TIMEOUT =  5000;               // The timeout for idle check job threads to die, in ms.
+	
+	private static final int NODE_INSTANTIATION_TIMEOUT = 30000;
 
 	private IKey[] node_keys;                                          // The keys of the nodes.
 	private List<HostDescriptor> nodes;      // The nodes themselves.
@@ -181,6 +183,23 @@ public class MultipleMachineNetwork implements INetwork {
 		createNodeProcessAndBindToApplication(host_descriptor, port, arg_gen, StartRing.class);
 	}
 
+	public static void createFirstNode2(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+		
+		ArgGen arg_gen = new ArgGen() {
+			
+			public List<String> getArgs(int local_port) {
+				
+				List<String> args = new ArrayList<String>();
+				
+				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
+				
+				return args;
+			}
+		};
+		
+		createNodeProcess(host_descriptor, port, arg_gen, StartRing.class);
+	}
+
 	public static void createFirstNode(final HostDescriptor host_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
@@ -205,10 +224,10 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		if (host_descriptor.ssh_client_wrapper != null) {
 			if (host_descriptor.application_urls != null) {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true);
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true, NODE_INSTANTIATION_TIMEOUT);
 			}
 			else {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path);
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path, NODE_INSTANTIATION_TIMEOUT);
 			}
 		}
 		else {

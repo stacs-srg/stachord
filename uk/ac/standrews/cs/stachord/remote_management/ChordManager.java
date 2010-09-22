@@ -57,7 +57,7 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void deployApplication(HostDescriptor host_descriptor) throws Exception {
 
-		MultipleMachineNetwork.createFirstNode(host_descriptor, DEFAULT_RMI_REGISTRY_PORT);
+		MultipleMachineNetwork.createFirstNode2(host_descriptor, DEFAULT_RMI_REGISTRY_PORT);
 	}
 
 	@Override
