@@ -76,7 +76,7 @@ public class ChordManager implements IApplicationManager {
 		else {
 			// Otherwise, try to kill all StartRing processes.
 			try {
-				ProcessInvocation.killProcesses(CHORD_APPLICATION_CLASSNAME, machine_descriptor.ssh_client_wrapper);
+				ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, machine_descriptor.ssh_client_wrapper);
 			}
 			catch (Exception e) {
 
