@@ -6,8 +6,6 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
@@ -25,10 +23,10 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void attemptApplicationCall(HostDescriptor machine_descriptor) throws Exception {
+	public void attemptApplicationCall(HostDescriptor host_descriptor) throws Exception {
 		
 		// Try to connect to the application on the default RMI port.
-		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(machine_descriptor.host, DEFAULT_RMI_REGISTRY_PORT);
+		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, DEFAULT_RMI_REGISTRY_PORT);
 		
 		// Wrap the exception variable so that it can be updated by the timeout thread.
 		final Exception[] exception_wrapper = new Exception[] {null};
@@ -57,26 +55,24 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void deployApplication(HostDescriptor machine_descriptor) throws Exception {
+	public void deployApplication(HostDescriptor host_descriptor) throws Exception {
 
-		Diagnostic.trace(DiagnosticLevel.RUN, "deploying to: " + machine_descriptor.host);
-		
-		MultipleMachineNetwork.createFirstNode(machine_descriptor, DEFAULT_RMI_REGISTRY_PORT);
+		MultipleMachineNetwork.createFirstNode(host_descriptor, DEFAULT_RMI_REGISTRY_PORT);
 	}
 
 	@Override
-	public void killApplication(HostDescriptor machine_descriptor) {
+	public void killApplication(HostDescriptor host_descriptor) {
 		
 		// If a process handle is available, use that since it will definitely kill only the original process.
-		if (machine_descriptor.process != null) {
+		if (host_descriptor.process != null) {
 
-			machine_descriptor.process.destroy();
-			machine_descriptor.process = null;
+			host_descriptor.process.destroy();
+			host_descriptor.process = null;
 		}
 		else {
 			// Otherwise, try to kill all StartRing processes.
 			try {
-				ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, machine_descriptor.ssh_client_wrapper);
+				ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
 			}
 			catch (Exception e) {
 
