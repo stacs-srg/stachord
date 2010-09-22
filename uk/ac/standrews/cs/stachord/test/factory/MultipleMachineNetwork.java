@@ -185,6 +185,7 @@ public class MultipleMachineNetwork implements INetwork {
 
 	public static void createFirstNode2(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 		
+System.out.println("cfn2 1");
 		ArgGen arg_gen = new ArgGen() {
 			
 			public List<String> getArgs(int local_port) {
@@ -196,8 +197,10 @@ public class MultipleMachineNetwork implements INetwork {
 				return args;
 			}
 		};
+		System.out.println("cfn2 2");
 		
 		createNodeProcess(host_descriptor, port, arg_gen, StartRing.class);
+		System.out.println("cfn2 3");
 	}
 
 	public static void createFirstNode(final HostDescriptor host_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
