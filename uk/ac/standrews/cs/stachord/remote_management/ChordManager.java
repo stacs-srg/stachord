@@ -18,12 +18,9 @@ public class ChordManager implements IApplicationManager {
 	private static final String CHORD_APPLICATION_CLASSNAME = StartRing.class.getCanonicalName();
 	private static final int DEFAULT_RMI_REGISTRY_PORT = 1099;     // The default RMI registry port.
 	private static final int APPLICATION_CALL_TIMEOUT = 10000;     // The timeout for attempted application calls, in ms.
-	
-	public ChordManager() {
-	}
 
 	@Override
-	public void attemptApplicationCall(HostDescriptor host_descriptor) throws Exception {
+	public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 		
 		// Try to connect to the application on the default RMI port.
 		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, DEFAULT_RMI_REGISTRY_PORT);
@@ -38,7 +35,7 @@ public class ChordManager implements IApplicationManager {
 			public void performAction() {
 				try {
 					// Try to access the application at the specified address.
-					ChordNodeImpl.bindToNode(inet_socket_address);
+					host_descriptor.application_reference = ChordNodeImpl.bindToNode(inet_socket_address);
 				}
 				catch (Exception e) {
 					// We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway
