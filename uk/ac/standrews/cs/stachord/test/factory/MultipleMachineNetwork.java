@@ -383,9 +383,7 @@ public class MultipleMachineNetwork implements INetwork {
 		
 		List<String> args = arg_gen.getArgs(port);
 
-		System.out.println("cnp1: " + System.currentTimeMillis());
 		node_descriptor.process = runProcess(node_descriptor, node_class, args);
-		System.out.println("cnp2: " + System.currentTimeMillis());
 		node_descriptor.port = port;
 	}
 }
