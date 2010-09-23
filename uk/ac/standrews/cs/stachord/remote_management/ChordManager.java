@@ -62,11 +62,16 @@ public class ChordManager implements IApplicationManager {
 		
 		// If a process handle is available, use that since it will definitely kill only the original process.
 		if (host_descriptor.process != null) {
+			
+			System.out.println("using host descriptor for: " + host_descriptor.host);
 
 			host_descriptor.process.destroy();
 			host_descriptor.process = null;
 		}
 		else {
+			
+			System.out.println("no process present");
+			
 			// Otherwise, try to kill all StartRing processes.
 			try {
 				ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
