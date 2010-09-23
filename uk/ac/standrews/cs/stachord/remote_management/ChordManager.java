@@ -60,26 +60,21 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void killApplication(HostDescriptor host_descriptor) {
 		
-		// If a process handle is available, use that since it will definitely kill only the original process.
-		if (host_descriptor.process != null) {
-			
-			System.out.println("using host descriptor for: " + host_descriptor.host);
-
-			host_descriptor.process.destroy();
-			host_descriptor.process = null;
+		// Although the host descriptor may contain a process handle, we don't use it for killing off the application,
+		// because it's possible that it refers to a dead process while there is another live process.
+		// This can happen when the application is deployed but the status scanner doesn't notice that it's live
+		// before the deploy scanner has another attempt to deploy it. In this case the process handle in the host
+		// descriptor will refer to the second process, but that will have died immediately due to the port being
+		// bound to the first one.
+		
+		// For simplicity we just kill all Chord nodes. Obviously this won't work in situations where multiple
+		// Chord nodes are being run on the same machine.
+		
+		try {
+			ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
 		}
-		else {
-			
-			System.out.println("no process present");
-			
-			// Otherwise, try to kill all StartRing processes.
-			try {
-				ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
-			}
-			catch (Exception e) {
-
-				ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
-			}
+		catch (Exception e) {
+			ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
 		}
 	}
 
