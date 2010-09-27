@@ -66,6 +66,7 @@
 
 	<!-- Run style check. -->
 	<target name="do-checkstyle">
+		<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
 		<checkstyle config="checkstyle-config.xml" failOnViolation="false">
 			<formatter type="xml" tofile="checkstyle-result.xml" />
 			<fileset dir="." includes="**/*.java" />
@@ -75,8 +76,10 @@
 	
 	<!-- Run bug scan. -->
 	<target name="do-findbugs">
-
-	    <findbugs home="${lib-findbugs-dir}" output="xml:withMessages" outputFile="findbugs.xml" excludeFilter="findbugs-exclude.xml">
+		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+			<classpath><pathelement location="${lib-findbugs}"/></classpath>
+		</taskdef>
+	    <findbugs home="${hudson-tools-lib-dir}" output="xml:withMessages" outputFile="findbugs.xml" excludeFilter="findbugs-exclude.xml">
 	        <auxClasspath path="${classpath}" />
 	        <sourcePath path="." />
 	        <class location="bin/stachord.jar" />
@@ -85,6 +88,9 @@
 	
 	<!-- Run PMD check. -->
 	<target name="do-pmd">
+		<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+			<classpath><pathelement location="${lib-pmd}"/></classpath>
+		</taskdef>
 	    <pmd rulesetfiles="rulesets/favorites.xml, rulesets/basic.xml, rulesets/controversial.xml, rulesets/naming.xml, rulesets/strings.xml">
 	        <formatter type="xml" toFile="pmd.xml"/>
 	        <fileset dir=".">
@@ -95,6 +101,9 @@
 	
 	<!-- Run duplicate code check. -->
 	<target name="do-cpd">
+	    <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask">
+			<classpath><pathelement location="${lib-pmd}"/></classpath>
+		</taskdef>
 	    <cpd minimumTokenCount="100" format="xml" outputFile="cpd.xml">
 	        <fileset dir=".">
 	            <include name="**/*.java"/>
@@ -102,31 +111,20 @@
 	    </cpd>
 	</target>
 	
-	<property name="lib-junit-4.1"         location="/projects/systems/InstallerSoftware/junit4.1/junit-4.1.jar" />
-	<property name="lib-checkstyle-dir"    location="/projects/systems/InstallerSoftware/checkstyle-5.1" />
-	<property name="lib-findbugs-dir"      location="/projects/systems/InstallerSoftware/findbugs-1.3.9" />
-	<property name="lib-pmd-dir"           location="/projects/systems/InstallerSoftware/pmd-4.2.5/lib" />
-	<property name="lib-crap4j-dir"        location="/projects/systems/InstallerSoftware/crap4j/lib" />
+	<property name="hudson-tools-lib-dir"  location="../../hudson_tools/lastStable/archive/lib" />
+	
+	<property name="lib-junit"             location="${hudson-tools-lib-dir}/junit-4.8.2.jar" />
+	<property name="lib-findbugs"          location="${hudson-tools-lib-dir}/findbugs-ant.jar" />
+	<property name="lib-checkstyle"        location="${hudson-tools-lib-dir}/checkstyle-5.2-all.jar" />
+	<property name="lib-pmd"               location="${hudson-tools-lib-dir}/pmd-4.2.5.jar" />
 
 	<property name="lib-nds"               location="../../nds/lastStable/archive/bin/nds.jar" />
 	<property name="lib-remote_management" location="../../remote_management/lastStable/archive/bin/remote_management.jar" />
+	<property name="lib-mindterm"          location="../../nds/lastStable/archive/lib/mindterm.jar" />
 	<property name="lib-tools"             location="/usr/java/default/lib/tools.jar" />
-	<property name="lib-checkstyle"        location="${lib-checkstyle-dir}/checkstyle-all-5.1.jar" />
-	<property name="lib-pmd"               location="${lib-pmd-dir}/pmd-4.2.5.jar" />
 
-	<property name="classpath"       value=".:${lib-nds}:lib/mindterm.jar:${lib-junit-4.1}:${lib-remote_management}" />
-    <property name="doc-java"        value="http://java.sun.com/j2se/1.5.0/docs/api/" />
+	<property name="classpath"             value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
 
-	<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
-
-	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-	
-	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
-		<classpath><pathelement location="${lib-pmd}"/><pathelement location="${lib-remote_management}"/></classpath>
-	</taskdef>
-
-	<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask">
-		<classpath><pathelement location="${lib-pmd}"/></classpath>
-	</taskdef>
+	<property name="doc-java"              value="http://download-llnw.oracle.com/javase/6/docs/api/" />
 	
 </project>
