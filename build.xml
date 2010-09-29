@@ -1,8 +1,15 @@
 <project>
 
+	<!-- This depends on the Hudson workspace structure. -->
+	<property name="hudson-tools-archive-dir" location="../../hudson_tools/lastStable/archive" />
+       
+	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
+
 	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-cpd" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
+
+	<property name="classpath"             value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
 
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
@@ -65,14 +72,7 @@
 	</target>
 
 	<!-- Run style check. -->
-	<target name="do-checkstyle">
-		<taskdef resource="checkstyletask.properties" classpath="${lib-checkstyle}"/>
-		<checkstyle config="checkstyle-config.xml" failOnViolation="false">
-			<formatter type="xml" tofile="checkstyle-result.xml" />
-			<fileset dir="." includes="**/*.java" />
-			<classpath path="${classpath}" />
-		</checkstyle>
-	</target>
+    <property name="checkstyle-check-dir" value="." />
 	
 	<!-- Run bug scan. -->
 	<target name="do-findbugs">
@@ -110,21 +110,6 @@
 	        </fileset>
 	    </cpd>
 	</target>
-	
-	<property name="hudson-tools-lib-dir"  location="../../hudson_tools/lastStable/archive/lib" />
-	
-	<property name="lib-junit"             location="${hudson-tools-lib-dir}/junit-4.8.2.jar" />
-	<property name="lib-findbugs"          location="${hudson-tools-lib-dir}/findbugs-ant.jar" />
-	<property name="lib-checkstyle"        location="${hudson-tools-lib-dir}/checkstyle-5.2-all.jar" />
-	<property name="lib-pmd"               location="${hudson-tools-lib-dir}/pmd-4.2.5.jar" />
 
-	<property name="lib-nds"               location="../../nds/lastStable/archive/bin/nds.jar" />
-	<property name="lib-remote_management" location="../../remote_management/lastStable/archive/bin/remote_management.jar" />
-	<property name="lib-mindterm"          location="../../nds/lastStable/archive/lib/mindterm.jar" />
-	<property name="lib-tools"             location="/usr/java/default/lib/tools.jar" />
-
-	<property name="classpath"             value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
-
-	<property name="doc-java"              value="http://download-llnw.oracle.com/javase/6/docs/api/" />
 	
 </project>

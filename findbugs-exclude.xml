@@ -1,9 +1,0 @@
-<FindBugsFilter>
-     <Match>
-		<!-- Ignore report of error due to non-serializable field in ChordRemoteReference.
-	     It always is serializable, because it's either a ChordNodeProxy or a java.lang.reflect.Proxy.
-	     Could make IChordRemote extend Serializable, but that would be really confusing. -->
-       <Class name="uk.ac.standrews.cs.stachord.impl.ChordRemoteReference" />
-       <Bug pattern="SE_BAD_FIELD" />
-     </Match>
-</FindBugsFilter>
