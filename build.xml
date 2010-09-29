@@ -9,7 +9,24 @@
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
-	<property name="classpath"             value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
+	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+
+	<property name="classpath" value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
+
+	<property name="compile-src-dir"      value="." />
+	<property name="compile-includes"     value="uk/**" />
+	<property name="compile-dest-dir"     value="." />
+
+    <property name="checkstyle-check-dir" value="." />
+    <property name="pmd-check-dir"        value="." />
+	<property name="cpd-check-dir"        value="." />
+	
+	<property name="findbugs-src-dir"     value="." />
+	<property name="findbugs-check-dir"   value="bin/stachord.jar" />
+
+	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
+	
+	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
 	<!-- Initialise release directory structure. -->
 	<target name="do-init-release">
@@ -18,25 +35,10 @@
 		<mkdir dir="junit" />
 	</target>
 
-
-	<property name="compile-src-dir" value="." />
-	<property name="compile-includes" value="uk/**" />
-	<property name="compile-dest-dir" value="." />
-
-
-	
-	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
-	
-
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
-		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
-			<!-- Run tests with assertions enabled. -->
-			<jvmarg value="-ea" />
-			<formatter type="xml"/>
-			<test name="uk.ac.standrews.cs.stachord.test.NightlyTests" todir="junit"/>
-			<classpath path="${classpath}"/>
-		</junit>
+		<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
+		<ant target="do-test" />
 	</target>
 	
 	<!-- Generate project jar. -->
@@ -48,22 +50,12 @@
 	<target name="release-doc">
 		<javadoc
 				classpath="${classpath}" sourcepath="." destdir="doc" packagenames="uk.ac.standrews.cs.stachord.*"
-				access="public" linksource="yes" source="1.5" nodeprecated="false" nodeprecatedlist="false"
+				access="public" linksource="yes" source="1.6" nodeprecated="false" nodeprecatedlist="false"
 				noindex="false" nonavbar="false" notree="false" splitindex="false" use="false" author="true" version="true" verbose="true">
 
 			<!-- Link to Java API from generated documentation. -->
 			<link href="${doc-java}" />
 		</javadoc>
 	</target>
-
-    <property name="checkstyle-check-dir" value="." />
-    <property name="pmd-check-dir" value="." />
-	
-	<property name="findbugs-src-dir" value="." />
-	<property name="findbugs-check-dir" value="bin/stachord.jar" />
-
-	<property name="cpd-check-dir" value="." />
-
-
 	
 </project>
