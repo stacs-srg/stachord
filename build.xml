@@ -18,20 +18,12 @@
 		<mkdir dir="junit" />
 	</target>
 
-	<!-- Compile current version. -->
-	<target name="do-compile" depends="remove-class-files">
-		<javac srcdir="." includes="uk/**" classpath="${classpath}">
-			<compilerarg value="-Xlint:unchecked" />
-		</javac>
-	</target>
-	
-	<!-- Delete any existing .class files to force complete recompilation. -->
-	<target name="remove-class-files">
-		<delete failonerror="false">
-			<fileset dir="." includes="**/*.class"/>
-		</delete>
-	</target>
 
+	<property name="compile-src-dir" value="." />
+	<property name="compile-includes" value="uk/**" />
+	<property name="compile-dest-dir" value="." />
+
+	
 	<!-- Run check-in tests. -->
 	<target name="do-test">
 		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
