@@ -23,6 +23,7 @@ package uk.ac.standrews.cs.stachord.test.recovery;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,6 @@ import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
- * They could be refactored to reduce code duplication, but it seems useful to keep them as self-contained examples.
  * 
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
@@ -68,17 +68,9 @@ public class MultipleMachineRecoveryTests {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		List<InetAddress> addresses = twoEachOnBeastAndMini();
 		
-		List<ClassPath> class_paths = new ArrayList<ClassPath>();
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		List<ClassPath> class_paths = beastAndMiniClassPaths();
 
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections =  network_util.createUsernamePasswordConnections(addresses, true);
@@ -87,6 +79,25 @@ public class MultipleMachineRecoveryTests {
 		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
+	}
+
+	private List<ClassPath> beastAndMiniClassPaths() {
+		List<ClassPath> class_paths = new ArrayList<ClassPath>();
+		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		return class_paths;
+	}
+
+	private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
+		
+		List<InetAddress> addresses = new ArrayList<InetAddress>();
+		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		return addresses;
 	}
 	
 	/**
@@ -105,17 +116,9 @@ public class MultipleMachineRecoveryTests {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		List<InetAddress> addresses = twoEachOnBeastAndMini();
 		
-		List<ClassPath> class_paths = new ArrayList<ClassPath>();
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		List<ClassPath> class_paths = beastAndMiniClassPaths();
 			
 		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
@@ -142,11 +145,7 @@ public class MultipleMachineRecoveryTests {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		List<InetAddress> addresses = twoEachOnBeastAndMini();
 		
 		URL[] lib_urls = new URL[] {
 			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
