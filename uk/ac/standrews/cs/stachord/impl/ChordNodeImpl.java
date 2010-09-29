@@ -41,7 +41,6 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.stachord.factories.CustomSocketFactory;
 import uk.ac.standrews.cs.stachord.impl.exceptions.NoPrecedingNodeException;
 import uk.ac.standrews.cs.stachord.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
@@ -135,7 +134,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	private void exposeNode(InetSocketAddress local_address) throws RemoteException, AccessException {
 		
 		// Get RMI registry.
-		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort(), null, new CustomSocketFactory(local_address.getAddress()) );
+		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort());
 
 		// Start RMI listening.
 		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!

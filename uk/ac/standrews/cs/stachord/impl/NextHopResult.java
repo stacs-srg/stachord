@@ -29,12 +29,12 @@ public class NextHopResult implements Serializable {
 	private static final long serialVersionUID = 2162948760764524096L;
 	
 	private boolean is_final_hop;
-	private IChordRemoteReference hop;
+	private IChordRemoteReference node;
 
 	public NextHopResult(boolean is_final_hop, IChordRemoteReference node) {
 
 		this.is_final_hop = is_final_hop;
-		this.hop = node;
+		this.node = node;
 	}
 
 	public boolean isFinalHop() {
@@ -42,6 +42,6 @@ public class NextHopResult implements Serializable {
 	}
 
 	public IChordRemoteReference getNode() {
-		return hop;
+		return node;
 	}
 }
