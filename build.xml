@@ -23,18 +23,11 @@
 	<property name="compile-includes" value="uk/**" />
 	<property name="compile-dest-dir" value="." />
 
+
 	
-	<!-- Run check-in tests. -->
-	<target name="do-test">
-		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
-			<!-- Run tests with assertions enabled. -->
-			<jvmarg value="-ea" />
-			<formatter type="xml"/>
-			<test name="uk.ac.standrews.cs.stachord.test.CheckInTests" todir="junit"/>
-			<classpath path="${classpath}"/>
-		</junit>
-	</target>
+	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	
+
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
 		<junit fork="yes" clonevm="true" maxmemory="256m" printsummary="no" showoutput="yes" failureproperty="test-failed" errorproperty="test-failed" filtertrace="no">
