@@ -71,33 +71,14 @@
 		</javadoc>
 	</target>
 
-	<!-- Run style check. -->
     <property name="checkstyle-check-dir" value="." />
     <property name="pmd-check-dir" value="." />
-
-	<!-- Run bug scan. -->
-	<target name="do-findbugs">
-		<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
-			<classpath><pathelement location="${lib-findbugs}"/></classpath>
-		</taskdef>
-	    <findbugs home="${hudson-tools-lib-dir}" output="xml:withMessages" outputFile="findbugs.xml" excludeFilter="findbugs-exclude.xml">
-	        <auxClasspath path="${classpath}" />
-	        <sourcePath path="." />
-	        <class location="bin/stachord.jar" />
-	    </findbugs>
-    </target>
 	
-	<!-- Run duplicate code check. -->
-	<target name="do-cpd">
-	    <taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask">
-			<classpath><pathelement location="${lib-pmd}"/></classpath>
-		</taskdef>
-	    <cpd minimumTokenCount="100" format="xml" outputFile="cpd.xml">
-	        <fileset dir=".">
-	            <include name="**/*.java"/>
-	        </fileset>
-	    </cpd>
-	</target>
+	<property name="findbugs-src-dir" value="." />
+	<property name="findbugs-check-dir" value="bin/stachord.jar" />
+
+	<property name="cpd-check-dir" value="." />
+
 
 	
 </project>
