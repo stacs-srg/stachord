@@ -23,7 +23,7 @@ package uk.ac.standrews.cs.stachord.interfaces;
 import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachord.impl.NextHopResult;
@@ -98,7 +98,7 @@ public interface IChordRemote extends Remote {
 	 * @return this node's successor list
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
-	ArrayList<IChordRemoteReference> getSuccessorList() throws RemoteException;
+	List<IChordRemoteReference> getSuccessorList() throws RemoteException;
 
 	/**
 	 * Returns this node's finger list.
@@ -106,7 +106,7 @@ public interface IChordRemote extends Remote {
 	 * @return this node's finger list
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
-	ArrayList<IChordRemoteReference> getFingerList() throws RemoteException;
+	List<IChordRemoteReference> getFingerList() throws RemoteException;
 
 	/**
 	 * Used to check liveness of this node.

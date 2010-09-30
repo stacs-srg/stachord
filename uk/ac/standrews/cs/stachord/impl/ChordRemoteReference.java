@@ -42,6 +42,7 @@ class ChordRemoteReference implements IChordRemoteReference {
 	private IChordRemote reference;
 	
 	public ChordRemoteReference(IKey key, IChordRemote reference) throws RemoteException {
+		
 		this.key = key;
 		this.reference = reference;
 		

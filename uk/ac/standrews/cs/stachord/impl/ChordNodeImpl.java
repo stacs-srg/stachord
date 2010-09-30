@@ -26,7 +26,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -267,12 +266,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		setSuccessor(initial_successor);
 	}
 
-	public ArrayList<IChordRemoteReference> getSuccessorList() {
+	public List<IChordRemoteReference> getSuccessorList() {
 
 		return successor_list.getList();
 	}
 
-	public ArrayList<IChordRemoteReference> getFingerList() {
+	public List<IChordRemoteReference> getFingerList() {
 		
 		return finger_table.getFingers();
 	}
@@ -285,9 +284,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		// Check whether the key lies in the range between this node and its successor,
 		// in which case the successor represents the final hop.
 
-		if (inSuccessorKeyRange(k)) return new NextHopResult(true, successor);
+		if (inSuccessorKeyRange(k)) return new NextHopResult(successor, true);
 		
-		return new NextHopResult(false, closestPrecedingNode(k));
+		return new NextHopResult(closestPrecedingNode(k), false);
 	}
 
 	public void enablePredecessorMaintenance(boolean enabled) {
@@ -390,7 +389,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		setPredecessor(null);
 		setSuccessor(self_reference);
 
-		successor_list.refreshList();
+		successor_list.clear();
 		
 		setChanged();
 		notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);

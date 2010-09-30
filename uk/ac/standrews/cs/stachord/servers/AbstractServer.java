@@ -33,19 +33,22 @@ import uk.ac.standrews.cs.nds.util.NetworkUtil;
 /**
  * Common setup for StartRing and StartNode.
  * 
- * @author graham
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public abstract class AbstractServer  {
 	
 	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 	
-	static String local_address = "";
-	static int local_port = 0;
-	static IKey server_key = null;
+	protected String local_address;
+	protected int local_port;
+	protected IKey server_key;
 
-	public static void setup(String[] args) {
-		
-		// This may be overridden by a CLA.
+	/**
+	 * Processes command-line arguments.
+	 * @param args the arguments
+	 */
+	public AbstractServer(String[] args) {
+
 		Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
 
 		Diagnostic.setTimestampFlag(true);
@@ -62,9 +65,6 @@ public abstract class AbstractServer  {
 		String server_key_parameter = CommandLineArgs.getArg(args, "-x"); // This node's key.
 		if (server_key_parameter != null && !server_key_parameter.equals("null")) server_key = new Key(server_key_parameter);
 	}
-
-	private static void usage() {
-			
-		ErrorHandling.hardError( "Usage: -s[host][:port] [-x[key]]" );
-	}
+	
+	protected abstract void usage();
 }

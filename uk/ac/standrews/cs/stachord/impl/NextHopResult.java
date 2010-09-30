@@ -24,6 +24,11 @@ import java.io.Serializable;
 
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
+/**
+ * Binds together a reference to a remote node and a flag indicating whether that node is the last hop in an invocation of the routing protocol.
+ *
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ */
 public class NextHopResult implements Serializable {
 
 	private static final long serialVersionUID = 2162948760764524096L;
@@ -31,16 +36,29 @@ public class NextHopResult implements Serializable {
 	private boolean is_final_hop;
 	private IChordRemoteReference node;
 
-	public NextHopResult(boolean is_final_hop, IChordRemoteReference node) {
+	/**
+	 * Constructs a new record.
+	 * @param node the node
+	 * @param is_final_hop the flag
+	 */
+	public NextHopResult(IChordRemoteReference node, boolean is_final_hop) {
 
 		this.is_final_hop = is_final_hop;
 		this.node = node;
 	}
 
+	/**
+	 * Returns true if the node is the final hop.
+	 * @return true if the node is the final hop
+	 */
 	public boolean isFinalHop() {
 		return is_final_hop;
 	}
 
+	/**
+	 * Returns the node.
+	 * @return the node
+	 */
 	public IChordRemoteReference getNode() {
 		return node;
 	}

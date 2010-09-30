@@ -10,20 +10,27 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.servers.StartRing;
+import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleMachineNetwork;
 
+/**
+ * Provides remote management hooks for Chord.
+ * 
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ */
 public class ChordManager implements IApplicationManager {
 
-	private static final String CHORD_APPLICATION_CLASSNAME = StartRing.class.getCanonicalName();
-	private static final int DEFAULT_RMI_REGISTRY_PORT = 1099;     // The default RMI registry port.
-	private static final int APPLICATION_CALL_TIMEOUT = 10000;     // The timeout for attempted application calls, in ms.
+	private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName();   // Full name of the class used to instantiate a Chord ring.
+	private static final int APPLICATION_CALL_TIMEOUT = 10000;                                               // The timeout for attempted application calls, in ms.
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Override
 	public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 		
 		// Try to connect to the application on the default RMI port.
-		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, DEFAULT_RMI_REGISTRY_PORT);
+		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, Constants.DEFAULT_RMI_REGISTRY_PORT);
 		
 		// Wrap the exception variable so that it can be updated by the timeout thread.
 		final Exception[] exception_wrapper = new Exception[] {null};
@@ -54,7 +61,7 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void deployApplication(HostDescriptor host_descriptor) throws Exception {
 
-		MultipleMachineNetwork.createFirstNode2(host_descriptor, DEFAULT_RMI_REGISTRY_PORT);
+		MultipleMachineNetwork.createSingleNode(host_descriptor, Constants.DEFAULT_RMI_REGISTRY_PORT);
 	}
 
 	@Override

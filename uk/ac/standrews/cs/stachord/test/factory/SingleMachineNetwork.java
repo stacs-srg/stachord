@@ -56,9 +56,6 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 		catch (SSH2Exception e) {
 			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
 		}
-		catch (TimeoutException e) {
-			ErrorHandling.hardExceptionError(e, "unexpected timeout on local network creation");
-		}
 		catch (UnknownPlatformException e) {
 			ErrorHandling.hardExceptionError(e, "unexpected unknown platform on local network creation");
 		}

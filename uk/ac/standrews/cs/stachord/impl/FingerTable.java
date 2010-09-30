@@ -26,6 +26,7 @@ package uk.ac.standrews.cs.stachord.impl;
 import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -34,23 +35,25 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
  * Finger table implementation.
+ * 
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 class FingerTable {
 
-	private final IChordNode node;
+	private final IChordNode node;                       // The node of which this is the finger table.
 
-	private IChordRemoteReference[] fingers;
-	private IKey[] finger_targets;
+	private IChordRemoteReference[] fingers;             // References to the fingers.
+	private IKey[] finger_targets;                       // Keys used to select the fingers.
 	
-	private final int number_of_fingers;
-	private int next_finger_index;
+	private final int number_of_fingers;                 // Size of the finger table.
+	private int next_finger_index;                       // Index of the next finger to be fixed.
 	
 	// Used to derive finger table size. Nothing will break if the ring
 	// exceeds this size, but the finger table may become more sparse than ideal.
 	private static final int MAX_ASSUMED_RING_SIZE = 1000;
 	
 	// The ratio between successive finger targets.
-	private static final BigInteger INTER_FINGER_RATIO = new BigInteger("2");
+	private static final BigInteger inter_finger_ratio = new BigInteger(String.valueOf(Constants.INTER_FINGER_RATIO));
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +61,7 @@ class FingerTable {
 
 		this.node = node;
 		
-		number_of_fingers = log2(MAX_ASSUMED_RING_SIZE);
+		number_of_fingers = log(MAX_ASSUMED_RING_SIZE, Constants.INTER_FINGER_RATIO);
 		next_finger_index = number_of_fingers - 1;
 		
 		fingers = new IChordRemoteReference[number_of_fingers];
@@ -71,6 +74,7 @@ class FingerTable {
 
 	/**
 	 * Fixes the next finger in the finger table.
+	 * @return true if the finger was changed.
 	 */
 	public boolean fixNextFinger() {
 
@@ -80,7 +84,14 @@ class FingerTable {
 		return changed;
 	}
 
-	public synchronized IChordRemoteReference closestPrecedingNode(IKey k) throws NoPrecedingNodeException {
+	/**
+	 * Returns the finger that extends the furthest round the ring from this node without passing the given key.
+	 * 
+	 * @param key the target key
+	 * @return the closest preceding finger to the key
+	 * @throws NoPrecedingNodeException if no suitable finger is found
+	 */
+	public synchronized IChordRemoteReference closestPrecedingNode(IKey key) throws NoPrecedingNodeException {
 
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
@@ -91,7 +102,7 @@ class FingerTable {
 			
 			// Looking for finger that lies before k from position of this node.
 			// Ignore fingers pointing to this node.
-			if (finger != null && !node.getKey().equals(finger.getKey()) && node.getKey().firstCloserInRingThanSecond(finger.getKey(), k)) {
+			if (finger != null && !node.getKey().equals(finger.getKey()) && node.getKey().firstCloserInRingThanSecond(finger.getKey(), key)) {
 				return finger;
 			}
 		}
@@ -99,6 +110,10 @@ class FingerTable {
 		throw new NoPrecedingNodeException();
 	}
 
+	/**
+	 * Notifies the finger table of a broken finger.
+	 * @param broken_finger the finger that has failed
+	 */
 	public void fingerFailure(IChordRemoteReference broken_finger) {
 
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
@@ -108,7 +123,20 @@ class FingerTable {
 			}
 		}
 	}
+
+	/**
+	 * Returns the contents of the finger table as a list.
+	 * @return the contents of the finger table as a list
+	 */
+	public List<IChordRemoteReference> getFingers() {
+
+		ArrayList<IChordRemoteReference> finger_list = new ArrayList<IChordRemoteReference>();
+		for (int i = 0; i < number_of_fingers; i++) finger_list.add(fingers[i]);
+		return finger_list;
+	}
 	
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	@Override
 	public String toString() {
 
@@ -129,31 +157,41 @@ class FingerTable {
 		return buffer.toString();
 	}
 
-	public ArrayList<IChordRemoteReference> getFingers() {
-
-		ArrayList<IChordRemoteReference> finger_list = new ArrayList<IChordRemoteReference>();
-		for (int i = 0; i < number_of_fingers; i++) finger_list.add(fingers[i]);
-		return finger_list;
-	}
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	/**
+	 * Constructs the finger target keys by successively dividing the offset from this node by the inter-finger ratio.
+	 */
 	private void initFingerTargets() {
 		
 		BigInteger finger_offset = Key.KEYSPACE_SIZE;
 		
+		BigInteger local_key = node.getKey().keyValue();
+		
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
-			finger_offset = finger_offset.divide(INTER_FINGER_RATIO);
-			finger_targets[i] = new Key(node.getKey().keyValue().add(finger_offset));
+			finger_offset = finger_offset.divide(inter_finger_ratio);
+			finger_targets[i] = new Key(local_key.add(finger_offset));
 		}
 	}
 
-	private static int log2(int n) {
+	/**
+	 * Returns the truncated log of an integer to a given base.
+	 * @param n an integer
+	 * @param base the required base
+	 * @return the log to the given base
+	 */
+	private static int log(int n, int base) {
 
-		return (int)(Math.log10(n)/Math.log10(2));
+		return (int)(Math.log10(n)/Math.log10(base));
 	}
 
+	/**
+	 * Sets the correct finger for a given index in the finger table, by routing to the corresponding key.
+	 * 
+	 * @param finger_index the index 
+	 * @return true if a new finger was established
+	 */
 	private boolean fixFinger(int finger_index) {
 
 		try {

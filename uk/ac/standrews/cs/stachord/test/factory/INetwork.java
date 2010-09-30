@@ -27,7 +27,7 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 /**
  * Interface representing a set of Chord nodes.
  *
- * @author graham
+ * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
 public interface INetwork {
 

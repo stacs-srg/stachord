@@ -42,8 +42,8 @@ import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.AbstractServer;
-import uk.ac.standrews.cs.stachord.servers.StartNode;
-import uk.ac.standrews.cs.stachord.servers.StartRing;
+import uk.ac.standrews.cs.stachord.servers.StartNodeInExistingRing;
+import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 import com.mindbright.ssh2.SSH2Exception;
 
@@ -64,10 +64,10 @@ public class MultipleMachineNetwork implements INetwork {
 	private static final int QUEUE_MAX_THREADS =     10;               // The maximum degree of concurrency for check jobs.
 	private static final int QUEUE_IDLE_TIMEOUT =  5000;               // The timeout for idle check job threads to die, in ms.
 	
-	private static final int NODE_INSTANTIATION_TIMEOUT = 30000;
+	private static final int NODE_INSTANTIATION_TIMEOUT = 30000;       // The timeout for node instantiation, in ms.
 
 	private IKey[] node_keys;                                          // The keys of the nodes.
-	private List<HostDescriptor> nodes;      // The nodes themselves.
+	private List<HostDescriptor> nodes;                                // The nodes themselves.
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,53 +78,21 @@ public class MultipleMachineNetwork implements INetwork {
 	}
 	
 	/**
-	 * @param node_descriptors a description of the target physical host for each Chord node to be created
+	 * Creates a new network.
+	 * 
+	 * @param host_descriptors a description of the target physical host for each Chord node to be created
 	 * @param key_distribution the required key distribution
 	 * 
 	 * @throws IOException if the process for a node cannot be created
 	 * @throws SSH2Exception if communication with a remote host fails
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws UnknownPlatformException 
+	 * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period
+	 * @throws UnknownPlatformException if the operating system of one or more of the given hosts cannot be established
+	 * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
 	 */
-	public MultipleMachineNetwork(final List<HostDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
+	public MultipleMachineNetwork(final List<HostDescriptor> host_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
 		
 		// Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
-		init(node_descriptors, key_distribution);
-	}
-
-	protected void init(final List<HostDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, InterruptedException, TimeoutException, UnknownPlatformException {
-			
-		node_keys = generateNodeKeys(key_distribution, node_descriptors.size());
-		nodes = node_descriptors;
-		
-		ActionQueue actions = new ActionQueue(node_descriptors.size(), QUEUE_MAX_THREADS, QUEUE_IDLE_TIMEOUT);
-		
-		final HostDescriptor known_node = node_descriptors.get(0);
-		createFirstNode(known_node, node_keys[0]);
-
-		for (int node_index = 1; node_index < node_descriptors.size(); node_index++) {
-
-			final int index = node_index;
-
-			actions.enqueue(new ActionWithNoResult() {
-
-				public void performAction() {
-
-					try {
-
-						IKey key = node_keys[index];
-
-						createJoiningNode(node_descriptors.get(index), known_node, key);
-
-					} catch (Exception e) {
-						ErrorHandling.exceptionError(e);
-					}
-				}
-			});
-		}
-
-		actions.blockUntilNoUncompletedActions();
+		init(host_descriptors, key_distribution);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,24 +134,17 @@ public class MultipleMachineNetwork implements INetwork {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	public static void createFirstNode(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-		
-		ArgGen arg_gen = new ArgGen() {
-			
-			public List<String> getArgs(int local_port) {
-				
-				List<String> args = new ArrayList<String>();
-				
-				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
-				
-				return args;
-			}
-		};
-		
-		createNodeProcessAndBindToApplication(host_descriptor, port, arg_gen, StartRing.class);
-	}
+	/**
+	 * Creates a new node on a given host, establishing a new one-node ring.
 
-	public static void createFirstNode2(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	 * @param host_descriptor
+	 * @param port
+	 * @throws IOException if an error occurs when reading communicating with the remote host
+	 * @throws SSH2Exception if an SSH connection to the remote host cannot be established
+	 * @throws TimeoutException if the node cannot be instantiated within the timeout period
+	 * @throws UnknownPlatformException if the operating system of the remote host cannot be established
+	 */
+	public static void createSingleNode(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -197,51 +158,48 @@ public class MultipleMachineNetwork implements INetwork {
 			}
 		};
 		
-		createNodeProcess(host_descriptor, port, arg_gen, StartRing.class);
-	}
-
-	public static void createFirstNode(final HostDescriptor host_descriptor, int port, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-		
-		ArgGen arg_gen = new ArgGen() {
-			
-			public List<String> getArgs(int local_port) {
-				
-				List<String> args = new ArrayList<String>();
-				
-				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
-				addKeyArg(key, args);
-				
-				return args;
-			}
-		};
-		
-		createNodeProcessAndBindToApplication(host_descriptor, port, arg_gen, StartRing.class);
+		createNodeProcess(host_descriptor, port, arg_gen, StartNodeInNewRing.class);
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	protected static Process runProcess(HostDescriptor host_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	protected void init(final List<HostDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, UnknownPlatformException, InterruptedException {
 		
-		if (host_descriptor.ssh_client_wrapper != null) {
-			if (host_descriptor.application_urls != null) {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true, NODE_INSTANTIATION_TIMEOUT);
-			}
-			else {
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path, NODE_INSTANTIATION_TIMEOUT);
-			}
+		node_keys = generateNodeKeys(key_distribution, node_descriptors.size());
+		nodes = node_descriptors;
+		
+		ActionQueue actions = new ActionQueue(node_descriptors.size(), QUEUE_MAX_THREADS, QUEUE_IDLE_TIMEOUT);
+		
+		final HostDescriptor known_node = node_descriptors.get(0);
+		createSingleNode(known_node, node_keys[0]);
+
+		for (int node_index = 1; node_index < node_descriptors.size(); node_index++) {
+
+			final int index = node_index;
+
+			actions.enqueue(new ActionWithNoResult() {
+
+				public void performAction() {
+
+					try {
+
+						IKey key = node_keys[index];
+
+						createJoiningNode(node_descriptors.get(index), known_node, key);
+
+					} catch (Exception e) {
+						ErrorHandling.exceptionError(e);
+					}
+				}
+			});
 		}
-		else {
-			return ProcessInvocation.runJavaProcess(node_class, args);
-		}
+
+		actions.blockUntilNoUncompletedActions();
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private interface ArgGen {
-		List<String> getArgs(int local_port);
-	}
-
-	private static void createFirstNode(final HostDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createSingleNode(final HostDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -256,10 +214,10 @@ public class MultipleMachineNetwork implements INetwork {
 			}
 		};
 		
-		createNode(machine_descriptor, arg_gen, StartRing.class);
+		createNodeProcessWithFreePort(machine_descriptor, arg_gen, StartNodeInNewRing.class);
 	}
 	
-	private static void createJoiningNode(final HostDescriptor machine_descriptor, final HostDescriptor known_node, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+	private static void createJoiningNode(final HostDescriptor machine_descriptor, final HostDescriptor known_node, final IKey key) throws IOException, SSH2Exception, UnknownPlatformException {
 		
 		ArgGen arg_gen = new ArgGen() {
 			
@@ -275,9 +233,57 @@ public class MultipleMachineNetwork implements INetwork {
 			}
 		};
 		
-		createNode(machine_descriptor, arg_gen, StartNode.class);
+		createNodeProcessWithFreePort(machine_descriptor, arg_gen, StartNodeInExistingRing.class);
 	}
 	
+	private static void createNodeProcessWithFreePort(HostDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, UnknownPlatformException {
+		
+		boolean finished = false;
+		
+		while (!finished) {
+			
+			int port = 0;
+			
+			synchronized (sync) {
+				port = next_port++;
+			}
+
+			node_descriptor.port = port;
+		
+			List<String> args = arg_gen.getArgs(port);
+			
+			try {
+				node_descriptor.process = runProcess(node_descriptor, node_class, args);
+				node_descriptor.application_reference = bindToNodeWithRetry(node_descriptor);
+				finished = true;
+			}
+			catch (TimeoutException e) {
+				Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
+			}
+		}
+	}
+
+	private static void createNodeProcess(HostDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+		
+		List<String> args = arg_gen.getArgs(port);
+
+		node_descriptor.process = runProcess(node_descriptor, node_class, args);
+		node_descriptor.port = port;
+	}
+	
+	private static Process runProcess(HostDescriptor host_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+		
+		if (host_descriptor.ssh_client_wrapper != null) {
+			
+			if (host_descriptor.application_urls != null) {
+				
+				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true, NODE_INSTANTIATION_TIMEOUT);
+			}
+			return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path, NODE_INSTANTIATION_TIMEOUT);
+		}
+		return ProcessInvocation.runJavaProcess(node_class, args);
+	}
+
 	private IKey[] generateNodeKeys(KeyDistribution network_type, int number_of_nodes) {
 		
 		IKey[] node_keys = new IKey[number_of_nodes];
@@ -315,7 +321,7 @@ public class MultipleMachineNetwork implements INetwork {
 		if (key != null) args.add("-x" + key.toString(Key.DEFAULT_RADIX)); 
 	}
 
-	private static IChordRemoteReference bindToNode(HostDescriptor node_descriptor) throws TimeoutException {
+	private static IChordRemoteReference bindToNodeWithRetry(HostDescriptor node_descriptor) throws TimeoutException {
 				
 		long start_time = System.currentTimeMillis();
 		
@@ -345,45 +351,9 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 
-	private static void createNode(HostDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, UnknownPlatformException {
-		
-		boolean finished = false;
-		
-		while (!finished) {
-			
-			int port = 0;
-			
-			synchronized (sync) {
-				port = next_port++;
-			}
-
-			node_descriptor.port = port;
-		
-			List<String> args = arg_gen.getArgs(port);
-			
-			try {
-				node_descriptor.process = runProcess(node_descriptor, node_class, args);
-				node_descriptor.application_reference = bindToNode(node_descriptor);
-				finished = true;
-			}
-			catch (TimeoutException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
-			}
-		}
-	}
-
-	private static void createNodeProcessAndBindToApplication(HostDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-
-		createNodeProcess(node_descriptor, port, arg_gen, node_class);
-
-		node_descriptor.application_reference = bindToNode(node_descriptor);
-	}
-
-	private static void createNodeProcess(HostDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-		
-		List<String> args = arg_gen.getArgs(port);
-
-		node_descriptor.process = runProcess(node_descriptor, node_class, args);
-		node_descriptor.port = port;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private interface ArgGen {
+		List<String> getArgs(int local_port);
 	}
 }

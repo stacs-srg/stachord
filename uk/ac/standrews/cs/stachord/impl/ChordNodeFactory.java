@@ -53,7 +53,7 @@ public class ChordNodeFactory {
 	 * @param known_node_address the address of a node in the existing ring
 	 * @return the new node
 	 * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
-	 * @throws NotBoundException if the node in the existing ring is not acessible with the expected service name
+	 * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
 	 */
 	public static IChordNode createNode(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
 		return new ChordNodeImpl(local_address, known_node_address);
@@ -67,7 +67,7 @@ public class ChordNodeFactory {
 	 * @param key the key of the new node
 	 * @return the new node
 	 * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
-	 * @throws NotBoundException if the node in the existing ring is not acessible with the expected service name
+	 * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
 	 */
 	public static IChordNode createNode(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
 		return new ChordNodeImpl(local_address, known_node_address, key);
