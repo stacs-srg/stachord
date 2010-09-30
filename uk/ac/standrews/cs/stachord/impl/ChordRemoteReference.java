@@ -20,7 +20,6 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 
@@ -34,7 +33,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class ChordRemoteReference implements IChordRemoteReference, Serializable {
+class ChordRemoteReference implements IChordRemoteReference {
 
 	private static final long serialVersionUID = -7911452718429786447L;
 	

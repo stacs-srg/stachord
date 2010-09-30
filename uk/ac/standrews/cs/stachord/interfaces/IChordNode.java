@@ -20,33 +20,89 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachord.interfaces;
 
-import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
+import java.util.Observer;
 
+import uk.ac.standrews.cs.nds.eventModel.Event;
+import uk.ac.standrews.cs.nds.eventModel.IEvent;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 
 /**
  * Defines locally accessible Chord node functionality.
  *
- * @author graham
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public interface IChordNode {
+public interface IChordNode extends Observer {
 	
-	public static final String CHORD_REMOTE_SERVICE = IChordNode.class.getSimpleName();
-	
-	IChordRemoteReference lookup( IKey key ) throws RemoteException;
-	
-	InetSocketAddress getAddress();
+	/**
+	 * The name of the remotely accessible Chord service.
+	 */
+	static final String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
 
+	/**
+	 * Predecessor change event.
+	 */
+	public static final IEvent PREDECESSOR_CHANGE_EVENT =    new Event("PREDECESSOR_CHANGE_EVENT");
+	
+	/**
+	 * Successor change event.
+	 */
+	public static final IEvent SUCCESSOR_CHANGE_EVENT =      new Event("SUCCESSOR_CHANGE_EVENT");
+	
+	/**
+	 * Successor list change event.
+	 */
+	public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event("SUCCESSOR_LIST_CHANGE_EVENT");
+	
+	/**
+	 * Finger table change event.
+	 */
+	public static final IEvent FINGER_TABLE_CHANGE_EVENT =   new Event("FINGER_TABLE_CHANGE_EVENT");
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * @return this node's key
+	 */
 	IKey getKey();
 
+	/**
+	 * Executes the routing protocol.
+	 * 
+	 * @param key a key to be routed to
+	 * @return the node to which the key maps
+	 * @throws RemoteException if an error occurs during the routing protocol
+	 */
+	IChordRemoteReference lookup(IKey key) throws RemoteException;
+	
+	/**
+	 * @return this node's successor in the key space
+	 */
 	IChordRemoteReference getSuccessor();
 	
-	IChordRemoteReference getPredecessor();
+	/**
+	 * @return this node's predecessor in the key space
+	 */
+	IChordRemoteReference getPredecessor();	
 	
-	IChordRemoteReference getProxy();
-	
-	boolean inLocalKeyRange(IKey k);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Local-only functionality.
+	
+	/**
+	 * @return a reference to this node typed as a remote reference
+	 */
+	IChordRemoteReference getSelfReference();
+
+	/**
+	 * Stops maintenance operations and removes the node from remote access.
+	 */
 	void shutDown();
+
+	/**
+	 * Adds an observer.
+	 * 
+	 * @param observer a new observer
+	 */
+	void addObserver(Observer observer);
 }

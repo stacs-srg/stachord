@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 /**
  * Finger table implementation.
  */
-public class FingerTable {
+class FingerTable {
 
 	private final IChordNode node;
 

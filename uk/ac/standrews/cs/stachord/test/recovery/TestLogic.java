@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.SuccessorList;
+import uk.ac.standrews.cs.stachord.impl.Constants;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.test.factory.INetwork;
@@ -260,18 +260,16 @@ public class TestLogic {
 					
 					// Check that the finger is not this node.
 					if (finger_reference == null) return false; // { System.out.println("afc1"); return false;}
-					else {
 
-						// Check that the finger is not closer in ring distance than the previous non-null finger.
-						// Treat self-reference as the full ring distance, so ignore case where finger points to this node.
-						if (previous_finger_reference != null && !finger_reference.getKey().equals(node.getKey()) &&
-								node.getKey().firstCloserInRingThanSecond(finger_reference.getKey(), previous_finger_reference.getKey())) {
-							
-							return false;
-						}
+					// Check that the finger is not closer in ring distance than the previous non-null finger.
+					// Treat self-reference as the full ring distance, so ignore case where finger points to this node.
+					if (previous_finger_reference != null && !finger_reference.getKey().equals(node.getKey()) &&
+							node.getKey().firstCloserInRingThanSecond(finger_reference.getKey(), previous_finger_reference.getKey())) {
 						
-						previous_finger_reference = finger_reference;
+						return false;
 					}
+					
+					previous_finger_reference = finger_reference;
 					finger_number++;
 				}
 			}
@@ -294,7 +292,7 @@ public class TestLogic {
 				successor_list = node.getSuccessorList();
 
 				// The length of the successor lists should be MIN(max_successor_list_length, number_of_nodes - 1).
-				if (successor_list.size() != Math.min(SuccessorList.MAX_SUCCESSOR_LIST_SIZE, nodes.size() - 1)) {
+				if (successor_list.size() != Math.min(Constants.MAX_SUCCESSOR_LIST_SIZE, nodes.size() - 1)) {
 					return false;
 				}
 	
@@ -434,7 +432,7 @@ public class TestLogic {
 		
 		for (HostDescriptor machine_descriptor : network.getNodes()) {
 			IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
-			application_reference.getRemote().enableFingerTableMaintenance(enabled);
+			application_reference.getRemote().enablePeerStateMaintenance(enabled);
 		}
 	}
 

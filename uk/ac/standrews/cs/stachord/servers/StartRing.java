@@ -24,7 +24,7 @@ import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
 /**
  * Provides the entry point for deploying a Chord node that creates a new Chord Ring
@@ -51,8 +51,8 @@ public class StartRing extends AbstractServer {
 		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
 		
 		try {
-			if (server_key == null) new ChordNodeImpl(local_socket_address, null);
-			else                    new ChordNodeImpl(local_socket_address, null, server_key);
+			if (server_key == null) ChordNodeFactory.createNode(local_socket_address, null);
+			else                    ChordNodeFactory.createNode(local_socket_address, null, server_key);
 		}
 		catch (Exception e) {
 

@@ -28,11 +28,7 @@ import java.util.List;
 import uk.ac.standrews.cs.stachord.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-public class SuccessorList {
-
-	public static final int MAX_SUCCESSOR_LIST_SIZE = 5;
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+class SuccessorList {
 
 	private final ChordNodeImpl local_node;
 	private final ArrayList<IChordRemoteReference> successor_list;     // Needs to be typed as implementation type for serialization.
@@ -98,7 +94,7 @@ public class SuccessorList {
 
 		ArrayList<IChordRemoteReference> new_list = new ArrayList<IChordRemoteReference>();
 
-		int numElements = Math.min(MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
+		int numElements = Math.min(Constants.MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
 
 		// Check for the element of the successor list being this node, as will
 		// happen with a small number of nodes in the ring. If this node is

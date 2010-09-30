@@ -29,7 +29,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
 /**
  * Provides the entry point for deploying a Chord node that is joining a Chord Ring
@@ -66,8 +66,8 @@ public class StartNode extends AbstractServer {
 		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
 		InetSocketAddress known_socket_address = new InetSocketAddress(known_address, known_port);
 		
-		if (server_key == null) new ChordNodeImpl(local_socket_address, known_socket_address);
-		else                    new ChordNodeImpl(local_socket_address, known_socket_address, server_key);
+		if (server_key == null) ChordNodeFactory.createNode(local_socket_address, known_socket_address);
+		else                    ChordNodeFactory.createNode(local_socket_address, known_socket_address, server_key);
 	}
 
 	private static void usage() {

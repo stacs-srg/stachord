@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.AbstractServer;
 import uk.ac.standrews.cs.stachord.servers.StartNode;
@@ -322,7 +322,7 @@ public class MultipleMachineNetwork implements INetwork {
 		while (true) {
 
 			try {
-				return ChordNodeImpl.bindToNode(NetworkUtil.getInetSocketAddress(node_descriptor.host, node_descriptor.port));
+				return ChordNodeFactory.bindToNode(NetworkUtil.getInetSocketAddress(node_descriptor.host, node_descriptor.port));
 			}
 			catch (RemoteException e) {
 				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed: " + e.getMessage());

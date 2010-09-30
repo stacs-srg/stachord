@@ -9,7 +9,7 @@ import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeImpl;
+import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.servers.StartRing;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleMachineNetwork;
 
@@ -35,7 +35,7 @@ public class ChordManager implements IApplicationManager {
 			public void performAction() {
 				try {
 					// Try to access the application at the specified address.
-					host_descriptor.application_reference = ChordNodeImpl.bindToNode(inet_socket_address);
+					host_descriptor.application_reference = ChordNodeFactory.bindToNode(inet_socket_address);
 				}
 				catch (Exception e) {
 					// We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway

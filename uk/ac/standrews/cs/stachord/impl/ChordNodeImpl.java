@@ -23,7 +23,6 @@ package uk.ac.standrews.cs.stachord.impl;
 import java.net.InetSocketAddress;
 import java.rmi.AccessException;
 import java.rmi.NotBoundException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -51,50 +50,75 @@ import uk.ac.standrews.cs.stachord.util.SegmentArithmetic;
 /**
  * Implementation of Chord node.
  * 
- * @author sja7, stuart, al, graham
+ * @author Stephanie Anderson
+ * @author Stuart Norcross (stuart@cs.st-andrews.ac.uk)
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Remote, Observer  {
+class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comparable<IP2PNode>  {
 
-	private final InetSocketAddress local_address;
-	private final IKey key;
-	private final int hash_code;
+	private final InetSocketAddress local_address;                  // The address of this node.
+	private final IKey key;                                         // The key of this node.
+	private final int hash_code;                                    // The hash code of this node.
 
 	private final IChordRemoteReference self_reference; 			// A local RMI reference to this node.
 
-	private IChordRemoteReference predecessor;
-	private IChordRemoteReference successor;
-	private final SuccessorList successor_list;
-	private final FingerTable finger_table;
+	private IChordRemoteReference predecessor;                      // The predecessor of this node.
+	private IChordRemoteReference successor;                        // The successor of this node.
+	private final SuccessorList successor_list;                     // The successor list of this node.
+	private final FingerTable finger_table;                         // The finger table of this node.
 
-	private boolean predecessor_maintenance_enabled =  true;
-	private boolean stabilization_enabled =            true;
-	private boolean finger_table_maintenance_enabled = true;
-	
+	private boolean predecessor_maintenance_enabled =  true;        // Whether periodic predecessor maintenance should be performed.
+	private boolean stabilization_enabled =            true;        // Whether periodic ring stabilization should be performed.
+	private boolean finger_table_maintenance_enabled = true;        // Whether periodic finger table maintenance should be performed.
+	private boolean detailed_to_string =               false;       // Whether toString() should return a detailed description.
+
+	private static final String PREDECESSOR_CHANGE_EVENT_TYPE =    "PREDECESSOR_CHANGE_EVENT";
+	private static final String SUCCESSOR_STATE_EVENT_TYPE =       "SUCCESSOR_STATE_EVENT";
+	private static final String SUCCESSOR_CHANGE_EVENT_TYPE =      "SUCCESSOR_CHANGE_EVENT";
+	private static final String SUCCESSOR_LIST_CHANGE_EVENT_TYPE = "SUCCESSOR_LIST_CHANGE_EVENT";
+	private static final String FINGER_TABLE_CHANGE_EVENT_TYPE =   "FINGER_TABLE_CHANGE_EVENT";
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static final String PREDECESSOR_CHANGE_EVENT_TYPE =    "PREDECESSOR_CHANGE_EVENT";
-	public static final String SUCCESSOR_STATE_EVENT_TYPE =       "SUCCESSOR_STATE_EVENT";
-	public static final String SUCCESSOR_CHANGE_EVENT_TYPE =      "SUCCESSOR_CHANGE_EVENT";
-	public static final String SUCCESSOR_LIST_CHANGE_EVENT_TYPE = "SUCCESSOR_LIST_CHANGE_EVENT";
-	public static final String FINGER_TABLE_CHANGE_EVENT_TYPE =   "FINGER_TABLE_CHANGE_EVENT";
+	/**
+	 * The name of the remotely accessible Chord service.
+	 */
+	static final String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
 
+	/**
+	 * Predecessor change event.
+	 */
 	public static final IEvent PREDECESSOR_CHANGE_EVENT =    new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
-	public static final IEvent SUCCESSOR_STATE_EVENT =       new Event(SUCCESSOR_STATE_EVENT_TYPE);
+	
+	/**
+	 * Successor change event.
+	 */
 	public static final IEvent SUCCESSOR_CHANGE_EVENT =      new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
+	
+	/**
+	 * Successor list change event.
+	 */
 	public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
+	
+	/**
+	 * Finger table change event.
+	 */
 	public static final IEvent FINGER_TABLE_CHANGE_EVENT =   new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public ChordNodeImpl(InetSocketAddress local_address) throws RemoteException, NotBoundException {
+
+		this(local_address, null);
+	}
+	
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
 
 		this(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
 	}
-
-	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
-		
-		this(local_address, known_node_address, key, null);
-	}
 	
-	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key, DiagnosticLevel diagnosticLevel) throws RemoteException, NotBoundException {
+	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
 
 		this.local_address = local_address;
 		this.key = key;
@@ -116,79 +140,25 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 		else {
 			
-			IChordRemoteReference known_node_remote_ref = bindToNode(known_node_address);
+			IChordRemoteReference known_node_remote_ref = ChordNodeFactory.bindToNode(known_node_address);
 			join(known_node_remote_ref);
 		}
 		
 		exposeNode(local_address);
 		
-		//addObserver(this);
+		addObserver(this);
 
 		startMaintenanceThread();
-		
-		if (diagnosticLevel != null) {
-			Diagnostic.setLevel(diagnosticLevel);
-		}
-	}
-
-	private void exposeNode(InetSocketAddress local_address) throws RemoteException, AccessException {
-		
-		// Get RMI registry.
-		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort());
-
-		// Start RMI listening.
-		UnicastRemoteObject.exportObject(getProxy().getRemote(), 0); // NOTE the remote of the proxy is actually local!
-
-		// Register the service with the registry.
-		local_registry.rebind(IChordNode.CHORD_REMOTE_SERVICE, getProxy().getRemote());
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public static IChordRemoteReference bindToNode(InetSocketAddress node_address) throws RemoteException, NotBoundException, AccessException {
-
-		Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort());  // This doesn't make a remote call.
-		IChordRemote node = (IChordRemote) registry.lookup(IChordNode.CHORD_REMOTE_SERVICE);
-		return new ChordRemoteReference(node.getKey(), node);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public void shutDown() {
-		
-		// Stop the maintenance thread.
-		shutdownMaintenanceThread();
-		
-		try {
-			LocateRegistry.getRegistry(local_address.getHostName(), local_address.getPort() ).unbind( IChordNode.CHORD_REMOTE_SERVICE ); // unhook the node from RMI
-		}
-		catch ( Exception e ) {
-			ErrorHandling.exceptionError(e, "failed to destroy node: ", key );
-		}         
-
-		Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public InetSocketAddress getAddress() {
-
-		return local_address;
-	}
+	// IChordNode operations.
 
 	public IKey getKey() {
 
 		return key;
 	}
-
-	public int compareTo(IP2PNode other) {
-
-		if (other == null) return 1;
-
-		return key.compareTo(other.getKey());
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 		
@@ -197,14 +167,48 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			// If the key is equal to this node's, or the ring currently only has one node...
 			return self_reference;
 		}
-		else {		
-			return findSuccessor(k);
+		
+		return findSuccessor(k);
+	}
+
+	public IChordRemoteReference getSuccessor() {
+		
+		return successor;
+	}
+
+	public IChordRemoteReference getPredecessor() {
+
+		return predecessor;
+	}
+
+	public IChordRemoteReference getSelfReference() {
+		return self_reference;
+	}
+
+	public void shutDown() {
+		
+		// Stop the maintenance thread.
+		shutdownMaintenanceThread();
+		
+		try {
+			Registry registry = LocateRegistry.getRegistry(local_address.getHostName(), local_address.getPort());
+			registry.unbind(CHORD_REMOTE_SERVICE_NAME); // unhook the node from RMI
 		}
+		catch (Exception e) {
+			ErrorHandling.exceptionError(e, "failed to destroy node: ", key );
+		}         
+
+		Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// IChordRemote
+	// IChordRemote operations.
+
+	public InetSocketAddress getAddress() {
+
+		return local_address;
+	}
 
 	public void notify(IChordRemoteReference potential_predecessor) {
 		
@@ -231,6 +235,13 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 	}
 
+	public synchronized void join(IChordRemoteReference known_node) throws RemoteException { 
+		
+		IChordRemote remote = known_node.getRemote();
+		IChordRemoteReference initial_successor = remote.lookup(key);
+		setSuccessor(initial_successor);
+	}
+
 	public ArrayList<IChordRemoteReference> getSuccessorList() {
 
 		return successor_list.getList();
@@ -239,16 +250,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	public ArrayList<IChordRemoteReference> getFingerList() {
 		
 		return finger_table.getFingers();
-	}
-
-	public IChordRemoteReference getPredecessor() {
-
-		return predecessor;
-	}
-
-	public IChordRemoteReference getSuccessor() {
-		
-		return successor;
 	}
 
 	public void isAlive() {
@@ -260,40 +261,25 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		// in which case the successor represents the final hop.
 
 		if (inSuccessorKeyRange(k)) return new NextHopResult(true, successor);
-		else                        return new NextHopResult(false, closestPrecedingNode(k));
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	// IChordNode
-
-	public synchronized void createRing() {
-
-		setPredecessor(null);
-		setSuccessor(self_reference);
-
-		successor_list.refreshList();
 		
-		setChanged();
-		notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
+		return new NextHopResult(false, closestPrecedingNode(k));
 	}
 
-	public synchronized void join(IChordRemoteReference known_node) throws RemoteException { 
+	public void enablePredecessorMaintenance(boolean enabled) {
+		predecessor_maintenance_enabled  = enabled;
+	}
+
+	public void enableStabilization(boolean enabled) {
+		stabilization_enabled  = enabled;
+	}
+
+	public void enablePeerStateMaintenance(boolean enabled) {
+		finger_table_maintenance_enabled  = enabled;
+	}
+
+	public void notifyFailure(IChordRemoteReference node) {
 		
-		IChordRemote remote = known_node.getRemote();
-		IChordRemoteReference initial_successor = remote.lookup(key);
-		setSuccessor(initial_successor);
-	}
-
-	public boolean inLocalKeyRange(IKey k) {
-
-		// This is never called when the predecessor is null.
-		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
-	}
-
-	public void fingerFailure(IChordRemoteReference broken_finger) {
-		
-		finger_table.fingerFailure(broken_finger);
+		finger_table.fingerFailure(node);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -304,13 +290,16 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		return hash_code;
 	}
 
-	public IChordRemoteReference getProxy() {
-		return self_reference;
-	}
-
 	@Override
 	public String toString() {
-		return detailed ? toStringDetailed() : toStringTerse();
+		return detailed_to_string ? toStringDetailed() : toStringTerse();
+	}
+
+	public int compareTo(IP2PNode other) {
+		
+		if (other == null) return 1;
+
+		return key.compareTo(other.getKey());
 	}
 
 	public String toStringTerse() {
@@ -333,10 +322,10 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 	}
 	
 	public void setToStringDetailed(boolean detailed) {
-		this.detailed = detailed;
+		this.detailed_to_string = detailed;
 	}
 	
-	private boolean detailed = true;
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public void update(Observable o, Object arg) {
 		
@@ -369,31 +358,36 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		}
 	}
 
-	public void enablePredecessorMaintenance(boolean enabled) {
-		predecessor_maintenance_enabled  = enabled;
-	}
-
-	public boolean predecessorMaintenanceEnabled() {
-		return predecessor_maintenance_enabled;
-	}
-
-	public void enableStabilization(boolean enabled) {
-		stabilization_enabled  = enabled;
-	}
-
-	public boolean stabilizationEnabled() {
-		return stabilization_enabled;
-	}
-
-	public void enableFingerTableMaintenance(boolean enabled) {
-		finger_table_maintenance_enabled  = enabled;
-	}
-
-	public boolean fingerTableMaintenanceEnabled() {
-		return finger_table_maintenance_enabled;
-	}
-	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private synchronized void createRing() {
+
+		setPredecessor(null);
+		setSuccessor(self_reference);
+
+		successor_list.refreshList();
+		
+		setChanged();
+		notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
+	}
+
+	private boolean inLocalKeyRange(IKey k) {
+
+		// This is never called when the predecessor is null.
+		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
+	}
+
+	private void exposeNode(InetSocketAddress local_address) throws RemoteException, AccessException {
+		
+		// Get RMI registry.
+		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort());
+
+		// Start RMI listening.
+		UnicastRemoteObject.exportObject(getSelfReference().getRemote(), 0); // NOTE the remote of the proxy is actually local!
+
+		// Register the service with the registry.
+		local_registry.rebind(CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
+	}
 
 	/**
 	 * Executes the stabilization protocol.
@@ -548,7 +542,7 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 			}
 			catch (RemoteException e) {
 
-				current_hop.fingerFailure(next_hop.getNode());
+				current_hop.notifyFailure(next_hop.getNode());
 				throw e;
 			}
 		}
@@ -572,9 +566,6 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 
 		if (oldSuccessor != null && !oldSuccessor.equals(successor)) {
 			notifyObservers(SUCCESSOR_CHANGE_EVENT);
-		}
-		else {
-			notifyObservers(SUCCESSOR_STATE_EVENT);
 		}
 	}
 
@@ -658,6 +649,22 @@ public class ChordNodeImpl extends Observable implements IChordNode, IChordRemot
 		
 		enablePredecessorMaintenance(false);
 		enableStabilization(false);
-		enableFingerTableMaintenance(false);
+		enablePeerStateMaintenance(false);
+	}
+
+	public void addObserver(Observer observer) {
+		super.addObserver(observer);
+	}
+	
+	private boolean predecessorMaintenanceEnabled() {
+		return predecessor_maintenance_enabled;
+	}
+
+	private boolean stabilizationEnabled() {
+		return stabilization_enabled;
+	}
+
+	private boolean fingerTableMaintenanceEnabled() {
+		return finger_table_maintenance_enabled;
 	}
 }
