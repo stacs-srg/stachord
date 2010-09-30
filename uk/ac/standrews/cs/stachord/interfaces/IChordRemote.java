@@ -36,12 +36,16 @@ import uk.ac.standrews.cs.stachord.impl.NextHopResult;
 public interface IChordRemote extends Remote {
 
 	/**
+	 * Returns this node's key.
+	 * 
 	 * @return this node's key
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	IKey getKey() throws RemoteException;
 	
 	/**
+	 * Returns this node's address.
+	 * 
 	 * @return this node's address
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
@@ -57,14 +61,18 @@ public interface IChordRemote extends Remote {
 	IChordRemoteReference lookup(IKey key) throws RemoteException;
 
 	/**
+	 * Returns this node's successor in the key space.
+	 * 
 	 * @return this node's successor in the key space
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	IChordRemoteReference getSuccessor() throws RemoteException;
 
 	/**
-	 * @throws RemoteException if an error occurs during the remote call
+	 * Returns this node's predecessor in the key space.
+	 * 
 	 * @return this node's predecessor in the key space
+	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	IChordRemoteReference getPredecessor() throws RemoteException;
 
@@ -85,12 +93,16 @@ public interface IChordRemote extends Remote {
 	void join(IChordRemoteReference node) throws RemoteException;
 
 	/**
+	 * Returns this node's successor list.
+	 * 
 	 * @return this node's successor list
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	ArrayList<IChordRemoteReference> getSuccessorList() throws RemoteException;
 
 	/**
+	 * Returns this node's finger list.
+	 * 
 	 * @return this node's finger list
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
@@ -98,6 +110,7 @@ public interface IChordRemote extends Remote {
 
 	/**
 	 * Used to check liveness of this node.
+	 * 
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	void isAlive() throws RemoteException;
@@ -146,12 +159,16 @@ public interface IChordRemote extends Remote {
 	void notifyFailure(IChordRemoteReference node) throws RemoteException;
 
 	/**
+	 * Returns a detailed description of this node's state.
+	 * 
 	 * @return a detailed description of this node's state
 	 * @throws RemoteException if an error occurs during the remote call
 	 */
 	String toStringDetailed() throws RemoteException;
 	
 	/**
+	 * Returns a brief description of this node's state.
+	 * 
 	 * @return a brief description of this node's state
 	 * @throws RemoteException if an error occurs during the remote call
 	 */

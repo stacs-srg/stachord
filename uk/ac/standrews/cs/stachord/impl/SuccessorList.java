@@ -25,7 +25,6 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.stachord.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 class SuccessorList {

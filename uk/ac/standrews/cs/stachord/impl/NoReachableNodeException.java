@@ -18,9 +18,9 @@
  * You should have received a copy of the GNU General Public License
  * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package uk.ac.standrews.cs.stachord.impl.exceptions;
+package uk.ac.standrews.cs.stachord.impl;
 
-public class NoReachableNodeException extends Exception {
+class NoReachableNodeException extends Exception {
 
 	private static final long serialVersionUID = 3169281339159684792L;
 }

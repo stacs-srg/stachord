@@ -21,7 +21,6 @@
 package uk.ac.standrews.cs.stachord.impl;
  
 import java.net.InetSocketAddress;
-import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -40,8 +39,6 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.stachord.impl.exceptions.NoPrecedingNodeException;
-import uk.ac.standrews.cs.stachord.impl.exceptions.NoReachableNodeException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -57,16 +54,15 @@ import uk.ac.standrews.cs.stachord.util.SegmentArithmetic;
  */
 class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comparable<IP2PNode>  {
 
-	private final InetSocketAddress local_address;                  // The address of this node.
-	private final IKey key;                                         // The key of this node.
-	private final int hash_code;                                    // The hash code of this node.
+	private InetSocketAddress local_address;                        // The address of this node.
+	private IKey key;                                               // The key of this node.
+	private int hash_code;                                          // The hash code of this node.
 
-	private final IChordRemoteReference self_reference; 			// A local RMI reference to this node.
-
+	private IChordRemoteReference self_reference;                   // A local RMI reference to this node.
 	private IChordRemoteReference predecessor;                      // The predecessor of this node.
 	private IChordRemoteReference successor;                        // The successor of this node.
-	private final SuccessorList successor_list;                     // The successor list of this node.
-	private final FingerTable finger_table;                         // The finger table of this node.
+	private SuccessorList successor_list;                           // The successor list of this node.
+	private FingerTable finger_table;                               // The finger table of this node.
 
 	private boolean predecessor_maintenance_enabled =  true;        // Whether periodic predecessor maintenance should be performed.
 	private boolean stabilization_enabled =            true;        // Whether periodic ring stabilization should be performed.
@@ -108,17 +104,41 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public ChordNodeImpl(InetSocketAddress local_address) throws RemoteException, NotBoundException {
+	public ChordNodeImpl(InetSocketAddress local_address) throws RemoteException {
 
-		this(local_address, null);
+		init(local_address);
 	}
 	
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
 
-		this(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
+		init(local_address, known_node_address);
 	}
 	
 	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
+
+		init(local_address, known_node_address, key);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	// Have to use separate init methods to allow the NotBoundException to be caught for a new ring.
+
+	private void init(InetSocketAddress local_address) throws RemoteException {
+
+		try {
+			init(local_address, null);
+		}
+		catch (NotBoundException e) {
+			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
+		}
+	}
+	
+	private void init(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
+
+		init(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
+	}
+	
+	private void init(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
 
 		this.local_address = local_address;
 		this.key = key;
@@ -131,17 +151,22 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		successor_list = new SuccessorList(this);
 		finger_table = new FingerTable(this);
 
-		self_reference = new ChordRemoteReference(key, this);
+		try {
+			self_reference = new ChordRemoteReference(key, this);
+		}
+		catch (RemoteException e) {
+			ErrorHandling.hardExceptionError(e, "Unexpected remote exception when creating self-reference");
+		}
 
-		// Setup/join the ring
+		// Create a new ring or join an existing one.
 		
 		if (known_node_address == null) {
 			createRing();
 		}
 		else {
 			
-			IChordRemoteReference known_node_remote_ref = ChordNodeFactory.bindToNode(known_node_address);
-			join(known_node_remote_ref);
+			IChordRemoteReference known_node = ChordNodeFactory.bindToNode(known_node_address);
+			join(known_node);
 		}
 		
 		exposeNode(local_address);
@@ -377,7 +402,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
 	}
 
-	private void exposeNode(InetSocketAddress local_address) throws RemoteException, AccessException {
+	private void exposeNode(InetSocketAddress local_address) throws RemoteException {
 		
 		// Get RMI registry.
 		Registry local_registry = LocateRegistry.createRegistry(local_address.getPort());

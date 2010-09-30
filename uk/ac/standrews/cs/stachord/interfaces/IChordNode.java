@@ -62,6 +62,7 @@ public interface IChordNode extends Observer {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
+	 * Returns this node's key.
 	 * @return this node's key
 	 */
 	IKey getKey();
@@ -76,11 +77,13 @@ public interface IChordNode extends Observer {
 	IChordRemoteReference lookup(IKey key) throws RemoteException;
 	
 	/**
+	 * Returns this node's successor in the key space.
 	 * @return this node's successor in the key space
 	 */
 	IChordRemoteReference getSuccessor();
 	
 	/**
+	 * Returns this node's predecessor in the key space.
 	 * @return this node's predecessor in the key space
 	 */
 	IChordRemoteReference getPredecessor();	
@@ -90,6 +93,7 @@ public interface IChordNode extends Observer {
 	// Local-only functionality.
 	
 	/**
+	 * Returns a reference to this node typed as a remote reference.
 	 * @return a reference to this node typed as a remote reference
 	 */
 	IChordRemoteReference getSelfReference();

@@ -26,23 +26,29 @@ import java.net.InetSocketAddress;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 
 /**
- * Interface to hold a remote reference to a Chord node, with a cached key and address.
+ * Holds a reference to a remote Chord node, with a cached key and address.
  *
- * @author al
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
 public interface IChordRemoteReference extends Serializable {
 
 	/**
+	 * Returns the key associated with this reference.
+	 * 
 	 * @return the key associated with this reference
 	 */
 	IKey getKey();
 	
 	/**
+	 * Returns the address associated with this reference.
+	 * 
 	 * @return the address associated with this reference
 	 */
 	InetSocketAddress getAddress();
 	
 	/**
+	 * Returns the remote reference.
+	 * 
 	 * @return the remote reference
 	 */
 	IChordRemote getRemote();
