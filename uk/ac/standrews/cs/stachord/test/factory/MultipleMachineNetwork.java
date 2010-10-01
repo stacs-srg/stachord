@@ -22,28 +22,19 @@ package uk.ac.standrews.cs.stachord.test.factory;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.ActionQueue;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.servers.AbstractServer;
-import uk.ac.standrews.cs.stachord.servers.StartNodeInExistingRing;
-import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 import com.mindbright.ssh2.SSH2Exception;
 
@@ -55,19 +46,11 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class MultipleMachineNetwork implements INetwork {
 	
-	private static int next_port = 54496;                              // The next port to be used; static to allow multiple concurrent networks.
-	private static final Object sync = new Object();                   // Used for serializing network creation.
-	
-	private static final int REGISTRY_RETRY_INTERVAL =    2000;        // Retry connecting to remote nodes at 2s intervals.
-	private static final int REGISTRY_TIMEOUT_INTERVAL = 20000;        // Give up after 20s.
-	
 	private static final int QUEUE_MAX_THREADS =     10;               // The maximum degree of concurrency for check jobs.
 	private static final int QUEUE_IDLE_TIMEOUT =  5000;               // The timeout for idle check job threads to die, in ms.
 	
-	private static final int NODE_INSTANTIATION_TIMEOUT = 30000;       // The timeout for node instantiation, in ms.
-
 	private IKey[] node_keys;                                          // The keys of the nodes.
-	private List<HostDescriptor> nodes;                                // The nodes themselves.
+	private List<HostDescriptor> host_descriptors;                     // Handles to the nodes themselves.
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,191 +82,97 @@ public class MultipleMachineNetwork implements INetwork {
 
 	public List<HostDescriptor> getNodes() {
 		
-		return nodes;
+		return host_descriptors;
 	}
 
 	public void killNode(HostDescriptor node) {
 		
-		synchronized (nodes) {
+		synchronized (host_descriptors) {
 			
-			if (nodes.contains(node)) {
+			if (host_descriptors.contains(node)) {
 
-				int network_size = nodes.size();
+				int network_size = host_descriptors.size();
 
 				node.process.destroy();
 
-				boolean successfully_removed = nodes.remove(node);
+				boolean successfully_removed = host_descriptors.remove(node);
 				assert successfully_removed;
 
-				assert nodes.size() == network_size - 1;
+				assert host_descriptors.size() == network_size - 1;
 			}
 		}
 	}
 
 	public void killAllNodes() {
 		
-		synchronized (nodes) {
+		synchronized (host_descriptors) {
 			
-			for (HostDescriptor node : nodes) {
+			for (HostDescriptor node : host_descriptors) {
 
 				node.process.destroy();
 			}
-			nodes.clear();
+			host_descriptors.clear();
 		}
+	}
+	
+	private class ExceptionWrapper {
+		Exception e;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	/**
-	 * Creates a new node on a given host, establishing a new one-node ring.
-
-	 * @param host_descriptor
-	 * @param port
-	 * @throws IOException if an error occurs when reading communicating with the remote host
-	 * @throws SSH2Exception if an SSH connection to the remote host cannot be established
-	 * @throws TimeoutException if the node cannot be instantiated within the timeout period
-	 * @throws UnknownPlatformException if the operating system of the remote host cannot be established
-	 */
-	public static void createSingleNode(final HostDescriptor host_descriptor, int port) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-
-		ArgGen arg_gen = new ArgGen() {
-			
-			public List<String> getArgs(int local_port) {
-				
-				List<String> args = new ArrayList<String>();
-				
-				args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
-				
-				return args;
-			}
-		};
+	protected void init(final List<HostDescriptor> host_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, UnknownPlatformException, TimeoutException, InterruptedException {
 		
-		createNodeProcess(host_descriptor, port, arg_gen, StartNodeInNewRing.class);
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	protected void init(final List<HostDescriptor> node_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, UnknownPlatformException, InterruptedException {
+		node_keys = generateNodeKeys(key_distribution, host_descriptors.size());
+		this.host_descriptors = host_descriptors;
 		
-		node_keys = generateNodeKeys(key_distribution, node_descriptors.size());
-		nodes = node_descriptors;
+		ActionQueue actions = new ActionQueue(host_descriptors.size(), QUEUE_MAX_THREADS, QUEUE_IDLE_TIMEOUT);
 		
-		ActionQueue actions = new ActionQueue(node_descriptors.size(), QUEUE_MAX_THREADS, QUEUE_IDLE_TIMEOUT);
+		// Create one node first so that it can be used by the others to join the ring.
+		HostDescriptor known_node_descriptor = host_descriptors.get(0);
+
+		// Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
+		ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(known_node_descriptor, node_keys[0]);
+
+		final IChordRemoteReference known_node = ((IChordRemoteReference)known_node_descriptor.application_reference);
 		
-		final HostDescriptor known_node = node_descriptors.get(0);
-		createSingleNode(known_node, node_keys[0]);
+		final ExceptionWrapper exception_wrapper = new ExceptionWrapper();
 
-		for (int node_index = 1; node_index < node_descriptors.size(); node_index++) {
+		for (int node_index = 1; node_index < host_descriptors.size(); node_index++) {
 
-			final int index = node_index;
+			final IKey key = node_keys[node_index];
+			final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
 
+			// Queue an asynchronous action to create the new node and bind to it.
 			actions.enqueue(new ActionWithNoResult() {
 
 				public void performAction() {
 
 					try {
-
-						IKey key = node_keys[index];
-
-						createJoiningNode(node_descriptors.get(index), known_node, key);
-
-					} catch (Exception e) {
-						ErrorHandling.exceptionError(e);
+						
+						// Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
+						ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(new_node_descriptor, key);
+						
+						IChordRemote new_node = ((IChordRemoteReference)new_node_descriptor.application_reference).getRemote();
+						new_node.join(known_node);
+					}
+					catch (Exception e) {
+						exception_wrapper.e = e;
 					}
 				}
 			});
 		}
 
 		actions.blockUntilNoUncompletedActions();
+		
+		if (exception_wrapper.e instanceof IOException)              throw (IOException) exception_wrapper.e;
+		if (exception_wrapper.e instanceof SSH2Exception)            throw (SSH2Exception) exception_wrapper.e;
+		if (exception_wrapper.e instanceof TimeoutException)         throw (TimeoutException) exception_wrapper.e;
+		if (exception_wrapper.e instanceof UnknownPlatformException) throw (UnknownPlatformException) exception_wrapper.e;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private static void createSingleNode(final HostDescriptor machine_descriptor, final IKey key) throws IOException, SSH2Exception, UnknownPlatformException {
-		
-		ArgGen arg_gen = new ArgGen() {
-			
-			public List<String> getArgs(int local_port) {
-				
-				List<String> args = new ArrayList<String>();
-				
-				args.add("-s" + NetworkUtil.formatHostAddress(machine_descriptor.host, local_port));
-				addKeyArg(key, args);
-				
-				return args;
-			}
-		};
-		
-		createNodeProcessWithFreePort(machine_descriptor, arg_gen, StartNodeInNewRing.class);
-	}
-	
-	private static void createJoiningNode(final HostDescriptor machine_descriptor, final HostDescriptor known_node, final IKey key) throws IOException, SSH2Exception, UnknownPlatformException {
-		
-		ArgGen arg_gen = new ArgGen() {
-			
-			public List<String> getArgs(int local_port) {
-				
-				List<String> args = new ArrayList<String>();
-				
-				args.add("-s" + NetworkUtil.formatHostAddress(machine_descriptor.host, local_port));
-				args.add("-k" + NetworkUtil.formatHostAddress(known_node.host, known_node.port)); 
-				addKeyArg(key, args);
-				
-				return args;
-			}
-		};
-		
-		createNodeProcessWithFreePort(machine_descriptor, arg_gen, StartNodeInExistingRing.class);
-	}
-	
-	private static void createNodeProcessWithFreePort(HostDescriptor node_descriptor, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, UnknownPlatformException {
-		
-		boolean finished = false;
-		
-		while (!finished) {
-			
-			int port = 0;
-			
-			synchronized (sync) {
-				port = next_port++;
-			}
-
-			node_descriptor.port = port;
-		
-			List<String> args = arg_gen.getArgs(port);
-			
-			try {
-				node_descriptor.process = runProcess(node_descriptor, node_class, args);
-				node_descriptor.application_reference = bindToNodeWithRetry(node_descriptor);
-				finished = true;
-			}
-			catch (TimeoutException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
-			}
-		}
-	}
-
-	private static void createNodeProcess(HostDescriptor node_descriptor, int port, ArgGen arg_gen, Class<? extends AbstractServer> node_class) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-		
-		List<String> args = arg_gen.getArgs(port);
-
-		node_descriptor.process = runProcess(node_descriptor, node_class, args);
-		node_descriptor.port = port;
-	}
-	
-	private static Process runProcess(HostDescriptor host_descriptor, Class<? extends AbstractServer> node_class, List<String> args) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-		
-		if (host_descriptor.ssh_client_wrapper != null) {
-			
-			if (host_descriptor.application_urls != null) {
-				
-				return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.application_urls, true, NODE_INSTANTIATION_TIMEOUT);
-			}
-			return ProcessInvocation.runJavaProcess(node_class, args, host_descriptor.ssh_client_wrapper, host_descriptor.class_path, NODE_INSTANTIATION_TIMEOUT);
-		}
-		return ProcessInvocation.runJavaProcess(node_class, args);
-	}
-
 	private IKey[] generateNodeKeys(KeyDistribution network_type, int number_of_nodes) {
 		
 		IKey[] node_keys = new IKey[number_of_nodes];
@@ -314,46 +203,5 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 		
 		return node_keys;
-	}
-
-	private static void addKeyArg(IKey key, List<String> args) {
-	
-		if (key != null) args.add("-x" + key.toString(Key.DEFAULT_RADIX)); 
-	}
-
-	private static IChordRemoteReference bindToNodeWithRetry(HostDescriptor node_descriptor) throws TimeoutException {
-				
-		long start_time = System.currentTimeMillis();
-		
-		while (true) {
-
-			try {
-				return ChordNodeFactory.bindToNode(NetworkUtil.getInetSocketAddress(node_descriptor.host, node_descriptor.port));
-			}
-			catch (RemoteException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed: " + e.getMessage());
-			}
-			catch (NotBoundException e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "binding to node in registry failed");
-			}
-			catch (Exception e) {
-				Diagnostic.trace(DiagnosticLevel.FULL, "registry lookup failed");
-			}
-			
-			try {
-				Thread.sleep(REGISTRY_RETRY_INTERVAL);
-			}
-			catch (InterruptedException e) {
-			}
-			
-			long duration = System.currentTimeMillis() - start_time;
-			if (duration > REGISTRY_TIMEOUT_INTERVAL) throw new TimeoutException();
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	private interface ArgGen {
-		List<String> getArgs(int local_port);
 	}
 }

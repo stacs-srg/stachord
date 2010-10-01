@@ -31,6 +31,7 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Provides the entry point for deploying a Chord node that is joining an existing Chord ring.
@@ -58,6 +59,7 @@ public class StartNodeInExistingRing extends AbstractServer {
 	}
 
 	/**
+	 * Creates a node that joins an existing ring.
 	 * The following command line parameters are available:
 	 * <dl>
 	 * 	<dt>-s[host][:port] (required)</dt>
@@ -70,7 +72,7 @@ public class StartNodeInExistingRing extends AbstractServer {
 	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
 	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
 	 * 
-	 *	<dt>-xkey (required)</dt>
+	 *	<dt>-xkey (optional)</dt>
 	 *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
 	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
 	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
@@ -92,11 +94,11 @@ public class StartNodeInExistingRing extends AbstractServer {
 		
 		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 
-		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
 		InetSocketAddress known_socket_address = new InetSocketAddress(known_address, known_port);
-		
-		if (server_key == null) ChordNodeFactory.createNode(local_socket_address, known_socket_address);
-		else                    ChordNodeFactory.createNode(local_socket_address, known_socket_address, server_key);
+
+		IChordNode node = makeNode();
+
+		node.join(ChordNodeFactory.bindToRemoteNode(known_socket_address));
 	}
 
 	protected void usage() {

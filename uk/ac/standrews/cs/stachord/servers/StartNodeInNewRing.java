@@ -29,9 +29,10 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
- * Provides the entry point for deploying a Chord node that creates a new Chord ring.
+ * Provides the entry point for deploying a Chord node in a new Chord ring.
  * 
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
@@ -54,7 +55,7 @@ public class StartNodeInNewRing extends AbstractServer {
 	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
 	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
 	 * 
-	 *	<dt>-xkey (required)</dt>
+	 *	<dt>-xkey (optional)</dt>
 	 *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
 	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
 	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
@@ -72,14 +73,11 @@ public class StartNodeInNewRing extends AbstractServer {
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private void createNode() throws RemoteException, NotBoundException {
+	private void createNode() throws RemoteException {
 		
 		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
-		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-
-		if (server_key == null) ChordNodeFactory.createNode(local_socket_address);
-		else                    ChordNodeFactory.createNode(local_socket_address, null, server_key);
+		makeNode();
 	}
 
 	protected void usage() {

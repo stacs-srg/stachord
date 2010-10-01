@@ -20,6 +20,8 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachord.servers;
 
+import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
@@ -29,13 +31,15 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
+import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Common setup for StartRing and StartNode.
  * 
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public abstract class AbstractServer  {
+abstract class AbstractServer  {
 	
 	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 	
@@ -64,6 +68,13 @@ public abstract class AbstractServer  {
 
 		String server_key_parameter = CommandLineArgs.getArg(args, "-x"); // This node's key.
 		if (server_key_parameter != null && !server_key_parameter.equals("null")) server_key = new Key(server_key_parameter);
+	}
+	
+	protected IChordNode makeNode() throws RemoteException {
+		
+		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
+		return (server_key == null) ? ChordNodeFactory.createLocalNode(local_socket_address) :
+            ChordNodeFactory.createLocalNode(local_socket_address, server_key);
 	}
 	
 	protected abstract void usage();

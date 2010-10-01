@@ -61,6 +61,8 @@ public interface IChordNode extends Observer {
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	// Shared functionality with IChordRemote.
+	
 	/**
 	 * Returns this node's key.
 	 * @return this node's key
@@ -88,6 +90,14 @@ public interface IChordNode extends Observer {
 	 */
 	IChordRemoteReference getPredecessor();	
 	
+	/**
+	 * Joins this node to the ring of which the specified node is a member.
+	 * 
+	 * @param node a node in a ring
+	 * @throws RemoteException if an error occurs during the remote call
+	 */
+	void join(IChordRemoteReference node) throws RemoteException;
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Local-only functionality.

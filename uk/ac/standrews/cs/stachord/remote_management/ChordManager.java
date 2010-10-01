@@ -12,7 +12,6 @@ import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
-import uk.ac.standrews.cs.stachord.test.factory.MultipleMachineNetwork;
 
 /**
  * Provides remote management hooks for Chord.
@@ -42,7 +41,7 @@ public class ChordManager implements IApplicationManager {
 			public void performAction() {
 				try {
 					// Try to access the application at the specified address.
-					host_descriptor.application_reference = ChordNodeFactory.bindToNode(inet_socket_address);
+					host_descriptor.application_reference = ChordNodeFactory.bindToRemoteNode(inet_socket_address);
 				}
 				catch (Exception e) {
 					// We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway
@@ -61,7 +60,8 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void deployApplication(HostDescriptor host_descriptor) throws Exception {
 
-		MultipleMachineNetwork.createSingleNode(host_descriptor, Constants.DEFAULT_RMI_REGISTRY_PORT);
+		host_descriptor.port = Constants.DEFAULT_RMI_REGISTRY_PORT;
+		host_descriptor.process = ChordNodeFactory.instantiateRemoteNode(host_descriptor);
 	}
 
 	@Override

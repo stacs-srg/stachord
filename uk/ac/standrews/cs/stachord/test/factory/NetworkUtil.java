@@ -51,7 +51,7 @@ public class NetworkUtil<ApplicationReference> {
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new HostDescriptor(0, connection, class_paths.get(i)));
+			node_descriptors.add(new HostDescriptor(connection, 0, class_paths.get(i)));
 			i++;
 		}
 		return node_descriptors;
@@ -64,7 +64,7 @@ public class NetworkUtil<ApplicationReference> {
 		int i = 0;
 		for (SSH2ConnectionWrapper connection : connections) {
 
-			node_descriptors.add(new HostDescriptor(0, connection, lib_urls));
+			node_descriptors.add(new HostDescriptor(connection, 0, lib_urls));
 			i++;
 		}
 

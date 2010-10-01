@@ -41,6 +41,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 class FingerTable {
 
 	private final IChordNode node;                       // The node of which this is the finger table.
+	private final IKey node_key;                         // The node's key.
 
 	private IChordRemoteReference[] fingers;             // References to the fingers.
 	private IKey[] finger_targets;                       // Keys used to select the fingers.
@@ -60,6 +61,7 @@ class FingerTable {
 	public FingerTable(IChordNode node) {
 
 		this.node = node;
+		node_key = node.getKey();
 		
 		number_of_fingers = log(MAX_ASSUMED_RING_SIZE, Constants.INTER_FINGER_RATIO);
 		next_finger_index = number_of_fingers - 1;
@@ -102,7 +104,7 @@ class FingerTable {
 			
 			// Looking for finger that lies before k from position of this node.
 			// Ignore fingers pointing to this node.
-			if (finger != null && !node.getKey().equals(finger.getKey()) && node.getKey().firstCloserInRingThanSecond(finger.getKey(), key)) {
+			if (finger != null && !node_key.equals(finger.getKey()) && node_key.firstCloserInRingThanSecond(finger.getKey(), key)) {
 				return finger;
 			}
 		}

@@ -42,7 +42,7 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 
 	private static final String LOCAL_HOST = "localhost";
 
-	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, InterruptedException {
+	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, TimeoutException, InterruptedException {
 		
 		try {
 			List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();

@@ -108,47 +108,52 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		init(local_address);
 	}
 	
-	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
+	public ChordNodeImpl(InetSocketAddress local_address, IKey key) throws RemoteException {
 
-		init(local_address, known_node_address);
-	}
-	
-	public ChordNodeImpl(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
-
-		init(local_address, known_node_address, key);
+		init(local_address, key);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// Have to use separate init methods to allow the NotBoundException to be caught for a new ring.
+	
 
+//	join(ChordNodeFactory.bindToRemoteNode(known_node_address));
+
+//	private void init(InetSocketAddress local_address) throws RemoteException {
+//
+//		try {
+//			init(local_address, (InetSocketAddress)null);
+//		}
+//		catch (NotBoundException e) {
+//			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
+//		}
+//	}
+//	
+//	private void init(InetSocketAddress local_address, IKey key) throws RemoteException {
+//
+//		try {
+//			init(local_address, null, key);
+//		}
+//		catch (NotBoundException e) {
+//			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
+//		}
+//	}
+	
 	private void init(InetSocketAddress local_address) throws RemoteException {
 
-		try {
-			init(local_address, null);
-		}
-		catch (NotBoundException e) {
-			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
-		}
+		init(local_address, new SHA1KeyFactory().generateKey(local_address));
 	}
 	
-	private void init(InetSocketAddress local_address, InetSocketAddress known_node_address) throws RemoteException, NotBoundException {
-
-		init(local_address, known_node_address, new SHA1KeyFactory().generateKey(local_address));
-	}
-	
-	private void init(InetSocketAddress local_address, InetSocketAddress known_node_address, IKey key) throws RemoteException, NotBoundException {
+	private void init(InetSocketAddress local_address, IKey key) throws RemoteException {
 
 		this.local_address = local_address;
 		this.key = key;
 
 		hash_code = hashCode();
-
-		predecessor = null;
-		successor = null;
 		
 		successor_list = new SuccessorList(this);
-		finger_table = new FingerTable(this);
+		finger_table =   new FingerTable(this);
 
 		try {
 			self_reference = new ChordRemoteReference(key, this);
@@ -157,21 +162,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 			ErrorHandling.hardExceptionError(e, "Unexpected remote exception when creating self-reference");
 		}
 
-		// Create a new ring or join an existing one.
-		
-		if (known_node_address == null) {
-			createRing();
-		}
-		else {
-			
-			IChordRemoteReference known_node = ChordNodeFactory.bindToNode(known_node_address);
-			join(known_node);
-		}
-		
+		createRing();
 		exposeNode(local_address);
-		
 		addObserver(this);
-
 		startMaintenanceThread();
 	}
 
