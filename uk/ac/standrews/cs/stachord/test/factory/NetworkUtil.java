@@ -16,9 +16,23 @@ import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.MaskedStringInput;
 
-public class NetworkUtil<ApplicationReference> {
+/**
+ * Provides various SSH-related utility methods.
+ *
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ */
+public class NetworkUtil {
 
-	public List<SSH2ConnectionWrapper> createUsernamePasswordConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
+	/**
+	 * Creates a list of interactively entered username/password credentials for the specified addresses. Optionally the same credentials can be used for all addresses.
+	 * 
+	 * @param addresses the addresses
+	 * @param same_credentials_for_all true if the same credentials should be used for all addresses
+	 * @return a list of username/password credentials
+	 * 
+	 * @throws IOException if an error occurs when trying to read in a username or password
+	 */
+	public static List<SSH2ConnectionWrapper> createUsernamePasswordConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
 		
 		List<SSH2ConnectionWrapper> connections = new ArrayList<SSH2ConnectionWrapper>();
 		connections.add(createUsernamePasswordConnection(addresses.get(0), null));
@@ -30,7 +44,16 @@ public class NetworkUtil<ApplicationReference> {
 		return connections;
 	}
 
-	public List<SSH2ConnectionWrapper> createPublicKeyConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
+	/**
+	 * Creates a list of interactively entered username/public key credentials for the specified addresses. Optionally the same credentials can be used for all addresses.
+	 * 
+	 * @param addresses the addresses
+	 * @param same_credentials_for_all true if the same credentials should be used for all addresses
+	 * @return a list of username/password credentials
+	 * 
+	 * @throws IOException if an error occurs when trying to read in a username or password
+	 */
+	public static List<SSH2ConnectionWrapper> createPublicKeyConnections(List<InetAddress> addresses, boolean same_credentials_for_all) throws IOException {
 
 		List<SSH2ConnectionWrapper> connections = new ArrayList<SSH2ConnectionWrapper>();
 		connections.add(createPublicKeyConnection(addresses.get(0), null));
@@ -42,7 +65,17 @@ public class NetworkUtil<ApplicationReference> {
 		return connections;
 	}
 
-	public List<HostDescriptor> createHostDescriptorsWithoutLibInstallation(List<SSH2ConnectionWrapper> connections, List<ClassPath> class_paths) throws UnequalArrayLengthsException, SSH2Exception {
+	/**
+	 * Creates a list of host descriptors given a list of SSH credentials and corresponding class paths.
+	 * 
+	 * @param connections the SSH credentials
+	 * @param class_paths the corresponding class paths
+	 * @return a list of host descriptors
+	 * 
+	 * @throws UnequalArrayLengthsException if the lengths of the two lists are different
+	 * @throws SSH2Exception if an error occurs when attempting to contact one of the specified remote hosts
+	 */
+	public static List<HostDescriptor> createHostDescriptors(List<SSH2ConnectionWrapper> connections, List<ClassPath> class_paths) throws UnequalArrayLengthsException, SSH2Exception {
 		
 		checkEqualLengths(connections, class_paths);
 		
@@ -57,7 +90,16 @@ public class NetworkUtil<ApplicationReference> {
 		return node_descriptors;
 	}
 
-	public List<HostDescriptor> createHostDescriptorsWithLibInstallation(List<SSH2ConnectionWrapper> connections, URL[] lib_urls) throws UnequalArrayLengthsException, SSH2Exception {
+	/**
+	 * Creates a list of host descriptors given a list of SSH credentials and a list of URLs from which class path entries can be obtained.
+	 * 
+	 * @param connections the SSH credentials
+	 * @param lib_urls the class path entry URLs
+	 * @return a list of host descriptors
+	 * 
+	 * @throws SSH2Exception if an error occurs when attempting to contact one of the specified remote hosts
+	 */
+	public static List<HostDescriptor> createHostDescriptors(List<SSH2ConnectionWrapper> connections, URL[] lib_urls) throws SSH2Exception {
 		
 		List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();		
 		
@@ -70,6 +112,8 @@ public class NetworkUtil<ApplicationReference> {
 
 		return node_descriptors;
 	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private static SSH2ConnectionWrapper createUsernamePasswordConnection(InetAddress address, SSH2ConnectionWrapper credentials_to_be_copied) throws IOException {
 		
@@ -84,10 +128,8 @@ public class NetworkUtil<ApplicationReference> {
 		
 			return new SSH2ConnectionWrapper(address, username, password);
 		}
-		else {
-			
-			return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getPassword());
-		}
+		
+		return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getPassword());
 	}
 	
 	private static SSH2ConnectionWrapper createPublicKeyConnection(InetAddress address, SSH2ConnectionWrapper credentials_to_be_copied) throws IOException {
@@ -104,10 +146,8 @@ public class NetworkUtil<ApplicationReference> {
 		
 			return new SSH2ConnectionWrapper(address, username, private_key_file_path, pass_phrase);
 		}
-		else {
-			
-			return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getKeyFile(), credentials_to_be_copied.getKeyPassword());
-		}
+		
+		return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getKeyFile(), credentials_to_be_copied.getKeyPassword());
 	}
 	
 	private static void checkEqualLengths(List<?>... lists) throws UnequalArrayLengthsException {

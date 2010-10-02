@@ -23,12 +23,14 @@ package uk.ac.standrews.cs.stachord.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import uk.ac.standrews.cs.stachord.test.logic.RingArithmeticTest;
+
 /**
  * Tests run on each build.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	DummyTest.class
+	RingArithmeticTest.class
 })
 public class CheckInTests {
 	// Empty.

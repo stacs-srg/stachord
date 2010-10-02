@@ -21,7 +21,6 @@
 package uk.ac.standrews.cs.stachord.impl;
  
 import java.net.InetSocketAddress;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -41,7 +40,6 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.util.SegmentArithmetic;
 
 /**
  * Implementation of Chord node.
@@ -116,29 +114,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// Have to use separate init methods to allow the NotBoundException to be caught for a new ring.
-	
-
-//	join(ChordNodeFactory.bindToRemoteNode(known_node_address));
-
-//	private void init(InetSocketAddress local_address) throws RemoteException {
-//
-//		try {
-//			init(local_address, (InetSocketAddress)null);
-//		}
-//		catch (NotBoundException e) {
-//			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
-//		}
-//	}
-//	
-//	private void init(InetSocketAddress local_address, IKey key) throws RemoteException {
-//
-//		try {
-//			init(local_address, null, key);
-//		}
-//		catch (NotBoundException e) {
-//			ErrorHandling.hardExceptionError(e, "Unexpected exception when creating local ring");
-//		}
-//	}
 	
 	private void init(InetSocketAddress local_address) throws RemoteException {
 
@@ -375,9 +350,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	private synchronized void createRing() {
+    private synchronized void createRing() {
 
 		setPredecessor(null);
 		setSuccessor(self_reference);
@@ -391,7 +364,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 	private boolean inLocalKeyRange(IKey k) {
 
 		// This is never called when the predecessor is null.
-		return SegmentArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
+		return RingArithmetic.inHalfOpenSegment(k, predecessor.getKey(), getKey());
 	}
 
 	private void exposeNode(InetSocketAddress local_address) throws RemoteException {
@@ -588,7 +561,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	private boolean inSuccessorKeyRange(IKey k) {
 
-		return SegmentArithmetic.inHalfOpenSegment(k, key, successor.getKey());
+		return RingArithmetic.inHalfOpenSegment(k, key, successor.getKey());
 	}
 
 	/**

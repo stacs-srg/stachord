@@ -16,7 +16,6 @@ import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleMachineNetwork;
 import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
@@ -24,6 +23,11 @@ import uk.ac.standrews.cs.stachord.test.factory.UnequalArrayLengthsException;
 
 import com.mindbright.ssh2.SSH2Exception;
 
+/**
+ * Various tests of ring recovery on the Ganglia cluster, not intended to be run automatically.
+ * 
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ */
 public class GangliaRecoveryTests {
 
 	/**
@@ -48,13 +52,11 @@ public class GangliaRecoveryTests {
 		};
 			
 		List<InetAddress> addresses = getGangliaNodeAddresses();
-
-		NetworkUtil<IChordRemoteReference> network_util = new NetworkUtil<IChordRemoteReference>();
 		
-		List<SSH2ConnectionWrapper> connections = network_util.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = network_util.createHostDescriptorsWithLibInstallation(connections, lib_urls);
+		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 			
-		TestLogic.ringRecoversFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}

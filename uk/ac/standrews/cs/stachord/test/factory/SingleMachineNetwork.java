@@ -21,7 +21,6 @@
 package uk.ac.standrews.cs.stachord.test.factory;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -42,7 +41,18 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 
 	private static final String LOCAL_HOST = "localhost";
 
-	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, NotBoundException, TimeoutException, InterruptedException {
+	/**
+	 * Creates a new network.
+	 * 
+	 * @param number_of_nodes the number of nodes to be created
+	 * @param key_distribution the required key distribution
+	 * 
+	 * @throws IOException if the process for a node cannot be created
+	 * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period
+	 * @throws UnknownPlatformException if the operating system of the local host cannot be established
+	 * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
+	 */
+	public SingleMachineNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, TimeoutException, UnknownPlatformException, InterruptedException {
 		
 		try {
 			List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
@@ -55,9 +65,6 @@ public class SingleMachineNetwork extends MultipleMachineNetwork {
 		}
 		catch (SSH2Exception e) {
 			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
-		}
-		catch (UnknownPlatformException e) {
-			ErrorHandling.hardExceptionError(e, "unexpected unknown platform on local network creation");
 		}
 	}
 }

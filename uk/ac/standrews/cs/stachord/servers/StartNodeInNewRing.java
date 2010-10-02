@@ -20,16 +20,13 @@
  ******************************************************************************/
 package uk.ac.standrews.cs.stachord.servers;
 
-import java.net.InetSocketAddress;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Provides the entry point for deploying a Chord node in a new Chord ring.
