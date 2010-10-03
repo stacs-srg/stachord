@@ -114,7 +114,7 @@ public class MultipleMachineNetwork implements INetwork {
 		}
 	}
 	
-	private class ExceptionWrapper {
+	private static class ExceptionWrapper {
 		Exception e;
 	}
 

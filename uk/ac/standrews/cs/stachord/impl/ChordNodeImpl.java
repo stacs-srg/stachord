@@ -307,6 +307,11 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return key.compareTo(other.getKey());
 	}
 
+	public boolean equals(Object other) {
+		
+		return (other instanceof ChordNodeImpl) && ((ChordNodeImpl)other).getKey().equals(key);
+	}
+
 	public void showState() {
 		System.out.println(toStringDetailed());
 	}

@@ -45,7 +45,7 @@ public class ChordNodeFactory {
 	private static final int REGISTRY_RETRY_INTERVAL =    2000;       // Retry connecting to remote nodes at 2s intervals.
 	
 	private static int next_port = 54496;                             // The next port to be used; static to allow multiple concurrent networks.
-	private static final Object sync = new Object();                  // Used for serializing network creation.
+	private static final Object SYNC = new Object();                  // Used for serializing network creation.
 	
 	/**
 	 * Creates a new Chord node running at a given local network address on a given port, establishing a new one-node ring.
@@ -239,7 +239,7 @@ public class ChordNodeFactory {
 			
 			int port = 0;
 			
-			synchronized (sync) {
+			synchronized (SYNC) {
 				port = next_port++;
 			}
 	
