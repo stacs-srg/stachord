@@ -77,7 +77,6 @@ class SuccessorList {
 	 * Clears the successor list.
 	 */
 	protected void clear() {
-
 		successor_list.clear();
 	}
 
