@@ -54,7 +54,7 @@ class FingerTable {
 	private static final int MAX_ASSUMED_RING_SIZE = 1000;
 	
 	// The ratio between successive finger targets.
-	private static final BigInteger INTER_FINGER_RATIO = new BigInteger(String.valueOf(Constants.INTER_FINGER_RATIO));
+	private static final BigInteger inter_finger_ratio = new BigInteger(String.valueOf(Constants.INTER_FINGER_RATIO));
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -172,7 +172,7 @@ class FingerTable {
 		
 		for (int i = number_of_fingers - 1; i >= 0; i--) {
 			
-			finger_offset = finger_offset.divide(INTER_FINGER_RATIO);
+			finger_offset = finger_offset.divide(inter_finger_ratio);
 			finger_targets[i] = new Key(local_key.add(finger_offset));
 		}
 	}
