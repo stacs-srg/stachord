@@ -6,7 +6,6 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
-import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
@@ -66,7 +65,7 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public void killApplication(HostDescriptor host_descriptor) {
+	public void killApplication(HostDescriptor host_descriptor) throws Exception {
 		
 		// Although the host descriptor may contain a process handle, we don't use it for killing off the application,
 		// because it's possible that it refers to a dead process while there is another live process.
@@ -78,12 +77,8 @@ public class ChordManager implements IApplicationManager {
 		// For simplicity we just kill all Chord nodes. Obviously this won't work in situations where multiple
 		// Chord nodes are being run on the same machine.
 		
-		try {
-			ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
-		}
-		catch (Exception e) {
-			ErrorHandling.exceptionError(e, "couldn't kill remote Chord process");
-		}
+
+		ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.ssh_client_wrapper);
 	}
 
 	@Override
