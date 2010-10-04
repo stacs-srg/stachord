@@ -147,7 +147,7 @@ public class NetworkUtil {
 			return new SSH2ConnectionWrapper(address, username, private_key_file_path, pass_phrase);
 		}
 		
-		return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getKeyFile(), credentials_to_be_copied.getKeyPassword());
+		return new SSH2ConnectionWrapper(address, credentials_to_be_copied.getUserName(), credentials_to_be_copied.getKeyFile(), credentials_to_be_copied.getKeyPassphrase());
 	}
 	
 	private static void checkEqualLengths(List<?>... lists) throws UnequalArrayLengthsException {
