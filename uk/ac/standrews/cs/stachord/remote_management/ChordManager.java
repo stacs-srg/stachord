@@ -28,8 +28,10 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 		
+		host_descriptor.port = Constants.DEFAULT_RMI_REGISTRY_PORT;
+
 		// Try to connect to the application on the default RMI port.
-		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, Constants.DEFAULT_RMI_REGISTRY_PORT);
+		final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, host_descriptor.port);
 		
 		// Wrap the exception variable so that it can be updated by the timeout thread.
 		final Exception[] exception_wrapper = new Exception[] {null};
@@ -60,7 +62,6 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public void deployApplication(HostDescriptor host_descriptor) throws Exception {
 
-		host_descriptor.port = Constants.DEFAULT_RMI_REGISTRY_PORT;
 		host_descriptor.process = ChordNodeFactory.instantiateRemoteNode(host_descriptor);
 	}
 
