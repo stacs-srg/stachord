@@ -46,8 +46,11 @@ public class SingleMachineRecoveryTests {
 	
 	private static final int[] RING_SIZES = {1,2,3,4,5,10,20};
 
+	/**
+	 * Disables diagnostic output.
+	 */
 	@Before
-	void setUp() throws Exception {
+	public void setUp() {
 		
 		Diagnostic.setLevel(DiagnosticLevel.NONE);		
 	}
