@@ -37,8 +37,9 @@
 
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
-		<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
-		<ant target="do-test" />
+		<ant target="do-test">
+			<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
+		</ant>
 	</target>
 	
 	<!-- Generate project jar. -->
