@@ -1,9 +1,11 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
+import uk.ac.standrews.cs.nds.remote_management.IHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
@@ -85,5 +87,10 @@ public class ChordManager implements IApplicationManager {
 	public String getApplicationName() {
 
 		return "Chord";
+	}
+
+	@Override
+	public List<IHostScanner> getScanners() {
+		return null;
 	}
 }
