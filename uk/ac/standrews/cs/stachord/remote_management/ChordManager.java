@@ -1,6 +1,7 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
@@ -91,6 +92,26 @@ public class ChordManager implements IApplicationManager {
 
 	@Override
 	public List<IHostScanner> getScanners() {
-		return null;
+		
+		List<IHostScanner> result = new ArrayList<IHostScanner>();
+		result.add(new IHostScanner() {
+
+			@Override
+			public int getMinCycleTime() {
+				return 10000;
+			}
+
+			@Override
+			public String getAttributeName() {
+				return "Chord";
+			}
+
+			@Override
+			public void check(HostDescriptor host_descriptor) {
+				host_descriptor.scan_results.put("Chord", 42);
+			}
+		});
+		
+		return result;
 	}
 }
