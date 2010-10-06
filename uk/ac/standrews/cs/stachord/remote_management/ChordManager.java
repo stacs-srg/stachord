@@ -152,15 +152,18 @@ public class ChordManager implements IApplicationManager {
 				}
 				
 				// For each stable node with a cycle length less than the number of stable nodes, join it to the first node.
-				IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
-				
-				for (int i = 1; i < stable_hosts.size(); i++) {
-					IChordRemote node = ((IChordRemoteReference) stable_hosts.get(i).application_reference).getRemote();
-					try {
-						node.join(first_node);
-					}
-					catch (RemoteException e) {
-						Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
+				if (stable_hosts.size() > 1) {
+					
+					IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
+					
+					for (int i = 1; i < stable_hosts.size(); i++) {
+						IChordRemote node = ((IChordRemoteReference) stable_hosts.get(i).application_reference).getRemote();
+						try {
+							node.join(first_node);
+						}
+						catch (RemoteException e) {
+							Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
+						}
 					}
 				}
 			}
