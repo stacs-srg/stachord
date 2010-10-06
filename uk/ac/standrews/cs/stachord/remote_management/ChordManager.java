@@ -134,7 +134,7 @@ public class ChordManager implements IApplicationManager {
 
 			@Override
 			public int getMinCycleTime() {
-				return 30000;
+				return 10000;
 			}
 
 			@Override
