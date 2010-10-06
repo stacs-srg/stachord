@@ -14,6 +14,7 @@ import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
+import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 /**
  * Provides remote management hooks for Chord.
@@ -24,6 +25,8 @@ public class ChordManager implements IApplicationManager {
 
 	private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName();   // Full name of the class used to instantiate a Chord ring.
 	private static final int APPLICATION_CALL_TIMEOUT = 10000;                                               // The timeout for attempted application calls, in ms.
+	private static final String CHORD_APPLICATION_NAME = "Chord";
+	private static final String RING_SIZE_NAME = "Ring Size";
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +90,7 @@ public class ChordManager implements IApplicationManager {
 	@Override
 	public String getApplicationName() {
 
-		return "Chord";
+		return CHORD_APPLICATION_NAME;
 	}
 
 	@Override
@@ -103,12 +106,14 @@ public class ChordManager implements IApplicationManager {
 
 			@Override
 			public String getAttributeName() {
-				return "Chord";
+				return RING_SIZE_NAME;
 			}
 
 			@Override
 			public void check(HostDescriptor host_descriptor) {
-				host_descriptor.scan_results.put("Chord", "42");
+				
+				int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
+				host_descriptor.scan_results.put(RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
 			}
 		});
 		
