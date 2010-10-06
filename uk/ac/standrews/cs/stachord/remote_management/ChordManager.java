@@ -28,6 +28,13 @@ import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public class ChordManager implements IApplicationManager {
+	
+
+//	private static final String AUTO_JOIN_CHECKBOX_LABEL =     "Auto-Join Partitions";
+//	private static final String AUTO_DISCOVER_CHECKBOX_LABEL = "Auto-Discover";
+//	private static final String AUTO_ADD_CHECKBOX_LABEL =      "Auto-Add Other Ring Hosts";
+	
+	
 
 	private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName();   // Full name of the class used to instantiate a Chord ring.
 	private static final int APPLICATION_CALL_TIMEOUT = 10000;                                               // The timeout for attempted application calls, in ms.
@@ -144,11 +151,10 @@ public class ChordManager implements IApplicationManager {
 				// This shouldn't matter - the worst that can happen is that a node is joined to a ring it's already in,
 				// which will have no effect.
 				
-				// Gather the node with a non-zero recorded cycle length.
+				// Gather the nodes with a non-zero recorded cycle length.
 				List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
 				for (HostDescriptor host_descriptor : host_descriptors) {
-					String ring_size_record = host_descriptor.scan_results.get(RING_SIZE_NAME);
-					if (ring_size_record != null && !ring_size_record.equals("-")) stable_hosts.add(host_descriptor);
+					if (ringSize(host_descriptor) > 0) stable_hosts.add(host_descriptor);
 				}
 				
 				// For each stable node with a cycle length less than the number of stable nodes, join it to the first node.
@@ -158,17 +164,26 @@ public class ChordManager implements IApplicationManager {
 					
 					System.out.println("starting join phase");
 					for (int i = 1; i < stable_hosts.size(); i++) {
-						IChordRemote node = ((IChordRemoteReference) stable_hosts.get(i).application_reference).getRemote();
+						HostDescriptor host_descriptor = stable_hosts.get(i);
+						IChordRemote node = ((IChordRemoteReference) host_descriptor.application_reference).getRemote();
 						try {
-							System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
-							
-							node.join(first_node);
+							if (ringSize(host_descriptor) < stable_hosts.size()) {
+								System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
+								
+								node.join(first_node);
+							}
 						}
 						catch (RemoteException e) {
 							Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
 						}
 					}
 				}
+			}
+			
+			private int ringSize(HostDescriptor host_descriptor) {
+				String ring_size_record = host_descriptor.scan_results.get(RING_SIZE_NAME);
+				return (ring_size_record != null && !ring_size_record.equals("-")) ? Integer.parseInt(ring_size_record) : 0;
+				
 			}
 		});
 		
