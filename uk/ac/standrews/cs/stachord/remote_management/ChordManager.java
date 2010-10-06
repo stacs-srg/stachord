@@ -108,7 +108,7 @@ public class ChordManager implements IApplicationManager {
 
 			@Override
 			public void check(HostDescriptor host_descriptor) {
-				host_descriptor.scan_results.put("Chord", 42);
+				host_descriptor.scan_results.put("Chord", "42");
 			}
 		});
 		
