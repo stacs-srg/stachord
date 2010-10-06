@@ -156,9 +156,12 @@ public class ChordManager implements IApplicationManager {
 					
 					IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
 					
+					System.out.println("starting join phase");
 					for (int i = 1; i < stable_hosts.size(); i++) {
 						IChordRemote node = ((IChordRemoteReference) stable_hosts.get(i).application_reference).getRemote();
 						try {
+							System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
+							
 							node.join(first_node);
 						}
 						catch (RemoteException e) {

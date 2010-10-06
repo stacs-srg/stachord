@@ -177,7 +177,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		// This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
 		// other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
 		// whether a ring has partitioned or not.
-		if (!equals(new_successor)) setSuccessor(new_successor);
+		if (!equals(new_successor.getRemote())) setSuccessor(new_successor);
 	}
 
 	public IChordRemoteReference getSelfReference() {
