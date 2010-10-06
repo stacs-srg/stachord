@@ -443,9 +443,11 @@ public class RecoveryTestLogic {
 	 * 
 	 * @param host_descriptor a ring node
 	 * @param forwards true if the ring should be traversed via successor pointers, false if it should be traversed via predecessor pointers
-	 * @return the length of the cycle containing the given node, or zero if there is no such cycle.
+	 * @return the length of the cycle containing the given node, or zero if the ring node is null or there is no such cycle.
 	 */
 	public static int cycleLengthFrom(HostDescriptor host_descriptor, boolean forwards) {
+		
+		if (host_descriptor.application_reference == null) return 0;
 
 		// Record the nodes that have already been encountered.
 		Set<IChordRemoteReference> nodes_encountered = new HashSet<IChordRemoteReference>();
