@@ -170,9 +170,14 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	public synchronized void join(IChordRemoteReference known_node) throws RemoteException { 
 		
-		// Route to this node's key; the result is this node's initial successor.
-		IChordRemoteReference initial_successor = known_node.getRemote().lookup(key);
-		setSuccessor(initial_successor);
+		// Route to this node's key; the result is this node's new successor.
+		IChordRemoteReference new_successor = known_node.getRemote().lookup(key);
+		
+		// Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
+		// This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
+		// other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
+		// whether a ring has partitioned or not.
+		if (!equals(new_successor)) setSuccessor(new_successor);
 	}
 
 	public IChordRemoteReference getSelfReference() {
@@ -309,7 +314,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	public boolean equals(Object other) {
 		
-		return (other instanceof ChordNodeImpl) && ((ChordNodeImpl)other).getKey().equals(key);
+		try {
+			return (other instanceof IChordRemote) && ((IChordRemote)other).getKey().equals(key);
+		}
+		catch (RemoteException e) {
+			return false;
+		}
 	}
 
 	public void showState() {
@@ -586,7 +596,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 	 */
 	private synchronized void setSuccessor(IChordRemoteReference successor) {
 		
-		if (successor == null) ErrorHandling.hardError("setting successor to null\ncurrent state: " + toStringDetailed());
+		assert successor != null;
 		
 		IChordRemoteReference oldSuccessor = this.successor;
 		this.successor = successor;		

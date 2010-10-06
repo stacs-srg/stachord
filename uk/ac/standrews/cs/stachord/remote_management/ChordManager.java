@@ -1,18 +1,24 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
-import uk.ac.standrews.cs.nds.remote_management.IHostScanner;
+import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
@@ -94,10 +100,10 @@ public class ChordManager implements IApplicationManager {
 	}
 
 	@Override
-	public List<IHostScanner> getScanners() {
+	public List<ISingleHostScanner> getSingleScanners() {
 		
-		List<IHostScanner> result = new ArrayList<IHostScanner>();
-		result.add(new IHostScanner() {
+		List<ISingleHostScanner> result = new ArrayList<ISingleHostScanner>();
+		result.add(new ISingleHostScanner() {
 
 			@Override
 			public int getMinCycleTime() {
@@ -114,6 +120,49 @@ public class ChordManager implements IApplicationManager {
 				
 				int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
 				host_descriptor.scan_results.put(RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
+			}
+		});
+		
+		return result;
+	}
+
+	@Override
+	public List<IGlobalHostScanner> getGlobalScanners() {
+		
+		List<IGlobalHostScanner> result = new ArrayList<IGlobalHostScanner>();
+		result.add(new IGlobalHostScanner() {
+
+			@Override
+			public int getMinCycleTime() {
+				return 30000;
+			}
+
+			@Override
+			public void check(List<HostDescriptor> host_descriptors) {
+				
+				// It's possible for the size of the host list, or the entries within it, to change during this method.
+				// This shouldn't matter - the worst that can happen is that a node is joined to a ring it's already in,
+				// which will have no effect.
+				
+				// Gather the node with a non-zero recorded cycle length.
+				List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
+				for (HostDescriptor host_descriptor : host_descriptors) {
+					String ring_size_record = host_descriptor.scan_results.get(RING_SIZE_NAME);
+					if (ring_size_record != null && !ring_size_record.equals("-")) stable_hosts.add(host_descriptor);
+				}
+				
+				// For each stable node with a cycle length less than the number of stable nodes, join it to the first node.
+				IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
+				
+				for (int i = 1; i < stable_hosts.size(); i++) {
+					IChordRemote node = ((IChordRemoteReference) stable_hosts.get(i).application_reference).getRemote();
+					try {
+						node.join(first_node);
+					}
+					catch (RemoteException e) {
+						Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
+					}
+				}
 			}
 		});
 		
