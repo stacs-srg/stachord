@@ -49,7 +49,6 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 public class ChordManager implements IApplicationManager {
 	
 
-//	private static final String AUTO_JOIN_CHECKBOX_LABEL =     "Auto-Join Partitions";
 //	private static final String AUTO_DISCOVER_CHECKBOX_LABEL = "Auto-Discover";
 //	private static final String AUTO_ADD_CHECKBOX_LABEL =      "Auto-Add Other Ring Hosts";
 	
