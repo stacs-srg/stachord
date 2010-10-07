@@ -59,6 +59,7 @@
 			<link href="${doc-java}" />
 			
 			<link href="${doc-nds}" />
+			<link href="${doc-mindterm}" />
 		</javadoc>
 	</target>
 	
