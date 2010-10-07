@@ -47,4 +47,15 @@ class ChordCycleLengthScanner implements ISingleHostScanner {
 		int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
 		host_descriptor.scan_results.put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
 	}
+
+	@Override
+	public String getToggleLabel() {
+		// No toggle in user interface required.
+		return null;
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+		// Ignore - this scanner is always enabled.
+	}
 }
