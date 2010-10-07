@@ -1,7 +1,6 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,16 +10,11 @@ import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.Constants;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
-import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 /**
  * Provides remote management hooks for Chord.
@@ -39,7 +33,7 @@ public class ChordManager implements IApplicationManager {
 	private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName();   // Full name of the class used to instantiate a Chord ring.
 	private static final int APPLICATION_CALL_TIMEOUT = 10000;                                               // The timeout for attempted application calls, in ms.
 	private static final String CHORD_APPLICATION_NAME = "Chord";
-	private static final String RING_SIZE_NAME = "Ring Size";
+	static final String RING_SIZE_NAME = "Ring Size";
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -110,25 +104,7 @@ public class ChordManager implements IApplicationManager {
 	public List<ISingleHostScanner> getSingleScanners() {
 		
 		List<ISingleHostScanner> result = new ArrayList<ISingleHostScanner>();
-		result.add(new ISingleHostScanner() {
-
-			@Override
-			public int getMinCycleTime() {
-				return 10000;
-			}
-
-			@Override
-			public String getAttributeName() {
-				return RING_SIZE_NAME;
-			}
-
-			@Override
-			public void check(HostDescriptor host_descriptor) {
-				
-				int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
-				host_descriptor.scan_results.put(RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
-			}
-		});
+		result.add(new ChordCycleLengthScanner());
 		
 		return result;
 	}
@@ -137,55 +113,7 @@ public class ChordManager implements IApplicationManager {
 	public List<IGlobalHostScanner> getGlobalScanners() {
 		
 		List<IGlobalHostScanner> result = new ArrayList<IGlobalHostScanner>();
-		result.add(new IGlobalHostScanner() {
-
-			@Override
-			public int getMinCycleTime() {
-				return 10000;
-			}
-
-			@Override
-			public void check(List<HostDescriptor> host_descriptors) {
-				
-				// It's possible for the size of the host list, or the entries within it, to change during this method.
-				// This shouldn't matter - the worst that can happen is that a node is joined to a ring it's already in,
-				// which will have no effect.
-				
-				// Gather the nodes with a non-zero recorded cycle length.
-				List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
-				for (HostDescriptor host_descriptor : host_descriptors) {
-					if (ringSize(host_descriptor) > 0) stable_hosts.add(host_descriptor);
-				}
-				
-				// For each stable node with a cycle length less than the number of stable nodes, join it to the first node.
-				if (stable_hosts.size() > 1) {
-					
-					IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
-					
-					System.out.println("starting join phase");
-					for (int i = 1; i < stable_hosts.size(); i++) {
-						HostDescriptor host_descriptor = stable_hosts.get(i);
-						IChordRemote node = ((IChordRemoteReference) host_descriptor.application_reference).getRemote();
-						try {
-							if (ringSize(host_descriptor) < stable_hosts.size()) {
-								System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
-								
-								node.join(first_node);
-							}
-						}
-						catch (RemoteException e) {
-							Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
-						}
-					}
-				}
-			}
-			
-			private int ringSize(HostDescriptor host_descriptor) {
-				String ring_size_record = host_descriptor.scan_results.get(RING_SIZE_NAME);
-				return (ring_size_record != null && !ring_size_record.equals("-")) ? Integer.parseInt(ring_size_record) : 0;
-				
-			}
-		});
+		result.add(new ChordPartitionScanner());
 		
 		return result;
 	}
