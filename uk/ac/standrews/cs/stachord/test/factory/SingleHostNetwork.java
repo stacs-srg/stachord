@@ -23,37 +23,53 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.impl;
+package uk.ac.standrews.cs.stachord.test.factory;
 
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+
+import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.util.ErrorHandling;
+
+import com.mindbright.ssh2.SSH2Exception;
 
 /**
- * Ring arithmetic calculations.
- *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * Network comprising Chord nodes all running on the local machine.
+ * 
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class RingArithmetic {
+public class SingleHostNetwork extends MultipleHostNetwork {
+
+	private static final String LOCAL_HOST = "localhost";
 
 	/**
-	 * Tests whether k is in the segment of the ring obtained by moving clockwise from (but not including) 'start'
-	 * until reaching (and including) 'end'. There are two cases, depending on whether the segment spans the
-	 * end/beginning of the key space:
-	 *
-	 * <pre>
-	 * if ( start < end ) then ( start < k && k <= end )   // segment does not span end/beginning
-	 *                    else ( start < k || k <= end )   // segment does span end/beginning
-	 * </pre>
-	 *
-	 * @param k the key to be tested
-	 * @param start key defining the start of the segment
-	 * @param end key defining the end of the segment
-	 * @return true if the test key is in the specified half open segment (including the end key)
+	 * Creates a new network.
+	 * 
+	 * @param number_of_nodes the number of nodes to be created
+	 * @param key_distribution the required key distribution
+	 * 
+	 * @throws IOException if the process for a node cannot be created
+	 * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period
+	 * @throws UnknownPlatformException if the operating system of the local host cannot be established
+	 * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
 	 */
-	public static boolean inHalfOpenSegment(IKey k, IKey start, IKey end) {
+	public SingleHostNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, TimeoutException, UnknownPlatformException, InterruptedException {
 		
-	    boolean start_less_than_end = start.compareTo(end) < 0;
-	    
-		return ( start_less_than_end && (start.compareTo(k) < 0 && k.compareTo(end) <= 0)) ||
-		       (!start_less_than_end && (start.compareTo(k) < 0 || k.compareTo(end) <= 0));
+		try {
+			List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
+			
+			for (int i = 0; i < number_of_nodes; i++) {
+				node_descriptors.add(new HostDescriptor(LOCAL_HOST));
+			}
+
+			init(node_descriptors, key_distribution);
+		}
+		catch (SSH2Exception e) {
+			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
+		}
 	}
 }

@@ -1,23 +1,28 @@
-/*******************************************************************************
- * StAChord Library
- * Copyright (C) 2004-2008 Distributed Systems Architecture Research Group
- * http://asa.cs.st-andrews.ac.uk/
- * 
- * This file is part of stachordRMI.
- * 
- * stachordRMI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * stachordRMI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
+
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.io.IOException;
@@ -38,7 +43,7 @@ import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
-import uk.ac.standrews.cs.stachord.test.factory.MultipleMachineNetwork;
+import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
 import uk.ac.standrews.cs.stachord.test.factory.UnequalArrayLengthsException;
 
@@ -74,30 +79,11 @@ public class MultipleMachineRecoveryTests {
 		List<SSH2ConnectionWrapper> connections =  NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 			
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}
 
-	private List<ClassPath> beastAndMiniClassPaths() {
-		List<ClassPath> class_paths = new ArrayList<ClassPath>();
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		return class_paths;
-	}
-
-	private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
-		
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		return addresses;
-	}
-	
 	/**
 	 * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
 	 * 
@@ -121,7 +107,7 @@ public class MultipleMachineRecoveryTests {
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 			
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}
@@ -153,7 +139,7 @@ public class MultipleMachineRecoveryTests {
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 			
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
+		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
 
 		System.out.println(">>>>> recovery test completed");
 	}
@@ -188,8 +174,27 @@ public class MultipleMachineRecoveryTests {
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 			
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
+	}
+	
+	private List<ClassPath> beastAndMiniClassPaths() {
+		List<ClassPath> class_paths = new ArrayList<ClassPath>();
+		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+		return class_paths;
+	}
+
+	private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
+		
+		List<InetAddress> addresses = new ArrayList<InetAddress>();
+		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+		return addresses;
 	}
 }

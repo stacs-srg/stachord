@@ -1,23 +1,28 @@
-/*******************************************************************************
- * StAChord Library
- * Copyright (C) 2004-2008 Distributed Systems Architecture Research Group
- * http://asa.cs.st-andrews.ac.uk/
- * 
- * This file is part of stachordRMI.
- * 
- * stachordRMI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * stachordRMI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
+
 package uk.ac.standrews.cs.stachord.test.factory;
 
 import java.io.IOException;
@@ -43,7 +48,7 @@ import com.mindbright.ssh2.SSH2Exception;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
-public class MultipleMachineNetwork implements INetwork {
+public class MultipleHostNetwork implements INetwork {
 	
 	private static final int QUEUE_MAX_THREADS =     10;               // The maximum degree of concurrency for check jobs.
 	private static final int QUEUE_IDLE_TIMEOUT =  5000;               // The timeout for idle check job threads to die, in ms.
@@ -54,9 +59,9 @@ public class MultipleMachineNetwork implements INetwork {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * Needed for subclass SingleMachineNetwork, but shouldn't be generally accessible.
+	 * Needed for subclass {@link SingleHostNetwork}, but shouldn't be generally accessible.
 	 */
-	protected MultipleMachineNetwork() {
+	protected MultipleHostNetwork() {
 	}
 	
 	/**
@@ -71,7 +76,7 @@ public class MultipleMachineNetwork implements INetwork {
 	 * @throws UnknownPlatformException if the operating system of one or more of the given hosts cannot be established
 	 * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
 	 */
-	public MultipleMachineNetwork(final List<HostDescriptor> host_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
+	public MultipleHostNetwork(final List<HostDescriptor> host_descriptors, KeyDistribution key_distribution) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
 		
 		// Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
 		init(host_descriptors, key_distribution);

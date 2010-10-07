@@ -1,23 +1,28 @@
-/*******************************************************************************
- * StAChord Library
- * Copyright (C) 2004-2008 Distributed Systems Architecture Research Group
- * http://asa.cs.st-andrews.ac.uk/
- * 
- * This file is part of stachordRMI.
- * 
- * stachordRMI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * stachordRMI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
+
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.io.IOException;
@@ -31,7 +36,7 @@ import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
-import uk.ac.standrews.cs.stachord.test.factory.SingleMachineNetwork;
+import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
 
 /**
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
@@ -115,7 +120,7 @@ public class SingleMachineRecoveryTests {
 	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
 		
 		System.out.println("constructing ring... ");
-		SingleMachineNetwork network = new SingleMachineNetwork(ring_size, network_type);
+		SingleHostNetwork network = new SingleHostNetwork(ring_size, network_type);
 		System.out.println("done");
 
 		RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT);

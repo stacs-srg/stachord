@@ -1,23 +1,28 @@
-/*******************************************************************************
- * StAChord Library
- * Copyright (C) 2004-2008 Distributed Systems Architecture Research Group
- * http://asa.cs.st-andrews.ac.uk/
- * 
- * This file is part of stachordRMI.
- * 
- * stachordRMI is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * stachordRMI is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with stachordRMI.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
+
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import static org.junit.Assert.assertEquals;
@@ -41,7 +46,8 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.test.factory.INetwork;
 
 /**
- * Core Chord test logic.
+ * Core Chord test logic. In general, due to asynchrony we can't test much of interest immediately after a given operation.
+ * Mostly all we can do is test that some condition eventually holds, by using a test that doesn't complete until the condition does hold.
  * 
  * @author Angus Macdonald (angus@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
