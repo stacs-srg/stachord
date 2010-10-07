@@ -16,7 +16,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
 	
 	@Override
 	public int getMinCycleTime() {
-		return 10000;
+		return 20000;
 	}
 
 	@Override
@@ -43,7 +43,6 @@ class ChordPartitionScanner implements IGlobalHostScanner {
 			
 			IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
 			
-			System.out.println("starting join phase");
 			for (int i = 1; i < stable_hosts.size(); i++) {
 				HostDescriptor host_descriptor = stable_hosts.get(i);
 				IChordRemote node = ((IChordRemoteReference) host_descriptor.application_reference).getRemote();
