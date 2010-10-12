@@ -150,6 +150,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	// IChordNode operations.
 
+	@Override
 	public IKey getKey() {
 		return key;
 	}
