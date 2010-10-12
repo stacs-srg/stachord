@@ -41,14 +41,14 @@ import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
 /**
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
  * Each Chord node is created in a separate process on the local machine.
- * 
+ *
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
 public class SingleMachineRecoveryTests {
-	
+
 	private static final int CHECK_TIMEOUT = 600000;     // Allow 10 minutes for each check operation.
 	// TODO Make this work on Windows.
-	
+
 	private static final int[] RING_SIZES = {1,2,3,4,5,10,20};
 
 	/**
@@ -56,13 +56,13 @@ public class SingleMachineRecoveryTests {
 	 */
 	@Before
 	public void setUp() {
-		
-		Diagnostic.setLevel(DiagnosticLevel.NONE);		
+
+		Diagnostic.setLevel(DiagnosticLevel.NONE);
 	}
-	
+
 	/**
 	 * Runs ring recovery tests with a {@link KeyDistribution#RANDOM} key distribution.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws InterruptedException
@@ -71,13 +71,13 @@ public class SingleMachineRecoveryTests {
 	 */
 	@Test
 	public void ringRecoversRandom() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
-			
+
 		ringRecovers(KeyDistribution.RANDOM);
 	}
-	
+
 	/**
 	 * Runs ring recovery tests with an {@link KeyDistribution#EVEN} key distribution.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws InterruptedException
@@ -86,13 +86,13 @@ public class SingleMachineRecoveryTests {
 	 */
 	@Test
 	public void ringRecoversEven() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		ringRecovers(KeyDistribution.EVEN);
 	}
 
 	/**
 	 * Runs ring recovery tests with a {@link KeyDistribution#CLUSTERED} key distribution.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws InterruptedException
@@ -101,7 +101,7 @@ public class SingleMachineRecoveryTests {
 	 */
 	@Test
 	public void ringRecoversClustered() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		ringRecovers(KeyDistribution.CLUSTERED);
 	}
 
@@ -110,15 +110,15 @@ public class SingleMachineRecoveryTests {
 	private void ringRecovers(KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
 
 		for (int ring_size : RING_SIZES) {
-			
+
 			System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
 			ringRecovers(ring_size, network_type);
 			System.out.println("\n>>>>>>>>>>>>>>>> Done");
 		}
 	}
-	
+
 	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		System.out.println("constructing ring... ");
 		SingleHostNetwork network = new SingleHostNetwork(ring_size, network_type);
 		System.out.println("done");

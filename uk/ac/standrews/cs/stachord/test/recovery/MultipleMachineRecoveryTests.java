@@ -51,34 +51,34 @@ import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
- * 
+ *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public class MultipleMachineRecoveryTests {
-	
+
 	/**
 	 * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException 
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws UnknownPlatformException 
+	 * @throws UnequalArrayLengthsException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 * @throws UnknownPlatformException
 	 */
 	@Test
 	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		List<InetAddress> addresses = twoEachOnBeastAndMini();
-		
+
 		List<ClassPath> class_paths = beastAndMiniClassPaths();
 
 		List<SSH2ConnectionWrapper> connections =  NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
-			
+
 		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
@@ -86,50 +86,50 @@ public class MultipleMachineRecoveryTests {
 
 	/**
 	 * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException 
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws UnknownPlatformException 
+	 * @throws UnequalArrayLengthsException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 * @throws UnknownPlatformException
 	 */
 	@Test
 	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		List<InetAddress> addresses = twoEachOnBeastAndMini();
-		
+
 		List<ClassPath> class_paths = beastAndMiniClassPaths();
 
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
-			
+
 		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}
-	
+
 	/**
 	 * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException 
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws UnknownPlatformException 
+	 * @throws UnequalArrayLengthsException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 * @throws UnknownPlatformException
 	 */
 	@Test
 	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		List<InetAddress> addresses = twoEachOnBeastAndMini();
-		
+
 		URL[] lib_urls = new URL[] {
 			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
 			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
@@ -138,7 +138,7 @@ public class MultipleMachineRecoveryTests {
 
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
-			
+
 		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
 
 		System.out.println(">>>>> recovery test completed");
@@ -146,25 +146,25 @@ public class MultipleMachineRecoveryTests {
 
 	/**
 	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws NotBoundException
 	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException 
-	 * @throws InterruptedException 
-	 * @throws TimeoutException 
-	 * @throws UnknownPlatformException 
+	 * @throws UnequalArrayLengthsException
+	 * @throws InterruptedException
+	 * @throws TimeoutException
+	 * @throws UnknownPlatformException
 	 */
 	@Test
 	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
-		
+
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
 		List<InetAddress> addresses = new ArrayList<InetAddress>();
 		addresses.add(InetAddress.getByName("compute-0-33"));
 		addresses.add(InetAddress.getByName("compute-0-34"));
 		addresses.add(InetAddress.getByName("compute-0-35"));
-		
+
 		URL[] lib_urls = new URL[] {
 			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
 			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
@@ -173,12 +173,12 @@ public class MultipleMachineRecoveryTests {
 
 		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
 		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
-			
+
 		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
 		System.out.println(">>>>> recovery test completed");
 	}
-	
+
 	private List<ClassPath> beastAndMiniClassPaths() {
 		List<ClassPath> class_paths = new ArrayList<ClassPath>();
 		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
@@ -189,7 +189,7 @@ public class MultipleMachineRecoveryTests {
 	}
 
 	private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
-		
+
 		List<InetAddress> addresses = new ArrayList<InetAddress>();
 		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
 		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
