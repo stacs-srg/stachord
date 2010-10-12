@@ -155,6 +155,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return key;
 	}
 
+	@Override
 	public IChordRemoteReference lookup(IKey k) throws RemoteException {
 
 		if (k.equals(key) || successor.getKey().equals(key) ) {
@@ -166,14 +167,17 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return findSuccessor(k);
 	}
 
+	@Override
 	public IChordRemoteReference getSuccessor() {
 		return successor;
 	}
 
+	@Override
 	public IChordRemoteReference getPredecessor() {
 		return predecessor;
 	}
 
+	@Override
 	public synchronized void join(IChordRemoteReference known_node) throws RemoteException {
 
 		// Route to this node's key; the result is this node's new successor.
@@ -186,10 +190,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		if (!equals(new_successor.getRemote())) setSuccessor(new_successor);
 	}
 
+	@Override
 	public IChordRemoteReference getSelfReference() {
 		return self_reference;
 	}
 
+	@Override
 	public void shutDown() {
 
 		// Stop the maintenance thread.
@@ -207,6 +213,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
 	}
 
+	@Override
 	public void addObserver(Observer observer) {
 		super.addObserver(observer);
 	}
@@ -215,11 +222,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	// IChordRemote operations.
 
+	@Override
 	public InetSocketAddress getAddress() {
 
 		return local_address;
 	}
 
+	@Override
 	public void notify(IChordRemoteReference potential_predecessor) {
 
 		// Case: predecessor is null and potential_predecessor is this node.
@@ -245,19 +254,23 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		}
 	}
 
+	@Override
 	public List<IChordRemoteReference> getSuccessorList() {
 
 		return successor_list.getList();
 	}
 
+	@Override
 	public List<IChordRemoteReference> getFingerList() {
 
 		return finger_table.getFingers();
 	}
 
+	@Override
 	public void isAlive() {
 	}
 
+	@Override
 	public NextHopResult nextHop(IKey k) {
 
 		// Check whether the key lies in the range between this node and its successor,
@@ -268,22 +281,27 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return new NextHopResult(closestPrecedingNode(k), false);
 	}
 
+	@Override
 	public void enablePredecessorMaintenance(boolean enabled) {
 		predecessor_maintenance_enabled  = enabled;
 	}
 
+	@Override
 	public void enableStabilization(boolean enabled) {
 		stabilization_enabled  = enabled;
 	}
 
+	@Override
 	public void enablePeerStateMaintenance(boolean enabled) {
 		finger_table_maintenance_enabled  = enabled;
 	}
 
+	@Override
 	public void notifyFailure(IChordRemoteReference node) {
 		finger_table.fingerFailure(node);
 	}
 
+	@Override
 	public String toStringDetailed() {
 		return
 		"Node state" + "\n" +
@@ -295,6 +313,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		"finger_table: " + finger_table;
 	}
 
+	@Override
 	public String toStringTerse() {
 		return "key: " + key + " local_address: " + local_address;
 	}
@@ -311,6 +330,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return detailed_to_string ? toStringDetailed() : toStringTerse();
 	}
 
+	@Override
 	public int compareTo(IP2PNode other) {
 
 		if (other == null) return 1;
@@ -318,6 +338,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 		return key.compareTo(other.getKey());
 	}
 
+	@Override
 	public boolean equals(Object other) {
 
 		try {
@@ -338,6 +359,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@Override
 	public void update(Observable o, Object arg) {
 
 		String event_type = ((Event)arg).getType();
