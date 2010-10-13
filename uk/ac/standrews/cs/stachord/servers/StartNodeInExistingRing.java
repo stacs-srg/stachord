@@ -49,10 +49,7 @@ public class StartNodeInExistingRing extends AbstractServer {
 	private String known_address;
 	private int known_port;
 
-	/**
-	 * @param args
-	 */
-	public StartNodeInExistingRing(String[] args) {
+	private StartNodeInExistingRing(String[] args) {
 		
 		super(args);
 		

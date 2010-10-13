@@ -41,10 +41,7 @@ import uk.ac.standrews.cs.stachord.impl.Constants;
  */
 public class StartNodeInNewRing extends AbstractServer {
 
-	/**
-	 * @param args
-	 */
-	public StartNodeInNewRing(String[] args) {
+	private StartNodeInNewRing(String[] args) {
 		
 		super(args);
 	}

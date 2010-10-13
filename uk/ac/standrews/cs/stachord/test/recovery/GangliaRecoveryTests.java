@@ -25,28 +25,21 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
-import uk.ac.standrews.cs.stachord.test.factory.UnequalArrayLengthsException;
-
-import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Various tests of ring recovery on the Ganglia cluster, not intended to be run automatically.
@@ -58,16 +51,10 @@ public class GangliaRecoveryTests {
 	/**
 	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void gangliaTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void gangliaTestPublicKeyLibraryInstallation() throws Exception {
 
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 

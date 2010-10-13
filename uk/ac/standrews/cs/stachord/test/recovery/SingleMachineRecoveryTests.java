@@ -26,7 +26,6 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
@@ -63,14 +62,10 @@ public class SingleMachineRecoveryTests {
 	/**
 	 * Runs ring recovery tests with a {@link KeyDistribution#RANDOM} key distribution.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void ringRecoversRandom() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void ringRecoversRandom() throws Exception {
 
 		ringRecovers(KeyDistribution.RANDOM);
 	}
@@ -78,14 +73,10 @@ public class SingleMachineRecoveryTests {
 	/**
 	 * Runs ring recovery tests with an {@link KeyDistribution#EVEN} key distribution.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void ringRecoversEven() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void ringRecoversEven() throws Exception {
 
 		ringRecovers(KeyDistribution.EVEN);
 	}
@@ -93,14 +84,10 @@ public class SingleMachineRecoveryTests {
 	/**
 	 * Runs ring recovery tests with a {@link KeyDistribution#CLUSTERED} key distribution.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void ringRecoversClustered() throws IOException, NotBoundException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void ringRecoversClustered() throws Exception {
 
 		ringRecovers(KeyDistribution.CLUSTERED);
 	}

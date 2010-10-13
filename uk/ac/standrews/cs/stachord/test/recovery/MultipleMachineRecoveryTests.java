@@ -25,29 +25,22 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
-import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
-import uk.ac.standrews.cs.stachord.test.factory.UnequalArrayLengthsException;
-
-import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
@@ -59,16 +52,10 @@ public class MultipleMachineRecoveryTests {
 	/**
 	 * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void multiMachineTestPasswordNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void multiMachineTestPasswordNoLibraryInstallation() throws Exception {
 
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -87,16 +74,10 @@ public class MultipleMachineRecoveryTests {
 	/**
 	 * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void multiMachineTestPublicKeyNoLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void multiMachineTestPublicKeyNoLibraryInstallation() throws Exception {
 
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -115,16 +96,10 @@ public class MultipleMachineRecoveryTests {
 	/**
 	 * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void multiMachineTestPasswordLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void multiMachineTestPasswordLibraryInstallation() throws Exception {
 
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -147,16 +122,10 @@ public class MultipleMachineRecoveryTests {
 	/**
 	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
 	 *
-	 * @throws IOException
-	 * @throws NotBoundException
-	 * @throws SSH2Exception
-	 * @throws UnequalArrayLengthsException
-	 * @throws InterruptedException
-	 * @throws TimeoutException
-	 * @throws UnknownPlatformException
+	 * @throws Exception if the test fails
 	 */
 	@Test
-	public void multiMachineTestPublicKeyLibraryInstallation() throws IOException, NotBoundException, SSH2Exception, UnequalArrayLengthsException, InterruptedException, TimeoutException, UnknownPlatformException {
+	public void multiMachineTestPublicKeyLibraryInstallation() throws Exception {
 
 		Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -180,6 +149,7 @@ public class MultipleMachineRecoveryTests {
 	}
 
 	private List<ClassPath> beastAndMiniClassPaths() {
+		
 		List<ClassPath> class_paths = new ArrayList<ClassPath>();
 		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
 		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
