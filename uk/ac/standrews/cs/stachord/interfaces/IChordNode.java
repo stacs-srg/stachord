@@ -42,27 +42,27 @@ public interface IChordNode extends Observer {
     /**
      * The name of the remotely accessible Chord service.
      */
-    static final String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
+    String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
 
     /**
      * Predecessor change event.
      */
-    public static final IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
+    IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
 
     /**
      * Successor change event.
      */
-    public static final IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
+    IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
 
     /**
      * Successor list change event.
      */
-    public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event("SUCCESSOR_LIST_CHANGE_EVENT");
+    IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event("SUCCESSOR_LIST_CHANGE_EVENT");
 
     /**
      * Finger table change event.
      */
-    public static final IEvent FINGER_TABLE_CHANGE_EVENT = new Event("FINGER_TABLE_CHANGE_EVENT");
+    IEvent FINGER_TABLE_CHANGE_EVENT = new Event("FINGER_TABLE_CHANGE_EVENT");
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ public interface IChordNode extends Observer {
 
     /**
      * Executes the routing protocol.
-     * 
+     *
      * @param key a key to be routed to
      * @return the node to which the key maps
      * @throws RemoteException if an error occurs during the routing protocol
@@ -97,7 +97,7 @@ public interface IChordNode extends Observer {
 
     /**
      * Joins this node to the ring of which the specified node is a member.
-     * 
+     *
      * @param node a node in a ring
      * @throws RemoteException if an error occurs during the remote call
      */
@@ -120,14 +120,14 @@ public interface IChordNode extends Observer {
 
     /**
      * Adds an observer.
-     * 
+     *
      * @param observer a new observer
      */
     void addObserver(Observer observer);
 
     /**
      * Checks whether the given key lies in this node's key range.
-     * 
+     *
      * @param k a key
      * @return true if the key lies in this node's key range
      */

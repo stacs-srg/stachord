@@ -37,24 +37,24 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
  */
 public interface IChordRemoteReference extends Serializable {
 
-	/**
-	 * Returns the key associated with this reference.
-	 * 
-	 * @return the key associated with this reference
-	 */
-	IKey getKey();
-	
-	/**
-	 * Returns the address associated with this reference.
-	 * 
-	 * @return the address associated with this reference
-	 */
-	InetSocketAddress getAddress();
-	
-	/**
-	 * Returns the remote reference.
-	 * 
-	 * @return the remote reference
-	 */
-	IChordRemote getRemote();
+    /**
+     * Returns the key associated with this reference.
+     *
+     * @return the key associated with this reference
+     */
+    IKey getKey();
+
+    /**
+     * Returns the address associated with this reference.
+     *
+     * @return the address associated with this reference
+     */
+    InetSocketAddress getAddress();
+
+    /**
+     * Returns the remote reference.
+     *
+     * @return the remote reference
+     */
+    IChordRemote getRemote();
 }
