@@ -217,6 +217,19 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
         super.addObserver(observer);
     }
 
+    /**
+     * Checks whether the given key lies in this node's key range.
+     * 
+     * @param k a key
+     * @return true if the key lies in this node's key range
+     */
+    @Override
+    public boolean inLocalKeyRange(final IKey k) {
+
+        // This is never called when the predecessor is null.
+        return RingArithmetic.inHalfOpenSegment(k, predecessor.getKey(), key);
+    }
+
     // -------------------------------------------------------------------------------------------------------
 
     // IChordRemote operations.
@@ -405,22 +418,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
     }
 
     /**
-     * Checks whether the given key lies in this node's key range.
-     * 
-     * @param k a key
-     * @return true if the key lies in this node's key range
-     */
-    private boolean inLocalKeyRange(final IKey k) {
-
-        // This is never called when the predecessor is null.
-        return RingArithmetic.inHalfOpenSegment(k, predecessor.getKey(), key);
-    }
-
-    /**
-     * Exposes this node for remote RMI access.
-     * 
-     * @throws RemoteException if the node cannot be exposed for remote access
-     */
+      * Exposes this node for remote RMI access.
+      * 
+      * @throws RemoteException if the node cannot be exposed for remote access
+      */
     private void exposeNode() throws RemoteException {
 
         // Get RMI registry.
