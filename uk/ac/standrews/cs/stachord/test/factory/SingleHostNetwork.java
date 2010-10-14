@@ -44,32 +44,32 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class SingleHostNetwork extends MultipleHostNetwork {
 
-	private static final String LOCAL_HOST = "localhost";
+    private static final String LOCAL_HOST = "localhost";
 
-	/**
-	 * Creates a new network.
-	 * 
-	 * @param number_of_nodes the number of nodes to be created
-	 * @param key_distribution the required key distribution
-	 * 
-	 * @throws IOException if the process for a node cannot be created
-	 * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period
-	 * @throws UnknownPlatformException if the operating system of the local host cannot be established
-	 * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
-	 */
-	public SingleHostNetwork(int number_of_nodes, KeyDistribution key_distribution) throws IOException, TimeoutException, UnknownPlatformException, InterruptedException {
-		
-		try {
-			List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
-			
-			for (int i = 0; i < number_of_nodes; i++) {
-				node_descriptors.add(new HostDescriptor(LOCAL_HOST));
-			}
+    /**
+     * Creates a new network.
+     * 
+     * @param number_of_nodes the number of nodes to be created
+     * @param key_distribution the required key distribution
+     * 
+     * @throws IOException if the process for a node cannot be created
+     * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period
+     * @throws UnknownPlatformException if the operating system of the local host cannot be established
+     * @throws InterruptedException if there is an error during concurrent instantiation of the nodes
+     */
+    public SingleHostNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws IOException, TimeoutException, UnknownPlatformException, InterruptedException {
 
-			init(node_descriptors, key_distribution);
-		}
-		catch (SSH2Exception e) {
-			ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
-		}
-	}
+        try {
+            final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
+
+            for (int i = 0; i < number_of_nodes; i++) {
+                node_descriptors.add(new HostDescriptor(LOCAL_HOST));
+            }
+
+            init(node_descriptors, key_distribution);
+        }
+        catch (final SSH2Exception e) {
+            ErrorHandling.hardExceptionError(e, "unexpected SSH error on local network creation");
+        }
+    }
 }

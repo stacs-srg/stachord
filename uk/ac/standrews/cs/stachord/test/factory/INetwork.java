@@ -36,20 +36,20 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
  */
 public interface INetwork {
 
-	/**
-	 * Returns a new list containing the nodes.
-	 * @return the nodes in the network, sorted in ascending key order.
-	 */
-	List<HostDescriptor> getNodes();
-	
-	/**
-	 * Kills a given node and removes it from the network.
-	 * @param node the node to be killed
-	 */
-	void killNode(HostDescriptor node);
-	
-	/**
-	 * Kills all nodes and removes them from the network.
-	 */
-	void killAllNodes();
+    /**
+     * Returns a new list containing the nodes.
+     * @return the nodes in the network, sorted in ascending key order.
+     */
+    List<HostDescriptor> getNodes();
+
+    /**
+     * Kills a given node and removes it from the network.
+     * @param node the node to be killed
+     */
+    void killNode(HostDescriptor node);
+
+    /**
+     * Kills all nodes and removes them from the network.
+     */
+    void killAllNodes();
 }

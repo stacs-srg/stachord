@@ -44,43 +44,46 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  * 
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-abstract class AbstractServer  {
-	
-	private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
-	
-	protected String local_address;
-	protected int local_port;
-	protected IKey server_key;
+abstract class AbstractServer {
 
-	/**
-	 * Processes command-line arguments.
-	 * @param args the arguments
-	 */
-	public AbstractServer(String[] args) {
+    private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 
-		Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
+    protected String local_address;
+    protected int local_port;
+    protected IKey server_key;
 
-		Diagnostic.setTimestampFlag(true);
-		Diagnostic.setTimestampFormat(new SimpleDateFormat("HH:mm:ss:SSS "));
-		Diagnostic.setTimestampDelimiterFlag(false);
-		ErrorHandling.setTimestampFlag(false);
-		
-		String server_address_parameter = CommandLineArgs.getArg(args, "-s"); // This node's address.
-		if (server_address_parameter == null) usage();
+    /**
+     * Processes command-line arguments.
+     * @param args the arguments
+     */
+    public AbstractServer(final String[] args) {
 
-		local_address = NetworkUtil.extractHostName(server_address_parameter);
-		local_port =    NetworkUtil.extractPortNumber(server_address_parameter);
+        Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
 
-		String server_key_parameter = CommandLineArgs.getArg(args, "-x"); // This node's key.
-		if (server_key_parameter != null && !server_key_parameter.equals("null")) server_key = new Key(server_key_parameter);
-	}
-	
-	protected IChordNode makeNode() throws RemoteException {
-		
-		InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-		return (server_key == null) ? ChordNodeFactory.createLocalNode(local_socket_address) :
-            ChordNodeFactory.createLocalNode(local_socket_address, server_key);
-	}
-	
-	protected abstract void usage();
+        Diagnostic.setTimestampFlag(true);
+        Diagnostic.setTimestampFormat(new SimpleDateFormat("HH:mm:ss:SSS "));
+        Diagnostic.setTimestampDelimiterFlag(false);
+        ErrorHandling.setTimestampFlag(false);
+
+        final String server_address_parameter = CommandLineArgs.getArg(args, "-s"); // This node's address.
+        if (server_address_parameter == null) {
+            usage();
+        }
+
+        local_address = NetworkUtil.extractHostName(server_address_parameter);
+        local_port = NetworkUtil.extractPortNumber(server_address_parameter);
+
+        final String server_key_parameter = CommandLineArgs.getArg(args, "-x"); // This node's key.
+        if (server_key_parameter != null && !server_key_parameter.equals("null")) {
+            server_key = new Key(server_key_parameter);
+        }
+    }
+
+    protected IChordNode makeNode() throws RemoteException {
+
+        final InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
+        return server_key == null ? ChordNodeFactory.createLocalNode(local_socket_address) : ChordNodeFactory.createLocalNode(local_socket_address, server_key);
+    }
+
+    protected abstract void usage();
 }

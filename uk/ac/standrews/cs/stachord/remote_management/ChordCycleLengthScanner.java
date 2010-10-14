@@ -30,32 +30,36 @@ import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
 import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 class ChordCycleLengthScanner implements ISingleHostScanner {
-	
-	@Override
-	public int getMinCycleTime() {
-		return 10000;
-	}
 
-	@Override
-	public String getAttributeName() {
-		return ChordManager.RING_SIZE_NAME;
-	}
+    @Override
+    public int getMinCycleTime() {
 
-	@Override
-	public void check(HostDescriptor host_descriptor) {
-		
-		int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
-		host_descriptor.scan_results.put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
-	}
+        return 10000;
+    }
 
-	@Override
-	public String getToggleLabel() {
-		// No toggle in user interface required.
-		return null;
-	}
+    @Override
+    public String getAttributeName() {
 
-	@Override
-	public void setEnabled(boolean enabled) {
-		// Ignore - this scanner is always enabled.
-	}
+        return ChordManager.RING_SIZE_NAME;
+    }
+
+    @Override
+    public void check(final HostDescriptor host_descriptor) {
+
+        final int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
+        host_descriptor.scan_results.put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
+    }
+
+    @Override
+    public String getToggleLabel() {
+
+        // No toggle in user interface required.
+        return null;
+    }
+
+    @Override
+    public void setEnabled(final boolean enabled) {
+
+        // Ignore - this scanner is always enabled.
+    }
 }

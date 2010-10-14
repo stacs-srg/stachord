@@ -32,18 +32,18 @@ package uk.ac.standrews.cs.stachord.test.factory;
  */
 public enum KeyDistribution {
 
-	/**
-	 * Keys randomly distributed around the ring.
-	 */
-	RANDOM,
-	
-	/**
-	 * Keys evenly distributed around the ring.
-	 */
-	EVEN,
-	
-	/**
-	 * Keys clustered tightly in one region of the ring.
-	 */
-	CLUSTERED
+    /**
+     * Keys randomly distributed around the ring.
+     */
+    RANDOM,
+
+    /**
+     * Keys evenly distributed around the ring.
+     */
+    EVEN,
+
+    /**
+     * Keys clustered tightly in one region of the ring.
+     */
+    CLUSTERED
 }

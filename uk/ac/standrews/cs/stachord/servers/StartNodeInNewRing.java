@@ -41,46 +41,47 @@ import uk.ac.standrews.cs.stachord.impl.Constants;
  */
 public class StartNodeInNewRing extends AbstractServer {
 
-	private StartNodeInNewRing(String[] args) {
-		
-		super(args);
-	}
+    private StartNodeInNewRing(final String[] args) {
 
-	/**
-	 * The following command line parameters are available:
-	 * <dl>
-	 * 	<dt>-s[host][:port] (required)</dt>
-	 * 	<dd>Specifies the local address and port at which the Chord service should be made available.
-	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
-	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
-	 * 
-	 *	<dt>-xkey (optional)</dt>
-	 *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
-	 * 		If no address is specified then the local loopback address (127.0.0.1) is used.
-	 * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
-	 * </dl>
-	 * 
-	 * @param args see above
-	 * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
-	 * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
-	 */
-	public static void main(String[] args) throws RemoteException, NotBoundException {
+        super(args);
+    }
 
-		StartNodeInNewRing starter = new StartNodeInNewRing(args);
-		starter.createNode();
-	}
+    /**
+     * The following command line parameters are available:
+     * <dl>
+     * 	<dt>-s[host][:port] (required)</dt>
+     * 	<dd>Specifies the local address and port at which the Chord service should be made available.
+     * 		If no address is specified then the local loopback address (127.0.0.1) is used.
+     * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
+     * 
+     *	<dt>-xkey (optional)</dt>
+     *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
+     * 		If no address is specified then the local loopback address (127.0.0.1) is used.
+     * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
+     * </dl>
+     * 
+     * @param args see above
+     * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
+     * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
+     */
+    public static void main(final String[] args) throws RemoteException, NotBoundException {
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+        final StartNodeInNewRing starter = new StartNodeInNewRing(args);
+        starter.createNode();
+    }
 
-	private void createNode() throws RemoteException {
-		
-		Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		makeNode();
-	}
+    private void createNode() throws RemoteException {
 
-	protected void usage() {
-			
-		ErrorHandling.hardError( "Usage: -s[host][:port] [-xkey]" );
-	}
+        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
+
+        makeNode();
+    }
+
+    @Override
+    protected void usage() {
+
+        ErrorHandling.hardError("Usage: -s[host][:port] [-xkey]");
+    }
 }
