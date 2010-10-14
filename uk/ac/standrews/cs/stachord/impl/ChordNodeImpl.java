@@ -303,14 +303,23 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
 
 	@Override
 	public String toStringDetailed() {
-		return
-		"Node state" + "\n" +
-		"key: " + key + "\n" +
-		"local_address: " + local_address + "\n" +
-		"predecessor: " + ((predecessor != null) ? predecessor.getAddress():"null") + "\n" +
-		"successor: " +   ((successor != null) ?   successor.getAddress():"null") + "\n" +
-		"successor_list: " + successor_list + "\n" +
-		"finger_table: " + finger_table;
+		
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("Node state\nkey: ");
+		builder.append(key);
+		builder.append("\nlocal_address: ");
+		builder.append(local_address);
+		builder.append("\npredecessor: ");
+		builder.append((predecessor != null) ? predecessor.getAddress() : "null");
+		builder.append("\nsuccessor: " );
+		builder.append((successor != null) ? successor.getAddress() : "null");
+		builder.append("\nsuccessor_list: ");
+		builder.append(successor_list);
+		builder.append("\nfinger_table: ");
+		builder.append(finger_table);
+		
+		return builder.toString();
 	}
 
 	@Override
