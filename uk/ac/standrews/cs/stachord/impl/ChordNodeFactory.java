@@ -77,7 +77,7 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given local network address on a given port, establishing a new one-node ring.
-     * 
+     *
      * @param local_address the local address of the node
      * @return the new node
      * @throws RemoteException if an error occurs in making the new node accessible for remote access
@@ -89,7 +89,7 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given local network address on a given port, with a given key, establishing a new one-node ring.
-     * 
+     *
      * @param local_address the local address of the node
      * @param key the key of the new node
      * @return the new node
@@ -102,10 +102,10 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given remote network address on a given port, establishing a new one-node ring.
-     * 
+     *
      * @param host_descriptor a structure containing access details for a remote host
      * @return a remote reference to the new Chord node
-     * 
+     *
      * @throws IOException if an error occurs when reading communicating with the remote host
      * @throws SSH2Exception if an SSH connection to the remote host cannot be established
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
@@ -118,11 +118,11 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given remote network address on a given port, establishing a new one-node ring.
-     * 
+     *
      * @param host_descriptor a structure containing access details for a remote host
      * @param key the key of the new node
      * @return a remote reference to the new Chord node
-     * 
+     *
      * @throws IOException if an error occurs when reading communicating with the remote host
      * @throws SSH2Exception if an SSH connection to the remote host cannot be established
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
@@ -136,10 +136,10 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given remote network address on a given port, establishing a new one-node ring.
-     * 
+     *
      * @param host_descriptor a structure containing access details for a remote host
      * @return a process handle for the new node
-     * 
+     *
      * @throws IOException if an error occurs when reading communicating with the remote host
      * @throws SSH2Exception if an SSH connection to the remote host cannot be established
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
@@ -152,11 +152,11 @@ public class ChordNodeFactory {
 
     /**
      * Creates a new Chord node running at a given remote network address on a given port, with a given key, establishing a new one-node ring.
-     * 
+     *
      * @param host_descriptor a structure containing access details for a remote host
      * @param key the key of the new node
      * @return a process handle for the new node
-     * 
+     *
      * @throws IOException if an error occurs when reading communicating with the remote host
      * @throws SSH2Exception if an SSH connection to the remote host cannot be established
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
@@ -177,10 +177,10 @@ public class ChordNodeFactory {
     /**
      * Creates a new Chord node running at a given remote network address on a free port, with a given key, establishing a new one-node ring.
      * The port already set in the host_descriptor parameter, if any, is ignored
-     * 
+     *
      * @param host_descriptor a structure containing access details for a remote host
      * @param key the key of the new node
-     * 
+     *
      * @throws IOException if an error occurs when reading communicating with the remote host
      * @throws SSH2Exception if an SSH connection to the remote host cannot be established
      * @throws TimeoutException if the node cannot be instantiated within the timeout period ({@link #FREE_PORT_TIMEOUT_INTERVAL})
@@ -207,10 +207,10 @@ public class ChordNodeFactory {
 
     /**
      * Binds to an existing remote Chord node running at a given network address.
-     * 
+     *
      * @param node_address the address of the existing node
      * @return a remote reference to the node
-     * 
+     *
      * @throws RemoteException if an error occurs communicating with the remote machine
      * @throws NotBoundException if the Chord node is not accessible with the expected service name
      */
@@ -224,10 +224,10 @@ public class ChordNodeFactory {
 
     /**
      * Binds to an existing remote Chord node running at a given network address, retrying on any error until the timeout interval ({@link #REGISTRY_TIMEOUT_INTERVAL}) has elapsed.
-     * 
+     *
      * @param node_address the address of the existing node
      * @return a remote reference to the node
-     * 
+     *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
      */
     public static IChordRemoteReference bindToRemoteNodeWithRetry(final InetSocketAddress node_address) throws TimeoutException {
