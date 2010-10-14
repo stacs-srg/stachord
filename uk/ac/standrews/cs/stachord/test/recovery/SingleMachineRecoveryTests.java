@@ -45,71 +45,71 @@ import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
  */
 public class SingleMachineRecoveryTests {
 
-	private static final int CHECK_TIMEOUT = 600000;     // Allow 10 minutes for each check operation.
-	// TODO Make this work on Windows.
+    private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
+    // TODO Make this work on Windows.
 
-	private static final int[] RING_SIZES = {1,2,3,4,5,10,20};
+    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
 
-	/**
-	 * Disables diagnostic output.
-	 */
-	@Before
-	public void setUp() {
+    /**
+     * Disables diagnostic output.
+     */
+    @Before
+    public void setUp() {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
-	}
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
+    }
 
-	/**
-	 * Runs ring recovery tests with a {@link KeyDistribution#RANDOM} key distribution.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void ringRecoversRandom() throws Exception {
+    /**
+     * Runs ring recovery tests with a {@link KeyDistribution#RANDOM} key distribution.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void ringRecoversRandom() throws Exception {
 
-		ringRecovers(KeyDistribution.RANDOM);
-	}
+        ringRecovers(KeyDistribution.RANDOM);
+    }
 
-	/**
-	 * Runs ring recovery tests with an {@link KeyDistribution#EVEN} key distribution.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void ringRecoversEven() throws Exception {
+    /**
+     * Runs ring recovery tests with an {@link KeyDistribution#EVEN} key distribution.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void ringRecoversEven() throws Exception {
 
-		ringRecovers(KeyDistribution.EVEN);
-	}
+        ringRecovers(KeyDistribution.EVEN);
+    }
 
-	/**
-	 * Runs ring recovery tests with a {@link KeyDistribution#CLUSTERED} key distribution.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void ringRecoversClustered() throws Exception {
+    /**
+     * Runs ring recovery tests with a {@link KeyDistribution#CLUSTERED} key distribution.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void ringRecoversClustered() throws Exception {
 
-		ringRecovers(KeyDistribution.CLUSTERED);
-	}
+        ringRecovers(KeyDistribution.CLUSTERED);
+    }
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private void ringRecovers(KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
+    private void ringRecovers(final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
 
-		for (int ring_size : RING_SIZES) {
+        for (final int ring_size : RING_SIZES) {
 
-			System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
-			ringRecovers(ring_size, network_type);
-			System.out.println("\n>>>>>>>>>>>>>>>> Done");
-		}
-	}
+            System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
+            ringRecovers(ring_size, network_type);
+            System.out.println("\n>>>>>>>>>>>>>>>> Done");
+        }
+    }
 
-	private void ringRecovers(int ring_size, KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
+    private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException {
 
-		System.out.println("constructing ring... ");
-		SingleHostNetwork network = new SingleHostNetwork(ring_size, network_type);
-		System.out.println("done");
+        System.out.println("constructing ring... ");
+        final SingleHostNetwork network = new SingleHostNetwork(ring_size, network_type);
+        System.out.println("done");
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT);
-	}
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT);
+    }
 }

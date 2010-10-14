@@ -48,44 +48,41 @@ import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
  */
 public class GangliaRecoveryTests {
 
-	/**
-	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void gangliaTestPublicKeyLibraryInstallation() throws Exception {
+    /**
+     * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void gangliaTestPublicKeyLibraryInstallation() throws Exception {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		URL[] lib_urls = new URL[] {
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
-		};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
 
-		List<InetAddress> addresses = getGangliaNodeAddresses();
+        final List<InetAddress> addresses = getGangliaNodeAddresses();
 
-		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
+        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
-		System.out.println(">>>>> recovery test completed");
-	}
+        System.out.println(">>>>> recovery test completed");
+    }
 
-	protected List<InetAddress> getGangliaNodeAddresses() throws UnknownHostException {
+    protected List<InetAddress> getGangliaNodeAddresses() throws UnknownHostException {
 
-		List<InetAddress> address_list = new ArrayList<InetAddress>();
+        final List<InetAddress> address_list = new ArrayList<InetAddress>();
 
-		for (int index = 0; index <= 57; index++) {
-			address_list.add(InetAddress.getByName("compute-0-" + index));
-		}
+        for (int index = 0; index <= 57; index++) {
+            address_list.add(InetAddress.getByName("compute-0-" + index));
+        }
 
-		// Remove bad nodes.
-		address_list.remove(InetAddress.getByName("compute-0-42"));
-		address_list.remove(InetAddress.getByName("compute-0-46"));
-		address_list.remove(InetAddress.getByName("compute-0-53"));
+        // Remove bad nodes.
+        address_list.remove(InetAddress.getByName("compute-0-42"));
+        address_list.remove(InetAddress.getByName("compute-0-46"));
+        address_list.remove(InetAddress.getByName("compute-0-53"));
 
-		return address_list;
-	}
+        return address_list;
+    }
 }

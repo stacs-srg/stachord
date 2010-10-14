@@ -49,122 +49,114 @@ import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
  */
 public class MultipleMachineRecoveryTests {
 
-	/**
-	 * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void multiMachineTestPasswordNoLibraryInstallation() throws Exception {
+    /**
+     * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void multiMachineTestPasswordNoLibraryInstallation() throws Exception {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = twoEachOnBeastAndMini();
+        final List<InetAddress> addresses = twoEachOnBeastAndMini();
 
-		List<ClassPath> class_paths = beastAndMiniClassPaths();
+        final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-		List<SSH2ConnectionWrapper> connections =  NetworkUtil.createUsernamePasswordConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
+        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
+        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
-		System.out.println(">>>>> recovery test completed");
-	}
+        System.out.println(">>>>> recovery test completed");
+    }
 
-	/**
-	 * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void multiMachineTestPublicKeyNoLibraryInstallation() throws Exception {
+    /**
+     * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void multiMachineTestPublicKeyNoLibraryInstallation() throws Exception {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = twoEachOnBeastAndMini();
+        final List<InetAddress> addresses = twoEachOnBeastAndMini();
 
-		List<ClassPath> class_paths = beastAndMiniClassPaths();
+        final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
+        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
-		System.out.println(">>>>> recovery test completed");
-	}
+        System.out.println(">>>>> recovery test completed");
+    }
 
-	/**
-	 * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void multiMachineTestPasswordLibraryInstallation() throws Exception {
+    /**
+     * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void multiMachineTestPasswordLibraryInstallation() throws Exception {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = twoEachOnBeastAndMini();
+        final List<InetAddress> addresses = twoEachOnBeastAndMini();
 
-		URL[] lib_urls = new URL[] {
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
-		};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
 
-		List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
+        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
+        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
 
-		System.out.println(">>>>> recovery test completed");
-	}
+        System.out.println(">>>>> recovery test completed");
+    }
 
-	/**
-	 * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
-	 *
-	 * @throws Exception if the test fails
-	 */
-	@Test
-	public void multiMachineTestPublicKeyLibraryInstallation() throws Exception {
+    /**
+     * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void multiMachineTestPublicKeyLibraryInstallation() throws Exception {
 
-		Diagnostic.setLevel(DiagnosticLevel.NONE);
+        Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("compute-0-33"));
-		addresses.add(InetAddress.getByName("compute-0-34"));
-		addresses.add(InetAddress.getByName("compute-0-35"));
+        final List<InetAddress> addresses = new ArrayList<InetAddress>();
+        addresses.add(InetAddress.getByName("compute-0-33"));
+        addresses.add(InetAddress.getByName("compute-0-34"));
+        addresses.add(InetAddress.getByName("compute-0-35"));
 
-		URL[] lib_urls = new URL[] {
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"),
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
-			new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")
-		};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
 
-		List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
-		List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
+        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-		RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
 
-		System.out.println(">>>>> recovery test completed");
-	}
+        System.out.println(">>>>> recovery test completed");
+    }
 
-	private List<ClassPath> beastAndMiniClassPaths() {
-		
-		List<ClassPath> class_paths = new ArrayList<ClassPath>();
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-		return class_paths;
-	}
+    private List<ClassPath> beastAndMiniClassPaths() {
 
-	private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
+        final List<ClassPath> class_paths = new ArrayList<ClassPath>();
+        class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+        class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
+        class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+        class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+        return class_paths;
+    }
 
-		List<InetAddress> addresses = new ArrayList<InetAddress>();
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-		return addresses;
-	}
+    private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
+
+        final List<InetAddress> addresses = new ArrayList<InetAddress>();
+        addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+        addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
+        addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+        addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
+        return addresses;
+    }
 }
