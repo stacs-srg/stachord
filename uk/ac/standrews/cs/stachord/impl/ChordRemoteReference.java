@@ -40,45 +40,53 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 class ChordRemoteReference implements IChordRemoteReference {
 
-	private static final long serialVersionUID = -7911452718429786447L;
-	
-	private IKey key;
-	private InetSocketAddress address;
-	private IChordRemote reference;
-	
-	public ChordRemoteReference(IKey key, IChordRemote reference) throws RemoteException {
-		
-		this.key = key;
-		this.reference = reference;
-		
-		address = reference.getAddress();
-	}
+    private static final long serialVersionUID = -7911452718429786447L;
 
-	public IKey getKey() {
-		return key;
-	}
+    private final IKey key;
+    private final InetSocketAddress address;
+    private final IChordRemote reference;
 
-	public InetSocketAddress getAddress() {
+    public ChordRemoteReference(final IKey key, final IChordRemote reference) throws RemoteException {
 
-		return address;
-	}
-	
-	public IChordRemote getRemote() {
-		return reference;
-	}
+        this.key = key;
+        this.reference = reference;
 
-	@Override
-	public int hashCode() {
+        address = reference.getAddress();
+    }
 
-		return 31 + ((key == null) ? 0 : key.hashCode());
-	}
+    @Override
+    public IKey getKey() {
 
-	public boolean equals( Object o ) {
-		return o instanceof ChordRemoteReference && key.equals( ((ChordRemoteReference) o).getKey() );
-	}
-	
-	public String toString() {
-		
-		return getRemote().toString();
-	}
+        return key;
+    }
+
+    @Override
+    public InetSocketAddress getAddress() {
+
+        return address;
+    }
+
+    @Override
+    public IChordRemote getRemote() {
+
+        return reference;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return 31 + (key == null ? 0 : key.hashCode());
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+
+        return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getKey());
+    }
+
+    @Override
+    public String toString() {
+
+        return getRemote().toString();
+    }
 }

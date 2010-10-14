@@ -36,35 +36,37 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 public class NextHopResult implements Serializable {
 
-	private static final long serialVersionUID = 2162948760764524096L;
-	
-	private boolean is_final_hop;
-	private IChordRemoteReference node;
+    private static final long serialVersionUID = 2162948760764524096L;
 
-	/**
-	 * Constructs a new record.
-	 * @param node the node
-	 * @param is_final_hop the flag
-	 */
-	public NextHopResult(IChordRemoteReference node, boolean is_final_hop) {
+    private final boolean is_final_hop;
+    private final IChordRemoteReference node;
 
-		this.is_final_hop = is_final_hop;
-		this.node = node;
-	}
+    /**
+     * Constructs a new record.
+     * @param node the node
+     * @param is_final_hop the flag
+     */
+    public NextHopResult(final IChordRemoteReference node, final boolean is_final_hop) {
 
-	/**
-	 * Returns true if the node is the final hop.
-	 * @return true if the node is the final hop
-	 */
-	public boolean isFinalHop() {
-		return is_final_hop;
-	}
+        this.is_final_hop = is_final_hop;
+        this.node = node;
+    }
 
-	/**
-	 * Returns the node.
-	 * @return the node
-	 */
-	public IChordRemoteReference getNode() {
-		return node;
-	}
+    /**
+     * Returns true if the node is the final hop.
+     * @return true if the node is the final hop
+     */
+    public boolean isFinalHop() {
+
+        return is_final_hop;
+    }
+
+    /**
+     * Returns the node.
+     * @return the node
+     */
+    public IChordRemoteReference getNode() {
+
+        return node;
+    }
 }

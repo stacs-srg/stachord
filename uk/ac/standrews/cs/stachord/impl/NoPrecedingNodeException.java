@@ -27,5 +27,5 @@ package uk.ac.standrews.cs.stachord.impl;
 
 class NoPrecedingNodeException extends Exception {
 
-	private static final long serialVersionUID = 1657676196929054283L;
+    private static final long serialVersionUID = 1657676196929054283L;
 }
