@@ -40,7 +40,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Provides the entry point for deploying a Chord node that is joining an existing Chord ring.
- * 
+ *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
@@ -70,18 +70,18 @@ public class StartNodeInExistingRing extends AbstractServer {
      * 	<dd>Specifies the local address and port at which the Chord service should be made available.
      * 		If no address is specified then the local loopback address (127.0.0.1) is used.
      * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
-     * 
+     *
      *	<dt>-k[host][:port] (required)</dt>
      *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
      * 		If no address is specified then the local loopback address (127.0.0.1) is used.
      * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
-     * 
+     *
      *	<dt>-xkey (optional)</dt>
      *	<dd>Specifies the address and port for a known host that will be used to join the Chord ring
      * 		If no address is specified then the local loopback address (127.0.0.1) is used.
      * 		If no port is specified then the default RMI port is used ({@link Constants#DEFAULT_RMI_REGISTRY_PORT}). </dd>
      * </dl>
-     * 
+     *
      * @param args see above
      * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name

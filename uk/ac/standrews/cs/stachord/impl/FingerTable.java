@@ -37,7 +37,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
  * Finger table implementation.
- * 
+ *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 class FingerTable {
@@ -92,7 +92,7 @@ class FingerTable {
 
     /**
      * Returns the finger that extends the furthest round the ring from this node without passing the given key.
-     * 
+     *
      * @param key the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
@@ -196,8 +196,8 @@ class FingerTable {
 
     /**
      * Sets the correct finger for a given index in the finger table, by routing to the corresponding key.
-     * 
-     * @param finger_index the index 
+     *
+     * @param finger_index the index
      * @return true if a new finger was established
      */
     private boolean fixFinger(final int finger_index) {

@@ -53,7 +53,7 @@ class SuccessorList {
 
     /**
      * Searches the successor list for a working node.
-     * 
+     *
      * @return the first working node in the successor list
      * @throws NoReachableNodeException if no working node is found
      */

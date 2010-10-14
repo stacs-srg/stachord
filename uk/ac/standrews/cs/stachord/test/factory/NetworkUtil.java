@@ -50,11 +50,11 @@ public class NetworkUtil {
 
     /**
      * Creates a list of interactively entered username/password credentials for the specified addresses. Optionally the same credentials can be used for all addresses.
-     * 
+     *
      * @param addresses the addresses
      * @param same_credentials_for_all true if the same credentials should be used for all addresses
      * @return a list of username/password credentials
-     * 
+     *
      * @throws IOException if an error occurs when trying to read in a username or password
      */
     public static List<SSH2ConnectionWrapper> createUsernamePasswordConnections(final List<InetAddress> addresses, final boolean same_credentials_for_all) throws IOException {
@@ -71,11 +71,11 @@ public class NetworkUtil {
 
     /**
      * Creates a list of interactively entered username/public key credentials for the specified addresses. Optionally the same credentials can be used for all addresses.
-     * 
+     *
      * @param addresses the addresses
      * @param same_credentials_for_all true if the same credentials should be used for all addresses
      * @return a list of username/password credentials
-     * 
+     *
      * @throws IOException if an error occurs when trying to read in a username or password
      */
     public static List<SSH2ConnectionWrapper> createPublicKeyConnections(final List<InetAddress> addresses, final boolean same_credentials_for_all) throws IOException {
@@ -92,11 +92,11 @@ public class NetworkUtil {
 
     /**
      * Creates a list of host descriptors given a list of SSH credentials and corresponding class paths.
-     * 
+     *
      * @param connections the SSH credentials
      * @param class_paths the corresponding class paths
      * @return a list of host descriptors
-     * 
+     *
      * @throws UnequalArrayLengthsException if the lengths of the two lists are different
      * @throws SSH2Exception if an error occurs when attempting to contact one of the specified remote hosts
      */
@@ -117,11 +117,11 @@ public class NetworkUtil {
 
     /**
      * Creates a list of host descriptors given a list of SSH credentials and a list of URLs from which class path entries can be obtained.
-     * 
+     *
      * @param connections the SSH credentials
      * @param lib_urls the class path entry URLs
      * @return a list of host descriptors
-     * 
+     *
      * @throws SSH2Exception if an error occurs when attempting to contact one of the specified remote hosts
      */
     public static List<HostDescriptor> createHostDescriptors(final List<SSH2ConnectionWrapper> connections, final URL[] lib_urls) throws SSH2Exception {

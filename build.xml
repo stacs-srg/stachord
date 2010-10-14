@@ -2,7 +2,7 @@
 
 	<!-- This depends on the Hudson workspace structure. -->
 	<property name="hudson-tools-archive-dir" location="../../hudson_tools/lastStable/archive" />
-       
+      
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
 	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-pmd, do-cpd, do-highlight" />

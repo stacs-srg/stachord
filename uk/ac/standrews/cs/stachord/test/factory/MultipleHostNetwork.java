@@ -44,7 +44,7 @@ import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Network comprising Chord nodes running on a set of specified physical machines running Linux or OSX.
- * 
+ *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
  */
@@ -67,10 +67,10 @@ public class MultipleHostNetwork implements INetwork {
 
     /**
      * Creates a new network.
-     * 
+     *
      * @param host_descriptors a description of the target physical host for each Chord node to be created
      * @param key_distribution the required key distribution
-     * 
+     *
      * @throws IOException if the process for a node cannot be created
      * @throws SSH2Exception if communication with a remote host fails
      * @throws TimeoutException if one or more nodes cannot be instantiated within the timeout period

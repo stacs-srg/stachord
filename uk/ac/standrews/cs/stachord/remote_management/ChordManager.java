@@ -43,7 +43,7 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 /**
  * Provides remote management hooks for Chord.
- * 
+ *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public class ChordManager implements IApplicationManager {
