@@ -34,9 +34,7 @@ import uk.ac.standrews.cs.stachord.test.logic.RingArithmeticTest;
  * Tests run on each build.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-	RingArithmeticTest.class
-})
+@Suite.SuiteClasses({RingArithmeticTest.class})
 public class CheckInTests {
-	// Empty.
+    // Empty.
 }

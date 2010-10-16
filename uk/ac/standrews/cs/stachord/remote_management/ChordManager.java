@@ -38,7 +38,7 @@ import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 /**
@@ -48,8 +48,8 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
  */
 public class ChordManager implements IApplicationManager {
 
-    //	private static final String AUTO_DISCOVER_CHECKBOX_LABEL = "Auto-Discover";
-    //	private static final String AUTO_ADD_CHECKBOX_LABEL =      "Auto-Add Other Ring Hosts";
+    // private static final String AUTO_DISCOVER_CHECKBOX_LABEL = "Auto-Discover";
+    // private static final String AUTO_ADD_CHECKBOX_LABEL =      "Auto-Add Other Ring Hosts";
 
     private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName(); // Full name of the class used to instantiate a Chord ring.
     private static final int APPLICATION_CALL_TIMEOUT = 10000; // The timeout for attempted application calls, in ms.
@@ -61,7 +61,7 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 
-        host_descriptor.port = Constants.DEFAULT_RMI_REGISTRY_PORT;
+        host_descriptor.port = IChordNode.DEFAULT_RMI_REGISTRY_PORT;
 
         // Try to connect to the application on the default RMI port.
         final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.host, host_descriptor.port);

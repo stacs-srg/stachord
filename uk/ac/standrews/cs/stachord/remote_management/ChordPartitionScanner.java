@@ -39,12 +39,13 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 class ChordPartitionScanner implements IGlobalHostScanner {
 
+    private static final int MIN_CYCLE_TIME = 20000;
     private boolean enabled = false;
 
     @Override
     public int getMinCycleTime() {
 
-        return 20000;
+        return MIN_CYCLE_TIME;
     }
 
     @Override

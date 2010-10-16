@@ -55,7 +55,7 @@ import com.mindbright.ssh2.SSH2Exception;
  *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class ChordNodeFactory {
+public final class ChordNodeFactory {
 
     /**
      * Timeout interval for connection to remote nodes, in ms.
@@ -74,6 +74,13 @@ public class ChordNodeFactory {
     private static int next_port = INITIAL_PORT; // The next port to be used; static to allow multiple concurrent networks.
 
     private static final Object SYNC = new Object(); // Used for serializing network creation.
+
+    /**
+     * Prevent instantiation of utility class.
+     */
+    private ChordNodeFactory() {
+
+    }
 
     /**
      * Creates a new Chord node running at a given local network address on a given port, establishing a new one-node ring.
@@ -188,7 +195,7 @@ public class ChordNodeFactory {
      */
     public static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
-        final ArgGen arg_gen = new ArgGen() {
+        final IArgGen arg_gen = new IArgGen() {
 
             @Override
             public List<String> getArgs(final int local_port) {
@@ -262,7 +269,7 @@ public class ChordNodeFactory {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final ArgGen arg_gen, final Class<?> clazz) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen, final Class<?> clazz) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         final long start_time = System.currentTimeMillis();
 
@@ -301,7 +308,7 @@ public class ChordNodeFactory {
         }
     }
 
-    private interface ArgGen {
+    private interface IArgGen {
 
         List<String> getArgs(int local_port);
     }

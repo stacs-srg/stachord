@@ -56,7 +56,7 @@ class FingerTable {
     private static final int MAX_ASSUMED_RING_SIZE = 1000;
 
     // The ratio between successive finger targets.
-    private static final BigInteger INTER_FINGER_RATIO = new BigInteger(String.valueOf(Constants.INTER_FINGER_RATIO));
+    private static final BigInteger INTER_FINGER_RATIO = new BigInteger(String.valueOf(IChordNode.INTER_FINGER_RATIO));
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ class FingerTable {
         this.node = node;
         node_key = node.getKey();
 
-        number_of_fingers = log(MAX_ASSUMED_RING_SIZE, Constants.INTER_FINGER_RATIO);
+        number_of_fingers = log(MAX_ASSUMED_RING_SIZE, IChordNode.INTER_FINGER_RATIO);
         next_finger_index = number_of_fingers - 1;
 
         fingers = new IChordRemoteReference[number_of_fingers];

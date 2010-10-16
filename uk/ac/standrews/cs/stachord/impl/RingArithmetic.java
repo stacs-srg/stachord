@@ -32,7 +32,14 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
  *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class RingArithmetic {
+public final class RingArithmetic {
+
+    /**
+     * Prevent instantiation of utility class.
+     */
+    private RingArithmetic() {
+
+    }
 
     /**
      * Tests whether k is in the segment of the ring obtained by moving clockwise from (but not including) 'start'

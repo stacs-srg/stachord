@@ -46,7 +46,14 @@ import com.mindbright.ssh2.SSH2Exception;
  *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class NetworkUtil {
+public final class NetworkUtil {
+
+    /**
+     * Prevent instantiation of utility class.
+     */
+    private NetworkUtil() {
+
+    }
 
     /**
      * Creates a list of interactively entered username/password credentials for the specified addresses. Optionally the same credentials can be used for all addresses.

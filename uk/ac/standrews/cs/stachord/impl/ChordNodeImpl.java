@@ -491,8 +491,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
     }
 
     /**
-     * Returns the closest preceding node from the finger table, or the successor if there is no such node in the finger table
-     *     * @param k a key
+     * Returns the closest preceding node from the finger table, or the successor if there is no such node in the finger table.
+     * @param k a key
      * @return the peer node whose key most closely precedes k
      */
     private IChordRemoteReference closestPrecedingNode(final IKey k) {

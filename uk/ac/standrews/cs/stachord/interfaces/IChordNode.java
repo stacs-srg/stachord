@@ -64,6 +64,21 @@ public interface IChordNode extends Observer {
      */
     IEvent FINGER_TABLE_CHANGE_EVENT = new Event("FINGER_TABLE_CHANGE_EVENT");
 
+    /**
+     * The maximum length of a node's successor list.
+     */
+    int MAX_SUCCESSOR_LIST_SIZE = 5;
+
+    /**
+     * The default RMI registry port.
+     */
+    int DEFAULT_RMI_REGISTRY_PORT = 1099;
+
+    /**
+     * The ratio between successive finger target keys in the finger table.
+     */
+    int INTER_FINGER_RATIO = 2;
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Shared functionality with IChordRemote.

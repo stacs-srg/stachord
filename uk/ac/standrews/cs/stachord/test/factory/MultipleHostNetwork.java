@@ -123,11 +123,6 @@ public class MultipleHostNetwork implements INetwork {
         }
     }
 
-    private static class ExceptionWrapper {
-
-        Exception e;
-    }
-
     // -------------------------------------------------------------------------------------------------------
 
     protected void init(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws IOException, SSH2Exception, UnknownPlatformException, TimeoutException, InterruptedException {
@@ -145,7 +140,7 @@ public class MultipleHostNetwork implements INetwork {
 
         final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.application_reference;
 
-        final ExceptionWrapper exception_wrapper = new ExceptionWrapper();
+        final Exception[] exception_wrapper = new Exception[1];
 
         for (int node_index = 1; node_index < host_descriptors.size(); node_index++) {
 
@@ -167,7 +162,7 @@ public class MultipleHostNetwork implements INetwork {
                         new_node.join(known_node);
                     }
                     catch (final Exception e) {
-                        exception_wrapper.e = e;
+                        exception_wrapper[0] = e;
                     }
                 }
             });
@@ -175,10 +170,10 @@ public class MultipleHostNetwork implements INetwork {
 
         actions.blockUntilNoUncompletedActions();
 
-        if (exception_wrapper.e instanceof IOException) { throw (IOException) exception_wrapper.e; }
-        if (exception_wrapper.e instanceof SSH2Exception) { throw (SSH2Exception) exception_wrapper.e; }
-        if (exception_wrapper.e instanceof TimeoutException) { throw (TimeoutException) exception_wrapper.e; }
-        if (exception_wrapper.e instanceof UnknownPlatformException) { throw (UnknownPlatformException) exception_wrapper.e; }
+        if (exception_wrapper[0] instanceof IOException) { throw (IOException) exception_wrapper[0]; }
+        if (exception_wrapper[0] instanceof SSH2Exception) { throw (SSH2Exception) exception_wrapper[0]; }
+        if (exception_wrapper[0] instanceof TimeoutException) { throw (TimeoutException) exception_wrapper[0]; }
+        if (exception_wrapper[0] instanceof UnknownPlatformException) { throw (UnknownPlatformException) exception_wrapper[0]; }
     }
 
     // -------------------------------------------------------------------------------------------------------

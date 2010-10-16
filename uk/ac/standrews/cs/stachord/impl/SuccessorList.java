@@ -29,6 +29,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -98,7 +99,7 @@ class SuccessorList {
 
         final List<IChordRemoteReference> new_list = new ArrayList<IChordRemoteReference>();
 
-        final int number_to_be_taken_from_successors_successor_list = Math.min(Constants.MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
+        final int number_to_be_taken_from_successors_successor_list = Math.min(IChordNode.MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
 
         // Check for the element of the successor list being this node, as will
         // happen with a small number of nodes in the ring. If this node is

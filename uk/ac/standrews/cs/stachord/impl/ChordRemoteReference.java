@@ -75,7 +75,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public int hashCode() {
 
-        return 31 + (key == null ? 0 : key.hashCode());
+        return key == null ? 0 : key.hashCode();
     }
 
     @Override

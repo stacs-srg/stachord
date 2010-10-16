@@ -31,10 +31,12 @@ import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 class ChordCycleLengthScanner implements ISingleHostScanner {
 
+    private static final int MIN_CYCLE_TIME = 10000;
+
     @Override
     public int getMinCycleTime() {
 
-        return 10000;
+        return MIN_CYCLE_TIME;
     }
 
     @Override

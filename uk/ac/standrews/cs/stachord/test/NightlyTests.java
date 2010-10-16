@@ -34,9 +34,7 @@ import uk.ac.standrews.cs.stachord.test.recovery.SingleMachineRecoveryTests;
  * Tests run nightly.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-	SingleMachineRecoveryTests.class
-})
+@Suite.SuiteClasses({SingleMachineRecoveryTests.class})
 public class NightlyTests {
-	// Empty.
+    // Empty.
 }

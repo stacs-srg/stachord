@@ -49,6 +49,8 @@ import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
  */
 public class MultipleMachineRecoveryTests {
 
+    private static final int TIMEOUT = 500;
+
     /**
      * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
      *
@@ -66,7 +68,7 @@ public class MultipleMachineRecoveryTests {
         final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -88,7 +90,7 @@ public class MultipleMachineRecoveryTests {
         final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -110,7 +112,7 @@ public class MultipleMachineRecoveryTests {
         final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 60000);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -135,7 +137,7 @@ public class MultipleMachineRecoveryTests {
         final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }

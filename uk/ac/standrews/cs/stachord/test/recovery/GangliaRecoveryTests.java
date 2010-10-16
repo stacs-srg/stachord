@@ -48,6 +48,9 @@ import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
  */
 public class GangliaRecoveryTests {
 
+    private static final int NO_OF_NODES = 57;
+    private static final int TIMEOUT = 500;
+
     /**
      * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
      *
@@ -65,7 +68,7 @@ public class GangliaRecoveryTests {
         final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), 500);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -74,7 +77,7 @@ public class GangliaRecoveryTests {
 
         final List<InetAddress> address_list = new ArrayList<InetAddress>();
 
-        for (int index = 0; index <= 57; index++) {
+        for (int index = 0; index <= NO_OF_NODES; index++) {
             address_list.add(InetAddress.getByName("compute-0-" + index));
         }
 

@@ -40,7 +40,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.Constants;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.test.factory.INetwork;
@@ -52,7 +52,14 @@ import uk.ac.standrews.cs.stachord.test.factory.INetwork;
  * @author Angus Macdonald (angus@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class RecoveryTestLogic {
+public final class RecoveryTestLogic {
+
+    /**
+     * Prevent instantiation of utility class.
+     */
+    private RecoveryTestLogic() {
+
+    }
 
     /**
      * The proportion of the nodes to be killed off in recovery tests.
@@ -368,7 +375,7 @@ public class RecoveryTestLogic {
      * Checks that the successor list of the given node is complete. The completeness criteria are:
      *
      * <ol>
-     * <li>the length of the list is {@link Constants#MAX_SUCCESSOR_LIST_SIZE} or one less than the size of the ring, whichever is less</li>
+     * <li>the length of the list is {@link IChordNode#MAX_SUCCESSOR_LIST_SIZE} or one less than the size of the ring, whichever is less</li>
      * <li>the entries in the list follow ring successor order</li>
      * <li>no errors occur during the test</li>
      * </ol>
@@ -387,7 +394,7 @@ public class RecoveryTestLogic {
             successor_list = node.getSuccessorList();
 
             // The length of the successor lists should be MIN(max_successor_list_length, number_of_nodes - 1).
-            if (successor_list.size() != Math.min(Constants.MAX_SUCCESSOR_LIST_SIZE, network_size - 1)) { return false; }
+            if (successor_list.size() != Math.min(IChordNode.MAX_SUCCESSOR_LIST_SIZE, network_size - 1)) { return false; }
 
             // Check that the successors follow the node round the ring.
             IChordRemoteReference ring_node = node.getSuccessor();
