@@ -48,7 +48,8 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
  * Implementation of Chord node.
- * * @author Stephanie Anderson
+ *
+ * @author Stephanie Anderson
  * @author Stuart Norcross (stuart@cs.st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
@@ -657,7 +658,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
                     return;
                 }
                 catch (final RemoteException e) {
-                    // Ignore and try next finger.
+                    // Ignore and try next finger. Disable PMD warning - NOPMD
                 }
             }
         }
