@@ -81,8 +81,9 @@
 		    </fileset>
 		</path>
 
-		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
-		
+		<!-- <taskdef classpathref="cobertura.classpath" resource="tasks.properties" /> -->
+		<taskdef resource="tasks.properties" classpath="${cobertura.dir}/cobertura.jar"/>
+
 		<cobertura-instrument todir="${instrumented.dir}">
 		    <ignore regex="org.apache.log4j.*" />
 		    <fileset dir="bin">
