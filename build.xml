@@ -72,9 +72,9 @@
 	<!-- Coverage report. -->
 	<target name="do-coverage">
 		
+		<echo message="cobertura dir: ${cobertura.dir}"/>
 
 		<path id="cobertura.classpath">
-			<echo message="cobertura dir: ${cobertura.dir}"/>
 		    <fileset dir="${cobertura.dir}">
 		        <include name="cobertura.jar" />
 		        <include name="lib/**/*.jar" />
