@@ -31,9 +31,11 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
 
@@ -51,12 +53,16 @@ public class SingleMachineRecoveryTests {
     private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
 
     /**
-     * Disables diagnostic output.
+     * Disables diagnostic output and kills existing instances.
+     * @throws IOException if existing instances cannot be killed
      */
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
+
+        // Kill any lingering Chord node processes.
+        ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
     }
 
     /**
