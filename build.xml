@@ -5,7 +5,8 @@
       
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd, do-coverage, do-highlight" />
+	<!--<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd, do-coverage, do-highlight" />
+-->	<target name="build" depends="do-init-release, do-compile, do-test, do-coverage, do-highlight" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
@@ -73,6 +74,7 @@
 		
 
 		<path id="cobertura.classpath">
+			<echo message="cobertura dir: ${cobertura.dir}"/>
 		    <fileset dir="${cobertura.dir}">
 		        <include name="cobertura.jar" />
 		        <include name="lib/**/*.jar" />
