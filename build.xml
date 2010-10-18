@@ -26,6 +26,9 @@
 
 	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	
+	<property name="cobertura.dir" value="${hudson-tools-archive-dir}/lib" />
+	<property name="instrumented.dir" value="cobertura-instrumented" />
+
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
 	<!-- Initialise release directory structure. -->
@@ -68,8 +71,6 @@
 	<!-- Coverage report. -->
 	<target name="do-coverage">
 		
-		<property name="cobertura.dir" value="${hudson-tools-archive-dir}/lib" />
-		<property name="instrumented.dir" value="cobertura-instrumented" />
 
 		<path id="cobertura.classpath">
 		    <fileset dir="${cobertura.dir}">
