@@ -32,7 +32,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Observable;
-import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.eventModel.Event;
 import uk.ac.standrews.cs.nds.eventModel.IEvent;
@@ -207,12 +206,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
         }
 
         Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
-    }
-
-    @Override
-    public void addObserver(final Observer observer) {
-
-        super.addObserver(observer);
     }
 
     /**
