@@ -27,7 +27,7 @@
 
 	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	
-	<property name="cobertura.dir" value="${hudson-tools-archive-dir}/lib" />
+	<property name="cobertura.dir" value="${hudson-tools-archive-dir}/lib/cobertura" />
 	<property name="instrumented.dir" value="cobertura-instrumented" />
 
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
