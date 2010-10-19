@@ -280,7 +280,7 @@ public final class RecoveryTestLogic {
         if (network_size == 1) {
 
             // Single-node ring, so stable if predecessor is null and successor is self.
-            final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.application_reference;
+            final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
             final IChordRemote node = application_reference.getRemote();
 
             try {
@@ -325,7 +325,7 @@ public final class RecoveryTestLogic {
      */
     public static boolean fingerTableComplete(final HostDescriptor host_descriptor) {
 
-        final IChordRemoteReference node = (IChordRemoteReference) host_descriptor.application_reference;
+        final IChordRemoteReference node = (IChordRemoteReference) host_descriptor.getApplicationReference();
         IChordRemoteReference previous_finger_reference = null;
 
         // For each finger...
@@ -386,7 +386,7 @@ public final class RecoveryTestLogic {
      */
     public static boolean successorListComplete(final HostDescriptor host_descriptor, final int network_size) {
 
-        final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.application_reference;
+        final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
         final IChordRemote node = application_reference.getRemote();
 
         List<IChordRemoteReference> successor_list;
@@ -423,8 +423,8 @@ public final class RecoveryTestLogic {
         for (final HostDescriptor host_descriptor1 : host_descriptors) {
             for (final HostDescriptor host_descriptor2 : host_descriptors) {
 
-                final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.application_reference;
-                final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.application_reference;
+                final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.getApplicationReference();
+                final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.getApplicationReference();
 
                 if (!routingCorrect(node1, node2)) { return false; }
             }
@@ -464,14 +464,16 @@ public final class RecoveryTestLogic {
      */
     public static int cycleLengthFrom(final HostDescriptor host_descriptor, final boolean forwards) {
 
-        if (host_descriptor.application_reference == null) { return 0; }
+        final Object application_reference = host_descriptor.getApplicationReference();
+
+        if (application_reference == null) { return 0; }
 
         // Record the nodes that have already been encountered.
         final Set<IChordRemoteReference> nodes_encountered = new HashSet<IChordRemoteReference>();
 
         int cycle_length = 0;
 
-        IChordRemoteReference node = (IChordRemoteReference) host_descriptor.application_reference;
+        IChordRemoteReference node = (IChordRemoteReference) application_reference;
 
         while (true) {
 
@@ -484,7 +486,7 @@ public final class RecoveryTestLogic {
                 return 0;
             }
 
-            if (node.equals(host_descriptor.application_reference)) { return cycle_length; }
+            if (node.equals(host_descriptor.getApplicationReference())) { return cycle_length; }
 
             // If the node is not the start node but has already been encountered, there is a cycle but it doesn't contain the start node.
             if (nodes_encountered.contains(node)) { return 0; }
@@ -544,7 +546,7 @@ public final class RecoveryTestLogic {
     private static void enableFingerTableMaintenance(final INetwork network, final boolean enabled) throws RemoteException {
 
         for (final HostDescriptor machine_descriptor : network.getNodes()) {
-            final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
+            final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
             application_reference.getRemote().enablePeerStateMaintenance(enabled);
         }
     }
@@ -565,7 +567,7 @@ public final class RecoveryTestLogic {
                 final HostDescriptor victim = nodes.get(victim_index);
                 network.killNode(victim);
 
-                final IChordRemoteReference application_reference = (IChordRemoteReference) victim.application_reference;
+                final IChordRemoteReference application_reference = (IChordRemoteReference) victim.getApplicationReference();
 
                 // Wait for it to die.
                 while (true) {
@@ -652,7 +654,7 @@ public final class RecoveryTestLogic {
             System.out.println(machine_descriptor);
 
             try {
-                final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.application_reference;
+                final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
                 System.out.println(application_reference.getRemote().toStringDetailed());
             }
             catch (final RemoteException e) {
