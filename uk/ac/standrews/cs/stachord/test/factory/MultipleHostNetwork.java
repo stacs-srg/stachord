@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.ActionQueue;
-import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
+import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -148,7 +148,7 @@ public class MultipleHostNetwork implements INetwork {
             final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
 
             // Queue an asynchronous action to create the new node and bind to it.
-            actions.enqueue(new ActionWithNoResult() {
+            actions.enqueue(new IActionWithNoResult() {
 
                 @Override
                 public void performAction() {

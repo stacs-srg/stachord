@@ -34,7 +34,7 @@ import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
 import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
-import uk.ac.standrews.cs.nds.util.ActionWithNoResult;
+import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
@@ -70,7 +70,7 @@ public class ChordManager implements IApplicationManager {
         final Exception[] exception_wrapper = new Exception[]{null};
 
         // Try to connect to the application, subject to a timeout.
-        new Timeout().performActionWithTimeout(new ActionWithNoResult() {
+        new Timeout().performActionWithTimeout(new IActionWithNoResult() {
 
             @Override
             public void performAction() {
