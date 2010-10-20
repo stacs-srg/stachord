@@ -50,7 +50,7 @@
 	
 	<!-- Generate project jar. -->
 	<target name="project-jar">
-		<jar jarfile="bin/stachord.jar" basedir="." includes="uk/**" />
+		<jar jarfile="bin/stachord.jar" basedir="src" includes="uk/**" />
 	</target>
 
 	<!-- Generate javadoc. -->
