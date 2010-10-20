@@ -37,6 +37,7 @@
 		<mkdir dir="colored" />
 		<mkdir dir="doc" />
 		<mkdir dir="junit" />
+		<mkdir dir="junit-cobertura" />
 		<mkdir dir="cobertura-instrumented" />
 		<mkdir dir="coverage-report" />
 	</target>
@@ -113,10 +114,13 @@
 			-->
 			<classpath refid="cobertura.classpath" />
 
+			<classpath location="${lib-nds}" />
+			<classpath location="${lib-mindterm}" />
 			<classpath location="${lib-junit}" />
+			<classpath location="${remote_management}" />
 
 			<formatter type="xml" />
-			<test name="${test-name}" todir="junit"/>
+			<test name="${test-name}" todir="junit-cobertura"/>
 		</junit>
 		
 		<cobertura-report format="xml" destdir="coverage-report" srcdir="." />
