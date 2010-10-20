@@ -100,7 +100,7 @@ public class MultipleHostNetwork implements INetwork {
 
                 final int network_size = host_descriptors.size();
 
-                node.process.destroy();
+                node.getProcess().destroy();
 
                 final boolean successfully_removed = host_descriptors.remove(node);
                 assert successfully_removed;
@@ -117,7 +117,7 @@ public class MultipleHostNetwork implements INetwork {
 
             for (final HostDescriptor node : host_descriptors) {
 
-                node.process.destroy();
+                node.getProcess().destroy();
             }
             host_descriptors.clear();
         }
@@ -138,7 +138,7 @@ public class MultipleHostNetwork implements INetwork {
         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
         ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(known_node_descriptor, node_keys[0]);
 
-        final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.application_reference;
+        final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
 
         final Exception[] exception_wrapper = new Exception[1];
 
@@ -158,7 +158,7 @@ public class MultipleHostNetwork implements INetwork {
                         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
                         ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(new_node_descriptor, key);
 
-                        final IChordRemote new_node = ((IChordRemoteReference) new_node_descriptor.application_reference).getRemote();
+                        final IChordRemote new_node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
                         new_node.join(known_node);
                     }
                     catch (final Exception e) {

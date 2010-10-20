@@ -28,8 +28,8 @@ package uk.ac.standrews.cs.stachord.interfaces;
 import java.rmi.RemoteException;
 import java.util.Observer;
 
-import uk.ac.standrews.cs.nds.eventModel.Event;
-import uk.ac.standrews.cs.nds.eventModel.IEvent;
+import uk.ac.standrews.cs.nds.events.Event;
+import uk.ac.standrews.cs.nds.events.IEvent;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 
 /**

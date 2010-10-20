@@ -33,10 +33,9 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Observable;
 
-import uk.ac.standrews.cs.nds.eventModel.Event;
-import uk.ac.standrews.cs.nds.eventModel.IEvent;
+import uk.ac.standrews.cs.nds.events.Event;
+import uk.ac.standrews.cs.nds.events.IEvent;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.interfaces.IP2PNode;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -53,7 +52,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comparable<IP2PNode> {
+class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     private final InetSocketAddress local_address; // The address of this node.
     private final IKey key; // The key of this node.
@@ -339,13 +338,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote, Comp
     public String toString() {
 
         return detailed_to_string ? toStringDetailed() : toStringTerse();
-    }
-
-    @Override
-    public int compareTo(final IP2PNode other) {
-
-        if (other == null) { return 1; }
-        return key.compareTo(other.getKey());
     }
 
     @Override

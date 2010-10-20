@@ -138,7 +138,7 @@ public final class ChordNodeFactory {
     public static IChordRemoteReference createRemoteNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         instantiateRemoteNode(host_descriptor, key);
-        return bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.host, host_descriptor.port));
+        return bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
     }
 
     /**
@@ -173,7 +173,7 @@ public final class ChordNodeFactory {
 
         final List<String> args = new ArrayList<String>();
 
-        args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, host_descriptor.port));
+        args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), host_descriptor.getPort()));
         if (key != null) {
             addKeyArg(key, args);
         }
@@ -202,7 +202,7 @@ public final class ChordNodeFactory {
 
                 final List<String> args = new ArrayList<String>();
 
-                args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.host, local_port));
+                args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), local_port));
                 addKeyArg(key, args);
 
                 return args;
@@ -283,13 +283,13 @@ public final class ChordNodeFactory {
                 port = next_port++;
             }
 
-            host_descriptor.port = port;
+            host_descriptor.setPort(port);
 
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                host_descriptor.process = ProcessInvocation.runJavaProcess(clazz, args, host_descriptor);
-                host_descriptor.application_reference = bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.host, host_descriptor.port));
+                host_descriptor.setProcess(ProcessInvocation.runJavaProcess(clazz, args, host_descriptor));
+                host_descriptor.setApplicationReference(bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort())));
                 finished = true;
             }
             catch (final TimeoutException e) {

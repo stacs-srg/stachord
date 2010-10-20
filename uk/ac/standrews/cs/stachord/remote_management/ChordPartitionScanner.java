@@ -62,7 +62,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
             final List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
             for (final HostDescriptor host_descriptor : host_descriptors) {
 
-                if (host_descriptor.host_state == HostState.RUNNING) {
+                if (host_descriptor.getHostState() == HostState.RUNNING) {
 
                     if (ringSize(host_descriptor) > 0) {
                         stable_hosts.add(host_descriptor);
@@ -76,11 +76,11 @@ class ChordPartitionScanner implements IGlobalHostScanner {
             // For each stable node with a cycle length less than the number of stable nodes, join it to the first node.
             if (stable_hosts.size() > 1) {
 
-                final IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).application_reference;
+                final IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).getApplicationReference();
 
                 for (int i = 1; i < stable_hosts.size(); i++) {
                     final HostDescriptor host_descriptor = stable_hosts.get(i);
-                    final IChordRemote node = ((IChordRemoteReference) host_descriptor.application_reference).getRemote();
+                    final IChordRemote node = ((IChordRemoteReference) host_descriptor.getApplicationReference()).getRemote();
                     try {
                         if (ringSize(host_descriptor) < stable_hosts.size()) {
                             System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
@@ -110,7 +110,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
 
     private int ringSize(final HostDescriptor host_descriptor) {
 
-        final String ring_size_record = host_descriptor.scan_results.get(ChordManager.RING_SIZE_NAME);
+        final String ring_size_record = host_descriptor.getScanResults().get(ChordManager.RING_SIZE_NAME);
         return ring_size_record != null && !ring_size_record.equals("-") ? Integer.parseInt(ring_size_record) : 0;
     }
 }

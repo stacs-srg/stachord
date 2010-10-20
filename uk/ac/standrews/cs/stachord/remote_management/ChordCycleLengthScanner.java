@@ -49,7 +49,7 @@ class ChordCycleLengthScanner implements ISingleHostScanner {
     public void check(final HostDescriptor host_descriptor) {
 
         final int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
-        host_descriptor.scan_results.put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
+        host_descriptor.getScanResults().put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
     }
 
     @Override
