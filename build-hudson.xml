@@ -11,7 +11,7 @@
 
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
-	<property name="classpath" value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
+	<property name="classpath" value="bin:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
 
 	<property name="compile-src-dir"      value="src" />
 	<property name="compile-includes"     value="**/*.java" />
@@ -71,8 +71,6 @@
 	<!-- Coverage report. -->
 	<target name="do-coverage">
 		
-		<echo message="cobertura dir: ${cobertura.dir}"/>
-
 		<path id="cobertura.classpath">
 		    <fileset dir="${cobertura.dir}">
 		        <include name="cobertura.jar" />
@@ -81,7 +79,6 @@
 		</path>
 
 		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
-		<!-- <taskdef resource="tasks.properties" classpath="${cobertura.dir}/cobertura.jar"/> -->
 
 		<cobertura-instrument todir="${instrumented.dir}">
 		    <ignore regex="org.apache.log4j.*" />
