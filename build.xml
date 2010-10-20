@@ -14,16 +14,15 @@
 
 	<property name="classpath" value=".:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
 
-	<property name="compile-src-dir"      value="." />
-	<property name="compile-includes"     value="uk/**" />
-	<property name="compile-dest-dir"     value="." />
+	<property name="compile-src-dir"      value="src" />
+	<property name="compile-includes"     value="**/*.java" />
+	<property name="compile-dest-dir"     value="bin" />
 
     <property name="checkstyle-check-dir" value="." />
-    <property name="pmd-check-dir"        value="." />
 	<property name="cpd-check-dir"        value="." />
 	
-	<property name="findbugs-src-dir"     value="." />
-	<property name="findbugs-check-dir"   value="bin/stachord.jar" />
+	<property name="findbugs-src-dir"     value="src/uk/ac/standrews/cs/stachord" />
+	<property name="findbugs-check-dir"   value="bin/uk/ac/standrews/cs/stachord" />
 
 	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	
@@ -57,7 +56,7 @@
 	<!-- Generate javadoc. -->
 	<target name="release-doc">
 		<javadoc
-				classpath="${classpath}" sourcepath="." destdir="doc" packagenames="uk.ac.standrews.cs.stachord.*"
+				classpath="${classpath}" sourcepath="src" destdir="doc" packagenames="uk.ac.standrews.cs.stachord.*"
 				access="public" linksource="yes" source="1.6" nodeprecated="false" nodeprecatedlist="false"
 				noindex="false" nonavbar="false" notree="false" splitindex="false" use="false" author="true" version="true" verbose="true">
 
