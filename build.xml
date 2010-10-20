@@ -114,6 +114,8 @@
 			-->
 			<classpath refid="cobertura.classpath" />
 
+			<classpath location="${lib-junit}" />
+
 			<formatter type="xml" />
 			<test name="${test-name}" todir="junit"/>
 		</junit>
