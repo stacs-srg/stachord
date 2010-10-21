@@ -33,7 +33,8 @@
 
 	<property name="test-name"            value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	<property name="cobertura-exclude"    value="**/test/**/*.class" />
-	
+	<property name="cobertura-src"        value="src" />
+
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
 	<!-- Run nightly tests. -->
