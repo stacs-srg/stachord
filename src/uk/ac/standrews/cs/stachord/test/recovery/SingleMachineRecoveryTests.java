@@ -66,6 +66,12 @@ public class SingleMachineRecoveryTests {
         ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
     }
 
+    public static void main(final String[] args) throws IOException {
+
+        ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
+
+    }
+
     /**
      * Runs ring recovery tests with a {@link KeyDistribution#RANDOM} key distribution.
      *
