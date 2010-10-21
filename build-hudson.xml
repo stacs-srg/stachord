@@ -32,24 +32,13 @@
 	<property name="findbugs-check-dir"   value="bin/uk/ac/standrews/cs/stachord" />
 
 	<property name="test-name"            value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
-	
 	<property name="cobertura-exclude"    value="**/test/**/*.class" />
 	
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
-	<!-- Initialise release directory structure. -->
-	<target name="do-init-release">
-		<mkdir dir="bin" />
-		<mkdir dir="colored" />
-		<mkdir dir="doc" />
-		<mkdir dir="${cobertura-junit-dir}" />
-		<mkdir dir="${cobertura-instrumented-dir}" />
-		<mkdir dir="${cobertura-report-dir}" />
-	</target>
-
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
-		<ant target="do-test2" antfile="build-hudson.xml">
+		<ant target="do-test" antfile="build-hudson.xml">
 			<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
 		</ant>
 	</target>
