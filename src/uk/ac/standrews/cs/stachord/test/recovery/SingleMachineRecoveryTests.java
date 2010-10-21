@@ -66,9 +66,13 @@ public class SingleMachineRecoveryTests {
         ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
     }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, InterruptedException {
 
-        ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
+        //ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
+
+        final String command = "ps auxw | grep " + StartNodeInNewRing.class.getSimpleName();
+        System.out.println("command: " + command);
+        Runtime.getRuntime().exec(command).waitFor();
 
     }
 
