@@ -5,13 +5,23 @@
       
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd, do-coverage, do-highlight" />
+	<target name="build" depends="do-init-release, do-compile, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd, do-test2, do-highlight" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
-	<property name="classpath" value="bin:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" />
+	<!-- <property name="classpath" value="bin:${lib-nds}:${lib-mindterm}:${lib-junit}:${lib-remote_management}" /> -->
+	
+	<classpath id="project-classpath">
+	    <pathelement location="bin" />
+	    <pathelement location="${lib-nds}" />
+	    <pathelement location="${lib-mindterm}" />
+	    <pathelement location="${lib-junit}" />
+        <pathelement location="${lib-remote_management}" />
+	</classpath>
+	
+	<property name="classpath" value="${toString:project-classpath}" />
 
 	<property name="compile-src-dir"      value="src" />
 	<property name="compile-includes"     value="**/*.java" />
@@ -43,7 +53,7 @@
 
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
-		<ant target="do-coverage" antfile="build-hudson.xml">
+		<ant target="do-test2" antfile="build-hudson.xml">
 			<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
 		</ant>
 	</target>
@@ -69,7 +79,7 @@
 	</target>
 	
 	<!-- Coverage report. -->
-	<target name="do-coverage">
+	<target name="do-test2">
 		
 		<path id="cobertura.classpath">
 		    <fileset dir="${cobertura.dir}">
