@@ -70,8 +70,7 @@ public class SingleMachineRecoveryTests {
 
         //ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
 
-        //        final String command = "ps auxw | grep " + StartNodeInNewRing.class.getSimpleName();
-        final String command = "ps auxw";
+        final String command = "ps auxw | grep " + StartNodeInNewRing.class.getSimpleName();
         System.out.println("command: " + command);
         ProcessInvocation.runProcess(command).waitFor();
 
