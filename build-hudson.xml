@@ -43,7 +43,7 @@
 
 	<!-- Run nightly tests. -->
 	<target name="do-test-nightly">
-		<ant target="do-test" antfile="build-hudson.xml">
+		<ant target="do-coverage" antfile="build-hudson.xml">
 			<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
 		</ant>
 	</target>

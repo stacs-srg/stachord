@@ -50,7 +50,8 @@ public class SingleMachineRecoveryTests {
     private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
     // TODO Make this work on Windows.
 
-    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
+    //private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
+    private static final int[] RING_SIZES = {1, 2, 3};
 
     /**
      * Disables diagnostic output and kills existing instances.
