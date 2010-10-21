@@ -84,7 +84,7 @@
 		    <ignore regex="org.apache.log4j.*" />
 		    <fileset dir="bin">
 		        <include name="**/*.class" />
-		        <exclude name="**/test/**/*Test.class" />
+		        <exclude name="**/test/**/*.class" />
 		    </fileset>
 		</cobertura-instrument>
 		
