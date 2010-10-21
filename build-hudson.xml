@@ -5,7 +5,7 @@
       
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd, do-test2, do-highlight" />
+	<target name="build" depends="do-init-release, do-compile, do-test2, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
@@ -33,11 +33,10 @@
 	<property name="findbugs-src-dir"     value="src/uk/ac/standrews/cs/stachord" />
 	<property name="findbugs-check-dir"   value="bin/uk/ac/standrews/cs/stachord" />
 
-	<property name="test-name" value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
+	<property name="test-name"            value="uk.ac.standrews.cs.stachord.test.CheckInTests" />
 	
-	<property name="cobertura.dir" value="${hudson-tools-archive-dir}/lib/cobertura" />
-	<property name="instrumented.dir" value="cobertura-instrumented" />
-
+	<property name="cobertura-exclude"    value="**/test/**/*.class" />
+	
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
 	<!-- Initialise release directory structure. -->
@@ -45,10 +44,9 @@
 		<mkdir dir="bin" />
 		<mkdir dir="colored" />
 		<mkdir dir="doc" />
-		<mkdir dir="junit" />
-		<mkdir dir="junit-cobertura" />
-		<mkdir dir="cobertura-instrumented" />
-		<mkdir dir="coverage-report" />
+		<mkdir dir="${cobertura-junit-dir}" />
+		<mkdir dir="${cobertura-instrumented-dir}" />
+		<mkdir dir="${cobertura-report-dir}" />
 	</target>
 
 	<!-- Run nightly tests. -->
@@ -81,20 +79,20 @@
 	<!-- Coverage report. -->
 	<target name="do-test2">
 		
-		<path id="cobertura.classpath">
-		    <fileset dir="${cobertura.dir}">
+		<path id="cobertura-classpath">
+		    <fileset dir="${cobertura-dir}">
 		        <include name="cobertura.jar" />
 		        <include name="lib/**/*.jar" />
 		    </fileset>
 		</path>
 
-		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+		<taskdef classpathref="cobertura-classpath" resource="tasks.properties" />
 
-		<cobertura-instrument todir="${instrumented.dir}">
+		<cobertura-instrument todir="${instrumented-dir}">
 		    <ignore regex="org.apache.log4j.*" />
 		    <fileset dir="bin">
 		        <include name="**/*.class" />
-		        <exclude name="**/test/**/*.class" />
+		        <exclude name="${cobertura-exclude}" />
 		    </fileset>
 		</cobertura-instrument>
 		
@@ -110,30 +108,21 @@
 				Note the classpath order: instrumented classes are before the
 				original (uninstrumented) classes.  This is important.
 			-->
-			<classpath location="${instrumented.dir}" />
+			<classpath location="${cobertura-instrumented-dir}" />
 			<classpath refid="project-classpath" />
-			
-			<!--<classpath location="bin" />-->
 
 			<!--
 				The instrumented classes reference classes used by the
 				Cobertura runtime, so Cobertura and its dependencies
 				must be on your classpath.
 			-->
-			<classpath refid="cobertura.classpath" />
-
-			<!--
-			<classpath location="${lib-nds}" />
-			<classpath location="${lib-mindterm}" />
-			<classpath location="${lib-junit}" />
-			<classpath location="${remote_management}" />
-			-->
+			<classpath refid="cobertura-classpath" />
 
 			<formatter type="xml" />
-			<test name="${test-name}" todir="junit-cobertura"/>
+			<test name="${test-name}" todir="${cobertura-junit-dir}"/>
 		</junit>
 		
-		<cobertura-report format="xml" destdir="coverage-report" srcdir="src" />
+		<cobertura-report format="xml" destdir="${cobertura-report-dir}" srcdir="src" />
 
 	</target>
 	
