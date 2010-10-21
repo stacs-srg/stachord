@@ -27,9 +27,9 @@
 	<property name="compile-includes"     value="**/*.java" />
 	<property name="compile-dest-dir"     value="bin" />
 
-    <property name="checkstyle-check-dir" value="." />
-	<property name="cpd-check-dir"        value="." />
-	
+    <property name="checkstyle-check-dir" value="src" />
+	<property name="cpd-check-dir"        value="src" />
+
 	<property name="findbugs-src-dir"     value="src/uk/ac/standrews/cs/stachord" />
 	<property name="findbugs-check-dir"   value="bin/uk/ac/standrews/cs/stachord" />
 
@@ -74,56 +74,6 @@
 			<link href="${doc-nds}" />
 			<link href="${doc-mindterm}" />
 		</javadoc>
-	</target>
-	
-	<!-- Coverage report. -->
-	<target name="do-test2">
-		
-		<path id="cobertura-classpath">
-		    <fileset dir="${cobertura-dir}">
-		        <include name="cobertura.jar" />
-		        <include name="lib/**/*.jar" />
-		    </fileset>
-		</path>
-
-		<taskdef classpathref="cobertura-classpath" resource="tasks.properties" />
-
-		<cobertura-instrument todir="${instrumented-dir}">
-		    <ignore regex="org.apache.log4j.*" />
-		    <fileset dir="bin">
-		        <include name="**/*.class" />
-		        <exclude name="${cobertura-exclude}" />
-		    </fileset>
-		</cobertura-instrument>
-		
-		<junit fork="yes" failureProperty="test.failed">
-			<!--
-				Specify the name of the coverage data file to use.
-				The value specified below is the default.
-			-->
-			<sysproperty key="net.sourceforge.cobertura.datafile"
-				file="cobertura.ser" />
-
-			<!--
-				Note the classpath order: instrumented classes are before the
-				original (uninstrumented) classes.  This is important.
-			-->
-			<classpath location="${cobertura-instrumented-dir}" />
-			<classpath refid="project-classpath" />
-
-			<!--
-				The instrumented classes reference classes used by the
-				Cobertura runtime, so Cobertura and its dependencies
-				must be on your classpath.
-			-->
-			<classpath refid="cobertura-classpath" />
-
-			<formatter type="xml" />
-			<test name="${test-name}" todir="${cobertura-junit-dir}"/>
-		</junit>
-		
-		<cobertura-report format="xml" destdir="${cobertura-report-dir}" srcdir="src" />
-
 	</target>
 	
 </project>
