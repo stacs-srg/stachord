@@ -111,7 +111,9 @@
 				original (uninstrumented) classes.  This is important.
 			-->
 			<classpath location="${instrumented.dir}" />
-			<classpath location="bin" />
+			<classpath refid="project-classpath" />
+			
+			<!--<classpath location="bin" />-->
 
 			<!--
 				The instrumented classes reference classes used by the
@@ -120,10 +122,12 @@
 			-->
 			<classpath refid="cobertura.classpath" />
 
+			<!--
 			<classpath location="${lib-nds}" />
 			<classpath location="${lib-mindterm}" />
 			<classpath location="${lib-junit}" />
 			<classpath location="${remote_management}" />
+			-->
 
 			<formatter type="xml" />
 			<test name="${test-name}" todir="junit-cobertura"/>
