@@ -119,7 +119,7 @@
 			<test name="${test-name}" todir="junit-cobertura"/>
 		</junit>
 		
-		<cobertura-report format="xml" destdir="coverage-report" srcdir="." />
+		<cobertura-report format="xml" destdir="coverage-report" srcdir="src" />
 
 	</target>
 	
