@@ -5,14 +5,14 @@
       
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
+	<target name="build" depends="do-init-release, do-compile, project-jar, do-test, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
 	<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
 
 	<path id="project-classpath">
-	    <pathelement location="bin" />
+	    <pathelement location="bin/stachord.jar" />
 	    <pathelement location="${lib-nds}" />
 	    <pathelement location="${lib-mindterm}" />
 	    <pathelement location="${lib-junit}" />
@@ -45,7 +45,10 @@
 	
 	<!-- Generate project jar. -->
 	<target name="project-jar">
-		<jar jarfile="bin/stachord.jar" basedir="bin" includes="uk/**" />
+		<jar destfile="bin/stachord.jar">
+ 			<fileset dir="bin" includes="**/*.class" />
+			<fileset dir="src" includes="**/*.java" />
+		</jar>
 	</target>
 
 	<!-- Generate javadoc. -->
