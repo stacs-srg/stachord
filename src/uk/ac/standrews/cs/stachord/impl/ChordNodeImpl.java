@@ -26,6 +26,7 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -124,12 +125,14 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         hash_code = hashCode();
         successor_list = new SuccessorList(this);
         finger_table = new FingerTable(this);
+
         try {
             self_reference = new ChordRemoteReference(key, this);
         }
         catch (final RemoteException e) {
             ErrorHandling.hardExceptionError(e, "Unexpected remote exception when creating self-reference");
         }
+
         createRing();
         exposeNode();
         addObserver(this);
@@ -197,8 +200,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         // Unhook the node from RMI.
         try {
-            final Registry registry = LocateRegistry.getRegistry(local_address.getHostName(), local_address.getPort());
-            registry.unbind(CHORD_REMOTE_SERVICE_NAME);
+            unexposeNode();
         }
         catch (final Exception e) {
             ErrorHandling.exceptionError(e, "failed to destroy node: ", key);
@@ -236,12 +238,15 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
            Case: predecessor is null and potential_predecessor is not this node.
            Ring has at least two nodes, so any predecessor is better than nothing.
-                     Case: predecessor is not null and potential_predecessor is this node.
+
+           Case: predecessor is not null and potential_predecessor is this node.
            Ignore, since a node's predecessor is never itself.
-                     Case: predecessor is not null and potential_predecessor is not in this node's current key range.
+
+           Case: predecessor is not null and potential_predecessor is not in this node's current key range.
            Ignore, since the current predecessor doesn't appear to have failed, so only valid case is a
            new node joining.
-                     Case: predecessor is not null and potential_predecessor is in this node's current key range.
+
+           Case: predecessor is not null and potential_predecessor is in this node's current key range.
            A new node has joined between the current predecessor and this node.
          */
         final IKey key_of_potential_predecessor = potential_predecessor.getKey();
@@ -389,6 +394,40 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     // -------------------------------------------------------------------------------------------------------
 
+    // RMI-specific methods.
+
+    /**
+     * Exposes this node for remote RMI access.
+     * @throws RemoteException if the node cannot be exposed for remote access
+     */
+    private void exposeNode() throws RemoteException {
+
+        Registry local_registry;
+        try {
+            // Try to create new RMI registry.
+            local_registry = LocateRegistry.createRegistry(local_address.getPort());
+        }
+        catch (final RemoteException e) {
+
+            // Maybe it already existed, so try getting existing registry.
+            local_registry = LocateRegistry.getRegistry(local_address.getPort());
+        }
+
+        // Start RMI listening. NOTE the result of getRemote() is actually local!
+        UnicastRemoteObject.exportObject(getSelfReference().getRemote(), 0);
+
+        // Register the service with the registry.
+        local_registry.rebind(CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
+    }
+
+    private void unexposeNode() throws RemoteException, NotBoundException {
+
+        final Registry registry = LocateRegistry.getRegistry(local_address.getPort());
+        registry.unbind(CHORD_REMOTE_SERVICE_NAME);
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
     /**
      * Sets data structures for a new ring.
      */
@@ -399,22 +438,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         successor_list.clear();
         setChanged();
         notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
-    }
-
-    /**
-      * Exposes this node for remote RMI access.
-      *      * @throws RemoteException if the node cannot be exposed for remote access
-      */
-    private void exposeNode() throws RemoteException {
-
-        // Get RMI registry.
-        final Registry local_registry = LocateRegistry.createRegistry(local_address.getPort());
-
-        // Start RMI listening. NOTE the result of getRemote() is actually local!
-        UnicastRemoteObject.exportObject(getSelfReference().getRemote(), 0);
-
-        // Register the service with the registry.
-        local_registry.rebind(CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
     }
 
     /**
