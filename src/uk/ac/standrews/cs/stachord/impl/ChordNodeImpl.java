@@ -367,16 +367,21 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     public void update(final Observable o, final Object arg) {
 
         final String event_type = ((Event) arg).getType();
-        Diagnostic.trace(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>> update: " + event_type);
+
+        Diagnostic.traceNoSource(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>> update: " + event_type);
+
         if (event_type.equals(SUCCESSOR_CHANGE_EVENT_TYPE)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
         }
+
         if (event_type.equals(PREDECESSOR_CHANGE_EVENT_TYPE)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getKey() : "null"));
         }
+
         if (event_type.equals(SUCCESSOR_LIST_CHANGE_EVENT_TYPE)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "successor list now: ", successor_list);
         }
+
         if (event_type.equals(FINGER_TABLE_CHANGE_EVENT_TYPE)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
         }
