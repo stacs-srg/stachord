@@ -76,29 +76,24 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     // -------------------------------------------------------------------------------------------------------
 
     /**
-     * The name of the remotely accessible Chord service.
-     */
-    static final String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
-
-    /**
      * Predecessor change event.
      */
-    public static final IEvent PREDECESSOR_CHANGE_EVENT = new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
+    private static final IEvent PREDECESSOR_CHANGE_EVENT = new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
 
     /**
      * Successor change event.
      */
-    public static final IEvent SUCCESSOR_CHANGE_EVENT = new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
+    private static final IEvent SUCCESSOR_CHANGE_EVENT = new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
 
     /**
      * Successor list change event.
      */
-    public static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
+    private static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
 
     /**
      * Finger table change event.
      */
-    public static final IEvent FINGER_TABLE_CHANGE_EVENT = new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
+    private static final IEvent FINGER_TABLE_CHANGE_EVENT = new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -417,13 +412,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         UnicastRemoteObject.exportObject(getSelfReference().getRemote(), 0);
 
         // Register the service with the registry.
-        local_registry.rebind(CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
+        local_registry.rebind(IChordRemote.CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
     }
 
     private void unexposeNode() throws RemoteException, NotBoundException {
 
         final Registry registry = LocateRegistry.getRegistry(local_address.getPort());
-        registry.unbind(CHORD_REMOTE_SERVICE_NAME);
+        registry.unbind(IChordRemote.CHORD_REMOTE_SERVICE_NAME);
     }
 
     // -------------------------------------------------------------------------------------------------------

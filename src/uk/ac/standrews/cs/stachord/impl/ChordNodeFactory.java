@@ -224,7 +224,7 @@ public final class ChordNodeFactory {
     public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteException, NotBoundException {
 
         final Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort()); // This doesn't make a remote call.
-        final IChordRemote node = (IChordRemote) registry.lookup(ChordNodeImpl.CHORD_REMOTE_SERVICE_NAME);
+        final IChordRemote node = (IChordRemote) registry.lookup(IChordRemote.CHORD_REMOTE_SERVICE_NAME);
 
         return new ChordRemoteReference(node.getKey(), node);
     }
