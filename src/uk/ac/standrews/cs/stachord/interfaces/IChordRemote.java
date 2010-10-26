@@ -43,7 +43,7 @@ public interface IChordRemote extends Remote {
     /**
      * The name of the remotely accessible Chord service.
      */
-    public static final String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
+    String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
 
     /**
      * Returns this node's key.
