@@ -49,6 +49,7 @@
 		<jar destfile="bin/stachord.jar">
  			<fileset dir="bin" includes="**/*.class" />
 			<fileset dir="src" />
+		    <zipfileset src="${lib-nds}"/>
 		</jar>
 	</target>
 
