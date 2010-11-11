@@ -112,6 +112,10 @@ public final class RecoveryTestLogic {
             killPartOfNetwork(network);
             System.out.println("done");
 
+            System.out.println("waiting for stable ring... ");
+            waitForStableRing(nodes, test_timeout);
+            System.out.println("done");
+
             System.out.println("waiting for correct routing... ");
             waitForCorrectRouting(nodes, test_timeout);
             System.out.println("done");
@@ -464,7 +468,7 @@ public final class RecoveryTestLogic {
      */
     public static int cycleLengthFrom(final HostDescriptor host_descriptor, final boolean forwards) {
 
-        final Object application_reference = host_descriptor.getApplicationReference();
+        final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
 
         if (application_reference == null) { return 0; }
 
@@ -473,7 +477,7 @@ public final class RecoveryTestLogic {
 
         int cycle_length = 0;
 
-        IChordRemoteReference node = (IChordRemoteReference) application_reference;
+        IChordRemoteReference node = application_reference;
 
         while (true) {
 
@@ -483,12 +487,18 @@ public final class RecoveryTestLogic {
                 node = forwards ? node.getRemote().getSuccessor() : node.getRemote().getPredecessor();
             }
             catch (final RemoteException e) {
+
+                // Error traversing the ring, so it is broken.
                 return 0;
             }
 
-            if (node.equals(host_descriptor.getApplicationReference())) { return cycle_length; }
+            // If the node is null, then the cycle is broken.
+            if (node == null) { return 0; }
 
-            // If the node is not the start node but has already been encountered, there is a cycle but it doesn't contain the start node.
+            // If the node is the start node, then a cycle has been found.
+            if (node.equals(application_reference)) { return cycle_length; }
+
+            // If the node is not the start node and it has already been encountered, then there is a cycle but it doesn't contain the start node.
             if (nodes_encountered.contains(node)) { return 0; }
 
             nodes_encountered.add(node);
