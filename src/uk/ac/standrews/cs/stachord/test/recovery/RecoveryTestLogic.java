@@ -29,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -570,7 +571,7 @@ public final class RecoveryTestLogic {
         if (network_size > 1) {
             final int number_to_kill = Math.max(1, (int) (PROPORTION_TO_KILL * network_size));
 
-            final Set<Integer> victim_indices = pickRandom(number_to_kill, network_size);
+            final List<Integer> victim_indices = pickRandom(number_to_kill, network_size);
 
             for (final int victim_index : victim_indices) {
 
@@ -604,17 +605,14 @@ public final class RecoveryTestLogic {
      * @param range
      * @return a set of size number_to_select containing integers from 0 to range-1 inclusive
      */
-    private static Set<Integer> pickRandom(final int number_to_select, final int range) {
+    private static List<Integer> pickRandom(final int number_to_select, final int range) {
 
-        final Set<Integer> set = new HashSet<Integer>();
+        final List<Integer> set = new ArrayList<Integer>();
         final Random random = new Random(RANDOM_SEED);
 
         for (int i = 0; i < number_to_select; i++) {
-            int choice = -1;
-            while (choice == -1 || set.contains(choice)) {
-                choice = random.nextInt(range);
-            }
-            set.add(choice);
+            // Reduce the range each time, since nodes will be successfully removed from the set.
+            set.add(random.nextInt(range - i));
         }
 
         return set;
