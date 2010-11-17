@@ -103,8 +103,8 @@ public class MultipleHostNetwork implements INetwork {
                 node.getProcess().destroy();
 
                 final boolean successfully_removed = host_descriptors.remove(node);
-                assert successfully_removed;
 
+                assert successfully_removed;
                 assert host_descriptors.size() == network_size - 1;
             }
         }

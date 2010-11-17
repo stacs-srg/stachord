@@ -571,7 +571,7 @@ public final class RecoveryTestLogic {
         if (network_size > 1) {
             final int number_to_kill = Math.max(1, (int) (PROPORTION_TO_KILL * network_size));
 
-            final List<Integer> victim_indices = pickRandom(number_to_kill, network_size);
+            final List<Integer> victim_indices = pickRandomIndices(number_to_kill, network_size);
 
             for (final int victim_index : victim_indices) {
 
@@ -599,23 +599,24 @@ public final class RecoveryTestLogic {
     }
 
     /**
-     * Returns a randomly selected subset of integers in a given range.
+     * Returns a randomly selected list of integers in a progressively reducing range. The first element in the list
+     * is selected from the range 0 to range-1 inclusive; the next from 0 to range-2; and so on.
      *
-     * @param number_to_select
-     * @param range
-     * @return a set of size number_to_select containing integers from 0 to range-1 inclusive
+     * @param number_to_select the number of integers to be returned
+     * @param initial_range the initial range to select from
+     * @return a list of integers from the specified range
      */
-    private static List<Integer> pickRandom(final int number_to_select, final int range) {
+    private static List<Integer> pickRandomIndices(final int number_to_select, final int initial_range) {
 
-        final List<Integer> set = new ArrayList<Integer>();
+        final List<Integer> indices = new ArrayList<Integer>();
         final Random random = new Random(RANDOM_SEED);
 
         for (int i = 0; i < number_to_select; i++) {
             // Reduce the range each time, since nodes will be successfully removed from the set.
-            set.add(random.nextInt(range - i));
+            indices.add(random.nextInt(initial_range - i));
         }
 
-        return set;
+        return indices;
     }
 
     private static void checkWithTimeout(final List<HostDescriptor> nodes, final IRingCheck checker, final int test_timeout) throws TimeoutException {
