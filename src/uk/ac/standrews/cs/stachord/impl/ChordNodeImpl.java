@@ -198,7 +198,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             unexposeNode();
         }
         catch (final Exception e) {
-            ErrorHandling.exceptionError(e, "failed to destroy node: ", key);
+            Diagnostic.trace(DiagnosticLevel.FULL, "failed to destroy node: ", key);
         }
 
         Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
@@ -611,15 +611,17 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     /**
      * Sets the successor node in key space.
-     *     * @param successor the new successor node
+     * @param successor the new successor node
      */
     private synchronized void setSuccessor(final IChordRemoteReference successor) {
 
         assert successor != null;
-        final IChordRemoteReference oldSuccessor = this.successor;
+
+        final IChordRemoteReference old_successor = this.successor;
         this.successor = successor;
-        setChanged();
-        if (oldSuccessor != null && !oldSuccessor.equals(successor)) {
+
+        if (old_successor != null && !old_successor.equals(successor)) {
+            setChanged();
             notifyObservers(SUCCESSOR_CHANGE_EVENT);
         }
     }
