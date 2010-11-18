@@ -178,7 +178,7 @@ public final class ChordNodeFactory {
             addKeyArg(key, args);
         }
 
-        return ProcessInvocation.runJavaProcess(StartNodeInNewRing.class, args, host_descriptor);
+        return ProcessInvocation.runJavaProcess(StartNodeInNewRing.class, args, host_descriptor, null);
     }
 
     /**
@@ -288,7 +288,7 @@ public final class ChordNodeFactory {
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                host_descriptor.setProcess(ProcessInvocation.runJavaProcess(clazz, args, host_descriptor));
+                host_descriptor.setProcess(ProcessInvocation.runJavaProcess(clazz, args, host_descriptor, null));
                 host_descriptor.setApplicationReference(bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort())));
                 finished = true;
             }
