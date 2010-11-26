@@ -34,12 +34,12 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.remote_management.NetworkUtil;
 import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
-import uk.ac.standrews.cs.stachord.test.factory.NetworkUtil;
 
 /**
  * Various tests of ring recovery on the Ganglia cluster, not intended to be run automatically.
