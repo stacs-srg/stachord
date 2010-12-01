@@ -65,7 +65,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
+        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createUsernamePasswordConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
@@ -87,7 +87,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
@@ -107,9 +107,10 @@ public class MultipleMachineRecoveryTests {
 
         final List<InetAddress> addresses = twoEachOnBeastAndMini();
 
-        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
+                        new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
 
-        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createUsernamePasswordConnections(addresses, true);
+        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createUsernamePasswordConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
@@ -132,9 +133,10 @@ public class MultipleMachineRecoveryTests {
         addresses.add(InetAddress.getByName("compute-0-34"));
         addresses.add(InetAddress.getByName("compute-0-35"));
 
-        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
+                        new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
 
-        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);

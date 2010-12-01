@@ -65,7 +65,7 @@ public class GangliaRecoveryTests {
 
         final List<InetAddress> addresses = getGangliaNodeAddresses();
 
-        final List<SSH2ConnectionWrapper> connections = NetworkUtil.createPublicKeyConnections(addresses, true);
+        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
         final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
