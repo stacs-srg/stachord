@@ -65,7 +65,7 @@ public final class ChordNodeFactory {
     /**
      * Timeout interval for establishing connection to a free port, in ms.
      */
-    public static final int FREE_PORT_TIMEOUT_INTERVAL = 60000;
+    public static final int FREE_PORT_TIMEOUT_INTERVAL = 90000;
 
     private static final int REGISTRY_RETRY_INTERVAL = 2000; // Retry connecting to remote nodes at 2s intervals.
 
