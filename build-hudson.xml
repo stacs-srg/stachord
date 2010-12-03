@@ -14,9 +14,7 @@
 	<path id="project-classpath">
 	    <pathelement location="bin" />
 	    <pathelement location="${lib-nds}" />
-	    <pathelement location="${lib-mindterm}" />
 	    <pathelement location="${lib-junit}" />
-        <pathelement location="${lib-remote_management}" />
 	</path>
 	
 	<property name="classpath" value="${toString:project-classpath}" />
