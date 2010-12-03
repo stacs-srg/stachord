@@ -25,17 +25,13 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.NetworkUtil;
-import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -49,6 +45,7 @@ import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
  */
 public class MultipleMachineRecoveryTests {
 
+    private static final String STACHORD_JAR = "http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar";
     private static final int TIMEOUT = 500;
 
     /**
@@ -61,14 +58,13 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<InetAddress> addresses = twoEachOnBeastAndMini();
-
+        final List<String> hosts = twoEachOnBeastAndMini();
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createUsernamePasswordConnections(addresses, true);
-        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -83,14 +79,13 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<InetAddress> addresses = twoEachOnBeastAndMini();
-
+        final List<String> hosts = twoEachOnBeastAndMini();
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
-        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, class_paths);
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
+        HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -105,15 +100,14 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<InetAddress> addresses = twoEachOnBeastAndMini();
+        final List<String> hosts = threeOnBeast();
 
-        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
-                        new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
+        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
-        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createUsernamePasswordConnections(addresses, true);
-        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -128,18 +122,14 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<InetAddress> addresses = new ArrayList<InetAddress>();
-        addresses.add(InetAddress.getByName("compute-0-33"));
-        addresses.add(InetAddress.getByName("compute-0-34"));
-        addresses.add(InetAddress.getByName("compute-0-35"));
+        final List<String> hosts = threeBlubNodes();
 
-        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/remote_management/lastStableBuild/artifact/bin/remote_management.jar"),
-                        new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
+        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
-        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
-        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
+        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -147,20 +137,38 @@ public class MultipleMachineRecoveryTests {
     private List<ClassPath> beastAndMiniClassPaths() {
 
         final List<ClassPath> class_paths = new ArrayList<ClassPath>();
-        class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-        class_paths.add(new ClassPath("/usr/share/hudson/jobs/nds/lastStable/archive/bin/nds.jar:/usr/share/hudson/jobs/remote_management/lastStable/archive/bin/remote_management.jar:/usr/share/hudson/jobs/stachordRMI/lastStable/archive/bin/stachordRMI.jar"));
-        class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
-        class_paths.add(new ClassPath("/Users/graham/nds.jar:/Users/graham/remote_management.jar:/Users/graham/stachordRMI.jar"));
+        class_paths.add(new ClassPath("/usr/share/hudson/jobs/stachord/lastSuccessful/archive/bin/stachord.jar"));
+        class_paths.add(new ClassPath("/usr/share/hudson/jobs/stachord/lastSuccessful/archive/bin/stachord.jar"));
+        class_paths.add(new ClassPath("/Users/graham/stachord.jar"));
+        class_paths.add(new ClassPath("/Users/graham/stachord.jar"));
         return class_paths;
     }
 
-    private List<InetAddress> twoEachOnBeastAndMini() throws UnknownHostException {
+    private List<String> twoEachOnBeastAndMini() {
 
-        final List<InetAddress> addresses = new ArrayList<InetAddress>();
-        addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-        addresses.add(InetAddress.getByName("beast.cs.st-andrews.ac.uk"));
-        addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-        addresses.add(InetAddress.getByName("mini.cs.st-andrews.ac.uk"));
-        return addresses;
+        final List<String> hosts = new ArrayList<String>();
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("mini.cs.st-andrews.ac.uk");
+        hosts.add("mini.cs.st-andrews.ac.uk");
+        return hosts;
+    }
+
+    private List<String> threeOnBeast() {
+
+        final List<String> hosts = new ArrayList<String>();
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        return hosts;
+    }
+
+    private List<String> threeBlubNodes() {
+
+        final List<String> hosts = new ArrayList<String>();
+        hosts.add("compute-0-33");
+        hosts.add("compute-0-34");
+        hosts.add("compute-0-35");
+        return hosts;
     }
 }

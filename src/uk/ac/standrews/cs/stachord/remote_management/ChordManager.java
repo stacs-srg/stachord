@@ -33,7 +33,6 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
 import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
-import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
@@ -47,9 +46,6 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public class ChordManager implements IApplicationManager {
-
-    // private static final String AUTO_DISCOVER_CHECKBOX_LABEL = "Auto-Discover";
-    // private static final String AUTO_ADD_CHECKBOX_LABEL =      "Auto-Add Other Ring Hosts";
 
     private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName(); // Full name of the class used to instantiate a Chord ring.
     private static final int APPLICATION_CALL_TIMEOUT = 10000; // The timeout for attempted application calls, in ms.
@@ -96,7 +92,7 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void deployApplication(final HostDescriptor host_descriptor) throws Exception {
 
-        host_descriptor.setProcess(ChordNodeFactory.instantiateRemoteNode(host_descriptor));
+        host_descriptor.setProcess(ChordNodeFactory.instantiateNode(host_descriptor));
     }
 
     @Override
@@ -112,7 +108,7 @@ public class ChordManager implements IApplicationManager {
         // For simplicity we just kill all Chord nodes. Obviously this won't work in situations where multiple
         // Chord nodes are being run on the same machine.
 
-        ProcessInvocation.killMatchingProcesses(CHORD_APPLICATION_CLASSNAME, host_descriptor.getSSHClientWrapper());
+        host_descriptor.getProcessManager().killMatchingProcessesRemote(CHORD_APPLICATION_CLASSNAME);
     }
 
     @Override

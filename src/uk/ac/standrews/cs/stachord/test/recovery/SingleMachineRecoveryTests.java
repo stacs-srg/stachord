@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.remote_management.ProcessInvocation;
+import uk.ac.standrews.cs.nds.remote_management.ProcessManager;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -43,7 +43,7 @@ import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
  * Each Chord node is created in a separate process on the local machine.
  *
- * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
 public class SingleMachineRecoveryTests {
 
@@ -62,7 +62,7 @@ public class SingleMachineRecoveryTests {
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
         // Kill any lingering Chord node processes.
-        ProcessInvocation.killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
+        new ProcessManager().killMatchingProcessesLocal(StartNodeInNewRing.class.getSimpleName());
     }
 
     /**

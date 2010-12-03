@@ -136,7 +136,7 @@ public class MultipleHostNetwork implements INetwork {
         final HostDescriptor known_node_descriptor = host_descriptors.get(0);
 
         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
-        ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(known_node_descriptor, node_keys[0]);
+        ChordNodeFactory.createAndBindToNodeOnFreePort(known_node_descriptor, node_keys[0]);
 
         final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
 
@@ -156,7 +156,7 @@ public class MultipleHostNetwork implements INetwork {
                     try {
 
                         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
-                        ChordNodeFactory.createAndBindToRemoteNodeOnFreePort(new_node_descriptor, key);
+                        ChordNodeFactory.createAndBindToNodeOnFreePort(new_node_descriptor, key);
 
                         final IChordRemote new_node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
                         new_node.join(known_node);

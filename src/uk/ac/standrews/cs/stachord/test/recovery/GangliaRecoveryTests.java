@@ -25,17 +25,13 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.NetworkUtil;
-import uk.ac.standrews.cs.nds.remote_management.SSH2ConnectionWrapper;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
@@ -61,30 +57,29 @@ public class GangliaRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/nds/lastStableBuild/artifact/bin/nds.jar"), new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachordRMI/lastStableBuild/artifact/bin/stachordRMI.jar")};
+        final URL[] lib_urls = new URL[]{new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar")};
 
-        final List<InetAddress> addresses = getGangliaNodeAddresses();
+        final List<String> hosts = getGangliaNodeAddresses();
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
+        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        final List<SSH2ConnectionWrapper> connections = SSH2ConnectionWrapper.createPublicKeyConnections(addresses, true);
-        final List<HostDescriptor> node_descriptors = NetworkUtil.createHostDescriptors(connections, lib_urls);
-
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(node_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
 
-    protected List<InetAddress> getGangliaNodeAddresses() throws UnknownHostException {
+    protected List<String> getGangliaNodeAddresses() {
 
-        final List<InetAddress> address_list = new ArrayList<InetAddress>();
+        final List<String> address_list = new ArrayList<String>();
 
         for (int index = 0; index <= NO_OF_NODES; index++) {
-            address_list.add(InetAddress.getByName("compute-0-" + index));
+            address_list.add("compute-0-" + index);
         }
 
         // Remove bad nodes.
-        address_list.remove(InetAddress.getByName("compute-0-42"));
-        address_list.remove(InetAddress.getByName("compute-0-46"));
-        address_list.remove(InetAddress.getByName("compute-0-53"));
+        address_list.remove("compute-0-42");
+        address_list.remove("compute-0-46");
+        address_list.remove("compute-0-53");
 
         return address_list;
     }
