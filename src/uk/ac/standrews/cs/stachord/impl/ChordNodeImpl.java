@@ -33,6 +33,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Observable;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.nds.events.IEvent;
@@ -41,6 +42,8 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
+import uk.ac.standrews.cs.nds.util.IActionWithResult;
+import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -63,15 +66,19 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private IChordRemoteReference successor; // The successor of this node.
     private final SuccessorList successor_list; // The successor list of this node.
     private final FingerTable finger_table; // The finger table of this node.
+    private final boolean own_address_maintenance_enabled = true; // Whether periodic checking of own address is enabled
     private boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
     private boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
     private boolean finger_table_maintenance_enabled = true; // Whether periodic finger table maintenance should be performed.
     private boolean detailed_to_string = false; // Whether toString() should return a detailed description.
+    private IChordRemoteReference network_reference_to_local_node = null; // used to detect IP changes of this node
+    private boolean mask_ip_change_event = false;
 
     private static final String PREDECESSOR_CHANGE_EVENT_TYPE = "PREDECESSOR_CHANGE_EVENT";
     private static final String SUCCESSOR_CHANGE_EVENT_TYPE = "SUCCESSOR_CHANGE_EVENT";
     private static final String SUCCESSOR_LIST_CHANGE_EVENT_TYPE = "SUCCESSOR_LIST_CHANGE_EVENT";
     private static final String FINGER_TABLE_CHANGE_EVENT_TYPE = "FINGER_TABLE_CHANGE_EVENT";
+    private static final String OWN_ADDRESS_CHANGE_EVENT_TYPE = "OWN_ADDRESS_CHANGE_EVENT";
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -94,6 +101,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * Finger table change event.
      */
     private static final IEvent FINGER_TABLE_CHANGE_EVENT = new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
+
+    private static final IEvent OWN_ADDRESS_CHANGE_EVENT = new Event(OWN_ADDRESS_CHANGE_EVENT_TYPE);
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -132,6 +141,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         exposeNode();
         addObserver(this);
         startMaintenanceThread();
+        try {
+            network_reference_to_local_node = ChordNodeFactory.bindToRemoteNode(local_address);
+        }
+        catch (final NotBoundException e1) {
+            ErrorHandling.hardError("Cannot bind to local node");
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -462,6 +477,45 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     /**
+     * Checks that the address of this node is as it was when it was created
+     */
+    private synchronized boolean checkNodeAddressChanged() {
+
+        try {
+
+            return (Boolean) new Timeout().performActionWithTimeout(new IActionWithResult() {
+
+                @Override
+                public Object performAction() {
+
+                    try {
+                        network_reference_to_local_node.getRemote().isAlive();
+                        mask_ip_change_event = false; // we can connect to ourselves via a network connection
+                        return false;
+                    }
+                    catch (final RemoteException e) {
+                        return reportFailure();
+                    }
+
+                }
+            }, 2000); // 2 seconds
+
+        }
+        catch (final TimeoutException e) {
+            return reportFailure();
+        }
+    }
+
+    private boolean reportFailure() {
+
+        if (!mask_ip_change_event) {
+            mask_ip_change_event = true;
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Tries to communicate with this node's predecessor.
      */
     private synchronized void checkPredecessor() {
@@ -684,11 +738,17 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             @Override
             public void run() {
 
-                while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled()) {
+                while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled() || ownAddressMaintenanceEnabled()) {
                     try {
                         sleep(WAIT_PERIOD);
                     }
                     catch (final InterruptedException e) {
+                    }
+                    if (ownAddressMaintenanceEnabled()) {
+                        if (checkNodeAddressChanged()) {
+                            setChanged();
+                            notifyObservers(OWN_ADDRESS_CHANGE_EVENT);
+                        }
                     }
                     if (predecessorMaintenanceEnabled()) {
                         checkPredecessor();
@@ -710,6 +770,11 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         enablePredecessorMaintenance(false);
         enableStabilization(false);
         enablePeerStateMaintenance(false);
+    }
+
+    private boolean ownAddressMaintenanceEnabled() {
+
+        return own_address_maintenance_enabled;
     }
 
     private boolean predecessorMaintenanceEnabled() {
