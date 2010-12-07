@@ -31,6 +31,7 @@ import java.rmi.RemoteException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
+import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
@@ -41,7 +42,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  */
 public final class StartNodeInNewRing extends AbstractServer {
 
-    private StartNodeInNewRing(final String[] args) {
+    private StartNodeInNewRing(final String[] args) throws UndefinedDiagnosticLevelException {
 
         super(args);
     }
@@ -58,13 +59,17 @@ public final class StartNodeInNewRing extends AbstractServer {
      * <dd>Specifies the address and port for a known host that will be used to join the Chord ring
      * If no address is specified then the local loopback address (127.0.0.1) is used.
      * If no port is specified then the default RMI port is used ({@link IChordNode#DEFAULT_RMI_REGISTRY_PORT}). </dd>
+     * 
+     * <dt>-Dlevel (optional)</dt>
+     * <dd>Specifies a diagnostic level from 0 (most detailed) to 6 (least detailed).</dd>
      * </dl>
      *
      * @param args see above
      * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
+     * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      */
-    public static void main(final String[] args) throws RemoteException, NotBoundException {
+    public static void main(final String[] args) throws RemoteException, NotBoundException, UndefinedDiagnosticLevelException {
 
         final StartNodeInNewRing starter = new StartNodeInNewRing(args);
         starter.createNode();
@@ -82,6 +87,6 @@ public final class StartNodeInNewRing extends AbstractServer {
     @Override
     protected void usage() {
 
-        ErrorHandling.hardError("Usage: -s[host][:port] [-xkey]");
+        ErrorHandling.hardError("Usage: -s[host][:port] [-xkey] [-Dlevel]");
     }
 }

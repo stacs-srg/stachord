@@ -67,7 +67,6 @@ public final class ChordNodeFactory {
     public static final int FREE_PORT_TIMEOUT_INTERVAL = 60000;
 
     private static final int REGISTRY_RETRY_INTERVAL = 2000; // Retry connecting to remote nodes at 2s intervals.
-
     private static final int INITIAL_PORT = 54496;
 
     private static int next_port = INITIAL_PORT; // The next port to be used; static to allow multiple concurrent networks.
@@ -173,6 +172,7 @@ public final class ChordNodeFactory {
         final List<String> args = new ArrayList<String>();
 
         args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), host_descriptor.getPort()));
+        args.add("-D" + Diagnostic.getLevel().numericalValue());
         if (key != null) {
             addKeyArg(key, args);
         }
@@ -202,6 +202,7 @@ public final class ChordNodeFactory {
                 final List<String> args = new ArrayList<String>();
 
                 args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), local_port));
+                args.add("-D" + Diagnostic.getLevel().numericalValue());
                 addKeyArg(key, args);
 
                 return args;

@@ -28,6 +28,7 @@ package uk.ac.standrews.cs.stachord.servers;
 import java.net.InetSocketAddress;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -36,6 +37,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
+import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
@@ -55,8 +57,9 @@ abstract class AbstractServer {
     /**
      * Processes command-line arguments.
      * @param args the arguments
+     * @throws UndefinedDiagnosticLevelException 
      */
-    public AbstractServer(final String[] args) {
+    public AbstractServer(final String[] args) throws UndefinedDiagnosticLevelException {
 
         Diagnostic.setLevel(DEFAULT_DIAGNOSTIC_LEVEL);
 
@@ -65,7 +68,11 @@ abstract class AbstractServer {
         Diagnostic.setTimestampDelimiterFlag(false);
         ErrorHandling.setTimestampFlag(false);
 
-        final String server_address_parameter = CommandLineArgs.getArg(args, "-s"); // This node's address.
+        final Map<String, String> arguments = CommandLineArgs.parseCommandLineArgs(args);
+
+        configureDiagnostics(arguments);
+
+        final String server_address_parameter = arguments.get("-s"); // This node's address.
         if (server_address_parameter == null) {
             usage();
         }
@@ -86,4 +93,9 @@ abstract class AbstractServer {
     }
 
     protected abstract void usage();
+
+    private static void configureDiagnostics(final Map<String, String> arguments) throws UndefinedDiagnosticLevelException {
+
+        Diagnostic.setLevel(DiagnosticLevel.getDiagnosticLevelFromCommandLineArg(arguments.get("-D"), DEFAULT_DIAGNOSTIC_LEVEL));
+    }
 }
