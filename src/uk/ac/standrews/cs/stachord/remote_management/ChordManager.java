@@ -57,7 +57,7 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 
-        host_descriptor.setPort(IChordNode.DEFAULT_RMI_REGISTRY_PORT);
+        host_descriptor.port(IChordNode.DEFAULT_RMI_REGISTRY_PORT);
 
         // Try to connect to the application on the default RMI port.
         final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort());
@@ -73,7 +73,7 @@ public class ChordManager implements IApplicationManager {
 
                 try {
                     // Try to access the application at the specified address.
-                    host_descriptor.setApplicationReference(ChordNodeFactory.bindToRemoteNode(inet_socket_address));
+                    host_descriptor.applicationReference(ChordNodeFactory.bindToRemoteNode(inet_socket_address));
                 }
                 catch (final Exception e) {
                     // We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway
@@ -92,7 +92,7 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void deployApplication(final HostDescriptor host_descriptor) throws Exception {
 
-        host_descriptor.setProcess(ChordNodeFactory.instantiateNode(host_descriptor));
+        host_descriptor.process(ChordNodeFactory.instantiateNode(host_descriptor));
     }
 
     @Override

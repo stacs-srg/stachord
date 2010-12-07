@@ -282,18 +282,18 @@ public final class ChordNodeFactory {
                 port = next_port++;
             }
 
-            host_descriptor.setPort(port);
+            host_descriptor.port(port);
 
             final List<String> args = arg_gen.getArgs(port);
 
             try {
                 final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(clazz, args);
-                host_descriptor.setProcess(chord_process);
+                host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
                 final IChordRemoteReference chord_application_reference = bindToNodeWithRetry(host_address);
 
-                host_descriptor.setApplicationReference(chord_application_reference);
+                host_descriptor.applicationReference(chord_application_reference);
                 finished = true;
             }
             catch (final TimeoutException e) {
