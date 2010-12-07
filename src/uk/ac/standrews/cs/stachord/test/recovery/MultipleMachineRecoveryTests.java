@@ -25,6 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,7 @@ import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachord.test.factory.INetwork;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 
@@ -113,6 +116,35 @@ public class MultipleMachineRecoveryTests {
     }
 
     /**
+     * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines and the local machine to permit manual disconnection testing
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void manualNetworkChangeRecovery() throws Exception {
+
+        Diagnostic.setLevel(DiagnosticLevel.FULL);
+
+        final List<String> hosts = localandthreeOnBeast();
+
+        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
+
+        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
+
+        final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
+
+        System.out.println("USER: Please change network connection on local node - please hit return");
+
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        reader.readLine(); // wait for input
+
+        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000);
+
+        System.out.println(">>>>> recovery test completed");
+    }
+
+    /**
      * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
      *
      * @throws Exception if the test fails
@@ -157,6 +189,16 @@ public class MultipleMachineRecoveryTests {
     private List<String> threeOnBeast() {
 
         final List<String> hosts = new ArrayList<String>();
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        return hosts;
+    }
+
+    private List<String> localandthreeOnBeast() {
+
+        final List<String> hosts = new ArrayList<String>();
+        hosts.add("io.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
