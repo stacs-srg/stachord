@@ -65,6 +65,11 @@ public interface IChordNode extends Observer {
     IEvent FINGER_TABLE_CHANGE_EVENT = new Event("FINGER_TABLE_CHANGE_EVENT");
 
     /**
+     * Event for this chord nodes own address being changed.
+     */
+    IEvent OWN_ADDRESS_CHANGE_EVENT = new Event("OWN_ADDRESS_CHANGE_EVENT");
+
+    /**
      * The maximum length of a node's successor list.
      */
     int MAX_SUCCESSOR_LIST_SIZE = 5;

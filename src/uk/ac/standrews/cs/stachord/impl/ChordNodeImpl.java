@@ -36,7 +36,6 @@ import java.util.Observable;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.events.Event;
-import uk.ac.standrews.cs.nds.events.IEvent;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -74,36 +73,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private IChordRemoteReference network_reference_to_local_node = null; // used to detect IP changes of this node
     private boolean mask_ip_change_event = false;
 
-    private static final String PREDECESSOR_CHANGE_EVENT_TYPE = "PREDECESSOR_CHANGE_EVENT";
-    private static final String SUCCESSOR_CHANGE_EVENT_TYPE = "SUCCESSOR_CHANGE_EVENT";
-    private static final String SUCCESSOR_LIST_CHANGE_EVENT_TYPE = "SUCCESSOR_LIST_CHANGE_EVENT";
-    private static final String FINGER_TABLE_CHANGE_EVENT_TYPE = "FINGER_TABLE_CHANGE_EVENT";
-    private static final String OWN_ADDRESS_CHANGE_EVENT_TYPE = "OWN_ADDRESS_CHANGE_EVENT";
-
-    // -------------------------------------------------------------------------------------------------------
-
-    /**
-     * Predecessor change event.
-     */
-    private static final IEvent PREDECESSOR_CHANGE_EVENT = new Event(PREDECESSOR_CHANGE_EVENT_TYPE);
-
-    /**
-     * Successor change event.
-     */
-    private static final IEvent SUCCESSOR_CHANGE_EVENT = new Event(SUCCESSOR_CHANGE_EVENT_TYPE);
-
-    /**
-     * Successor list change event.
-     */
-    private static final IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event(SUCCESSOR_LIST_CHANGE_EVENT_TYPE);
-
-    /**
-     * Finger table change event.
-     */
-    private static final IEvent FINGER_TABLE_CHANGE_EVENT = new Event(FINGER_TABLE_CHANGE_EVENT_TYPE);
-
-    private static final IEvent OWN_ADDRESS_CHANGE_EVENT = new Event(OWN_ADDRESS_CHANGE_EVENT_TYPE);
-
     // -------------------------------------------------------------------------------------------------------
 
     /**
@@ -139,7 +108,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         createRing();
         exposeNode();
-        addObserver(this);
+
         startMaintenanceThread();
         try {
             network_reference_to_local_node = ChordNodeFactory.bindToRemoteNode(local_address);
@@ -381,23 +350,23 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public void update(final Observable o, final Object arg) {
 
-        final String event_type = ((Event) arg).getType();
+        final Event event = (Event) arg;
 
-        Diagnostic.traceNoSource(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>> update: " + event_type);
+        Diagnostic.traceNoSource(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>> update: " + event);
 
-        if (event_type.equals(SUCCESSOR_CHANGE_EVENT_TYPE)) {
+        if (event.equals(SUCCESSOR_CHANGE_EVENT)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getKey() : "null"));
         }
 
-        if (event_type.equals(PREDECESSOR_CHANGE_EVENT_TYPE)) {
+        if (event.equals(PREDECESSOR_CHANGE_EVENT)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getKey() : "null"));
         }
 
-        if (event_type.equals(SUCCESSOR_LIST_CHANGE_EVENT_TYPE)) {
+        if (event.equals(SUCCESSOR_LIST_CHANGE_EVENT)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "successor list now: ", successor_list);
         }
 
-        if (event_type.equals(FINGER_TABLE_CHANGE_EVENT_TYPE)) {
+        if (event.equals(FINGER_TABLE_CHANGE_EVENT)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
         }
     }
