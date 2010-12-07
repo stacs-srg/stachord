@@ -26,6 +26,7 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -42,6 +43,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.IActionWithResult;
+import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -57,7 +59,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
-    private final InetSocketAddress local_address; // The address of this node.
+    private InetSocketAddress local_address; // The address of this node.
     private final IKey key; // The key of this node.
     private final int hash_code; // The hash code of this node.
     private IChordRemoteReference self_reference; // A local RMI reference to this node.
@@ -65,6 +67,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private IChordRemoteReference successor; // The successor of this node.
     private final SuccessorList successor_list; // The successor list of this node.
     private final FingerTable finger_table; // The finger table of this node.
+    private final boolean can_adapt_to_address_change = true; // Whether we do anything when out own address changes
     private final boolean own_address_maintenance_enabled = true; // Whether periodic checking of own address is enabled
     private boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
     private boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
@@ -110,6 +113,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         exposeNode();
 
         startMaintenanceThread();
+        initialiseNetworkReferenceToLocalNode();
+        addObserver(this);
+    }
+
+    private void initialiseNetworkReferenceToLocalNode() throws RemoteException {
+
         try {
             network_reference_to_local_node = ChordNodeFactory.bindToRemoteNode(local_address);
         }
@@ -369,6 +378,11 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         if (event.equals(FINGER_TABLE_CHANGE_EVENT)) {
             Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
         }
+
+        if (event.equals(OWN_ADDRESS_CHANGE_EVENT)) {
+            Diagnostic.trace(DiagnosticLevel.FULL, "Address change event");
+            handleAddressChange();
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -598,6 +612,39 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                 handleSuccessorError(e);
             }
         }
+    }
+
+    private void handleAddressChange() {
+
+        try {
+            local_address = NetworkUtil.getLocalIPv4InetSocketAddress(local_address.getPort());
+            initialiseNetworkReferenceToLocalNode();
+            try {
+                // first preference - bind to predecessor
+                join(predecessor);
+            }
+            catch (final RemoteException e) {
+                // try to join to a finger
+
+                try {
+                    joinUsingFinger();
+                }
+                catch (final NoReachableNodeException e1) {
+                    // Not much we can do here
+                    Diagnostic.trace("Cannot rejoin ring using predecessor or finger");
+                }
+            }
+
+        }
+        catch (final UnknownHostException e) {
+            // Not much we can do here
+            Diagnostic.trace("Cannot find an alternative address to bind to");
+        }
+        catch (final RemoteException e) {
+            // Not much we can do here
+            Diagnostic.trace("Cannot initialise network reference to local node");
+        }
+
     }
 
     private void handleSuccessorError(final Exception e) {
