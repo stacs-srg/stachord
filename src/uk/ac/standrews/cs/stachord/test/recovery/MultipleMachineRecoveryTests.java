@@ -139,6 +139,8 @@ public class MultipleMachineRecoveryTests {
 
         final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
 
+        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000); // pick a beast node.
+
         System.out.println("USER: Please change network connection on local node - please hit return");
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -146,9 +148,12 @@ public class MultipleMachineRecoveryTests {
 
         assertEquals(network.getNodes().get(0).getHost(), "beast.cs.st-andrews.ac.uk");
 
-        RecoveryTestLogic.ringStable(network.getNodes().get(0), 4); // pick a best node.
+        RecoveryTestLogic.ringStable(network.getNodes().get(0), 4); // pick a beast node.
+
+        RecoveryTestLogic.dumpState(network.getNodes());
 
         System.out.println(">>>>> recovery test completed");
+
     }
 
     /**

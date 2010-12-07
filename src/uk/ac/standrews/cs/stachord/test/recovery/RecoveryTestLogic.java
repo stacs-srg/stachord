@@ -654,7 +654,7 @@ public final class RecoveryTestLogic {
         return System.currentTimeMillis() - start_time;
     }
 
-    private static void dumpState(final List<HostDescriptor> nodes) {
+    public static void dumpState(final List<HostDescriptor> nodes) {
 
         System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
 
