@@ -25,6 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -125,11 +127,14 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.FULL);
 
-        final List<String> hosts = localandthreeOnBeast();
+        final List<String> hosts = threeOnBeastAndOneOnIO();
 
         final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+
+        final HostDescriptor a_beast_node = host_descriptors.get(0);
+
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
@@ -139,7 +144,9 @@ public class MultipleMachineRecoveryTests {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         reader.readLine(); // wait for input
 
-        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000);
+        assertEquals(network.getNodes().get(0).getHost(), "beast.cs.st-andrews.ac.uk");
+
+        RecoveryTestLogic.ringStable(network.getNodes().get(0), 4); // pick a best node.
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -195,13 +202,13 @@ public class MultipleMachineRecoveryTests {
         return hosts;
     }
 
-    private List<String> localandthreeOnBeast() {
+    private List<String> threeOnBeastAndOneOnIO() {
 
         final List<String> hosts = new ArrayList<String>();
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
+        hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("io.cs.st-andrews.ac.uk");
-        hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("beast.cs.st-andrews.ac.uk");
         return hosts;
     }
 
