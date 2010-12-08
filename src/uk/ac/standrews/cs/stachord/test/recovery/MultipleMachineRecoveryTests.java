@@ -127,7 +127,7 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.FULL);
 
-        final List<String> hosts = threeOnBeastAndOneOnIO();
+        final List<String> hosts = threeOnBeast();
 
         final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
@@ -150,7 +150,7 @@ public class MultipleMachineRecoveryTests {
 
         RecoveryTestLogic.ringStable(network.getNodes().get(0), 4); // pick a beast node.
 
-        RecoveryTestLogic.dumpState(network.getNodes());
+        //        RecoveryTestLogic.dumpState(network.getNodes());
 
         System.out.println(">>>>> recovery test completed");
 
