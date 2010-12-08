@@ -302,10 +302,28 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         builder.append(key);
         builder.append("\nlocal_address: ");
         builder.append(local_address);
-        builder.append("\npredecessor: ");
+        builder.append("\npredecessor cached: ");
         builder.append(predecessor != null ? predecessor.getAddress() : "null");
-        builder.append("\nsuccessor: ");
+
+        builder.append("\npredecessor remote: ");
+        try {
+            builder.append(predecessor != null ? predecessor.getRemote().getAddress() : "null");
+        }
+        catch (final RemoteException e) {
+            builder.append("\npredecessor remote unavailable ");
+        }
+
+        builder.append("\nsuccessor cached: ");
         builder.append(successor != null ? successor.getAddress() : "null");
+
+        builder.append("\nsuccessor remote: ");
+        try {
+            builder.append(successor != null ? successor.getRemote().getAddress() : "null");
+        }
+        catch (final RemoteException e) {
+            builder.append("\nsuccessor remote unavailable ");
+        }
+
         builder.append("\nsuccessor_list: ");
         builder.append(successor_list);
         builder.append("\nfinger_table: ");
