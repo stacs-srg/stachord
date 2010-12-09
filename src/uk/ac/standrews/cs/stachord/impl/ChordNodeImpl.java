@@ -794,8 +794,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         throw new NoReachableNodeException();
     }
 
-    int i = 0;
-
     private void startMaintenanceThread() {
 
         new Thread() {
@@ -805,9 +803,11 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             @Override
             public void run() {
 
+                int i = 0;
+
                 while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled() || ownAddressMaintenanceEnabled()) {
 
-                    System.out.print(i++);
+                    System.out.println("Maintenance " + i++);
 
                     try {
                         sleep(WAIT_PERIOD);
@@ -822,7 +822,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
                     }
                     if (predecessorMaintenanceEnabled()) {
+                        System.out.println("Checking pred");
                         checkPredecessor();
+                        System.out.println("Checked pred");
                     }
                     if (stabilizationEnabled()) {
                         stabilize();
