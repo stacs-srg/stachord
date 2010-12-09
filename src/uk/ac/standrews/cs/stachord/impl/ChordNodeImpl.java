@@ -37,8 +37,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.RMIClientSocketFactory;
-import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Observable;
@@ -440,15 +439,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     private void initialiseRegistry() throws RemoteException {
 
-        final RMIClientSocketFactory client_socket_factory = new RMIClientSocketFactory() {
+        final RMISocketFactory socket_factory = new RMISocketFactory() {
 
             @Override
             public Socket createSocket(final String host, final int port) throws IOException {
 
                 return new Socket(host, port);
             }
-        };
-        final RMIServerSocketFactory server_socket_factory = new RMIServerSocketFactory() {
 
             @Override
             public ServerSocket createServerSocket(final int port) throws IOException {
@@ -458,7 +455,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         };
 
         // Create new RMI registry using Custom Socket Factories.
-        registry = LocateRegistry.createRegistry(local_address.getPort(), client_socket_factory, server_socket_factory);
+        registry = LocateRegistry.createRegistry(local_address.getPort(), socket_factory, socket_factory);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -797,6 +794,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         throw new NoReachableNodeException();
     }
 
+    int i = 0;
+
     private void startMaintenanceThread() {
 
         new Thread() {
@@ -808,7 +807,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
                 while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled() || ownAddressMaintenanceEnabled()) {
 
-                    System.out.println("Maintenance");
+                    System.out.print(i++);
 
                     try {
                         sleep(WAIT_PERIOD);
