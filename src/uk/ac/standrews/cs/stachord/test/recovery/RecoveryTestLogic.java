@@ -629,6 +629,7 @@ public final class RecoveryTestLogic {
 
             if (timed_out) {
 
+                System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
                 dumpState(nodes);
                 throw new TimeoutException();
             }
@@ -655,8 +656,6 @@ public final class RecoveryTestLogic {
     }
 
     public static void dumpState(final List<HostDescriptor> nodes) {
-
-        System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
 
         for (final HostDescriptor machine_descriptor : nodes) {
 
