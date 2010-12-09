@@ -49,7 +49,7 @@ public interface IChordRemoteReference extends Serializable {
      *
      * @return the address associated with this reference
      */
-    InetSocketAddress getAddress();
+    InetSocketAddress getCachedAddress();
 
     /**
      * Returns the remote reference.

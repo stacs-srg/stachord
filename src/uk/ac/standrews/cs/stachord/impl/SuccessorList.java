@@ -148,7 +148,7 @@ class SuccessorList {
                 buffer.append("successor: ");
                 buffer.append(successor != null ? successor.getKey() : "null");
                 buffer.append(" address: ");
-                buffer.append(successor != null ? successor.getAddress() : "null");
+                buffer.append(successor != null ? successor.getCachedAddress() : "null");
                 buffer.append("\n");
             }
         }

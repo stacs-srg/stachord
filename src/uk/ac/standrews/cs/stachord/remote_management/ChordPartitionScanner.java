@@ -83,7 +83,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
                     final IChordRemote node = ((IChordRemoteReference) host_descriptor.getApplicationReference()).getRemote();
                     try {
                         if (ringSize(host_descriptor) < stable_hosts.size()) {
-                            System.out.println("joining " + node.getAddress() + " to " + first_node.getAddress());
+                            System.out.println("joining " + node.getAddress() + " to " + first_node.getCachedAddress());
 
                             node.join(first_node);
                         }

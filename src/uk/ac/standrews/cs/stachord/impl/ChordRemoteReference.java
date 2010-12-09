@@ -61,7 +61,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     }
 
     @Override
-    public InetSocketAddress getAddress() {
+    public InetSocketAddress getCachedAddress() {
 
         return address;
     }

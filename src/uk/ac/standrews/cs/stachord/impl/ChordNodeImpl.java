@@ -25,16 +25,23 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
+import java.rmi.AccessException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
+import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Observable;
-import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -42,9 +49,7 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.IActionWithResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -67,14 +72,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private IChordRemoteReference successor; // The successor of this node.
     private final SuccessorList successor_list; // The successor list of this node.
     private final FingerTable finger_table; // The finger table of this node.
-    private final boolean can_adapt_to_address_change = true; // Whether we do anything when out own address changes
+    private Registry registry = null; // The currentRMI registry
+
     private final boolean own_address_maintenance_enabled = true; // Whether periodic checking of own address is enabled
     private boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
     private boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
     private boolean finger_table_maintenance_enabled = true; // Whether periodic finger table maintenance should be performed.
     private boolean detailed_to_string = false; // Whether toString() should return a detailed description.
-    private IChordRemoteReference network_reference_to_local_node = null; // used to detect IP changes of this node
-    private boolean mask_ip_change_event = false;
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -102,28 +106,27 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         successor_list = new SuccessorList(this);
         finger_table = new FingerTable(this);
 
+        initialiseSelfReference();
+
+        createRing();
+        try {
+            exposeNode();
+        }
+        catch (final AlreadyBoundException e) {
+            ErrorHandling.hardExceptionError(e, "Failure to expost node");
+        }
+
+        startMaintenanceThread();
+        addObserver(this);
+    }
+
+    private void initialiseSelfReference() {
+
         try {
             self_reference = new ChordRemoteReference(key, this);
         }
         catch (final RemoteException e) {
             ErrorHandling.hardExceptionError(e, "Unexpected remote exception when creating self-reference");
-        }
-
-        createRing();
-        exposeNode();
-
-        startMaintenanceThread();
-        initialiseNetworkReferenceToLocalNode();
-        addObserver(this);
-    }
-
-    private void initialiseNetworkReferenceToLocalNode() throws RemoteException {
-
-        try {
-            network_reference_to_local_node = ChordNodeFactory.bindToRemoteNode(local_address);
-        }
-        catch (final NotBoundException e1) {
-            ErrorHandling.hardError("Cannot bind to local node");
         }
     }
 
@@ -303,7 +306,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         builder.append("\nlocal_address: ");
         builder.append(local_address);
         builder.append("\npredecessor cached: ");
-        builder.append(predecessor != null ? predecessor.getAddress() : "null");
+        builder.append(predecessor != null ? predecessor.getCachedAddress() : "null");
 
         builder.append("\npredecessor remote: ");
         try {
@@ -314,7 +317,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
 
         builder.append("\nsuccessor cached: ");
-        builder.append(successor != null ? successor.getAddress() : "null");
+        builder.append(successor != null ? successor.getCachedAddress() : "null");
 
         builder.append("\nsuccessor remote: ");
         try {
@@ -410,31 +413,52 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     /**
      * Exposes this node for remote RMI access.
      * @throws RemoteException if the node cannot be exposed for remote access
+     * @throws AlreadyBoundException 
+     * @throws AccessException 
+     * 
+     * precondition that IChordRemote.CHORD_REMOTE_SERVICE_NAME is not bound in Registry
      */
-    private void exposeNode() throws RemoteException {
+    private void exposeNode() throws AlreadyBoundException, RemoteException {
 
-        Registry local_registry;
-        try {
-            // Try to create new RMI registry.
-            local_registry = LocateRegistry.createRegistry(local_address.getPort());
-        }
-        catch (final RemoteException e) {
+        initialiseRegistry();
 
-            // Maybe it already existed, so try getting existing registry.
-            local_registry = LocateRegistry.getRegistry(local_address.getPort());
-        }
-
-        // Start RMI listening. NOTE the result of getRemote() is actually local!
-        UnicastRemoteObject.exportObject(getSelfReference().getRemote(), 0);
+        // Start RMI listening.
+        final IChordRemote me = getSelfReference().getRemote();
+        UnicastRemoteObject.exportObject(me, 0);
 
         // Register the service with the registry.
-        local_registry.rebind(IChordRemote.CHORD_REMOTE_SERVICE_NAME, getSelfReference().getRemote());
+        registry.bind(IChordRemote.CHORD_REMOTE_SERVICE_NAME, me);
     }
 
     private void unexposeNode() throws RemoteException, NotBoundException {
 
-        final Registry registry = LocateRegistry.getRegistry(local_address.getPort());
         registry.unbind(IChordRemote.CHORD_REMOTE_SERVICE_NAME);
+        UnicastRemoteObject.unexportObject(getSelfReference().getRemote(), true); // unexpose the old service address
+        UnicastRemoteObject.unexportObject(registry, true); // shut down the registry
+        registry = null;
+    }
+
+    private void initialiseRegistry() throws RemoteException {
+
+        final RMIClientSocketFactory client_socket_factory = new RMIClientSocketFactory() {
+
+            @Override
+            public Socket createSocket(final String host, final int port) throws IOException {
+
+                return new Socket(host, port);
+            }
+        };
+        final RMIServerSocketFactory server_socket_factory = new RMIServerSocketFactory() {
+
+            @Override
+            public ServerSocket createServerSocket(final int port) throws IOException {
+
+                return NetworkUtil.makeReusableServerSocket(local_address.getAddress(), port);
+            }
+        };
+
+        // Create new RMI registry using Custom Socket Factories.
+        registry = LocateRegistry.createRegistry(local_address.getPort(), client_socket_factory, server_socket_factory);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -483,37 +507,19 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private synchronized boolean checkNodeAddressChanged() {
 
         try {
+            final InetAddress new_address = NetworkUtil.getLocalIPv4Address();
 
-            return (Boolean) new Timeout().performActionWithTimeout(new IActionWithResult() {
+            final boolean address_has_changed = !new_address.equals(local_address.getAddress());
 
-                @Override
-                public Object performAction() {
-
-                    try {
-                        network_reference_to_local_node.getRemote().isAlive();
-                        mask_ip_change_event = false; // we can connect to ourselves via a network connection
-                        return false;
-                    }
-                    catch (final RemoteException e) {
-                        return reportFailure();
-                    }
-
-                }
-            }, 2000); // 2 seconds
-
+            if (address_has_changed) {
+                local_address = new InetSocketAddress(new_address, local_address.getPort());
+            }
+            return address_has_changed;
         }
-        catch (final TimeoutException e) {
-            return reportFailure();
-        }
-    }
-
-    private boolean reportFailure() {
-
-        if (!mask_ip_change_event) {
-            mask_ip_change_event = true;
+        catch (final UnknownHostException e) {
+            Diagnostic.trace(DiagnosticLevel.RUN, "couldn't find local address");
             return true;
         }
-        return false;
     }
 
     /**
@@ -635,34 +641,62 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private void handleAddressChange() {
 
         try {
-            local_address = NetworkUtil.getLocalIPv4InetSocketAddress(local_address.getPort());
-            initialiseNetworkReferenceToLocalNode();
+            System.out.println("Old address: " + local_address);
             try {
-                // first preference - bind to predecessor
-                join(predecessor);
+                unexposeNode(); // tear down the old RMI connection
+            }
+            catch (final NotBoundException e2) {
+                Diagnostic.trace("Error unexposing the node");
+                // This shouln't happen - nothing can be done if it does
+            }
+            //            local_address = NetworkUtil.getLocalIPv4InetSocketAddress(local_address.getPort()); // will bind to new node address - local address is only used to get the port
+            System.out.println("New address: " + local_address);
+            exposeNode(); // set up the new RMI connection
+            initialiseSelfReference();
+
+            System.out.println(toStringDetailed());
+
+            // Try and rejoin the ring
+            try {
+                // first preference - rejoin the ring by binding to predecessor if we can
+                if (predecessor == null) {
+                    try {
+                        joinUsingFinger();
+                    }
+                    catch (final NoReachableNodeException e1) {
+                        // we are on our own - nothing we can do 
+                        // We don't have a predecssor and can't connect via the fingers
+                        // In this case - will never rejoin without some manual intervention (?)
+                        Diagnostic.trace("Cannot rejoin ring using predecessor (null) or finger");
+                    }
+                }
+                else {
+                    // normal case
+                    join(predecessor);
+                }
             }
             catch (final RemoteException e) {
-                // try to join to a finger
+                // second preference - rejoin the ring by using a finger
 
                 try {
                     joinUsingFinger();
                 }
                 catch (final NoReachableNodeException e1) {
-                    // Not much we can do here
+                    // Not much else we can do here - for now
+                    // We will try and re-join if we get another adddress change event
                     Diagnostic.trace("Cannot rejoin ring using predecessor or finger");
                 }
             }
 
         }
-        catch (final UnknownHostException e) {
-            // Not much we can do here
-            Diagnostic.trace("Cannot find an alternative address to bind to");
-        }
         catch (final RemoteException e) {
-            // Not much we can do here
+            e.printStackTrace();
+            // Not much we can do here - just report 
             Diagnostic.trace("Cannot initialise network reference to local node");
         }
-
+        catch (final AlreadyBoundException e) {
+            ErrorHandling.hardExceptionError(e, "Failure to expose node");
+        }
     }
 
     private void handleSuccessorError(final Exception e) {
@@ -783,6 +817,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                             setChanged();
                             notifyObservers(OWN_ADDRESS_CHANGE_EVENT);
                         }
+
                     }
                     if (predecessorMaintenanceEnabled()) {
                         checkPredecessor();

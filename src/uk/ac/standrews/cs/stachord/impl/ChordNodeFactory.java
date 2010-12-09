@@ -136,7 +136,7 @@ public final class ChordNodeFactory {
     public static IChordRemoteReference createNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         instantiateNode(host_descriptor, key);
-        return bindToNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
+        return bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
     }
 
     /**
@@ -223,8 +223,11 @@ public final class ChordNodeFactory {
      */
     public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteException, NotBoundException {
 
-        final Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort()); // This doesn't make a remote call.
+        System.out.println("bindToRemoteNode1");
+        final Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort());
+        System.out.println("bindToRemoteNode2");
         final IChordRemote node = (IChordRemote) registry.lookup(IChordRemote.CHORD_REMOTE_SERVICE_NAME);
+        System.out.println("bindToRemoteNode3");
 
         return new ChordRemoteReference(node.getKey(), node);
     }
@@ -237,7 +240,7 @@ public final class ChordNodeFactory {
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
      */
-    public static IChordRemoteReference bindToNodeWithRetry(final InetSocketAddress node_address) throws TimeoutException {
+    public static IChordRemoteReference bindToRemoteNodeWithRetry(final InetSocketAddress node_address) throws TimeoutException {
 
         final long start_time = System.currentTimeMillis();
 
@@ -292,7 +295,7 @@ public final class ChordNodeFactory {
                 host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
-                final IChordRemoteReference chord_application_reference = bindToNodeWithRetry(host_address);
+                final IChordRemoteReference chord_application_reference = bindToRemoteNodeWithRetry(host_address);
 
                 host_descriptor.applicationReference(chord_application_reference);
                 finished = true;

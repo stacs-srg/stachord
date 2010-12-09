@@ -157,7 +157,7 @@ class FingerTable {
             }
             else {
                 buffer.append(" key: " + fingers[i].getKey());
-                buffer.append(" address: " + fingers[i].getAddress());
+                buffer.append(" address: " + fingers[i].getCachedAddress());
             }
             buffer.append("\n");
         }
