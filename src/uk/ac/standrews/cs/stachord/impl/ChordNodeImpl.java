@@ -455,7 +455,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         };
 
         // Create new RMI registry using Custom Socket Factories.
-        registry = LocateRegistry.createRegistry(local_address.getPort(), socket_factory, socket_factory);
+        registry = LocateRegistry.createRegistry(local_address.getPort(), null, socket_factory);
     }
 
     // -------------------------------------------------------------------------------------------------------
