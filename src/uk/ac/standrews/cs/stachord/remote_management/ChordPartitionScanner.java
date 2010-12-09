@@ -25,7 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +35,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 class ChordPartitionScanner implements IGlobalHostScanner {
 

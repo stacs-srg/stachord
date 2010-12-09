@@ -25,7 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.interfaces;
 
-import java.rmi.RemoteException;
 import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.events.Event;

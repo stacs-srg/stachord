@@ -26,11 +26,11 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
-import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Holds a reference to a remote Chord node, with a locally cached copy of its key and IP address.
@@ -55,7 +55,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     }
 
     @Override
-    public IKey getKey() {
+    public IKey getCachedKey() {
 
         return key;
     }
@@ -81,7 +81,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public boolean equals(final Object o) {
 
-        return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getKey());
+        return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getCachedKey());
     }
 
     @Override

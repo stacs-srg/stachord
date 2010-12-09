@@ -26,7 +26,6 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Finger table implementation.
@@ -108,7 +108,7 @@ class FingerTable {
 
             // Looking for finger that lies before k from position of this node.
             // Ignore fingers pointing to this node.
-            if (finger != null && !node_key.equals(finger.getKey()) && node_key.firstCloserInRingThanSecond(finger.getKey(), key)) { return finger; }
+            if (finger != null && !node_key.equals(finger.getCachedKey()) && node_key.firstCloserInRingThanSecond(finger.getCachedKey(), key)) { return finger; }
         }
 
         throw new NoPrecedingNodeException();
@@ -122,7 +122,7 @@ class FingerTable {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
-            if (fingers[i] != null && fingers[i].getKey().equals(broken_finger.getKey())) {
+            if (fingers[i] != null && fingers[i].getCachedKey().equals(broken_finger.getCachedKey())) {
                 fingers[i] = null;
             }
         }
@@ -156,7 +156,7 @@ class FingerTable {
                 buffer.append(" null");
             }
             else {
-                buffer.append(" key: " + fingers[i].getKey());
+                buffer.append(" key: " + fingers[i].getCachedKey());
                 buffer.append(" address: " + fingers[i].getCachedAddress());
             }
             buffer.append("\n");
@@ -206,7 +206,7 @@ class FingerTable {
             final IKey target_key = finger_targets[finger_index];
             final IChordRemoteReference finger = node.lookup(target_key);
 
-            final boolean changed = fingers[finger_index] == null || !fingers[finger_index].getKey().equals(finger.getKey());
+            final boolean changed = fingers[finger_index] == null || !fingers[finger_index].getCachedKey().equals(finger.getCachedKey());
             fingers[finger_index] = finger;
             return changed;
         }

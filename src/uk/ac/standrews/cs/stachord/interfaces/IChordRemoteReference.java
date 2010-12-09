@@ -25,7 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.interfaces;
 
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -35,14 +34,14 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public interface IChordRemoteReference extends Serializable {
+public interface IChordRemoteReference {
 
     /**
      * Returns the key associated with this reference.
      *
      * @return the key associated with this reference
      */
-    IKey getKey();
+    IKey getCachedKey();
 
     /**
      * Returns the address associated with this reference.

@@ -25,9 +25,9 @@
 
 package uk.ac.standrews.cs.stachord.servers;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 
 import uk.ac.standrews.cs.nds.util.CommandLineArgs;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -37,6 +37,7 @@ import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Provides the entry point for deploying a Chord node that is joining an existing Chord ring.
@@ -89,8 +90,9 @@ public final class StartNodeInExistingRing extends AbstractServer {
      * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
+     * @throws IOException 
      */
-    public static void main(final String[] args) throws RemoteException, NotBoundException, UndefinedDiagnosticLevelException {
+    public static void main(final String[] args) throws RemoteException, UndefinedDiagnosticLevelException, IOException {
 
         final StartNodeInExistingRing starter = new StartNodeInExistingRing(args);
         starter.createNode();
@@ -98,9 +100,9 @@ public final class StartNodeInExistingRing extends AbstractServer {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNode() throws RemoteException, NotBoundException {
+    private void createNode() throws RemoteException, IOException {
 
-        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining RMI Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
+        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 
         final InetSocketAddress known_socket_address = new InetSocketAddress(known_address, known_port);
 

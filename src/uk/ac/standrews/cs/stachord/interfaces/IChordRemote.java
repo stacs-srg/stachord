@@ -26,8 +26,6 @@
 package uk.ac.standrews.cs.stachord.interfaces;
 
 import java.net.InetSocketAddress;
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -38,12 +36,7 @@ import uk.ac.standrews.cs.stachord.impl.NextHopResult;
  *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public interface IChordRemote extends Remote {
-
-    /**
-     * The name of the remotely accessible Chord service.
-     */
-    String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
+public interface IChordRemote {
 
     /**
      * Returns this node's key.

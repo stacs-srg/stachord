@@ -25,12 +25,12 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Successor list implementation.
@@ -111,7 +111,7 @@ class SuccessorList {
             final IChordRemoteReference successor_list_node = successor_list_of_successor.get(i);
 
             // Check for wrap-around in small ring.
-            if (successor_list_node.getKey().equals(node.getKey())) {
+            if (successor_list_node.getCachedKey().equals(node.getKey())) {
                 break;
             }
 
@@ -146,7 +146,7 @@ class SuccessorList {
             for (final IChordRemoteReference successor : successor_list) {
 
                 buffer.append("successor: ");
-                buffer.append(successor != null ? successor.getKey() : "null");
+                buffer.append(successor != null ? successor.getCachedKey() : "null");
                 buffer.append(" address: ");
                 buffer.append(successor != null ? successor.getCachedAddress() : "null");
                 buffer.append("\n");

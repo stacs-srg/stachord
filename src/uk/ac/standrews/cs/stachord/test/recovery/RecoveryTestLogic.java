@@ -28,7 +28,6 @@ package uk.ac.standrews.cs.stachord.test.recovery;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +43,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 import uk.ac.standrews.cs.stachord.test.factory.INetwork;
 
 /**
@@ -289,7 +289,7 @@ public final class RecoveryTestLogic {
             final IChordRemote node = application_reference.getRemote();
 
             try {
-                return node.getPredecessor() == null && node.getSuccessor().getKey().equals(node.getKey());
+                return node.getPredecessor() == null && node.getSuccessor().getCachedKey().equals(node.getKey());
             }
             catch (final RemoteException e) {
                 return false;
@@ -344,7 +344,7 @@ public final class RecoveryTestLogic {
 
                 // Check that the finger is not closer in ring distance than the previous non-null finger.
                 // Treat self-reference as the full ring distance, so ignore case where finger points to this node.
-                if (previous_finger_reference != null && !finger_reference.getKey().equals(node.getKey()) && node.getKey().firstCloserInRingThanSecond(finger_reference.getKey(), previous_finger_reference.getKey())) {
+                if (previous_finger_reference != null && !finger_reference.getCachedKey().equals(node.getCachedKey()) && node.getCachedKey().firstCloserInRingThanSecond(finger_reference.getCachedKey(), previous_finger_reference.getCachedKey())) {
 
                 return false; }
 
@@ -514,19 +514,19 @@ public final class RecoveryTestLogic {
         // in the pathological case where the target has a predecessor with a key one less than it.
         final IChordRemoteReference predecessor_of_target = target.getRemote().getPredecessor();
 
-        final Key one_before_key = new Key(target.getKey().keyValue().subtract(BigInteger.ONE));
-        final boolean pathological = predecessor_of_target != null && predecessor_of_target.getKey().equals(one_before_key);
+        final Key one_before_key = new Key(target.getCachedKey().keyValue().subtract(BigInteger.ONE));
+        final boolean pathological = predecessor_of_target != null && predecessor_of_target.getCachedKey().equals(one_before_key);
 
         final IChordRemote result_for_smaller_key = lookup(source, one_before_key);
 
-        return !pathological && result_for_smaller_key.getKey().equals(target.getKey()) || pathological && result_for_smaller_key.getKey().equals(predecessor_of_target.getKey());
+        return !pathological && result_for_smaller_key.getKey().equals(target.getCachedKey()) || pathological && result_for_smaller_key.getKey().equals(predecessor_of_target.getCachedKey());
     }
 
     private static boolean routingToSameKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteException {
 
         // Check that the target's own key routes to the target.
-        final IChordRemote result_for_same_key = lookup(source, target.getKey());
-        return target.getKey().equals(result_for_same_key.getKey());
+        final IChordRemote result_for_same_key = lookup(source, target.getCachedKey());
+        return target.getCachedKey().equals(result_for_same_key.getKey());
     }
 
     private static boolean routingToLargerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteException {
@@ -534,10 +534,10 @@ public final class RecoveryTestLogic {
         // Check that a slightly larger key than the node's key routes to the node's successor.
         final IChordRemoteReference successor_of_target = target.getRemote().getSuccessor();
 
-        final Key one_after_target_key = new Key(target.getKey().keyValue().add(BigInteger.ONE));
+        final Key one_after_target_key = new Key(target.getCachedKey().keyValue().add(BigInteger.ONE));
         final IChordRemote result_for_larger_key = lookup(source, one_after_target_key);
 
-        return result_for_larger_key.getKey().equals(successor_of_target.getKey());
+        return result_for_larger_key.getKey().equals(successor_of_target.getCachedKey());
     }
 
     private static IChordRemote lookup(final IChordRemoteReference source, final IKey key) throws RemoteException {

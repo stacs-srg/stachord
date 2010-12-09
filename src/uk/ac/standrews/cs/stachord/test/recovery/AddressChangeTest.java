@@ -1,15 +1,15 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.rmi.RemoteException;
 import java.util.Observable;
 import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 public class AddressChangeTest implements Observer {
 
@@ -18,10 +18,10 @@ public class AddressChangeTest implements Observer {
 
     /**
      * @param args
-     * @throws UnknownHostException 
      * @throws RemoteException 
+     * @throws IOException 
      */
-    public static void main(final String[] args) throws UnknownHostException, RemoteException {
+    public static void main(final String[] args) throws RemoteException, IOException {
 
         final AddressChangeTest foo = new AddressChangeTest();
 
@@ -30,7 +30,6 @@ public class AddressChangeTest implements Observer {
         impl.addObserver(foo);
 
         System.out.println("Running... at " + impl.getSelfReference().getCachedAddress() + " started at: " + socketAddress);
-
     }
 
     @Override
