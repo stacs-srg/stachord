@@ -37,6 +37,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.RMISocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
@@ -439,7 +440,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     private void initialiseRegistry() throws RemoteException {
 
-        final RMISocketFactory socket_factory = new RMISocketFactory() {
+        final RMIServerSocketFactory socket_factory = new RMISocketFactory() {
 
             @Override
             public Socket createSocket(final String host, final int port) throws IOException {
