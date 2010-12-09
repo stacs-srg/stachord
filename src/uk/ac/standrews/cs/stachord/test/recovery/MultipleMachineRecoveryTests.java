@@ -133,27 +133,26 @@ public class MultipleMachineRecoveryTests {
 
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
 
-        final HostDescriptor a_beast_node = host_descriptors.get(0);
-
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
 
-        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000); // pick a beast node.
+        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000);
 
         System.out.println("USER: Please change network connection on local node - please hit return");
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         reader.readLine(); // wait for input
 
-        assertEquals(network.getNodes().get(0).getHost(), "beast.cs.st-andrews.ac.uk");
+        final HostDescriptor a_beast_node = network.getNodes().get(0);
 
-        RecoveryTestLogic.ringStable(network.getNodes().get(0), 4); // pick a beast node.
+        assertEquals(a_beast_node.getHost(), "beast.cs.st-andrews.ac.uk");
 
-        //        RecoveryTestLogic.dumpState(network.getNodes());
+        RecoveryTestLogic.ringStable(a_beast_node, 4);
+
+        RecoveryTestLogic.dumpState(network.getNodes());
 
         System.out.println(">>>>> recovery test completed");
-
     }
 
     /**
