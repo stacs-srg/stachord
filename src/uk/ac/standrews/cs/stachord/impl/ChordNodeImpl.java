@@ -512,7 +512,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             final boolean address_has_changed = !new_address.equals(local_address.getAddress());
 
             if (address_has_changed) {
+                System.out.println("Old address: " + local_address);
                 local_address = new InetSocketAddress(new_address, local_address.getPort());
+                System.out.println("New address: " + local_address);
             }
             return address_has_changed;
         }
@@ -641,7 +643,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private void handleAddressChange() {
 
         try {
-            System.out.println("Old address: " + local_address);
             try {
                 unexposeNode(); // tear down the old RMI connection
             }
@@ -650,7 +651,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                 // This shouln't happen - nothing can be done if it does
             }
             //            local_address = NetworkUtil.getLocalIPv4InetSocketAddress(local_address.getPort()); // will bind to new node address - local address is only used to get the port
-            System.out.println("New address: " + local_address);
             exposeNode(); // set up the new RMI connection
             initialiseSelfReference();
 
@@ -807,6 +807,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             public void run() {
 
                 while (predecessorMaintenanceEnabled() || stabilizationEnabled() || fingerTableMaintenanceEnabled() || ownAddressMaintenanceEnabled()) {
+
+                    System.out.println("Maintenance");
+
                     try {
                         sleep(WAIT_PERIOD);
                     }
