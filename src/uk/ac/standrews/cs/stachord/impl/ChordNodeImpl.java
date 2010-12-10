@@ -461,10 +461,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             @Override
             public ServerSocket createServerSocket(final int port) throws IOException {
 
-                final ServerSocket s = NetworkUtil.makeReusableServerSocket(local_address.getAddress(), port);
-                s.setSoTimeout(100);
-
-                return s;
+                return NetworkUtil.makeReusableServerSocket(local_address.getAddress(), port);
             }
         }
 
