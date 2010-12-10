@@ -26,10 +26,10 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
@@ -440,23 +440,45 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     private void initialiseRegistry() throws RemoteException {
 
-        final RMIServerSocketFactory socket_factory = new RMISocketFactory() {
+        //        final RMIServerSocketFactory socket_factory = new RMISocketFactory() {
+        //
+        //            @Override
+        //            public Socket createSocket(final String host, final int port) throws IOException {
+        //
+        //                return new Socket(host, port);
+        //            }
+        //
+        //            @Override
+        //            public ServerSocket createServerSocket(final int port) throws IOException {
+        //
+        //                return NetworkUtil.makeReusableServerSocket(local_address.getAddress(), port);
+        //            }
+        //        };
 
-            @Override
-            public Socket createSocket(final String host, final int port) throws IOException {
-
-                return new Socket(host, port);
-            }
+        class ServerSocketFactory implements RMIServerSocketFactory, Serializable {
 
             @Override
             public ServerSocket createServerSocket(final int port) throws IOException {
 
                 return NetworkUtil.makeReusableServerSocket(local_address.getAddress(), port);
             }
-        };
+        }
+
+        //        class ClientSocketFactory implements RMIClientSocketFactory, Serializable {
+        //
+        //            @Override
+        //            public Socket createSocket(final String host, final int port) throws IOException {
+        //
+        //                return new Socket(host, port);
+        //            }
+        //
+        //        }
+
+        final ServerSocketFactory server_socket_factory = new ServerSocketFactory();
+        // final ClientSocketFactory client_socket_factory = new ClientSocketFactory();
 
         // Create new RMI registry using Custom Socket Factories.
-        registry = LocateRegistry.createRegistry(local_address.getPort(), null, socket_factory);
+        registry = LocateRegistry.createRegistry(local_address.getPort(), RMISocketFactory.getDefaultSocketFactory(), server_socket_factory);
     }
 
     // -------------------------------------------------------------------------------------------------------
