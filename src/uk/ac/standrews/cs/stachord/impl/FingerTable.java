@@ -26,7 +26,6 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.math.BigInteger;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,8 +95,9 @@ class FingerTable {
      * @param key the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
+     * @throws RemoteChordException 
      */
-    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException {
+    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RemoteChordException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -108,7 +108,7 @@ class FingerTable {
 
             // Looking for finger that lies before k from position of this node.
             // Ignore fingers pointing to this node.
-            if (finger != null && !node_key.equals(finger.getKey()) && node_key.firstCloserInRingThanSecond(finger.getKey(), key)) { return finger; }
+            if (finger != null && !node_key.equals(finger.getCachedKey()) && node_key.firstCloserInRingThanSecond(finger.getCachedKey(), key)) { return finger; }
         }
 
         throw new NoPrecedingNodeException();
@@ -117,12 +117,13 @@ class FingerTable {
     /**
      * Notifies the finger table of a broken finger.
      * @param broken_finger the finger that has failed
+     * @throws RemoteChordException 
      */
-    public void fingerFailure(final IChordRemoteReference broken_finger) {
+    public void fingerFailure(final IChordRemoteReference broken_finger) throws RemoteChordException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
-            if (fingers[i] != null && fingers[i].getKey().equals(broken_finger.getKey())) {
+            if (fingers[i] != null && fingers[i].getCachedKey().equals(broken_finger.getCachedKey())) {
                 fingers[i] = null;
             }
         }
@@ -156,7 +157,12 @@ class FingerTable {
                 buffer.append(" null");
             }
             else {
-                buffer.append(" key: " + fingers[i].getKey());
+                try {
+                    buffer.append(" key: " + fingers[i].getCachedKey());
+                }
+                catch (final RemoteChordException e) {
+                    buffer.append(" key: inaccessible");
+                }
                 buffer.append(" address: " + fingers[i].getCachedAddress());
             }
             buffer.append("\n");
@@ -206,11 +212,11 @@ class FingerTable {
             final IKey target_key = finger_targets[finger_index];
             final IChordRemoteReference finger = node.lookup(target_key);
 
-            final boolean changed = fingers[finger_index] == null || !fingers[finger_index].getKey().equals(finger.getKey());
+            final boolean changed = fingers[finger_index] == null || !fingers[finger_index].getCachedKey().equals(finger.getCachedKey());
             fingers[finger_index] = finger;
             return changed;
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }

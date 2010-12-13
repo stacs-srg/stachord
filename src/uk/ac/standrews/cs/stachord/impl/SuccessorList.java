@@ -25,7 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +64,7 @@ class SuccessorList {
                 next.getRemote().isAlive();
                 return next;
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
             }
         }
         throw new NoReachableNodeException();
@@ -92,8 +91,9 @@ class SuccessorList {
      * Constructs a new successor list which consists of this node's successor
      * followed by the first (MAX_SIZE-1) elements of the successor's successor
      * list.
+     * @throws RemoteChordException 
      */
-    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) {
+    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteChordException {
 
         final IChordRemoteReference successor = node.getSuccessor();
 
@@ -111,7 +111,7 @@ class SuccessorList {
             final IChordRemoteReference successor_list_node = successor_list_of_successor.get(i);
 
             // Check for wrap-around in small ring.
-            if (successor_list_node.getKey().equals(node.getKey())) {
+            if (successor_list_node.getCachedKey().equals(node.getKey())) {
                 break;
             }
 
@@ -146,7 +146,12 @@ class SuccessorList {
             for (final IChordRemoteReference successor : successor_list) {
 
                 buffer.append("successor: ");
-                buffer.append(successor != null ? successor.getKey() : "null");
+                try {
+                    buffer.append(successor != null ? successor.getCachedKey() : "null");
+                }
+                catch (final RemoteChordException e) {
+                    buffer.append("inaccessible");
+                }
                 buffer.append(" address: ");
                 buffer.append(successor != null ? successor.getCachedAddress() : "null");
                 buffer.append("\n");

@@ -25,12 +25,12 @@
 
 package uk.ac.standrews.cs.stachord.interfaces;
 
-import java.rmi.RemoteException;
 import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.nds.events.IEvent;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 
 /**
  * Defines locally accessible Chord node functionality.
@@ -75,14 +75,11 @@ public interface IChordNode extends Observer {
     int MAX_SUCCESSOR_LIST_SIZE = 5;
 
     /**
-     * The default RMI registry port.
-     */
-    int DEFAULT_RMI_REGISTRY_PORT = 1099;
-
-    /**
      * The ratio between successive finger target keys in the finger table.
      */
     int INTER_FINGER_RATIO = 2;
+
+    int DEFAULT_PORT = 1099;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,9 +96,9 @@ public interface IChordNode extends Observer {
      *
      * @param key a key to be routed to
      * @return the node to which the key maps
-     * @throws RemoteException if an error occurs during the routing protocol
+     * @throws RemoteChordException if an error occurs during the routing protocol
      */
-    IChordRemoteReference lookup(IKey key) throws RemoteException;
+    IChordRemoteReference lookup(IKey key) throws RemoteChordException;
 
     /**
      * Returns this node's successor in the key space.
@@ -119,9 +116,9 @@ public interface IChordNode extends Observer {
      * Joins this node to the ring of which the specified node is a member.
      *
      * @param node a node in a ring
-     * @throws RemoteException if an error occurs during the remote call
+     * @throws RemoteChordException if an error occurs during the remote call
      */
-    void join(IChordRemoteReference node) throws RemoteException;
+    void join(IChordRemoteReference node) throws RemoteChordException;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,6 +147,7 @@ public interface IChordNode extends Observer {
      *
      * @param k a key
      * @return true if the key lies in this node's key range
+     * @throws RemoteChordException 
      */
-    boolean inLocalKeyRange(final IKey k);
+    boolean inLocalKeyRange(final IKey k) throws RemoteChordException;
 }

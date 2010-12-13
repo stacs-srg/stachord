@@ -25,8 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.servers;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
@@ -39,6 +39,7 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
@@ -86,7 +87,7 @@ abstract class AbstractServer {
         }
     }
 
-    protected IChordNode makeNode() throws RemoteException {
+    protected IChordNode makeNode() throws RemoteChordException, IOException {
 
         final InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
         return server_key == null ? ChordNodeFactory.createLocalNode(local_socket_address) : ChordNodeFactory.createLocalNode(local_socket_address, server_key);

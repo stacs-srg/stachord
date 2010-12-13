@@ -25,7 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import uk.ac.standrews.cs.nds.remote_management.HostState;
 import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
@@ -88,7 +88,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
                             node.join(first_node);
                         }
                     }
-                    catch (final RemoteException e) {
+                    catch (final RemoteChordException e) {
                         Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
                     }
                 }

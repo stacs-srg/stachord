@@ -27,10 +27,6 @@ package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -43,7 +39,6 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
@@ -59,14 +54,14 @@ public final class ChordNodeFactory {
     /**
      * Timeout interval for connection to remote nodes, in ms.
      */
-    public static final int REGISTRY_TIMEOUT_INTERVAL = 20000;
+    public static final int TIMEOUT_INTERVAL = 20000;
 
     /**
      * Timeout interval for establishing connection to a free port, in ms.
      */
     public static final int FREE_PORT_TIMEOUT_INTERVAL = 60000;
 
-    private static final int REGISTRY_RETRY_INTERVAL = 2000; // Retry connecting to remote nodes at 2s intervals.
+    private static final int RETRY_INTERVAL = 2000; // Retry connecting to remote nodes at 2s intervals.
     private static final int INITIAL_PORT = 54496;
 
     private static int next_port = INITIAL_PORT; // The next port to be used; static to allow multiple concurrent networks.
@@ -85,9 +80,10 @@ public final class ChordNodeFactory {
      *
      * @param local_address the local address of the node
      * @return the new node
-     * @throws RemoteException if an error occurs in making the new node accessible for remote access
+     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
+     * @throws IOException 
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteChordException, IOException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -98,9 +94,10 @@ public final class ChordNodeFactory {
      * @param local_address the local address of the node
      * @param key the key of the new node
      * @return the new node
-     * @throws RemoteException if an error occurs in making the new node accessible for remote access
+     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
+     * @throws IOException 
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteChordException, IOException {
 
         return new ChordNodeImpl(local_address, key);
     }
@@ -209,31 +206,26 @@ public final class ChordNodeFactory {
             }
         };
 
-        createAndBindToRemoteNodeOnFreePort(host_descriptor, arg_gen, StartNodeInNewRing.class);
+        createAndBindToRemoteNodeOnFreePort(host_descriptor, arg_gen);
     }
 
     /**
-     * Binds to an existing remote Chord node running at a given network address.
+     * Binds to an existing remote Chord node running at a given network address, checking for liveness.
      *
      * @param node_address the address of the existing node
      * @return a remote reference to the node
      *
-     * @throws RemoteException if an error occurs communicating with the remote machine
-     * @throws NotBoundException if the Chord node is not accessible with the expected service name
+     * @throws RemoteChordException if an error occurs communicating with the remote machine
      */
-    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteException, NotBoundException {
+    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteChordException {
 
-        System.out.println("bindToRemoteNode1");
-        final Registry registry = LocateRegistry.getRegistry(node_address.getHostName(), node_address.getPort());
-        System.out.println("bindToRemoteNode2");
-        final IChordRemote node = (IChordRemote) registry.lookup(IChordRemote.CHORD_REMOTE_SERVICE_NAME);
-        System.out.println("bindToRemoteNode3");
-
-        return new ChordRemoteReference(node.getKey(), node);
+        final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
+        remote_reference.getRemote().isAlive();
+        return remote_reference;
     }
 
     /**
-     * Binds to an existing remote Chord node running at a given network address, retrying on any error until the timeout interval ({@link #REGISTRY_TIMEOUT_INTERVAL}) has elapsed.
+     * Binds to an existing remote Chord node running at a given network address, retrying on any error until the timeout interval ({@link #TIMEOUT_INTERVAL}) has elapsed.
      *
      * @param node_address the address of the existing node
      * @return a remote reference to the node
@@ -249,30 +241,24 @@ public final class ChordNodeFactory {
             try {
                 return bindToRemoteNode(node_address);
             }
-            catch (final RemoteException e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, "registry location failed: " + e.getMessage());
-            }
-            catch (final NotBoundException e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, "binding to node in registry failed");
-            }
-            catch (final Exception e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, "registry lookup failed");
+            catch (final RemoteChordException e) {
+                Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
             }
 
             try {
-                Thread.sleep(REGISTRY_RETRY_INTERVAL);
+                Thread.sleep(RETRY_INTERVAL);
             }
             catch (final InterruptedException e) {
             }
 
             final long duration = System.currentTimeMillis() - start_time;
-            if (duration > REGISTRY_TIMEOUT_INTERVAL) { throw new TimeoutException(); }
+            if (duration > TIMEOUT_INTERVAL) { throw new TimeoutException(); }
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen, final Class<?> clazz) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         final long start_time = System.currentTimeMillis();
 
@@ -291,7 +277,7 @@ public final class ChordNodeFactory {
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(clazz, args);
+                final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(StartNodeInNewRing.class, args);
                 host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();

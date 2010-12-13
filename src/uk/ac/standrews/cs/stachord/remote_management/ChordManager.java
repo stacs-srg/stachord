@@ -57,7 +57,7 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
 
-        host_descriptor.port(IChordNode.DEFAULT_RMI_REGISTRY_PORT);
+        host_descriptor.port(IChordNode.DEFAULT_PORT);
 
         // Try to connect to the application on the default RMI port.
         final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort());
