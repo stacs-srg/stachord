@@ -200,7 +200,7 @@ public abstract class ApplicationServer {
             String line = streams.readLine();
 
             // End of args indicated by empty line.
-            while (line.length() > 0) {
+            while (line != null && line.length() > 0) {
                 arg_list.add(line);
                 line = streams.readLine();
             }
