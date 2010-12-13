@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 class SuccessorList {
 
     private final ChordNodeImpl node;
-    private final List<IChordRemoteReference> successor_list;
+    private final ArrayList<IChordRemoteReference> successor_list;
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -65,6 +65,7 @@ class SuccessorList {
                 return next;
             }
             catch (final RemoteChordException e) {
+                // Ignore.
             }
         }
         throw new NoReachableNodeException();
@@ -74,9 +75,10 @@ class SuccessorList {
      * Returns the successor list.
      * @return the successor list
      */
+    @SuppressWarnings("unchecked")
     protected List<IChordRemoteReference> getList() {
 
-        return successor_list;
+        return (List<IChordRemoteReference>) successor_list.clone();
     }
 
     /**
@@ -89,8 +91,7 @@ class SuccessorList {
 
     /**
      * Constructs a new successor list which consists of this node's successor
-     * followed by the first (MAX_SIZE-1) elements of the successor's successor
-     * list.
+     * followed by the first (MAX_SIZE-1) elements of the successor's successor list.
      * @throws RemoteChordException 
      */
     protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteChordException {
