@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
+import uk.ac.standrews.cs.nds.rpc.DeserializationException;
+import uk.ac.standrews.cs.nds.rpc.Handler;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 public class ChordRemoteServer extends ApplicationServer {
@@ -23,7 +27,7 @@ public class ChordRemoteServer extends ApplicationServer {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    Handler getHandler(final String method_name) {
+    public Handler getHandler(final String method_name) {
 
         return handler_map.get(method_name);
     }
@@ -53,7 +57,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("lookup", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final IKey key = marshaller.deserializeKey(args[0]);
@@ -68,7 +72,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getSuccessor());
             }
@@ -77,7 +81,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getPredecessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getPredecessor());
             }
@@ -86,7 +90,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notify", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args[0]);
@@ -103,7 +107,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("join", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
@@ -119,7 +123,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessorList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getSuccessorList());
             }
@@ -128,7 +132,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getFingerList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getFingerList());
             }
@@ -137,7 +141,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("isAlive", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 chord_node.isAlive();
                 return "";
@@ -147,7 +151,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("nextHop", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final IKey key = marshaller.deserializeKey(args[0]);
@@ -162,7 +166,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePredecessorMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -178,7 +182,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enableStabilization", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -194,7 +198,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePeerStateMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -210,7 +214,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notifyFailure", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 try {
                     final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
@@ -226,7 +230,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toStringDetailed", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return chord_node.toStringDetailed();
             }
@@ -235,7 +239,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toStringTerse", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return chord_node.toStringTerse();
             }
@@ -246,7 +250,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("hashCode", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return marshaller.serializeInt(chord_node.hashCode());
             }
@@ -255,7 +259,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toString", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteChordException {
+            public String execute(final String[] args) throws RPCException {
 
                 return chord_node.toString();
             }

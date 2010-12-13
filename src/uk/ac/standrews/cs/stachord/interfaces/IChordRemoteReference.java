@@ -28,7 +28,7 @@ package uk.ac.standrews.cs.stachord.interfaces;
 import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 
 /**
  * Holds a reference to a remote Chord node, with a cached key and address.
@@ -41,9 +41,9 @@ public interface IChordRemoteReference {
      * Returns the key associated with this reference, using cached information if possible and making a remote call if not.
      *
      * @return the key associated with this reference
-     * @throws RemoteChordException if a remote call fails
+     * @throws RPCException if a remote call fails
      */
-    IKey getCachedKey() throws RemoteChordException;
+    IKey getCachedKey() throws RPCException;
 
     /**
      * Returns the address associated with this reference.

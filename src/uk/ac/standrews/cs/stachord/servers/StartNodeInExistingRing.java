@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.rmi.NotBoundException;
 
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.CommandLineArgs;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -92,7 +93,7 @@ public final class StartNodeInExistingRing extends AbstractServer {
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException 
      */
-    public static void main(final String[] args) throws RemoteChordException, UndefinedDiagnosticLevelException, IOException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException {
 
         final StartNodeInExistingRing starter = new StartNodeInExistingRing(args);
         starter.createNode();
@@ -100,7 +101,7 @@ public final class StartNodeInExistingRing extends AbstractServer {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNode() throws RemoteChordException, IOException {
+    private void createNode() throws RPCException, IOException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 

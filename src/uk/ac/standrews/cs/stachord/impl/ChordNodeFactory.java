@@ -35,6 +35,7 @@ import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
@@ -215,9 +216,9 @@ public final class ChordNodeFactory {
      * @param node_address the address of the existing node
      * @return a remote reference to the node
      *
-     * @throws RemoteChordException if an error occurs communicating with the remote machine
+     * @throws RPCException if an error occurs communicating with the remote machine
      */
-    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteChordException {
+    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RPCException {
 
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
         remote_reference.getRemote().isAlive();
@@ -241,7 +242,7 @@ public final class ChordNodeFactory {
             try {
                 return bindToRemoteNode(node_address);
             }
-            catch (final RemoteChordException e) {
+            catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
             }
 
@@ -249,6 +250,7 @@ public final class ChordNodeFactory {
                 Thread.sleep(RETRY_INTERVAL);
             }
             catch (final InterruptedException e) {
+                // Ignore.
             }
 
             final long duration = System.currentTimeMillis() - start_time;

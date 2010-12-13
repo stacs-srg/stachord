@@ -28,6 +28,7 @@ package uk.ac.standrews.cs.stachord.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
@@ -64,7 +65,7 @@ class SuccessorList {
                 next.getRemote().isAlive();
                 return next;
             }
-            catch (final RemoteChordException e) {
+            catch (final RPCException e) {
                 // Ignore.
             }
         }
@@ -92,9 +93,9 @@ class SuccessorList {
     /**
      * Constructs a new successor list which consists of this node's successor
      * followed by the first (MAX_SIZE-1) elements of the successor's successor list.
-     * @throws RemoteChordException 
+     * @throws RPCException 
      */
-    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteChordException {
+    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RPCException {
 
         final IChordRemoteReference successor = node.getSuccessor();
 
@@ -150,7 +151,7 @@ class SuccessorList {
                 try {
                     buffer.append(successor != null ? successor.getCachedKey() : "null");
                 }
-                catch (final RemoteChordException e) {
+                catch (final RPCException e) {
                     buffer.append("inaccessible");
                 }
                 buffer.append(" address: ");

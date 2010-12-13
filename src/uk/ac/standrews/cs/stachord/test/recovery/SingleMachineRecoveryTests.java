@@ -33,9 +33,9 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.remote_management.ProcessManager;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
@@ -101,7 +101,7 @@ public class SingleMachineRecoveryTests {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void ringRecovers(final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException, RemoteChordException {
+    private void ringRecovers(final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException, RPCException {
 
         for (final int ring_size : RING_SIZES) {
 
@@ -111,7 +111,7 @@ public class SingleMachineRecoveryTests {
         }
     }
 
-    private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException, RemoteChordException {
+    private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws IOException, InterruptedException, TimeoutException, UnknownPlatformException, RPCException {
 
         System.out.println("constructing ring... ");
         final SingleHostNetwork network = new SingleHostNetwork(ring_size, network_type);

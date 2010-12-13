@@ -31,6 +31,7 @@ import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
@@ -95,9 +96,9 @@ class FingerTable {
      * @param key the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
-     * @throws RemoteChordException 
+     * @throws RPCException 
      */
-    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RemoteChordException {
+    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RPCException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -117,9 +118,9 @@ class FingerTable {
     /**
      * Notifies the finger table of a broken finger.
      * @param broken_finger the finger that has failed
-     * @throws RemoteChordException 
+     * @throws RPCException 
      */
-    public void fingerFailure(final IChordRemoteReference broken_finger) throws RemoteChordException {
+    public void fingerFailure(final IChordRemoteReference broken_finger) throws RPCException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -160,7 +161,7 @@ class FingerTable {
                 try {
                     buffer.append(" key: " + fingers[i].getCachedKey());
                 }
-                catch (final RemoteChordException e) {
+                catch (final RPCException e) {
                     buffer.append(" key: inaccessible");
                 }
                 buffer.append(" address: " + fingers[i].getCachedAddress());
@@ -216,7 +217,7 @@ class FingerTable {
             fingers[finger_index] = finger;
             return changed;
         }
-        catch (final RemoteChordException e) {
+        catch (final RPCException e) {
             return false;
         }
     }

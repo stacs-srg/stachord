@@ -29,8 +29,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.impl.NextHopResult;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 
 /**
  * Defines remotely accessible Chord node functionality.
@@ -43,81 +43,81 @@ public interface IChordRemote {
      * Returns this node's key.
      *
      * @return this node's key
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    IKey getKey() throws RemoteChordException;
+    IKey getKey() throws RPCException;
 
     /**
      * Returns this node's address.
      *
      * @return this node's address
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    InetSocketAddress getAddress() throws RemoteChordException;
+    InetSocketAddress getAddress() throws RPCException;
 
     /**
      * Executes the routing protocol.
      *
      * @param key a key to be routed to
      * @return the node to which the key maps
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    IChordRemoteReference lookup(IKey key) throws RemoteChordException;
+    IChordRemoteReference lookup(IKey key) throws RPCException;
 
     /**
      * Returns this node's successor in the key space.
      *
      * @return this node's successor in the key space
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    IChordRemoteReference getSuccessor() throws RemoteChordException;
+    IChordRemoteReference getSuccessor() throws RPCException;
 
     /**
      * Returns this node's predecessor in the key space.
      *
      * @return this node's predecessor in the key space
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    IChordRemoteReference getPredecessor() throws RemoteChordException;
+    IChordRemoteReference getPredecessor() throws RPCException;
 
     /**
      * Notifies this node that a given node may be its predecessor.
      *
      * @param potential_predecessor a node that may be this node's most suitable predecessor
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void notify(IChordRemoteReference potential_predecessor) throws RemoteChordException;
+    void notify(IChordRemoteReference potential_predecessor) throws RPCException;
 
     /**
      * Joins this node to the ring of which the specified node is a member.
      *
      * @param node a node in a ring
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void join(IChordRemoteReference node) throws RemoteChordException;
+    void join(IChordRemoteReference node) throws RPCException;
 
     /**
      * Returns this node's successor list.
      *
      * @return this node's successor list
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    List<IChordRemoteReference> getSuccessorList() throws RemoteChordException;
+    List<IChordRemoteReference> getSuccessorList() throws RPCException;
 
     /**
      * Returns this node's finger list.
      *
      * @return this node's finger list
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    List<IChordRemoteReference> getFingerList() throws RemoteChordException;
+    List<IChordRemoteReference> getFingerList() throws RPCException;
 
     /**
      * Used to check liveness of this node.
      *
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void isAlive() throws RemoteChordException;
+    void isAlive() throws RPCException;
 
     /**
      * Returns the next hop towards the successor node of a given key.
@@ -126,55 +126,55 @@ public interface IChordRemote {
      *
      * @param key a key
      * @return the next hop towards the successor of the specified key
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    NextHopResult nextHop(IKey key) throws RemoteChordException;
+    NextHopResult nextHop(IKey key) throws RPCException;
 
     /**
      * Controls whether predecessor maintenance should be performed.
      *
      * @param enabled true if predecessor maintenance should be performed
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void enablePredecessorMaintenance(boolean enabled) throws RemoteChordException;
+    void enablePredecessorMaintenance(boolean enabled) throws RPCException;
 
     /**
      * Controls whether ring stabilization should be performed.
      *
      * @param enabled true if ring stabilization should be performed
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void enableStabilization(boolean enabled) throws RemoteChordException;
+    void enableStabilization(boolean enabled) throws RPCException;
 
     /**
      * Controls whether peer-state maintenance should be performed.
      *
      * @param enabled true if peer-state maintenance should be performed
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void enablePeerStateMaintenance(boolean enabled) throws RemoteChordException;
+    void enablePeerStateMaintenance(boolean enabled) throws RPCException;
 
     /**
      * Notifies this node that a given node in its peer-state may have failed.
      *
      * @param node the node that is suspected to have failed
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    void notifyFailure(IChordRemoteReference node) throws RemoteChordException;
+    void notifyFailure(IChordRemoteReference node) throws RPCException;
 
     /**
      * Returns a detailed description of this node's state.
      *
      * @return a detailed description of this node's state
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    String toStringDetailed() throws RemoteChordException;
+    String toStringDetailed() throws RPCException;
 
     /**
      * Returns a brief description of this node's state.
      *
      * @return a brief description of this node's state
-     * @throws RemoteChordException if an error occurs during the remote call
+     * @throws RPCException if an error occurs during the remote call
      */
-    String toStringTerse() throws RemoteChordException;
+    String toStringTerse() throws RPCException;
 }
