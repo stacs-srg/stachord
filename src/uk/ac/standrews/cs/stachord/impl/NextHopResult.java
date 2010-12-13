@@ -25,8 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.io.Serializable;
-
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -34,9 +32,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  *
  * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
  */
-public class NextHopResult implements Serializable {
-
-    private static final long serialVersionUID = 2162948760764524096L;
+public class NextHopResult {
 
     private final boolean is_final_hop;
     private final IChordRemoteReference node;

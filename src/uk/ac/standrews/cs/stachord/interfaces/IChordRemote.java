@@ -30,6 +30,7 @@ import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachord.impl.NextHopResult;
+import uk.ac.standrews.cs.stachord.impl.RemoteException;
 
 /**
  * Defines remotely accessible Chord node functionality.

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -11,7 +13,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 
-public class ApplicationServer {
+public abstract class ApplicationServer {
 
     private InetAddress local_address;
     private int port;
@@ -30,11 +32,23 @@ public class ApplicationServer {
 
     public void start() throws IOException {
 
-        setupSocket();
+        setupServerSocket();
         startServer();
     }
 
-    private void setupSocket() throws IOException {
+    public void stop() throws IOException {
+
+        stopServer();
+        tearDownServerSocket();
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    abstract Handler getHandler(String method_name);
+
+    // -------------------------------------------------------------------------------------------------------
+
+    private void setupServerSocket() throws IOException {
 
         server_socket = NetworkUtil.makeReusableServerSocket(local_address, port);
     }
@@ -45,13 +59,7 @@ public class ApplicationServer {
         server.startServer();
     }
 
-    public void stop() throws IOException {
-
-        stopServer();
-        tearDownSocket();
-    }
-
-    private void tearDownSocket() throws IOException {
+    private void tearDownServerSocket() throws IOException {
 
         if (server_socket != null) {
             server_socket.close();
@@ -63,6 +71,19 @@ public class ApplicationServer {
 
         server.stopServer();
         server = null;
+    }
+
+    private String dispatch(final String method_name, final String[] args) throws RemoteException {
+
+        final Handler method_handler = getHandler(method_name);
+
+        if (method_handler == null) {
+            final String message = "unknown method name: " + method_name;
+            Diagnostic.trace(DiagnosticLevel.RUN, message);
+            return message;
+        }
+
+        return method_handler.execute(args);
     }
 
     class Server extends Thread {
@@ -96,12 +117,13 @@ public class ApplicationServer {
                     handleRequest(socket);
                 }
                 catch (final IOException e) {
+
                     Diagnostic.trace(DiagnosticLevel.RUN, "error accepting connection");
                 }
             }
         }
 
-        private void handleRequest(final Socket socket) {
+        private void handleRequest(final Socket socket) throws IOException {
 
             thread_pool.execute(new Request(socket));
         }
@@ -109,15 +131,104 @@ public class ApplicationServer {
 
     class Request implements Runnable {
 
-        public Request(final Socket socket) {
+        private Socket socket;
+        private StreamPair streams;
 
-            // TODO Auto-generated constructor stub
+        // -------------------------------------------------------------------------------------------------------
+
+        public Request(final Socket socket) throws IOException {
+
+            this.socket = socket;
+
+            setupStreams();
         }
+
+        // -------------------------------------------------------------------------------------------------------
 
         @Override
         public void run() {
 
-            // TODO Auto-generated method stub
+            try {
+                try {
+                    final String method_name = readMethodName();
+                    final String[] args = readArgs();
+
+                    try {
+                        final String method_result = dispatch(method_name, args);
+                        sendReply(method_result);
+                    }
+                    catch (final RemoteException e) {
+                        sendException(e);
+                    }
+                }
+                finally {
+
+                    try {
+                        tearDownStreams();
+                    }
+                    finally {
+                        tearDownSocket();
+                    }
+                }
+            }
+            catch (final IOException e) {
+                Diagnostic.trace(DiagnosticLevel.RUN, "error servicing request");
+            }
         }
+
+        // -------------------------------------------------------------------------------------------------------
+
+        private void setupStreams() throws IOException {
+
+            streams = new StreamPair(socket);
+        }
+
+        private void tearDownStreams() {
+
+            streams.tearDownStreams();
+        }
+
+        private String readMethodName() throws IOException {
+
+            return streams.readLine();
+        }
+
+        private String[] readArgs() throws IOException {
+
+            final List<String> arg_list = new ArrayList<String>();
+
+            String line = streams.readLine();
+
+            // End of args indicated by empty line.
+            while (line.length() > 0) {
+                arg_list.add(line);
+                line = streams.readLine();
+            }
+
+            return arg_list.toArray(new String[0]);
+        }
+
+        private void sendReply(final String method_result) {
+
+            streams.println(method_result);
+        }
+
+        private void sendException(final RemoteException e) {
+
+            streams.println("exception: " + e.getMessage());
+        }
+
+        private void tearDownSocket() throws IOException {
+
+            if (socket != null) {
+                socket.close();
+                socket = null;
+            }
+        }
+    }
+
+    interface Handler {
+
+        String execute(String[] args) throws RemoteException;
     }
 }

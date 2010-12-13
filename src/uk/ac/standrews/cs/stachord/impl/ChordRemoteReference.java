@@ -30,7 +30,6 @@ import java.net.InetSocketAddress;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Holds a reference to a remote Chord node, with a locally cached copy of its key and IP address.
@@ -40,23 +39,36 @@ import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
  */
 class ChordRemoteReference implements IChordRemoteReference {
 
-    private static final long serialVersionUID = -7911452718429786447L;
-
-    private final IKey key;
+    private IKey key = null;
     private final InetSocketAddress address;
-    private final IChordRemote reference;
+    private final ChordRemoteProxy reference;
 
-    public ChordRemoteReference(final IKey key, final IChordRemote reference) throws RemoteException {
+    //    public ChordRemoteReference(final IKey key, final ChordRemoteProxy reference) throws RemoteException {
+    //
+    //        this(key, reference.getAddress(), reference);
+    //    }
 
+    public ChordRemoteReference(final InetSocketAddress address) {
+
+        assert address.getAddress() != null;
+
+        this.address = address;
+
+        reference = ChordRemoteProxy.getProxy(address);
+    }
+
+    public ChordRemoteReference(final IKey key, final InetSocketAddress address) {
+
+        this(address);
         this.key = key;
-        this.reference = reference;
-
-        address = reference.getAddress();
     }
 
     @Override
-    public IKey getCachedKey() {
+    public IKey getCachedKey() throws RemoteException {
 
+        if (key == null) {
+            key = reference.getKey();
+        }
         return key;
     }
 
@@ -81,7 +93,12 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public boolean equals(final Object o) {
 
-        return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getCachedKey());
+        try {
+            return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getCachedKey());
+        }
+        catch (final RemoteException e) {
+            return false;
+        }
     }
 
     @Override

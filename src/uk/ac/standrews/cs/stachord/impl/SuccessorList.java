@@ -30,7 +30,6 @@ import java.util.List;
 
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Successor list implementation.
@@ -92,8 +91,9 @@ class SuccessorList {
      * Constructs a new successor list which consists of this node's successor
      * followed by the first (MAX_SIZE-1) elements of the successor's successor
      * list.
+     * @throws RemoteException 
      */
-    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) {
+    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteException {
 
         final IChordRemoteReference successor = node.getSuccessor();
 
@@ -146,7 +146,12 @@ class SuccessorList {
             for (final IChordRemoteReference successor : successor_list) {
 
                 buffer.append("successor: ");
-                buffer.append(successor != null ? successor.getCachedKey() : "null");
+                try {
+                    buffer.append(successor != null ? successor.getCachedKey() : "null");
+                }
+                catch (final RemoteException e) {
+                    buffer.append("inaccessible");
+                }
                 buffer.append(" address: ");
                 buffer.append(successor != null ? successor.getCachedAddress() : "null");
                 buffer.append("\n");

@@ -33,9 +33,9 @@ import uk.ac.standrews.cs.nds.remote_management.HostState;
 import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.stachord.impl.RemoteException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 class ChordPartitionScanner implements IGlobalHostScanner {
 

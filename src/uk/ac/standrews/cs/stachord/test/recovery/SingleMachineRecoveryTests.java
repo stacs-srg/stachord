@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.nds.remote_management.ProcessManager;
 import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
+import uk.ac.standrews.cs.stachord.impl.RemoteException;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;

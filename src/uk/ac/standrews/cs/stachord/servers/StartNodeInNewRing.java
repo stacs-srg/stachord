@@ -32,8 +32,8 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
+import uk.ac.standrews.cs.stachord.impl.RemoteException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 
 /**
  * Provides the entry point for deploying a Chord node in a new Chord ring.

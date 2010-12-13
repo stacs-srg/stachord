@@ -27,7 +27,6 @@ package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.rmi.NotBoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -40,9 +39,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.interfaces.RemoteException;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 import com.mindbright.ssh2.SSH2Exception;
@@ -209,23 +206,22 @@ public final class ChordNodeFactory {
             }
         };
 
-        createAndBindToRemoteNodeOnFreePort(host_descriptor, arg_gen, StartNodeInNewRing.class);
+        createAndBindToRemoteNodeOnFreePort(host_descriptor, arg_gen);
     }
 
     /**
-     * Binds to an existing remote Chord node running at a given network address.
+     * Binds to an existing remote Chord node running at a given network address, checking for liveness.
      *
      * @param node_address the address of the existing node
      * @return a remote reference to the node
      *
      * @throws RemoteException if an error occurs communicating with the remote machine
-     * @throws NotBoundException if the Chord node is not accessible with the expected service name
      */
     public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteException {
 
-        final IChordRemote node = new ChordRemoteProxy(node_address);
-
-        return new ChordRemoteReference(node.getKey(), node);
+        final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
+        remote_reference.getRemote().isAlive();
+        return remote_reference;
     }
 
     /**
@@ -262,7 +258,7 @@ public final class ChordNodeFactory {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen, final Class<?> clazz) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         final long start_time = System.currentTimeMillis();
 
@@ -281,7 +277,7 @@ public final class ChordNodeFactory {
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(clazz, args);
+                final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(StartNodeInNewRing.class, args);
                 host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
