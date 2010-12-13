@@ -16,7 +16,8 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 public class ChordRemoteProxy implements IChordRemote {
 
-    private static final int SOCKET_CREATION_TIMEOUT = 5000;
+    private static final int SOCKET_CREATION_TIMEOUT = 2000;
+
     private final InetSocketAddress node_address;
     private Socket socket;
     private StreamPair streams;
@@ -244,54 +245,38 @@ public class ChordRemoteProxy implements IChordRemote {
     private synchronized String makeCall(final String method_name, final String... args) throws RemoteChordException {
 
         try {
-            System.out.println("mc1");
             setupSocket();
-            System.out.println("mc2");
             setupStreams();
-            System.out.println("mc3");
 
             sendMethodName(method_name);
-            System.out.println("mc4");
             sendArgs(args);
-            System.out.println("mc5");
 
             final String reply = readReply();
-            System.out.println("mc6");
 
             if (reply == null || reply.startsWith("exception")) { throw new RemoteChordException(reply); }
-            System.out.println("mc7");
             return reply;
         }
         catch (final IOException e) {
-            System.out.println("mc8");
             throw new RemoteChordException(e);
         }
         finally {
 
             try {
-                System.out.println("mc9");
                 tearDownStreams();
-                System.out.println("mc10");
             }
             finally {
-                System.out.println("mc11");
                 tearDownSocket();
-                System.out.println("mc12");
             }
         }
     }
 
     private void setupSocket() throws IOException {
 
-        System.out.println("ss1");
         final InetAddress address = node_address.getAddress();
-        System.out.println("address: " + address);
         final int port = node_address.getPort();
-        System.out.println("port: " + port);
 
         socket = new Socket();
         socket.connect(new InetSocketAddress(address, port), SOCKET_CREATION_TIMEOUT);
-        System.out.println("ss2");
     }
 
     private void setupStreams() throws IOException {
@@ -304,6 +289,19 @@ public class ChordRemoteProxy implements IChordRemote {
         if (streams != null) {
             streams.tearDownStreams();
             streams = null;
+        }
+    }
+
+    private void tearDownSocket() {
+
+        if (socket != null) {
+            try {
+                socket.close();
+            }
+            catch (final IOException e) {
+                Diagnostic.trace(DiagnosticLevel.RUN, "error closing client socket");
+            }
+            socket = null;
         }
     }
 
@@ -323,18 +321,5 @@ public class ChordRemoteProxy implements IChordRemote {
     private String readReply() throws IOException {
 
         return streams.readLine();
-    }
-
-    private void tearDownSocket() {
-
-        if (socket != null) {
-            try {
-                socket.close();
-            }
-            catch (final IOException e) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "error closing client socket");
-            }
-            socket = null;
-        }
     }
 }
