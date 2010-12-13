@@ -474,6 +474,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         try {
             final InetAddress new_address = NetworkUtil.getLocalIPv4Address();
+            System.out.println("new address: " + new_address);
 
             final boolean address_has_changed = !new_address.equals(local_address.getAddress());
 
@@ -768,6 +769,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                     }
 
                     if (ownAddressMaintenanceEnabled()) {
+                        System.out.println("m1");
                         if (checkNodeAddressChanged()) {
                             try {
                                 handleAddressChange();
@@ -779,23 +781,30 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                             setChanged();
                             notifyObservers(OWN_ADDRESS_CHANGE_EVENT);
                         }
+                        System.out.println("m2");
                     }
 
                     if (predecessorMaintenanceEnabled()) {
+                        System.out.println("m3");
                         checkPredecessor();
+                        System.out.println("m4");
                     }
 
                     if (stabilizationEnabled()) {
+                        System.out.println("m5");
                         try {
                             stabilize();
                         }
                         catch (final RemoteChordException e) {
                             Diagnostic.trace(DiagnosticLevel.RUN, "error in stabilize", e);
                         }
+                        System.out.println("m6");
                     }
 
                     if (fingerTableMaintenanceEnabled()) {
+                        System.out.println("m7");
                         fixNextFinger();
+                        System.out.println("m8");
                     }
                 }
                 Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + getKey());
