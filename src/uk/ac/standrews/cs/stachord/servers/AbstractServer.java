@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.impl.RemoteException;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
@@ -87,7 +87,7 @@ abstract class AbstractServer {
         }
     }
 
-    protected IChordNode makeNode() throws RemoteException, IOException {
+    protected IChordNode makeNode() throws RemoteChordException, IOException {
 
         final InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
         return server_key == null ? ChordNodeFactory.createLocalNode(local_socket_address) : ChordNodeFactory.createLocalNode(local_socket_address, server_key);

@@ -7,7 +7,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.impl.RemoteException;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 public class AddressChangeTest implements Observer {
@@ -17,10 +17,10 @@ public class AddressChangeTest implements Observer {
 
     /**
      * @param args
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      * @throws IOException 
      */
-    public static void main(final String[] args) throws RemoteException, IOException {
+    public static void main(final String[] args) throws RemoteChordException, IOException {
 
         final AddressChangeTest foo = new AddressChangeTest();
 

@@ -40,7 +40,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.RemoteException;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -92,10 +92,10 @@ public final class RecoveryTestLogic {
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
      *
-     * @throws RemoteException if an error occurs when setting finger table maintenance on a node
+     * @throws RemoteChordException if an error occurs when setting finger table maintenance on a node
      * @throws TimeoutException if one of the steps of the test is not completed within the timeout interval
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout) throws RemoteException, TimeoutException {
+    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout) throws RemoteChordException, TimeoutException {
 
         final List<HostDescriptor> nodes = network.getNodes();
 
@@ -142,7 +142,7 @@ public final class RecoveryTestLogic {
             waitForCorrectRouting(nodes, test_timeout);
             System.out.println("done");
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             throw e;
         }
         catch (final TimeoutException e) {
@@ -291,7 +291,7 @@ public final class RecoveryTestLogic {
             try {
                 return node.getPredecessor() == null && node.getSuccessor().getCachedKey().equals(node.getKey());
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 return false;
             }
         }
@@ -352,7 +352,7 @@ public final class RecoveryTestLogic {
                 finger_number++;
             }
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
 
@@ -410,7 +410,7 @@ public final class RecoveryTestLogic {
                 ring_node = ring_node.getRemote().getSuccessor();
             }
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
 
@@ -455,7 +455,7 @@ public final class RecoveryTestLogic {
         try {
             return routingToSmallerKeyCorrect(source, target) && routingToSameKeyCorrect(source, target) && routingToLargerKeyCorrect(source, target);
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }
@@ -487,7 +487,7 @@ public final class RecoveryTestLogic {
             try {
                 node = forwards ? node.getRemote().getSuccessor() : node.getRemote().getPredecessor();
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
 
                 // Error traversing the ring, so it is broken.
                 return 0;
@@ -508,7 +508,7 @@ public final class RecoveryTestLogic {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private static boolean routingToSmallerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteException {
+    private static boolean routingToSmallerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteChordException {
 
         // Check that a slightly smaller key than the target's key routes to the node, except
         // in the pathological case where the target has a predecessor with a key one less than it.
@@ -522,14 +522,14 @@ public final class RecoveryTestLogic {
         return !pathological && result_for_smaller_key.getKey().equals(target.getCachedKey()) || pathological && result_for_smaller_key.getKey().equals(predecessor_of_target.getCachedKey());
     }
 
-    private static boolean routingToSameKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteException {
+    private static boolean routingToSameKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteChordException {
 
         // Check that the target's own key routes to the target.
         final IChordRemote result_for_same_key = lookup(source, target.getCachedKey());
         return target.getCachedKey().equals(result_for_same_key.getKey());
     }
 
-    private static boolean routingToLargerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteException {
+    private static boolean routingToLargerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RemoteChordException {
 
         // Check that a slightly larger key than the node's key routes to the node's successor.
         final IChordRemoteReference successor_of_target = target.getRemote().getSuccessor();
@@ -540,7 +540,7 @@ public final class RecoveryTestLogic {
         return result_for_larger_key.getKey().equals(successor_of_target.getCachedKey());
     }
 
-    private static IChordRemote lookup(final IChordRemoteReference source, final IKey key) throws RemoteException {
+    private static IChordRemote lookup(final IChordRemoteReference source, final IKey key) throws RemoteChordException {
 
         return source.getRemote().lookup(key).getRemote();
     }
@@ -554,7 +554,7 @@ public final class RecoveryTestLogic {
         }
     }
 
-    private static void enableFingerTableMaintenance(final INetwork network, final boolean enabled) throws RemoteException {
+    private static void enableFingerTableMaintenance(final INetwork network, final boolean enabled) throws RemoteChordException {
 
         for (final HostDescriptor machine_descriptor : network.getNodes()) {
             final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
@@ -586,7 +586,7 @@ public final class RecoveryTestLogic {
                         application_reference.getRemote().isAlive();
                         Thread.sleep(DEATH_CHECK_INTERVAL);
                     }
-                    catch (final RemoteException e) {
+                    catch (final RemoteChordException e) {
                         break;
                     }
                     catch (final InterruptedException e) {
@@ -665,7 +665,7 @@ public final class RecoveryTestLogic {
                 final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
                 System.out.println(application_reference.getRemote().toStringDetailed());
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 System.out.println("application inaccessible");
             }
             System.out.println();

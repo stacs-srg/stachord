@@ -80,10 +80,10 @@ public final class ChordNodeFactory {
      *
      * @param local_address the local address of the node
      * @return the new node
-     * @throws RemoteException if an error occurs in making the new node accessible for remote access
+     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
      * @throws IOException 
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteException, IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteChordException, IOException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -94,10 +94,10 @@ public final class ChordNodeFactory {
      * @param local_address the local address of the node
      * @param key the key of the new node
      * @return the new node
-     * @throws RemoteException if an error occurs in making the new node accessible for remote access
+     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
      * @throws IOException 
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteException, IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteChordException, IOException {
 
         return new ChordNodeImpl(local_address, key);
     }
@@ -215,9 +215,9 @@ public final class ChordNodeFactory {
      * @param node_address the address of the existing node
      * @return a remote reference to the node
      *
-     * @throws RemoteException if an error occurs communicating with the remote machine
+     * @throws RemoteChordException if an error occurs communicating with the remote machine
      */
-    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteException {
+    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RemoteChordException {
 
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
         remote_reference.getRemote().isAlive();
@@ -241,7 +241,7 @@ public final class ChordNodeFactory {
             try {
                 return bindToRemoteNode(node_address);
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
             }
 

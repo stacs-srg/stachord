@@ -110,7 +110,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     }
 
-    private void initialiseSelfSuccessorReference() throws RemoteException {
+    private void initialiseSelfSuccessorReference() throws RemoteChordException {
 
         if (successorIsSelf()) {
             successor = self_reference;
@@ -127,7 +127,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public IChordRemoteReference lookup(final IKey k) throws RemoteException {
+    public IChordRemoteReference lookup(final IKey k) throws RemoteChordException {
 
         if (k.equals(key) || successorIsSelf()) {
 
@@ -137,7 +137,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         return findSuccessor(k);
     }
 
-    private boolean successorIsSelf() throws RemoteException {
+    private boolean successorIsSelf() throws RemoteChordException {
 
         return successor.getCachedKey().equals(key);
     }
@@ -155,7 +155,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public synchronized void join(final IChordRemoteReference known_node) throws RemoteException {
+    public synchronized void join(final IChordRemoteReference known_node) throws RemoteChordException {
 
         // Route to this node's key; the result is this node's new successor.
         final IChordRemoteReference new_successor = known_node.getRemote().lookup(key);
@@ -196,10 +196,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * Checks whether the given key lies in this node's key range.
      * @param k a key
      * @return true if the key lies in this node's key range
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
     @Override
-    public boolean inLocalKeyRange(final IKey k) throws RemoteException {
+    public boolean inLocalKeyRange(final IKey k) throws RemoteChordException {
 
         // This is never called when the predecessor is null.
         return RingArithmetic.inHalfOpenSegment(k, predecessor.getCachedKey(), key);
@@ -215,7 +215,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public void notify(final IChordRemoteReference potential_predecessor) throws RemoteException {
+    public void notify(final IChordRemoteReference potential_predecessor) throws RemoteChordException {
 
         /* Case: predecessor is null and potential_predecessor is this node.
            We have a one-node ring, and the predecessor should stay null.
@@ -258,7 +258,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public NextHopResult nextHop(final IKey k) throws RemoteException {
+    public NextHopResult nextHop(final IKey k) throws RemoteChordException {
 
         // Check whether the key lies in the range between this node and its successor,
         // in which case the successor represents the final hop.
@@ -285,7 +285,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public void notifyFailure(final IChordRemoteReference node) throws RemoteException {
+    public void notifyFailure(final IChordRemoteReference node) throws RemoteChordException {
 
         finger_table.fingerFailure(node);
     }
@@ -305,7 +305,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         try {
             builder.append(predecessor != null ? predecessor.getRemote().getAddress() : "null");
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             builder.append("\npredecessor remote unavailable ");
         }
 
@@ -316,7 +316,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         try {
             builder.append(successor != null ? successor.getRemote().getAddress() : "null");
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             builder.append("\nsuccessor remote unavailable ");
         }
 
@@ -353,7 +353,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         try {
             return other instanceof IChordRemote && ((IChordRemote) other).getKey().equals(key);
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }
@@ -381,7 +381,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             try {
                 Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getCachedKey() : "null"));
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling successor change");
             }
         }
@@ -390,7 +390,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             try {
                 Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling predecessor change");
             }
         }
@@ -442,9 +442,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     /**
      * Executes the stabilization protocol.
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    private synchronized void stabilize() throws RemoteException {
+    private synchronized void stabilize() throws RemoteChordException {
 
         try {
             // Find predecessor of this node's successor.
@@ -460,7 +460,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             // Update this node's successor list from its successor's.
             refreshSuccessorList();
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
 
             // Error contacting successor.
             handleSuccessorError(e);
@@ -498,7 +498,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         try {
             pingPredecessor();
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             setPredecessor(null);
         }
     }
@@ -533,9 +533,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * Returns the closest preceding node from the finger table, or the successor if there is no such node in the finger table.
      * @param k a key
      * @return the peer node whose key most closely precedes k
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    private IChordRemoteReference closestPrecedingNode(final IKey k) throws RemoteException {
+    private IChordRemoteReference closestPrecedingNode(final IKey k) throws RemoteChordException {
 
         try {
             return finger_table.closestPrecedingNode(k);
@@ -547,9 +547,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
     /**
      * Attempts to communicate with this node's predecessor.
-     *     * @throws RemoteException if the attempted communication fails
+     *     * @throws RemoteChordException if the attempted communication fails
      */
-    private void pingPredecessor() throws RemoteException {
+    private void pingPredecessor() throws RemoteChordException {
 
         if (predecessor != null) {
             predecessor.getRemote().isAlive();
@@ -559,9 +559,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     /**
      * Gets the predecessor of this node's successor.
      *     * @return the predecessor of this node's successor
-     * @throws RemoteException if an error occurs communicating with the successor
+     * @throws RemoteChordException if an error occurs communicating with the successor
      */
-    private IChordRemoteReference getPredecessorOfSuccessor() throws RemoteException {
+    private IChordRemoteReference getPredecessorOfSuccessor() throws RemoteChordException {
 
         return successor.getRemote().getPredecessor();
     }
@@ -569,9 +569,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     /**
      * Checks whether a given potential successor would be a better successor for this node than the current successor.
      *     * @param potential_successor the potential successor
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    private void checkForBetterSuccessor(final IChordRemoteReference potential_successor) throws RemoteException {
+    private void checkForBetterSuccessor(final IChordRemoteReference potential_successor) throws RemoteChordException {
 
         if (potential_successor != null) {
 
@@ -587,12 +587,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
-    private void notifySuccessor() throws RemoteException {
+    private void notifySuccessor() throws RemoteChordException {
 
         successor.getRemote().notify(self_reference);
     }
 
-    private void refreshSuccessorList() throws RemoteException {
+    private void refreshSuccessorList() throws RemoteChordException {
 
         if (!successor.getCachedKey().equals(getKey())) {
             try {
@@ -603,13 +603,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                     notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
                 }
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 handleSuccessorError(e);
             }
         }
     }
 
-    private void handleAddressChange() throws IOException, RemoteException {
+    private void handleAddressChange() throws IOException, RemoteChordException {
 
         unexposeNode();
         exposeNode();
@@ -636,7 +636,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                 join(predecessor);
             }
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             // second preference - rejoin the ring by using a finger
 
             try {
@@ -650,13 +650,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
-    private void handleSuccessorError(final Exception e) throws RemoteException {
+    private void handleSuccessorError(final Exception e) throws RemoteChordException {
 
         Diagnostic.trace(DiagnosticLevel.FULL, this, ": error calling successor ", successor, ": ", e);
         findWorkingSuccessor();
     }
 
-    private IChordRemoteReference findSuccessor(final IKey key) throws RemoteException {
+    private IChordRemoteReference findSuccessor(final IKey key) throws RemoteChordException {
 
         // Get the first hop.
         NextHopResult next_hop = nextHop(key);
@@ -674,7 +674,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                 next_hop = previous_next_hop.nextHop(key);
                 current_hop = previous_next_hop;
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
                 current_hop.notifyFailure(next_hop.getNode());
                 throw e;
             }
@@ -699,16 +699,16 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
-    private boolean inSuccessorKeyRange(final IKey k) throws RemoteException {
+    private boolean inSuccessorKeyRange(final IKey k) throws RemoteChordException {
 
         return RingArithmetic.inHalfOpenSegment(k, key, successor.getCachedKey());
     }
 
     /**
      * Attempts to find a working successor from the successor list, or failing that using the predecessor or a finger.
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    private synchronized void findWorkingSuccessor() throws RemoteException {
+    private synchronized void findWorkingSuccessor() throws RemoteChordException {
 
         try {
             final IChordRemoteReference new_successor = successor_list.findFirstWorkingNode();
@@ -733,7 +733,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
-    private void joinUsingFinger() throws NoReachableNodeException, RemoteException {
+    private void joinUsingFinger() throws NoReachableNodeException, RemoteChordException {
 
         for (final IChordRemoteReference finger : finger_table.getFingers()) {
             if (finger != null && !finger.getCachedKey().equals(key)) {
@@ -741,7 +741,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                     join(finger);
                     return;
                 }
-                catch (final RemoteException e) {
+                catch (final RemoteChordException e) {
                     // Ignore and try next finger. Disable PMD warning - NOPMD
                 }
             }
@@ -789,7 +789,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                         try {
                             stabilize();
                         }
-                        catch (final RemoteException e) {
+                        catch (final RemoteChordException e) {
                             Diagnostic.trace(DiagnosticLevel.RUN, "error in stabilize", e);
                         }
                     }

@@ -53,14 +53,14 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("lookup", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final IKey key = marshaller.deserializeKey(args[0]);
                     return marshaller.serializeChordRemoteReference(chord_node.lookup(key));
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -68,7 +68,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getSuccessor());
             }
@@ -77,7 +77,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getPredecessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getPredecessor());
             }
@@ -86,7 +86,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notify", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args[0]);
@@ -95,7 +95,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -103,7 +103,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("join", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
@@ -111,7 +111,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -119,7 +119,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessorList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getSuccessorList());
             }
@@ -128,7 +128,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getFingerList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getFingerList());
             }
@@ -137,7 +137,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("isAlive", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 chord_node.isAlive();
                 return "";
@@ -147,14 +147,14 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("nextHop", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final IKey key = marshaller.deserializeKey(args[0]);
                     return marshaller.serializeNextHopResult(chord_node.nextHop(key));
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -162,7 +162,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePredecessorMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -170,7 +170,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -178,7 +178,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enableStabilization", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -186,7 +186,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -194,7 +194,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePeerStateMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final boolean enabled = marshaller.deserializeBoolean(args[0]);
@@ -202,7 +202,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -210,7 +210,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notifyFailure", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 try {
                     final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
@@ -218,7 +218,7 @@ public class ChordRemoteServer extends ApplicationServer {
                     return "";
                 }
                 catch (final DeserializationException e) {
-                    throw new RemoteException(e);
+                    throw new RemoteChordException(e);
                 }
             }
         });
@@ -226,7 +226,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toStringDetailed", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return chord_node.toStringDetailed();
             }
@@ -235,7 +235,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toStringTerse", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return chord_node.toStringTerse();
             }
@@ -246,7 +246,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("hashCode", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return marshaller.serializeInt(chord_node.hashCode());
             }
@@ -255,7 +255,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toString", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RemoteException {
+            public String execute(final String[] args) throws RemoteChordException {
 
                 return chord_node.toString();
             }

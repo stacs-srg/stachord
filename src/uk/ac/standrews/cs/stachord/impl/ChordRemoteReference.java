@@ -64,7 +64,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     }
 
     @Override
-    public IKey getCachedKey() throws RemoteException {
+    public IKey getCachedKey() throws RemoteChordException {
 
         if (key == null) {
             key = reference.getKey();
@@ -96,7 +96,7 @@ class ChordRemoteReference implements IChordRemoteReference {
         try {
             return o instanceof ChordRemoteReference && key.equals(((ChordRemoteReference) o).getCachedKey());
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }

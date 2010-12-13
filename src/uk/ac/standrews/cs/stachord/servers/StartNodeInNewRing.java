@@ -32,7 +32,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
-import uk.ac.standrews.cs.stachord.impl.RemoteException;
+import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
@@ -66,12 +66,12 @@ public final class StartNodeInNewRing extends AbstractServer {
      * </dl>
      *
      * @param args see above
-     * @throws RemoteException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
+     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException 
      */
-    public static void main(final String[] args) throws RemoteException, UndefinedDiagnosticLevelException, IOException {
+    public static void main(final String[] args) throws RemoteChordException, UndefinedDiagnosticLevelException, IOException {
 
         final StartNodeInNewRing starter = new StartNodeInNewRing(args);
         starter.createNode();
@@ -79,7 +79,7 @@ public final class StartNodeInNewRing extends AbstractServer {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNode() throws RemoteException, IOException {
+    private void createNode() throws RemoteChordException, IOException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 

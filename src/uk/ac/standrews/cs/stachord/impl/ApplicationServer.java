@@ -73,7 +73,7 @@ public abstract class ApplicationServer {
         server = null;
     }
 
-    private String dispatch(final String method_name, final String[] args) throws RemoteException {
+    private String dispatch(final String method_name, final String[] args) throws RemoteChordException {
 
         final Handler method_handler = getHandler(method_name);
 
@@ -157,7 +157,7 @@ public abstract class ApplicationServer {
                         final String method_result = dispatch(method_name, args);
                         sendReply(method_result);
                     }
-                    catch (final RemoteException e) {
+                    catch (final RemoteChordException e) {
                         sendException(e);
                     }
                 }
@@ -213,7 +213,7 @@ public abstract class ApplicationServer {
             streams.println(method_result);
         }
 
-        private void sendException(final RemoteException e) {
+        private void sendException(final RemoteChordException e) {
 
             streams.println("exception: " + e.getMessage());
         }
@@ -229,6 +229,6 @@ public abstract class ApplicationServer {
 
     interface Handler {
 
-        String execute(String[] args) throws RemoteException;
+        String execute(String[] args) throws RemoteChordException;
     }
 }

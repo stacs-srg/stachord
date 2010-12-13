@@ -80,7 +80,7 @@ public class ChordRemoteMarshaller {
         try {
             serialized_key = serializeKey(chord_remote_reference.getCachedKey());
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             // Ignore.
         }
 

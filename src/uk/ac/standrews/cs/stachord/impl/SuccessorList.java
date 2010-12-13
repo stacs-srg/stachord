@@ -64,7 +64,7 @@ class SuccessorList {
                 next.getRemote().isAlive();
                 return next;
             }
-            catch (final RemoteException e) {
+            catch (final RemoteChordException e) {
             }
         }
         throw new NoReachableNodeException();
@@ -91,9 +91,9 @@ class SuccessorList {
      * Constructs a new successor list which consists of this node's successor
      * followed by the first (MAX_SIZE-1) elements of the successor's successor
      * list.
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteException {
+    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RemoteChordException {
 
         final IChordRemoteReference successor = node.getSuccessor();
 
@@ -149,7 +149,7 @@ class SuccessorList {
                 try {
                     buffer.append(successor != null ? successor.getCachedKey() : "null");
                 }
-                catch (final RemoteException e) {
+                catch (final RemoteChordException e) {
                     buffer.append("inaccessible");
                 }
                 buffer.append(" address: ");

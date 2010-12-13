@@ -49,144 +49,144 @@ public class ChordRemoteProxy implements IChordRemote {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    public IKey getKey() throws RemoteException {
+    public IKey getKey() throws RemoteChordException {
 
         try {
             return marshaller.deserializeKey(makeCall("getKey"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public InetSocketAddress getAddress() throws RemoteException {
+    public InetSocketAddress getAddress() throws RemoteChordException {
 
         try {
             return marshaller.deserializeInetSocketAddress(makeCall("getAddress"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public IChordRemoteReference lookup(final IKey key) throws RemoteException {
+    public IChordRemoteReference lookup(final IKey key) throws RemoteChordException {
 
         try {
             return marshaller.deserializeChordRemoteReference(makeCall("lookup", marshaller.serializeKey(key)));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public IChordRemoteReference getSuccessor() throws RemoteException {
+    public IChordRemoteReference getSuccessor() throws RemoteChordException {
 
         try {
             return marshaller.deserializeChordRemoteReference(makeCall("getSuccessor"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public IChordRemoteReference getPredecessor() throws RemoteException {
+    public IChordRemoteReference getPredecessor() throws RemoteChordException {
 
         try {
             return marshaller.deserializeChordRemoteReference(makeCall("getPredecessor"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public void notify(final IChordRemoteReference potential_predecessor) throws RemoteException {
+    public void notify(final IChordRemoteReference potential_predecessor) throws RemoteChordException {
 
         makeCall("notify", marshaller.serializeChordRemoteReference(potential_predecessor));
     }
 
     @Override
-    public void join(final IChordRemoteReference node) throws RemoteException {
+    public void join(final IChordRemoteReference node) throws RemoteChordException {
 
         final String serialized_reference = marshaller.serializeChordRemoteReference(node);
         makeCall("join", serialized_reference);
     }
 
     @Override
-    public List<IChordRemoteReference> getSuccessorList() throws RemoteException {
+    public List<IChordRemoteReference> getSuccessorList() throws RemoteChordException {
 
         try {
             return marshaller.deserializeListChordRemoteReference(makeCall("getSuccessorList"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public List<IChordRemoteReference> getFingerList() throws RemoteException {
+    public List<IChordRemoteReference> getFingerList() throws RemoteChordException {
 
         try {
             return marshaller.deserializeListChordRemoteReference(makeCall("getFingerList"));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public void isAlive() throws RemoteException {
+    public void isAlive() throws RemoteChordException {
 
         makeCall("isAlive");
     }
 
     @Override
-    public NextHopResult nextHop(final IKey key) throws RemoteException {
+    public NextHopResult nextHop(final IKey key) throws RemoteChordException {
 
         try {
             return marshaller.deserializeNextHopResult(makeCall("nextHop", marshaller.serializeKey(key)));
         }
         catch (final DeserializationException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
     }
 
     @Override
-    public void enablePredecessorMaintenance(final boolean enabled) throws RemoteException {
+    public void enablePredecessorMaintenance(final boolean enabled) throws RemoteChordException {
 
         makeCall("enablePredecessorMaintenance", marshaller.serializeBoolean(enabled));
     }
 
     @Override
-    public void enableStabilization(final boolean enabled) throws RemoteException {
+    public void enableStabilization(final boolean enabled) throws RemoteChordException {
 
         makeCall("enableStabilization", marshaller.serializeBoolean(enabled));
     }
 
     @Override
-    public void enablePeerStateMaintenance(final boolean enabled) throws RemoteException {
+    public void enablePeerStateMaintenance(final boolean enabled) throws RemoteChordException {
 
         makeCall("enablePeerStateMaintenance", marshaller.serializeBoolean(enabled));
     }
 
     @Override
-    public void notifyFailure(final IChordRemoteReference node) throws RemoteException {
+    public void notifyFailure(final IChordRemoteReference node) throws RemoteChordException {
 
         makeCall("notifyFailure", marshaller.serializeChordRemoteReference(node));
     }
 
     @Override
-    public String toStringDetailed() throws RemoteException {
+    public String toStringDetailed() throws RemoteChordException {
 
         return makeCall("toStringDetailed");
     }
 
     @Override
-    public String toStringTerse() throws RemoteException {
+    public String toStringTerse() throws RemoteChordException {
 
         return makeCall("toStringTerse");
     }
@@ -199,7 +199,7 @@ public class ChordRemoteProxy implements IChordRemote {
         try {
             return o instanceof IChordRemote && ((IChordRemote) o).getKey().equals(getKey());
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }
@@ -210,7 +210,7 @@ public class ChordRemoteProxy implements IChordRemote {
         try {
             return makeCall("toString");
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return "inaccessible";
         }
     }
@@ -221,7 +221,7 @@ public class ChordRemoteProxy implements IChordRemote {
         try {
             return marshaller.deserializeInt(makeCall("hashCode"));
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             Diagnostic.trace(DiagnosticLevel.RUN, "error calling remote hashCode()");
             return 0;
         }
@@ -240,7 +240,7 @@ public class ChordRemoteProxy implements IChordRemote {
 
     // -------------------------------------------------------------------------------------------------------
 
-    private synchronized String makeCall(final String method_name, final String... args) throws RemoteException {
+    private synchronized String makeCall(final String method_name, final String... args) throws RemoteChordException {
 
         try {
             setupSocket();
@@ -251,11 +251,11 @@ public class ChordRemoteProxy implements IChordRemote {
 
             final String reply = readReply();
 
-            if (reply == null || reply.startsWith("exception")) { throw new RemoteException(reply); }
+            if (reply == null || reply.startsWith("exception")) { throw new RemoteChordException(reply); }
             return reply;
         }
         catch (final IOException e) {
-            throw new RemoteException(e);
+            throw new RemoteChordException(e);
         }
         finally {
 

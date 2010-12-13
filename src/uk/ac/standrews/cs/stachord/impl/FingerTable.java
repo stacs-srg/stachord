@@ -95,9 +95,9 @@ class FingerTable {
      * @param key the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RemoteException {
+    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RemoteChordException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -117,9 +117,9 @@ class FingerTable {
     /**
      * Notifies the finger table of a broken finger.
      * @param broken_finger the finger that has failed
-     * @throws RemoteException 
+     * @throws RemoteChordException 
      */
-    public void fingerFailure(final IChordRemoteReference broken_finger) throws RemoteException {
+    public void fingerFailure(final IChordRemoteReference broken_finger) throws RemoteChordException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -160,7 +160,7 @@ class FingerTable {
                 try {
                     buffer.append(" key: " + fingers[i].getCachedKey());
                 }
-                catch (final RemoteException e) {
+                catch (final RemoteChordException e) {
                     buffer.append(" key: inaccessible");
                 }
                 buffer.append(" address: " + fingers[i].getCachedAddress());
@@ -216,7 +216,7 @@ class FingerTable {
             fingers[finger_index] = finger;
             return changed;
         }
-        catch (final RemoteException e) {
+        catch (final RemoteChordException e) {
             return false;
         }
     }
