@@ -2,7 +2,7 @@
 
 	<!-- This depends on the Hudson workspace structure. -->
 	<property name="hudson-tools-archive-dir" location="../../hudson_tools/lastStable/archive" />
-      
+
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
 	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
@@ -15,8 +15,9 @@
 	    <pathelement location="bin" />
 	    <pathelement location="${lib-nds}" />
 	    <pathelement location="${lib-junit}" />
+	    <pathelement location="${lib-json}" />
 	</path>
-	
+
 	<property name="classpath" value="${toString:project-classpath}" />
 
 	<property name="compile-src-dir"      value="src" />
@@ -41,7 +42,7 @@
 			<property name="test-name" value="uk.ac.standrews.cs.stachord.test.NightlyTests" />
 		</ant>
 	</target>
-	
+
 	<!-- Generate project jar. -->
 	<target name="project-jar">
 		<jar destfile="bin/stachord.jar">
@@ -60,10 +61,10 @@
 
 			<!-- Link to Java API from generated documentation. -->
 			<link href="${doc-java}" />
-			
+
 			<link href="${doc-nds}" />
 			<link href="${doc-mindterm}" />
 		</javadoc>
 	</target>
-	
+
 </project>
