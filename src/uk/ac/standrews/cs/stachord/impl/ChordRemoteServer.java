@@ -3,10 +3,14 @@ package uk.ac.standrews.cs.stachord.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.Handler;
+import uk.ac.standrews.cs.nds.rpc.JSONValue;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
@@ -39,7 +43,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getKey", new Handler() {
 
             @Override
-            public String execute(final String[] args) {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeKey(chord_node.getKey());
             }
@@ -48,7 +52,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getAddress", new Handler() {
 
             @Override
-            public String execute(final String[] args) {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeInetSocketAddress(chord_node.getAddress());
             }
@@ -57,13 +61,16 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("lookup", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final IKey key = marshaller.deserializeKey(args[0]);
+                    final IKey key = marshaller.deserializeKey(args.getString(0));
                     return marshaller.serializeChordRemoteReference(chord_node.lookup(key));
                 }
                 catch (final DeserializationException e) {
+                    throw new RemoteChordException(e);
+                }
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -72,7 +79,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getSuccessor());
             }
@@ -81,7 +88,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getPredecessor", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeChordRemoteReference(chord_node.getPredecessor());
             }
@@ -90,15 +97,18 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notify", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args[0]);
+                    final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                     final IChordRemoteReference potential_predecessor = temp;
                     chord_node.notify(potential_predecessor);
-                    return "";
+                    return JSONValue.NULL;
                 }
                 catch (final DeserializationException e) {
+                    throw new RemoteChordException(e);
+                }
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -107,14 +117,17 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("join", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
+                    final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                     chord_node.join(node);
-                    return "";
+                    return JSONValue.NULL;
                 }
                 catch (final DeserializationException e) {
+                    throw new RemoteChordException(e);
+                }
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -123,7 +136,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getSuccessorList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getSuccessorList());
             }
@@ -132,7 +145,7 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("getFingerList", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
                 return marshaller.serializeListChordRemoteReference(chord_node.getFingerList());
             }
@@ -141,23 +154,26 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("isAlive", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
                 chord_node.isAlive();
-                return "";
+                return JSONValue.NULL;
             }
         });
 
         handler_map.put("nextHop", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final IKey key = marshaller.deserializeKey(args[0]);
+                    final IKey key = marshaller.deserializeKey(args.getString(0));
                     return marshaller.serializeNextHopResult(chord_node.nextHop(key));
                 }
                 catch (final DeserializationException e) {
+                    throw new RemoteChordException(e);
+                }
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -166,14 +182,14 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePredecessorMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final boolean enabled = marshaller.deserializeBoolean(args[0]);
+                    final boolean enabled = args.getBoolean(0);
                     chord_node.enablePredecessorMaintenance(enabled);
-                    return "";
+                    return JSONValue.NULL;
                 }
-                catch (final DeserializationException e) {
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -182,14 +198,14 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enableStabilization", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final boolean enabled = marshaller.deserializeBoolean(args[0]);
+                    final boolean enabled = args.getBoolean(0);
                     chord_node.enableStabilization(enabled);
-                    return "";
+                    return JSONValue.NULL;
                 }
-                catch (final DeserializationException e) {
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -198,14 +214,14 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("enablePeerStateMaintenance", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final boolean enabled = marshaller.deserializeBoolean(args[0]);
+                    final boolean enabled = args.getBoolean(0);
                     chord_node.enablePeerStateMaintenance(enabled);
-                    return "";
+                    return JSONValue.NULL;
                 }
-                catch (final DeserializationException e) {
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -214,14 +230,17 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("notifyFailure", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) throws RPCException {
 
                 try {
-                    final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args[0]);
+                    final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                     chord_node.notifyFailure(node);
-                    return "";
+                    return JSONValue.NULL;
                 }
                 catch (final DeserializationException e) {
+                    throw new RemoteChordException(e);
+                }
+                catch (final JSONException e) {
                     throw new RemoteChordException(e);
                 }
             }
@@ -230,18 +249,18 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("toStringDetailed", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
-                return chord_node.toStringDetailed();
+                return new JSONValue(chord_node.toStringDetailed());
             }
         });
 
         handler_map.put("toStringTerse", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
-                return chord_node.toStringTerse();
+                return new JSONValue(chord_node.toStringTerse());
             }
         });
 
@@ -250,20 +269,19 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("hashCode", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
-                return marshaller.serializeInt(chord_node.hashCode());
+                return new JSONValue(chord_node.hashCode());
             }
         });
 
         handler_map.put("toString", new Handler() {
 
             @Override
-            public String execute(final String[] args) throws RPCException {
+            public JSONValue execute(final JSONArray args) {
 
-                return chord_node.toString();
+                return new JSONValue(chord_node.toString());
             }
         });
     }
-
 }

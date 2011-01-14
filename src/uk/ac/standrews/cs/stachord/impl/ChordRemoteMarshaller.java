@@ -4,19 +4,31 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
+import uk.ac.standrews.cs.nds.rpc.JSONValue;
 import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 public class ChordRemoteMarshaller extends Marshaller {
 
-    public String serializeChordRemoteReference(final IChordRemoteReference chord_remote_reference) {
+    private static final String IS_FINAL_HOP_KEY = "isfinalhop";
+    private static final String NODE_KEY = "node";
+    private static final String PROXY_KEY = "proxy";
+    private static final String KEY_KEY = "key";
 
-        if (chord_remote_reference == null) { return NULL; }
+    public JSONValue serializeChordRemoteReference(final IChordRemoteReference chord_remote_reference) {
 
-        String serialized_key = "";
+        if (chord_remote_reference == null) { return JSONValue.NULL; }
+
+        JSONValue serialized_key = JSONValue.NULL;
         try {
             serialized_key = serializeKey(chord_remote_reference.getCachedKey());
         }
@@ -24,24 +36,39 @@ public class ChordRemoteMarshaller extends Marshaller {
             // Ignore.
         }
 
-        final String serialized_proxy = serializeInetSocketAddress(((ChordRemoteProxy) chord_remote_reference.getRemote()).getProxiedAddress());
+        final JSONValue serialized_proxy = serializeInetSocketAddress(((ChordRemoteProxy) chord_remote_reference.getRemote()).getProxiedAddress());
 
-        return concatenate("*", serialized_key, serialized_proxy);
+        final JSONObject object = new JSONObject();
+        try {
+            object.put(KEY_KEY, serialized_key.getValue());
+            object.put(PROXY_KEY, serialized_proxy.getValue());
+        }
+        catch (final JSONException e) {
+            Diagnostic.trace(DiagnosticLevel.RUN, "error serializing IChordRemoteReference: " + e.getMessage());
+        }
+
+        //        System.out.println("scrr1: " + object);
+        //        System.out.println("scrr2: " + new JSONValue(object));
+        //        System.out.println("type: " + object.getClass().getName());
+
+        return new JSONValue(object);
     }
 
-    public IChordRemoteReference deserializeChordRemoteReference(final String serialized_chord_remote_reference) throws DeserializationException {
+    public IChordRemoteReference deserializeChordRemoteReference(final JSONObject object) throws DeserializationException {
 
-        if (serialized_chord_remote_reference.equals(NULL)) { return null; }
+        if (object == null) { return null; }
 
         try {
-            final String[] components = serialized_chord_remote_reference.split("\\*", -1);
-            final InetSocketAddress address = deserializeInetSocketAddress(components[1]);
 
+            final String serialized_key = object.getString(KEY_KEY);
+            final String serialized_address = object.getString(PROXY_KEY);
+
+            final InetSocketAddress address = deserializeInetSocketAddress(serialized_address);
             assert address.getAddress() != null;
 
-            if (components[0].equals("")) { return new ChordRemoteReference(address); }
+            if (serialized_key.equals("")) { return new ChordRemoteReference(address); }
 
-            final IKey key = deserializeKey(components[0]);
+            final IKey key = deserializeKey(serialized_key);
             return new ChordRemoteReference(key, address);
         }
         catch (final Exception e) {
@@ -49,45 +76,57 @@ public class ChordRemoteMarshaller extends Marshaller {
         }
     }
 
-    public String serializeListChordRemoteReference(final List<IChordRemoteReference> list_chord_remote_reference) {
+    public JSONValue serializeListChordRemoteReference(final List<IChordRemoteReference> list_chord_remote_reference) {
 
-        final List<String> serialized_references = new ArrayList<String>();
+        final JSONArray array = new JSONArray();
+
         for (final IChordRemoteReference reference : list_chord_remote_reference) {
-            serialized_references.add(serializeChordRemoteReference(reference));
+            array.put(serializeChordRemoteReference(reference).getValue());
         }
-        return concatenate("%", serialized_references.toArray(new String[0]));
+        return new JSONValue(array);
     }
 
-    public List<IChordRemoteReference> deserializeListChordRemoteReference(final String serialized_list_chord_remote_reference) throws DeserializationException {
+    public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONValue serialized_list_chord_remote_reference) throws DeserializationException {
 
         final List<IChordRemoteReference> deserialized_references = new ArrayList<IChordRemoteReference>();
 
-        if (serialized_list_chord_remote_reference.length() > 0) {
-            final String[] components = serialized_list_chord_remote_reference.split("%", -1);
+        try {
 
-            try {
-                for (final String serialized_chord_remote_reference : components) {
-                    deserialized_references.add(deserializeChordRemoteReference(serialized_chord_remote_reference));
-                }
+            final JSONArray array = serialized_list_chord_remote_reference.getJSONArray();
+
+            for (int i = 0; i < array.length(); i++) {
+                final JSONObject serialized_chord_remote_reference = array.getJSONObject(i);
+                deserialized_references.add(deserializeChordRemoteReference(serialized_chord_remote_reference));
             }
-            catch (final Exception e) {
-                throw new DeserializationException(e);
-            }
+
+            return deserialized_references;
+        }
+        catch (final Exception e) {
+            throw new DeserializationException(e);
+        }
+    }
+
+    public JSONValue serializeNextHopResult(final NextHopResult next_hop_result) {
+
+        final JSONObject object = new JSONObject();
+        try {
+            object.put(NODE_KEY, serializeChordRemoteReference(next_hop_result.getNode()).getValue());
+            object.put(IS_FINAL_HOP_KEY, next_hop_result.isFinalHop());
+        }
+        catch (final JSONException e) {
+            Diagnostic.trace(DiagnosticLevel.RUN, "error serializing IChordRemoteReference: " + e.getMessage());
         }
 
-        return deserialized_references;
+        return new JSONValue(object);
     }
 
-    public String serializeNextHopResult(final NextHopResult next_hop_result) {
+    public NextHopResult deserializeNextHopResult(final JSONObject object) throws DeserializationException {
 
-        return concatenate("%", serializeChordRemoteReference(next_hop_result.getNode()), serializeBoolean(next_hop_result.isFinalHop()));
-    }
-
-    public NextHopResult deserializeNextHopResult(final String serialized_next_hop_result) throws DeserializationException {
-
-        final String[] components = serialized_next_hop_result.split("%", -1);
         try {
-            return new NextHopResult(deserializeChordRemoteReference(components[0]), deserializeBoolean(components[1]));
+            final JSONObject serialized_node = object.getJSONObject(NODE_KEY);
+            final boolean is_final_hop = object.getBoolean(IS_FINAL_HOP_KEY);
+
+            return new NextHopResult(deserializeChordRemoteReference(serialized_node), is_final_hop);
         }
         catch (final Exception e) {
             throw new DeserializationException(e);
