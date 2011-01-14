@@ -47,10 +47,6 @@ public class ChordRemoteMarshaller extends Marshaller {
             Diagnostic.trace(DiagnosticLevel.RUN, "error serializing IChordRemoteReference: " + e.getMessage());
         }
 
-        //        System.out.println("scrr1: " + object);
-        //        System.out.println("scrr2: " + new JSONValue(object));
-        //        System.out.println("type: " + object.getClass().getName());
-
         return new JSONValue(object);
     }
 
@@ -86,13 +82,13 @@ public class ChordRemoteMarshaller extends Marshaller {
         return new JSONValue(array);
     }
 
-    public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONValue serialized_list_chord_remote_reference) throws DeserializationException {
+    public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONArray array) throws DeserializationException {
 
         final List<IChordRemoteReference> deserialized_references = new ArrayList<IChordRemoteReference>();
 
         try {
 
-            final JSONArray array = serialized_list_chord_remote_reference.getJSONArray();
+            //            final JSONArray array = serialized_list_chord_remote_reference.getJSONArray();
 
             for (int i = 0; i < array.length(); i++) {
                 final JSONObject serialized_chord_remote_reference = array.getJSONObject(i);

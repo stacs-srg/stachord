@@ -154,7 +154,7 @@ public class ChordRemoteProxy extends Proxy implements IChordRemote {
     public List<IChordRemoteReference> getSuccessorList() throws RPCException {
 
         try {
-            return marshaller.deserializeListChordRemoteReference(makeCall("getSuccessorList"));
+            return marshaller.deserializeListChordRemoteReference(makeCall("getSuccessorList").getJSONArray());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -169,7 +169,7 @@ public class ChordRemoteProxy extends Proxy implements IChordRemote {
     public List<IChordRemoteReference> getFingerList() throws RPCException {
 
         try {
-            return marshaller.deserializeListChordRemoteReference(makeCall("getFingerList"));
+            return marshaller.deserializeListChordRemoteReference(makeCall("getFingerList").getJSONArray());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
