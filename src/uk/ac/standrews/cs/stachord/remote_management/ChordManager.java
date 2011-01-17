@@ -108,7 +108,7 @@ public class ChordManager implements IApplicationManager {
         // For simplicity we just kill all Chord nodes. Obviously this won't work in situations where multiple
         // Chord nodes are being run on the same machine.
 
-        host_descriptor.getProcessManager().killMatchingProcessesRemote(CHORD_APPLICATION_CLASSNAME);
+        host_descriptor.getProcessManager().killMatchingProcesses(CHORD_APPLICATION_CLASSNAME);
     }
 
     @Override

@@ -82,7 +82,7 @@ public final class ChordNodeFactory {
      * @param local_address the local address of the node
      * @return the new node
      * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
-     * @throws IOException 
+     * @throws IOException
      */
     public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteChordException, IOException {
 
@@ -96,7 +96,7 @@ public final class ChordNodeFactory {
      * @param key the key of the new node
      * @return the new node
      * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
-     * @throws IOException 
+     * @throws IOException
      */
     public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteChordException, IOException {
 
@@ -175,7 +175,7 @@ public final class ChordNodeFactory {
             addKeyArg(key, args);
         }
 
-        return host_descriptor.getProcessManager().runJavaProcessRemote(StartNodeInNewRing.class, args);
+        return host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
     }
 
     /**
@@ -279,7 +279,7 @@ public final class ChordNodeFactory {
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                final Process chord_process = host_descriptor.getProcessManager().runJavaProcessLocalOrRemote(StartNodeInNewRing.class, args);
+                final Process chord_process = host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
                 host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();

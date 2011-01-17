@@ -40,6 +40,8 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
 import uk.ac.standrews.cs.stachord.test.factory.SingleHostNetwork;
 
+import com.mindbright.ssh2.SSH2Exception;
+
 /**
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
  * Each Chord node is created in a separate process on the local machine.
@@ -56,14 +58,16 @@ public class SingleMachineRecoveryTests {
     /**
      * Disables diagnostic output and kills existing instances.
      * @throws IOException if existing instances cannot be killed
+     * @throws TimeoutException shouldn't occur locally
+     * @throws SSH2Exception shouldn't occur locally
      */
     @Before
-    public void setUp() throws IOException {
+    public void setUp() throws IOException, SSH2Exception, TimeoutException {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
         // Kill any lingering Chord node processes.
-        new ProcessManager().killMatchingProcessesLocal(StartNodeInNewRing.class.getSimpleName());
+        new ProcessManager().killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
     }
 
     /**
