@@ -5,7 +5,7 @@
 
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
+	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, 3rd-party-jars, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
@@ -50,6 +50,11 @@
 			<fileset dir="src" />
 		    <zipfileset src="${lib-nds}"/>
 		</jar>
+	</target>
+
+	<!-- Copy 3rd party jars. -->
+	<target name="3rd-party-jars">
+		<copy file="${lib-json}" todir="lib" />
 	</target>
 
 	<!-- Generate javadoc. -->
