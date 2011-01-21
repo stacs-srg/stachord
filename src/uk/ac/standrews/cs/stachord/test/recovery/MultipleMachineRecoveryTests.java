@@ -35,7 +35,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;

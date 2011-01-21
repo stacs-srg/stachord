@@ -30,10 +30,10 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.util.ActionQueue;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;

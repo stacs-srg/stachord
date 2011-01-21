@@ -27,7 +27,7 @@ package uk.ac.standrews.cs.stachord.test.factory;
 
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 
 /**
  * Interface representing a set of Chord nodes.

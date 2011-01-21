@@ -29,10 +29,10 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.IApplicationManager;
-import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
-import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.IApplicationManager;
+import uk.ac.standrews.cs.nds.madface.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;

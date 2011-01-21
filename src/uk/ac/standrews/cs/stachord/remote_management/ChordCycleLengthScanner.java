@@ -25,8 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
 import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 class ChordCycleLengthScanner implements ISingleHostScanner {

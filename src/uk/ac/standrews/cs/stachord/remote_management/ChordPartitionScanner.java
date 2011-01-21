@@ -28,9 +28,9 @@ package uk.ac.standrews.cs.stachord.remote_management;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.remote_management.HostDescriptor;
-import uk.ac.standrews.cs.nds.remote_management.HostState;
-import uk.ac.standrews.cs.nds.remote_management.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.HostState;
+import uk.ac.standrews.cs.nds.madface.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;

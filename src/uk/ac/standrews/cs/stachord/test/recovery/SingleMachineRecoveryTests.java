@@ -31,8 +31,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.remote_management.ProcessManager;
-import uk.ac.standrews.cs.nds.remote_management.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.madface.ProcessManager;
+import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
