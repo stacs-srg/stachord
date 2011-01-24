@@ -646,9 +646,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         initialiseSelfReference();
         initialiseSelfSuccessorReference();
 
-        // Try and rejoin the ring
+        // Try to rejoin the ring.
         try {
-            // first preference - rejoin the ring by binding to predecessor if we can
+            // First preference: rejoin the ring by binding to predecessor if we can.
             if (predecessor == null) {
                 try {
                     joinUsingFinger();
@@ -666,14 +666,16 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             }
         }
         catch (final Exception e) {
-            // second preference - rejoin the ring by using a finger
+
+            // Second preference: rejoin the ring by using a finger.
 
             try {
                 joinUsingFinger();
             }
             catch (final NoReachableNodeException e1) {
-                // Not much else we can do here - for now
-                // We will try and re-join if we get another adddress change event
+
+                // Not much else we can do here.
+                // We will try and re-join if we get another address change event.
                 Diagnostic.trace("Cannot rejoin ring using predecessor or finger");
             }
         }
