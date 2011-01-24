@@ -26,14 +26,12 @@
 package uk.ac.standrews.cs.stachord.servers;
 
 import java.io.IOException;
-import java.rmi.NotBoundException;
 
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Provides the entry point for deploying a Chord node in a new Chord ring.
@@ -51,27 +49,22 @@ public final class StartNodeInNewRing extends AbstractServer {
     /**
      * The following command line parameters are available:
      * <dl>
-     * <dt>-s[host][:port] (required)</dt>
-     * <dd>Specifies the local address and port at which the Chord service should be made available.
-     * If no address is specified then the local loopback address (127.0.0.1) is used.
-     * If no port is specified then the default RMI port is used ({@link IChordNode#DEFAULT_RMI_REGISTRY_PORT}). </dd>
+     * <dt>-shost:port (required)</dt>
+     * <dd>Specifies the local address and port at which the Chord service should be made available.</dd>
      *
      * <dt>-xkey (optional)</dt>
-     * <dd>Specifies the address and port for a known host that will be used to join the Chord ring
-     * If no address is specified then the local loopback address (127.0.0.1) is used.
-     * If no port is specified then the default RMI port is used ({@link IChordNode#DEFAULT_RMI_REGISTRY_PORT}). </dd>
-     * 
+     * <dd>Specifies the key for the new Chord node.</dd>
+     *
      * <dt>-Dlevel (optional)</dt>
      * <dd>Specifies a diagnostic level from 0 (most detailed) to 6 (least detailed).</dd>
      * </dl>
      *
      * @param args see above
-     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
-     * @throws NotBoundException if the node in the existing ring is not accessible with the expected service name
+     * @throws RPCException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
-     * @throws IOException 
+     * @throws IOException if a node cannot be created using the given local address
      */
-    public static void main(final String[] args) throws RemoteChordException, UndefinedDiagnosticLevelException, IOException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException {
 
         final StartNodeInNewRing starter = new StartNodeInNewRing(args);
         starter.createNode();
@@ -79,7 +72,7 @@ public final class StartNodeInNewRing extends AbstractServer {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNode() throws RemoteChordException, IOException {
+    private void createNode() throws RPCException, IOException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
