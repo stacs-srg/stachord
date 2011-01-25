@@ -755,7 +755,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             }
             catch (final Exception e1) {
 
-                // RemoteException if predecessor has failed, or NullPointerException if it's already null
+                // RPCException if predecessor has failed, or NullPointerException if it's already null
                 try {
                     joinUsingFinger();
                 }
