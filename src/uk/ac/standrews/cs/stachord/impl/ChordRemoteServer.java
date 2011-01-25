@@ -11,6 +11,7 @@ import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.Handler;
 import uk.ac.standrews.cs.nds.rpc.JSONValue;
+import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
@@ -18,17 +19,25 @@ public class ChordRemoteServer extends ApplicationServer {
 
     private final ChordNodeImpl chord_node;
     private final Map<String, Handler> handler_map;
-    private static final ChordRemoteMarshaller marshaller = new ChordRemoteMarshaller();
+    private final ChordRemoteMarshaller marshaller;
 
     public ChordRemoteServer(final ChordNodeImpl chord_node) {
 
         this.chord_node = chord_node;
         handler_map = new HashMap<String, Handler>();
 
+        marshaller = new ChordRemoteMarshaller();
+
         initHandlers();
     }
 
     // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public Marshaller getMarshaller() {
+
+        return marshaller;
+    }
 
     @Override
     public Handler getHandler(final String method_name) {
