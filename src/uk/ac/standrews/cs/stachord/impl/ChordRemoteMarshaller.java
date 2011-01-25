@@ -88,8 +88,6 @@ public class ChordRemoteMarshaller extends Marshaller {
 
         try {
 
-            //            final JSONArray array = serialized_list_chord_remote_reference.getJSONArray();
-
             for (int i = 0; i < array.length(); i++) {
                 final JSONObject serialized_chord_remote_reference = array.getJSONObject(i);
                 deserialized_references.add(deserializeChordRemoteReference(serialized_chord_remote_reference));

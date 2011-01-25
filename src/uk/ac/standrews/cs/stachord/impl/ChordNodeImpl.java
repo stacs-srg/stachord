@@ -1,7 +1,7 @@
 /***************************************************************************
  *                                                                         *
  * stachord Library                                                        *
- * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *

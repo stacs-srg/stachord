@@ -1,3 +1,27 @@
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland                                      *
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
@@ -17,14 +41,20 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-public class ChordRemoteProxy extends Proxy implements IChordRemote {
+/**
+ * Proxy for remotely accessible Chord node.
+ *
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ */
+public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
-    private static final Map<InetSocketAddress, ChordRemoteProxy> proxy_map;
-    private final ChordRemoteMarshaller marshaller;
+    private static final Map<InetSocketAddress, ChordRemoteProxy> PROXY_MAP;
 
     static {
-        proxy_map = new HashMap<InetSocketAddress, ChordRemoteProxy>();
+        PROXY_MAP = new HashMap<InetSocketAddress, ChordRemoteProxy>();
     }
+
+    private final ChordRemoteMarshaller marshaller;
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -36,12 +66,12 @@ public class ChordRemoteProxy extends Proxy implements IChordRemote {
 
     // -------------------------------------------------------------------------------------------------------
 
-    public static synchronized ChordRemoteProxy getProxy(final InetSocketAddress proxy_address) {
+    static synchronized ChordRemoteProxy getProxy(final InetSocketAddress proxy_address) {
 
-        ChordRemoteProxy proxy = proxy_map.get(proxy_address);
+        ChordRemoteProxy proxy = PROXY_MAP.get(proxy_address);
         if (proxy == null) {
             proxy = new ChordRemoteProxy(proxy_address);
-            proxy_map.put(proxy_address, proxy);
+            PROXY_MAP.put(proxy_address, proxy);
         }
         return proxy;
     }
