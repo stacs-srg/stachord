@@ -9,6 +9,7 @@ import org.json.JSONArray;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
+import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.Proxy;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -19,10 +20,9 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 public class ChordRemoteProxy extends Proxy implements IChordRemote {
 
     private static final Map<InetSocketAddress, ChordRemoteProxy> proxy_map;
-    private static final ChordRemoteMarshaller marshaller;
+    private final ChordRemoteMarshaller marshaller;
 
     static {
-        marshaller = new ChordRemoteMarshaller();
         proxy_map = new HashMap<InetSocketAddress, ChordRemoteProxy>();
     }
 
@@ -31,6 +31,7 @@ public class ChordRemoteProxy extends Proxy implements IChordRemote {
     private ChordRemoteProxy(final InetSocketAddress node_address) {
 
         super(node_address);
+        marshaller = new ChordRemoteMarshaller();
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -43,6 +44,14 @@ public class ChordRemoteProxy extends Proxy implements IChordRemote {
             proxy_map.put(proxy_address, proxy);
         }
         return proxy;
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public Marshaller getMarshaller() {
+
+        return marshaller;
     }
 
     // -------------------------------------------------------------------------------------------------------
