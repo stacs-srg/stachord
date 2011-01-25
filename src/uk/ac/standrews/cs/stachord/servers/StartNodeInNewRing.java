@@ -72,7 +72,7 @@ public final class StartNodeInNewRing extends AbstractServer {
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void createNode() throws RPCException, IOException {
+    private void createNode() throws IOException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 

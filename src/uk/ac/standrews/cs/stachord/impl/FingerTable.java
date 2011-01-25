@@ -58,7 +58,7 @@ class FingerTable {
     // The ratio between successive finger targets.
     private static final BigInteger INTER_FINGER_RATIO = new BigInteger(String.valueOf(IChordNode.INTER_FINGER_RATIO));
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     public FingerTable(final IChordNode node) {
 
@@ -74,7 +74,7 @@ class FingerTable {
         initFingerTargets();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Fixes the next finger in the finger table.
@@ -96,7 +96,8 @@ class FingerTable {
      * @param key the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
-     * @throws RPCException 
+     * @throws RPCException if an error occurs in accessing a finger's key
+
      */
     public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RPCException {
 
@@ -117,8 +118,9 @@ class FingerTable {
 
     /**
      * Notifies the finger table of a broken finger.
+     *
      * @param broken_finger the finger that has failed
-     * @throws RPCException 
+     * @throws RPCException if an error occurs in accessing a finger's key
      */
     public void fingerFailure(final IChordRemoteReference broken_finger) throws RPCException {
 
@@ -132,6 +134,7 @@ class FingerTable {
 
     /**
      * Returns the contents of the finger table as a list.
+     *
      * @return the contents of the finger table as a list
      */
     public List<IChordRemoteReference> getFingers() {
@@ -143,7 +146,7 @@ class FingerTable {
         return finger_list;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     @Override
     public String toString() {
@@ -172,7 +175,7 @@ class FingerTable {
         return buffer.toString();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Constructs the finger target keys by successively dividing the offset from this node by the inter-finger ratio.
@@ -192,6 +195,7 @@ class FingerTable {
 
     /**
      * Returns the truncated log of an integer to a given base.
+     *
      * @param n an integer
      * @param base the required base
      * @return the log to the given base

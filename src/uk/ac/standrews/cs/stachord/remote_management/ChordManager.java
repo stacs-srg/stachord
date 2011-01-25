@@ -37,7 +37,6 @@ import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
 
 /**
@@ -56,8 +55,6 @@ public class ChordManager implements IApplicationManager {
 
     @Override
     public void attemptApplicationCall(final HostDescriptor host_descriptor) throws Exception {
-
-        host_descriptor.port(IChordNode.DEFAULT_PORT);
 
         // Try to connect to the application on the default RMI port.
         final InetSocketAddress inet_socket_address = NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort());

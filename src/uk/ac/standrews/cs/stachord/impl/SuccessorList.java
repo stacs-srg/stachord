@@ -93,7 +93,8 @@ class SuccessorList {
     /**
      * Constructs a new successor list which consists of this node's successor
      * followed by the first (MAX_SIZE-1) elements of the successor's successor list.
-     * @throws RPCException 
+     *
+     * @throws RPCException if an error occurs when accessing this node's successor's key
      */
     protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RPCException {
 

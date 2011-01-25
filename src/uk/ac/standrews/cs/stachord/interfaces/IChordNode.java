@@ -79,9 +79,7 @@ public interface IChordNode extends Observer {
      */
     int INTER_FINGER_RATIO = 2;
 
-    int DEFAULT_PORT = 1099;
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     // Shared functionality with IChordRemote.
 
@@ -120,7 +118,7 @@ public interface IChordNode extends Observer {
      */
     void join(IChordRemoteReference node) throws RPCException;
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     // Local-only functionality.
 
@@ -147,7 +145,7 @@ public interface IChordNode extends Observer {
      *
      * @param k a key
      * @return true if the key lies in this node's key range
-     * @throws RPCException 
+     * @throws RPCException if an error occurs in accessing this node's predecessor's key
      */
     boolean inLocalKeyRange(final IKey k) throws RPCException;
 }

@@ -118,7 +118,7 @@ public class MultipleMachineRecoveryTests {
     }
 
     /**
-     * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines and the local machine to permit manual disconnection testing
+     * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines and the local machine to permit manual disconnection testing.
      *
      * @throws Exception if the test fails
      */
@@ -137,7 +137,8 @@ public class MultipleMachineRecoveryTests {
 
         final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
 
-        RecoveryTestLogic.waitForStableRing(network.getNodes(), 60000);
+        final int test_timeout = 60000;
+        RecoveryTestLogic.waitForStableRing(network.getNodes(), test_timeout);
 
         System.out.println("USER: Please change network connection on local node - please hit return");
 
@@ -148,7 +149,8 @@ public class MultipleMachineRecoveryTests {
 
         assertEquals(a_beast_node.getHost(), "beast.cs.st-andrews.ac.uk");
 
-        RecoveryTestLogic.ringStable(a_beast_node, 4);
+        final int network_size = 4;
+        RecoveryTestLogic.ringStable(a_beast_node, network_size);
 
         RecoveryTestLogic.dumpState(network.getNodes());
 
@@ -203,16 +205,6 @@ public class MultipleMachineRecoveryTests {
         hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
-        return hosts;
-    }
-
-    private List<String> threeOnBeastAndOneOnIO() {
-
-        final List<String> hosts = new ArrayList<String>();
-        hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("io.cs.st-andrews.ac.uk");
         return hosts;
     }
 

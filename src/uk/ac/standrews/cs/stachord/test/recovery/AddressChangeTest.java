@@ -1,3 +1,27 @@
+/***************************************************************************
+ *                                                                         *
+ * stachord Library                                                        *
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland                                      *
+ * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ *                                                                         *
+ * This file is part of stachord, an independent implementation of         *
+ * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
+ *                                                                         *
+ * stachord is free software: you can redistribute it and/or modify        *
+ * it under the terms of the GNU General Public License as published by    *
+ * the Free Software Foundation, either version 3 of the License, or       *
+ * (at your option) any later version.                                     *
+ *                                                                         *
+ * stachord is distributed in the hope that it will be useful,             *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ * GNU General Public License for more details.                            *
+ *                                                                         *
+ * You should have received a copy of the GNU General Public License       *
+ * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
+ *                                                                         *
+ ***************************************************************************/
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.io.IOException;
@@ -10,21 +34,30 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
+/**
+ * Stand-alone test of ability to detect and accommodate change of network interface.
+ *
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ */
 public class AddressChangeTest implements Observer {
+
+    private static final int CHORD_PORT = 9091;
 
     private static IChordNode impl;
     private static InetSocketAddress socketAddress;
 
     /**
-     * @param args
-     * @throws RemoteChordException 
-     * @throws IOException 
+     * Runs a local chord node and outputs diagnostics on address change events.
+     *
+     * @param args ignored
+     * @throws RemoteChordException shouldn't happen in this test
+     * @throws IOException if the local address cannot be bound to
      */
     public static void main(final String[] args) throws RemoteChordException, IOException {
 
         final AddressChangeTest foo = new AddressChangeTest();
 
-        socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), 9091);
+        socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), CHORD_PORT);
         impl = ChordNodeFactory.createLocalNode(socketAddress);
         impl.addObserver(foo);
 
@@ -35,7 +68,6 @@ public class AddressChangeTest implements Observer {
     public void update(final Observable o, final Object arg) {
 
         System.out.println("Running... at " + impl.getSelfReference().getCachedAddress() + " started at: " + socketAddress);
-
         System.out.println(arg);
     }
 }

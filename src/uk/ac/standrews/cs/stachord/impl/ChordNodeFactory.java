@@ -66,8 +66,9 @@ public final class ChordNodeFactory {
     private static final int INITIAL_PORT = 54496;
 
     private static int next_port = INITIAL_PORT; // The next port to be used; static to allow multiple concurrent networks.
-
     private static final Object SYNC = new Object(); // Used for serializing network creation.
+
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Prevent instantiation of utility class.
@@ -76,15 +77,16 @@ public final class ChordNodeFactory {
 
     }
 
+    // -------------------------------------------------------------------------------------------------------
+
     /**
      * Creates a new Chord node running in the current JVM at a given local network address on a given port, establishing a new one-node ring.
      *
      * @param local_address the local address of the node
      * @return the new node
-     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
-     * @throws IOException
+     * @throws IOException if the node cannot bind to the given local address
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws RemoteChordException, IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws IOException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -95,10 +97,9 @@ public final class ChordNodeFactory {
      * @param local_address the local address of the node
      * @param key the key of the new node
      * @return the new node
-     * @throws RemoteChordException if an error occurs in making the new node accessible for remote access
-     * @throws IOException
+     * @throws IOException if the node cannot bind to the given local address
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws RemoteChordException, IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws IOException {
 
         return new ChordNodeImpl(local_address, key);
     }

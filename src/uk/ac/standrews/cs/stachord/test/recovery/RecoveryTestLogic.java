@@ -41,7 +41,6 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -93,7 +92,7 @@ public final class RecoveryTestLogic {
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
      *
-     * @throws RemoteChordException if an error occurs when setting finger table maintenance on a node
+     * @throws RPCException if an error occurs when setting finger table maintenance on a node
      * @throws TimeoutException if one of the steps of the test is not completed within the timeout interval
      */
     public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout) throws RPCException, TimeoutException {
@@ -656,7 +655,7 @@ public final class RecoveryTestLogic {
         return System.currentTimeMillis() - start_time;
     }
 
-    public static void dumpState(final List<HostDescriptor> nodes) {
+    static void dumpState(final List<HostDescriptor> nodes) {
 
         for (final HostDescriptor machine_descriptor : nodes) {
 
