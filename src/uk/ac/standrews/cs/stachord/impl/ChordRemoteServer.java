@@ -33,7 +33,7 @@ import org.json.JSONException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
-import uk.ac.standrews.cs.nds.rpc.Handler;
+import uk.ac.standrews.cs.nds.rpc.IHandler;
 import uk.ac.standrews.cs.nds.rpc.JSONValue;
 import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -47,7 +47,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 public class ChordRemoteServer extends ApplicationServer {
 
     private final ChordNodeImpl chord_node;
-    private final Map<String, Handler> handler_map;
+    private final Map<String, IHandler> handler_map;
     private final ChordRemoteMarshaller marshaller;
 
     /**
@@ -58,7 +58,7 @@ public class ChordRemoteServer extends ApplicationServer {
     public ChordRemoteServer(final ChordNodeImpl chord_node) {
 
         this.chord_node = chord_node;
-        handler_map = new HashMap<String, Handler>();
+        handler_map = new HashMap<String, IHandler>();
 
         marshaller = new ChordRemoteMarshaller();
         initHandlers();
@@ -67,7 +67,7 @@ public class ChordRemoteServer extends ApplicationServer {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    public Handler getHandler(final String method_name) {
+    public IHandler getHandler(final String method_name) {
 
         return handler_map.get(method_name);
     }
@@ -105,7 +105,7 @@ public class ChordRemoteServer extends ApplicationServer {
 
     // -------------------------------------------------------------------------------------------------------
 
-    private final class GetKeyHandler implements Handler {
+    private final class GetKeyHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -114,7 +114,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class GetAddressHandler implements Handler {
+    private final class GetAddressHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -123,7 +123,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class LookupHandler implements Handler {
+    private final class LookupHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -141,7 +141,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class GetSuccessorHandler implements Handler {
+    private final class GetSuccessorHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -150,7 +150,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class GetPredecessorHandler implements Handler {
+    private final class GetPredecessorHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -159,7 +159,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class NotifyHandler implements Handler {
+    private final class NotifyHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -179,7 +179,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class JoinHandler implements Handler {
+    private final class JoinHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -198,7 +198,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class GetSuccessorListHandler implements Handler {
+    private final class GetSuccessorListHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -207,7 +207,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class GetFingerListHandler implements Handler {
+    private final class GetFingerListHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -216,7 +216,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class IsAliveHandler implements Handler {
+    private final class IsAliveHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -226,7 +226,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class NextHopHandler implements Handler {
+    private final class NextHopHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -244,7 +244,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class EnablePredecessorMaintenanceHandler implements Handler {
+    private final class EnablePredecessorMaintenanceHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -260,7 +260,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class EnableStabilizationHandler implements Handler {
+    private final class EnableStabilizationHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -276,7 +276,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class EnablePeerStateMaintenanceHandler implements Handler {
+    private final class EnablePeerStateMaintenanceHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -292,7 +292,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class NotifyFailureHandler implements Handler {
+    private final class NotifyFailureHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) throws RPCException {
@@ -311,7 +311,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class ToStringDetailedHandler implements Handler {
+    private final class ToStringDetailedHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -320,7 +320,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class ToStringTerseHandler implements Handler {
+    private final class ToStringTerseHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -329,7 +329,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class HashCodeHandler implements Handler {
+    private final class HashCodeHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
@@ -338,7 +338,7 @@ public class ChordRemoteServer extends ApplicationServer {
         }
     }
 
-    private final class ToStringHandler implements Handler {
+    private final class ToStringHandler implements IHandler {
 
         @Override
         public JSONValue execute(final JSONArray args) {
