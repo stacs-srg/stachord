@@ -24,9 +24,6 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -46,9 +43,10 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 public class ChordRemoteServer extends ApplicationServer {
 
+    private static final String DEFAULT_CHORD_REGISTRY_KEY = "CHORD";
     private final ChordNodeImpl chord_node;
-    private final Map<String, IHandler> handler_map;
     private final ChordRemoteMarshaller marshaller;
+    private final String registry_key;
 
     /**
      * Initialises a server for a given Chord node.
@@ -57,8 +55,14 @@ public class ChordRemoteServer extends ApplicationServer {
      */
     public ChordRemoteServer(final ChordNodeImpl chord_node) {
 
+        this(chord_node, DEFAULT_CHORD_REGISTRY_KEY);
+    }
+
+    public ChordRemoteServer(final ChordNodeImpl chord_node, final String registry_key) {
+
+        super();
         this.chord_node = chord_node;
-        handler_map = new HashMap<String, IHandler>();
+        this.registry_key = registry_key;
 
         marshaller = new ChordRemoteMarshaller();
         initHandlers();
@@ -67,15 +71,15 @@ public class ChordRemoteServer extends ApplicationServer {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    public IHandler getHandler(final String method_name) {
-
-        return handler_map.get(method_name);
-    }
-
-    @Override
     public Marshaller getMarshaller() {
 
         return marshaller;
+    }
+
+    @Override
+    public String getApplicationRegistryKey() {
+
+        return registry_key;
     }
 
     // -------------------------------------------------------------------------------------------------------
