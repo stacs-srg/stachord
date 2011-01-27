@@ -52,10 +52,10 @@ public class AddressChangeTest implements Observer {
      * Runs a local chord node and outputs diagnostics on address change events.
      *
      * @param args ignored
-     * @throws IOException if the local address cannot be bound to
-     * @throws RegistryUnavailableException
-     * @throws AlreadyBoundException
-     * @throws RPCException
+     * @throws IOException if the node cannot bind to the specified local address
+     * @throws RPCException if an error occurs binding the node to the registry
+     * @throws AlreadyBoundException if another node is already bound in the registry
+     * @throws RegistryUnavailableException if the registry is unavailable
      */
     public static void main(final String[] args) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 

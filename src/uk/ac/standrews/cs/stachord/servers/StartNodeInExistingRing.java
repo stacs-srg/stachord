@@ -85,8 +85,9 @@ public final class StartNodeInExistingRing extends AbstractServer {
      * @throws RPCException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException if a node cannot be created using the given local address
-     * @throws RegistryUnavailableException
-     * @throws AlreadyBoundException
+     * @throws RPCException if an error occurs binding the node to the registry
+     * @throws AlreadyBoundException if another node is already bound in the registry
+     * @throws RegistryUnavailableException if the registry is unavailable
      */
     public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
 

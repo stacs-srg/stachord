@@ -48,6 +48,8 @@ public class ChordRemoteServer extends ApplicationServer {
     private final ChordNodeImpl chord_node;
     private final ChordRemoteMarshaller marshaller;
 
+    // -------------------------------------------------------------------------------------------------------
+
     /**
      * Initialises a server for a given Chord node.
      *
@@ -58,6 +60,13 @@ public class ChordRemoteServer extends ApplicationServer {
         this(chord_node, DEFAULT_REGISTRY_KEY);
     }
 
+    /**
+     * Initialises a server for a given Chord node, using a custom registry key.
+     * This is only needed if multiple Chord nodes are to be run on a physical machine.
+     *
+     * @param chord_node the Chord node
+     * @param registry_key the registry key
+     */
     public ChordRemoteServer(final ChordNodeImpl chord_node, final String registry_key) {
 
         super();
