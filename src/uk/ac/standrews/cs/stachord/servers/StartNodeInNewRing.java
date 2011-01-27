@@ -27,6 +27,8 @@ package uk.ac.standrews.cs.stachord.servers;
 
 import java.io.IOException;
 
+import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -63,16 +65,18 @@ public final class StartNodeInNewRing extends AbstractServer {
      * @throws RPCException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException if a node cannot be created using the given local address
+     * @throws RegistryUnavailableException
+     * @throws AlreadyBoundException
      */
-    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
 
         final StartNodeInNewRing starter = new StartNodeInNewRing(args);
         starter.createNode();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
-    private void createNode() throws IOException {
+    private void createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 

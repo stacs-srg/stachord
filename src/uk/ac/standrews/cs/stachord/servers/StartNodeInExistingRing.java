@@ -28,6 +28,8 @@ package uk.ac.standrews.cs.stachord.servers;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.CommandLineArgs;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -83,16 +85,18 @@ public final class StartNodeInExistingRing extends AbstractServer {
      * @throws RPCException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException if a node cannot be created using the given local address
+     * @throws RegistryUnavailableException
+     * @throws AlreadyBoundException
      */
-    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
 
         final StartNodeInExistingRing starter = new StartNodeInExistingRing(args);
         starter.createNode();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
-    private void createNode() throws RPCException, IOException {
+    private void createNode() throws RPCException, IOException, AlreadyBoundException, RegistryUnavailableException {
 
         Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
 

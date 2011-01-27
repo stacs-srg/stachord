@@ -35,6 +35,8 @@ import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -84,9 +86,13 @@ public final class ChordNodeFactory {
      *
      * @param local_address the local address of the node
      * @return the new node
-     * @throws IOException if the node cannot bind to the given local address
+     *
+     * @throws IOException if the node cannot bind to the specified local address
+     * @throws RPCException if an error occurs binding the node to the registry
+     * @throws AlreadyBoundException if another node is already bound in the registry
+     * @throws RegistryUnavailableException if the registry is unavailable
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -97,9 +103,13 @@ public final class ChordNodeFactory {
      * @param local_address the local address of the node
      * @param key the key of the new node
      * @return the new node
-     * @throws IOException if the node cannot bind to the given local address
+     *
+     * @throws IOException if the node cannot bind to the specified local address
+     * @throws RPCException if an error occurs binding the node to the registry
+     * @throws AlreadyBoundException if another node is already bound in the registry
+     * @throws RegistryUnavailableException if the registry is unavailable
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws IOException {
+    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         return new ChordNodeImpl(local_address, key);
     }

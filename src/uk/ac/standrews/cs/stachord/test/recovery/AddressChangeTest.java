@@ -30,8 +30,10 @@ import java.net.InetSocketAddress;
 import java.util.Observable;
 import java.util.Observer;
 
+import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.impl.RemoteChordException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
@@ -50,10 +52,12 @@ public class AddressChangeTest implements Observer {
      * Runs a local chord node and outputs diagnostics on address change events.
      *
      * @param args ignored
-     * @throws RemoteChordException shouldn't happen in this test
      * @throws IOException if the local address cannot be bound to
+     * @throws RegistryUnavailableException
+     * @throws AlreadyBoundException
+     * @throws RPCException
      */
-    public static void main(final String[] args) throws RemoteChordException, IOException {
+    public static void main(final String[] args) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         final AddressChangeTest foo = new AddressChangeTest();
 

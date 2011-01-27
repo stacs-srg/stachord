@@ -43,10 +43,10 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 public class ChordRemoteServer extends ApplicationServer {
 
-    private static final String DEFAULT_CHORD_REGISTRY_KEY = "CHORD";
+    private static final String DEFAULT_REGISTRY_KEY = "CHORD";
+
     private final ChordNodeImpl chord_node;
     private final ChordRemoteMarshaller marshaller;
-    private final String registry_key;
 
     /**
      * Initialises a server for a given Chord node.
@@ -55,7 +55,7 @@ public class ChordRemoteServer extends ApplicationServer {
      */
     public ChordRemoteServer(final ChordNodeImpl chord_node) {
 
-        this(chord_node, DEFAULT_CHORD_REGISTRY_KEY);
+        this(chord_node, DEFAULT_REGISTRY_KEY);
     }
 
     public ChordRemoteServer(final ChordNodeImpl chord_node, final String registry_key) {
