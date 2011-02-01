@@ -421,7 +421,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         chord_remote_server.setLocalAddress(local_address.getAddress());
         chord_remote_server.setPort(local_address.getPort());
-        chord_remote_server.start();
+
+        // If the port of another Chord node is already bound in the registry, just overwrite it, don't throw exception.
+        chord_remote_server.start(true);
     }
 
     private void unexposeNode() throws IOException {
