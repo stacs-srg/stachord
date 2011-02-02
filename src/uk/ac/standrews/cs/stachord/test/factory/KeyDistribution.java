@@ -28,7 +28,7 @@ package uk.ac.standrews.cs.stachord.test.factory;
 /**
  * Options for distribution of a set of keys in key space.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public enum KeyDistribution {
 

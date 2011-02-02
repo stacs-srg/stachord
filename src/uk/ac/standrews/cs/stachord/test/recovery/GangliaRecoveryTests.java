@@ -40,7 +40,7 @@ import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 /**
  * Various tests of ring recovery on the Ganglia cluster, not intended to be run automatically.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class GangliaRecoveryTests {
 

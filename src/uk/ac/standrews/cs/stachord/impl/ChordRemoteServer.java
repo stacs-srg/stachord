@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 /**
  * Chord-specific server-side RPC mechanism.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class ChordRemoteServer extends ApplicationServer {
 

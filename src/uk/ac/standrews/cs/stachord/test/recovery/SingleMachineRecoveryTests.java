@@ -46,7 +46,7 @@ import com.mindbright.ssh2.SSH2Exception;
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
  * Each Chord node is created in a separate process on the local machine.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class SingleMachineRecoveryTests {
 

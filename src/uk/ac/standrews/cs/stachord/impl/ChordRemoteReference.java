@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  * Holds a reference to a remote Chord node, with a locally cached copy of its key and IP address.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
 class ChordRemoteReference implements IChordRemoteReference {
 

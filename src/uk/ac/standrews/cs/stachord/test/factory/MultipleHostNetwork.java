@@ -46,7 +46,7 @@ import com.mindbright.ssh2.SSH2Exception;
  * Network comprising Chord nodes running on a set of specified physical machines running Linux or OSX.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
 public class MultipleHostNetwork implements INetwork {
 

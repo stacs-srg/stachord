@@ -46,7 +46,7 @@ import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class MultipleMachineRecoveryTests {
 

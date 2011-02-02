@@ -47,7 +47,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 /**
  * Common setup for {@link StartNodeInExistingRing} and {@link StartNodeInNewRing}.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 abstract class AbstractServer {
 

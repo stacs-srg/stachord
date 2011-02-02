@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
 /**
  * Defines locally accessible Chord node functionality.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public interface IChordNode extends Observer {
 

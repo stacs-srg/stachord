@@ -35,7 +35,7 @@ import uk.ac.standrews.cs.stachord.impl.NextHopResult;
 /**
  * Defines remotely accessible Chord node functionality.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public interface IChordRemote {
 

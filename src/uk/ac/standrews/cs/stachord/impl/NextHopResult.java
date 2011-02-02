@@ -30,7 +30,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 /**
  * Binds together a reference to a remote node and a flag indicating whether that node is the last hop in an invocation of the routing protocol.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class NextHopResult {
 

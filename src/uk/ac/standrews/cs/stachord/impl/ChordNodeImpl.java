@@ -1,6 +1,6 @@
 /***************************************************************************
  *                                                                         *
-asXASCW WE * stachord Library                                                        *
+ * stachord Library                                                        *
  * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Observable;
 
 import uk.ac.standrews.cs.nds.events.Event;
+import uk.ac.standrews.cs.nds.p2p.impl.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
@@ -51,7 +52,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  * @author Stephanie Anderson
  * @author Stuart Norcross (stuart@cs.st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
@@ -131,7 +132,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public IChordRemoteReference lookup(final IKey k) throws RPCException {
 
-        if (k.equals(key) || successorIsSelf()) {
+        if (inLocalKeyRange(k)) {
 
             // If the key is equal to this node's, or the ring currently only has one node...
             return self_reference;
@@ -199,8 +200,16 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public boolean inLocalKeyRange(final IKey k) throws RPCException {
 
-        // This is never called when the predecessor is null.
-        return RingArithmetic.inHalfOpenSegment(k, predecessor.getCachedKey(), key);
+        if (predecessor == null) {
+            if (successorIsSelf()) { return true; }
+
+            // No predecessor and successor not self, so not a one-node ring - don't know local key range.
+            throw new RPCException("predecessor is null");
+        }
+
+        final IKey predecessor_key = predecessor.getCachedKey();
+
+        return RingArithmetic.inSegment(predecessor_key, k, key);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -259,10 +268,14 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public NextHopResult nextHop(final IKey k) throws RPCException {
 
-        // Check whether the key lies in the range between this node and its successor,
-        // in which case the successor represents the final hop.
-        if (inSuccessorKeyRange(k)) { return new NextHopResult(successor, true); }
-        return new NextHopResult(closestPrecedingNode(k), false);
+        // Check whether the key lies in the range between this node and its successor, in which case the successor represents the final hop.
+        if (RingArithmetic.inSegment(key, k, successor.getCachedKey())) { return new NextHopResult(successor, true); }
+
+        final IChordRemoteReference closest_preceding_node = closestPrecedingNode(k);
+
+        // It's the final hop if the node's key is equal to the target key.
+        final boolean final_hop = closest_preceding_node.getCachedKey().equals(k);
+        return new NextHopResult(closest_preceding_node, final_hop);
     }
 
     @Override
@@ -451,6 +464,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private synchronized void stabilize() {
 
         try {
+
             // Find predecessor of this node's successor.
             final IChordRemoteReference predecessor_of_successor = getPredecessorOfSuccessor();
 
@@ -614,9 +628,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
             final IKey key_of_potential_successor = potential_successor.getCachedKey();
 
-            // Check whether the potential successor's key lies in this node's current successor's key range, and the potential successor is
-            // not the current successor.
-            if (inSuccessorKeyRange(key_of_potential_successor) && !key_of_potential_successor.equals(successor.getCachedKey())) {
+            // Check whether the potential successor's key lies in this node's current successor's key range, and the potential successor is not the current successor.
+            if (RingArithmetic.inSegment(key, key_of_potential_successor, successor.getCachedKey()) && !key_of_potential_successor.equals(successor.getCachedKey())) {
 
                 // The potential successor is more suitable as this node's successor.
                 setSuccessor(potential_successor);
@@ -707,7 +720,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         findWorkingSuccessor();
     }
 
+    /**
+     * Precondition: key is not in local key range.
+     */
     private IChordRemoteReference findSuccessor(final IKey key) throws RPCException {
+
+        assert !inLocalKeyRange(key);
 
         // Get the first hop.
         NextHopResult next_hop = nextHop(key);
@@ -718,11 +736,15 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         while (!next_hop.isFinalHop()) {
             try {
+                // Next hop mustn't be this node, or further from us than the target.
+                assert !this.key.equals(next_hop.getNode().getCachedKey());
+                assert !RingArithmetic.ringDistanceFurther(this.key, next_hop.getNode().getCachedKey(), key);
 
                 // Remember the previous value of next_hop.
                 final IChordRemote previous_next_hop = next_hop.getNode().getRemote();
 
                 next_hop = previous_next_hop.nextHop(key);
+
                 current_hop = previous_next_hop;
             }
             catch (final RPCException e) {
@@ -752,11 +774,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             setChanged();
             notifyObservers(SUCCESSOR_CHANGE_EVENT);
         }
-    }
-
-    private boolean inSuccessorKeyRange(final IKey k) throws RPCException {
-
-        return RingArithmetic.inHalfOpenSegment(k, key, successor.getCachedKey());
     }
 
     /**

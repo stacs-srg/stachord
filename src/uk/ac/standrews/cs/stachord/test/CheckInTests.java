@@ -28,7 +28,7 @@ package uk.ac.standrews.cs.stachord.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.ac.standrews.cs.stachord.test.logic.RingArithmeticTest;
+import uk.ac.standrews.cs.nds.p2p.impl.test.RingArithmeticTest;
 
 /**
  * Tests run on each build.

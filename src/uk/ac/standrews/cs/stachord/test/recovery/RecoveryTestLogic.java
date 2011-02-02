@@ -37,6 +37,7 @@ import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
+import uk.ac.standrews.cs.nds.p2p.impl.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -51,7 +52,7 @@ import uk.ac.standrews.cs.stachord.test.factory.INetwork;
  * Mostly all we can do is test that some condition eventually holds, by using a test that doesn't complete until the condition does hold.
  *
  * @author Angus Macdonald (angus@cs.st-andrews.ac.uk)
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class RecoveryTestLogic {
 
@@ -321,7 +322,6 @@ public final class RecoveryTestLogic {
      * <ol>
      * <li>the ring distance from a node's key to its fingers' keys never decreases going up the table</li>
      * <li>no finger table entry is null</li>
-     * <li>no finger table entry refers to the node itself</li>
      * <li>no errors occur during the test</li>
      * </ol>
      *
@@ -344,9 +344,14 @@ public final class RecoveryTestLogic {
 
                 // Check that the finger is not closer in ring distance than the previous non-null finger.
                 // Treat self-reference as the full ring distance, so ignore case where finger points to this node.
-                if (previous_finger_reference != null && !finger_reference.getCachedKey().equals(node.getCachedKey()) && node.getCachedKey().firstCloserInRingThanSecond(finger_reference.getCachedKey(), previous_finger_reference.getCachedKey())) {
 
-                return false; }
+                final IKey node_key = node.getCachedKey();
+                final IKey finger_key = finger_reference.getCachedKey();
+
+                if (previous_finger_reference != null && !finger_key.equals(node_key)) {
+
+                    if (RingArithmetic.ringDistanceFurther(node_key, previous_finger_reference.getCachedKey(), finger_key)) { return false; }
+                }
 
                 previous_finger_reference = finger_reference;
                 finger_number++;

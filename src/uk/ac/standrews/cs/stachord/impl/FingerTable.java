@@ -1,7 +1,7 @@
 /***************************************************************************
  *                                                                         *
  * stachord Library                                                        *
- * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
+import uk.ac.standrews.cs.nds.p2p.impl.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
@@ -38,7 +39,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 /**
  * Finger table implementation.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 class FingerTable {
 
@@ -93,24 +94,25 @@ class FingerTable {
     /**
      * Returns the finger that extends the furthest round the ring from this node without passing the given key.
      *
-     * @param key the target key
+     * @param k the target key
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
      * @throws RPCException if an error occurs in accessing a finger's key
 
      */
-    public synchronized IChordRemoteReference closestPrecedingNode(final IKey key) throws NoPrecedingNodeException, RPCException {
+    public synchronized IChordRemoteReference closestPrecedingNode(final IKey k) throws NoPrecedingNodeException, RPCException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
             final IChordRemoteReference finger = fingers[i];
 
-            // Finger may be null if it hasn't been fixed for the first time,
-            // or if its failure has been detected.
+            // Finger may be null if it hasn't been fixed for the first time, or if its failure has been detected.
 
             // Looking for finger that lies before k from position of this node.
             // Ignore fingers pointing to this node.
-            if (finger != null && !node_key.equals(finger.getCachedKey()) && node_key.firstCloserInRingThanSecond(finger.getCachedKey(), key)) { return finger; }
+
+            if (finger != null && !node_key.equals(finger.getCachedKey()) && RingArithmetic.inRingOrder(node_key, finger.getCachedKey(), k)) { return finger; }
+            //            if (finger != null && !node_key.equals(finger.getCachedKey()) && RingArithmetic.ringDistanceFurther(node_key, k, finger.getCachedKey())) { return finger; }
         }
 
         throw new NoPrecedingNodeException();

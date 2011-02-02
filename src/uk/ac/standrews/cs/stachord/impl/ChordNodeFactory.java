@@ -50,7 +50,7 @@ import com.mindbright.ssh2.SSH2Exception;
 /**
  * Provides methods for creating new Chord nodes and binding to existing remote Chord nodes.
  *
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class ChordNodeFactory {
 

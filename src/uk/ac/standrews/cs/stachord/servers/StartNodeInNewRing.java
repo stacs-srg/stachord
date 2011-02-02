@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
  * Provides the entry point for deploying a Chord node in a new Chord ring.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class StartNodeInNewRing extends AbstractServer {
 
@@ -79,7 +79,7 @@ public final class StartNodeInNewRing extends AbstractServer {
 
     private void createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
-        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new RMI Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
+        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Starting new Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
         makeNode();
     }
@@ -87,6 +87,6 @@ public final class StartNodeInNewRing extends AbstractServer {
     @Override
     protected void usage() {
 
-        ErrorHandling.hardError("Usage: -s[host][:port] [-xkey] [-Dlevel]");
+        ErrorHandling.hardError("Usage: -shost:port [-xkey] [-Dlevel]");
     }
 }

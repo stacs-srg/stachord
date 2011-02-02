@@ -44,7 +44,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  * Provides the entry point for deploying a Chord node that is joining an existing Chord ring.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby (graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class StartNodeInExistingRing extends AbstractServer {
 
@@ -111,6 +111,6 @@ public final class StartNodeInExistingRing extends AbstractServer {
     @Override
     protected void usage() {
 
-        ErrorHandling.hardError("Usage: -s[host][:port] -k[host][:port] [-xkey] [-Dlevel]");
+        ErrorHandling.hardError("Usage: -shost:port -k[host][:port] [-xkey] [-Dlevel]");
     }
 }

@@ -32,7 +32,7 @@ import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 /**
  * Interface representing a set of Chord nodes.
  *
- * @author Graham Kirby(graham@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
 public interface INetwork {
 
