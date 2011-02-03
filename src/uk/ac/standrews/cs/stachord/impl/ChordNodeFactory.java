@@ -39,7 +39,6 @@ import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -231,8 +230,11 @@ public final class ChordNodeFactory {
      */
     public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RPCException {
 
+        System.out.println("port: " + node_address.getPort() + " btrn step 1");
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
+        System.out.println("port: " + node_address.getPort() + " btrn step 2");
         remote_reference.getRemote().isAlive();
+        System.out.println("port: " + node_address.getPort() + " btrn step 3");
         return remote_reference;
     }
 
@@ -254,7 +256,7 @@ public final class ChordNodeFactory {
                 return bindToRemoteNode(node_address);
             }
             catch (final RPCException e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
+                Diagnostic.trace("remote binding failed: " + e.getMessage());
             }
 
             try {
