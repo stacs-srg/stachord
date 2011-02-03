@@ -277,6 +277,8 @@ public final class ChordNodeFactory {
 
         boolean finished = false;
 
+        boolean first = true;
+
         while (!finished) {
 
             int port = 0;
@@ -286,6 +288,12 @@ public final class ChordNodeFactory {
             }
 
             host_descriptor.port(port);
+            if (!first) {
+                Diagnostic.trace("retrying");
+            }
+            first = false;
+
+            Diagnostic.trace("trying to create node with port: " + port);
 
             final List<String> args = arg_gen.getArgs(port);
 
@@ -300,7 +308,7 @@ public final class ChordNodeFactory {
                 finished = true;
             }
             catch (final TimeoutException e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, "timed out trying to connect to port: " + port);
+                Diagnostic.trace("timed out trying to connect to port: " + port);
             }
 
             final long duration = System.currentTimeMillis() - start_time;
