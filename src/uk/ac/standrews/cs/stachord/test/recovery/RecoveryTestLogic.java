@@ -162,7 +162,7 @@ public final class RecoveryTestLogic {
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
-     * @throws TimeoutException if the check is not completed within the timeout interval
+     * @throws TimeoutException if the ring does not become stable within the timeout interval
      */
     public static void waitForStableRing(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
@@ -184,7 +184,7 @@ public final class RecoveryTestLogic {
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
-     * @throws TimeoutException if the check is not completed within the timeout interval
+     * @throws TimeoutException if the finger tables do not become complete within the timeout interval
      */
     public static void waitForCompleteFingerTables(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
@@ -206,7 +206,7 @@ public final class RecoveryTestLogic {
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
-     * @throws TimeoutException if the check is not completed within the timeout interval
+     * @throws TimeoutException if the successor lists do not become complete within the timeout interval
      */
     public static void waitForCompleteSuccessorLists(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
@@ -228,7 +228,7 @@ public final class RecoveryTestLogic {
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
-     * @throws TimeoutException if the check is not completed within the timeout interval
+     * @throws TimeoutException if not all nodes become able to route correctly within the timeout interval
      */
     public static void waitForCorrectRouting(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
@@ -253,7 +253,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes are stable
      */
-    public static boolean ringStable(final List<HostDescriptor> host_descriptors) {
+    private static boolean ringStable(final List<HostDescriptor> host_descriptors) {
 
         final int ring_size = host_descriptors.size();
 
@@ -307,7 +307,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
-    public static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
+    private static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
             if (!fingerTableComplete(host_descriptor)) { return false; }
