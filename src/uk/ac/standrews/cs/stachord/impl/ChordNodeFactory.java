@@ -298,13 +298,19 @@ public final class ChordNodeFactory {
             final List<String> args = arg_gen.getArgs(port);
 
             try {
+                System.out.println("port: " + port + " step 1");
                 final Process chord_process = host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
+                System.out.println("port: " + port + " step 2");
                 host_descriptor.process(chord_process);
+                System.out.println("port: " + port + " step 3");
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
+                System.out.println("port: " + port + " step 4");
                 final IChordRemoteReference chord_application_reference = bindToRemoteNodeWithRetry(host_address);
+                System.out.println("port: " + port + " step 5");
 
                 host_descriptor.applicationReference(chord_application_reference);
+                System.out.println("port: " + port + " step 6");
                 finished = true;
             }
             catch (final TimeoutException e) {
