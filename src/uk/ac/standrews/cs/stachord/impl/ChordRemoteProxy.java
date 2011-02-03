@@ -223,9 +223,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public void isAlive() throws RPCException {
 
         try {
-            //            debug = true;
             makeCall("isAlive");
-            //            debug = false;
         }
         catch (final Exception e) {
             dealWithException(e);

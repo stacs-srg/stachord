@@ -39,6 +39,7 @@ import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -144,6 +145,7 @@ public final class ChordNodeFactory {
     public static IChordRemoteReference createNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         instantiateNode(host_descriptor, key);
+
         return bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
     }
 
@@ -177,13 +179,7 @@ public final class ChordNodeFactory {
      */
     public static Process instantiateNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
-        final List<String> args = new ArrayList<String>();
-
-        args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), host_descriptor.getPort()));
-        args.add("-D" + Diagnostic.getLevel().numericalValue());
-        if (key != null) {
-            addKeyArg(key, args);
-        }
+        final List<String> args = constructArgs(host_descriptor, key, host_descriptor.getPort());
 
         return host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
     }
@@ -207,13 +203,7 @@ public final class ChordNodeFactory {
             @Override
             public List<String> getArgs(final int local_port) {
 
-                final List<String> args = new ArrayList<String>();
-
-                args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), local_port));
-                args.add("-D" + Diagnostic.getLevel().numericalValue());
-                addKeyArg(key, args);
-
-                return args;
+                return constructArgs(host_descriptor, key, local_port);
             }
         };
 
@@ -230,11 +220,11 @@ public final class ChordNodeFactory {
      */
     public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RPCException {
 
-        System.out.println("port: " + node_address.getPort() + " btrn step 1");
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
-        System.out.println("port: " + node_address.getPort() + " btrn step 2");
+
+        // Check that the remote application can be contacted.
         remote_reference.getRemote().isAlive();
-        System.out.println("port: " + node_address.getPort() + " btrn step 3");
+
         return remote_reference;
     }
 
@@ -256,7 +246,7 @@ public final class ChordNodeFactory {
                 return bindToRemoteNode(node_address);
             }
             catch (final RPCException e) {
-                Diagnostic.trace("remote binding failed: " + e.getMessage());
+                Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
             }
 
             try {
@@ -271,15 +261,13 @@ public final class ChordNodeFactory {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         final long start_time = System.currentTimeMillis();
 
         boolean finished = false;
-
-        boolean first = true;
 
         while (!finished) {
 
@@ -289,30 +277,19 @@ public final class ChordNodeFactory {
                 port = next_port++;
             }
 
+            Diagnostic.trace(DiagnosticLevel.FULL, "trying to create node with port: " + port);
+
             host_descriptor.port(port);
-            if (!first) {
-                Diagnostic.trace("retrying");
-            }
-            first = false;
-
-            Diagnostic.trace("trying to create node with port: " + port);
-
             final List<String> args = arg_gen.getArgs(port);
 
             try {
-                System.out.println("port: " + port + " step 1");
                 final Process chord_process = host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
-                System.out.println("port: " + port + " step 2");
                 host_descriptor.process(chord_process);
-                System.out.println("port: " + port + " step 3");
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
-                System.out.println("port: " + port + " step 4");
                 final IChordRemoteReference chord_application_reference = bindToRemoteNodeWithRetry(host_address);
-                System.out.println("port: " + port + " step 5");
 
                 host_descriptor.applicationReference(chord_application_reference);
-                System.out.println("port: " + port + " step 6");
                 finished = true;
             }
             catch (final TimeoutException e) {
@@ -324,11 +301,18 @@ public final class ChordNodeFactory {
         }
     }
 
-    private static void addKeyArg(final IKey key, final List<String> args) {
+    private static List<String> constructArgs(final HostDescriptor host_descriptor, final IKey key, final int port) {
+
+        final List<String> args = new ArrayList<String>();
+
+        args.add("-s" + NetworkUtil.formatHostAddress(host_descriptor.getHost(), port));
+        args.add("-D" + Diagnostic.getLevel().numericalValue());
 
         if (key != null) {
             args.add("-x" + key.toString(Key.DEFAULT_RADIX));
         }
+
+        return args;
     }
 
     private interface IArgGen {

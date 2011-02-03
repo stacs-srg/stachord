@@ -31,6 +31,7 @@ import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 
@@ -78,7 +79,7 @@ public final class StartNodeInNewRing extends AbstractServer {
 
     private void createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
-        Diagnostic.trace("Starting new Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
+        Diagnostic.trace(DiagnosticLevel.FULL, "Starting new Chord ring with address: ", local_address, " on port: ", local_port, " with key: ", server_key);
 
         makeNode();
     }

@@ -35,7 +35,6 @@ import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.ActionQueue;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -157,9 +156,7 @@ public class MultipleHostNetwork implements INetwork {
                     try {
 
                         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
-                        Diagnostic.trace("attempting to create node");
                         ChordNodeFactory.createAndBindToNodeOnFreePort(new_node_descriptor, key);
-                        Diagnostic.trace("created node on port: " + new_node_descriptor.getPort());
 
                         final IChordRemote new_node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
                         new_node.join(known_node);
