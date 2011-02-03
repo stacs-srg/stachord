@@ -35,6 +35,7 @@ import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.ActionQueue;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -46,7 +47,7 @@ import com.mindbright.ssh2.SSH2Exception;
  * Network comprising Chord nodes running on a set of specified physical machines running Linux or OSX.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class MultipleHostNetwork implements INetwork {
 
@@ -79,7 +80,7 @@ public class MultipleHostNetwork implements INetwork {
      */
     public MultipleHostNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
 
-        // Initialisation performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
+        // Initialization performed in separate method to allow subclass SingleMachineNetwork to catch SSH exception.
         init(host_descriptors, key_distribution);
     }
 
@@ -156,7 +157,9 @@ public class MultipleHostNetwork implements INetwork {
                     try {
 
                         // Instantiate the new remote node and wait until a remote reference to it is established and stored in the host descriptor.
+                        Diagnostic.trace("attempting to create node");
                         ChordNodeFactory.createAndBindToNodeOnFreePort(new_node_descriptor, key);
+                        Diagnostic.trace("created node on port: " + new_node_descriptor.getPort());
 
                         final IChordRemote new_node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
                         new_node.join(known_node);

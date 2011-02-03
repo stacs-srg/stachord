@@ -40,7 +40,7 @@ import com.mindbright.ssh2.SSH2Exception;
  * Network comprising Chord nodes all running on the local machine.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
- * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class SingleHostNetwork extends MultipleHostNetwork {
 
