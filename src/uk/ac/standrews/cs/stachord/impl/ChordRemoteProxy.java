@@ -29,13 +29,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.Proxy;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.json.JSONArray;
+import uk.ac.standrews.cs.nds.rpc.json.JSONObject;
+import uk.ac.standrews.cs.nds.rpc.json.JSONValue;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -90,7 +91,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public IKey getKey() throws RPCException {
 
         try {
-            return marshaller.deserializeKey(makeCall("getKey").getString());
+            return marshaller.deserializeKey((String) makeCall("getKey").getValue());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -105,7 +106,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public InetSocketAddress getAddress() throws RPCException {
 
         try {
-            return marshaller.deserializeInetSocketAddress(makeCall("getAddress").getString());
+            return marshaller.deserializeInetSocketAddress((String) makeCall("getAddress").getValue());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -121,8 +122,8 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
         try {
             final JSONArray args = new JSONArray();
-            args.put(marshaller.serializeKey(key).getValue());
-            return marshaller.deserializeChordRemoteReference(makeCall("lookup", args).getJSONObject());
+            args.put(marshaller.serializeKey(key));
+            return marshaller.deserializeChordRemoteReference((JSONObject) makeCall("lookup", args).getValue());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -137,7 +138,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public IChordRemoteReference getSuccessor() throws RPCException {
 
         try {
-            return marshaller.deserializeChordRemoteReference(makeCall("getSuccessor").getJSONObject());
+            return marshaller.deserializeChordRemoteReference((JSONObject) makeCall("getSuccessor").getValue());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -152,7 +153,10 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public IChordRemoteReference getPredecessor() throws RPCException {
 
         try {
-            return marshaller.deserializeChordRemoteReference(makeCall("getPredecessor").getJSONObject());
+            final JSONValue makeCall = makeCall("getPredecessor");
+            final JSONObject value = (JSONObject) makeCall.getValue();
+
+            return marshaller.deserializeChordRemoteReference(value);
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -168,7 +172,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
         try {
             final JSONArray args = new JSONArray();
-            args.put(marshaller.serializeChordRemoteReference(potential_predecessor).getValue());
+            args.put(marshaller.serializeChordRemoteReference(potential_predecessor));
             makeCall("notify", args);
         }
         catch (final Exception e) {
@@ -181,7 +185,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
         try {
             final JSONArray args = new JSONArray();
-            args.put(marshaller.serializeChordRemoteReference(node).getValue());
+            args.put(marshaller.serializeChordRemoteReference(node));
             makeCall("join", args);
         }
         catch (final Exception e) {
@@ -193,7 +197,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public List<IChordRemoteReference> getSuccessorList() throws RPCException {
 
         try {
-            return marshaller.deserializeListChordRemoteReference(makeCall("getSuccessorList").getJSONArray());
+            return marshaller.deserializeListChordRemoteReference((JSONArray) makeCall("getSuccessorList"));
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -208,7 +212,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public List<IChordRemoteReference> getFingerList() throws RPCException {
 
         try {
-            return marshaller.deserializeListChordRemoteReference(makeCall("getFingerList").getJSONArray());
+            return marshaller.deserializeListChordRemoteReference((JSONArray) makeCall("getFingerList"));
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -235,8 +239,8 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
         try {
             final JSONArray args = new JSONArray();
-            args.put(marshaller.serializeKey(key).getValue());
-            return marshaller.deserializeNextHopResult(makeCall("nextHop", args).getJSONObject());
+            args.put(marshaller.serializeKey(key));
+            return marshaller.deserializeNextHopResult((JSONObject) makeCall("nextHop", args).getValue());
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -291,7 +295,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
 
         try {
             final JSONArray args = new JSONArray();
-            args.put(marshaller.serializeChordRemoteReference(node).getValue());
+            args.put(marshaller.serializeChordRemoteReference(node));
             makeCall("notifyFailure", args);
         }
         catch (final Exception e) {
@@ -303,7 +307,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public String toStringDetailed() throws RPCException {
 
         try {
-            return makeCall("toStringDetailed").getString();
+            return (String) makeCall("toStringDetailed").getValue();
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -315,7 +319,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public String toStringTerse() throws RPCException {
 
         try {
-            return makeCall("toStringTerse").getString();
+            return (String) makeCall("toStringTerse").getValue();
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -340,7 +344,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public String toString() {
 
         try {
-            return makeCall("toString").getString();
+            return (String) makeCall("toString").getValue();
         }
         catch (final Exception e) {
             return "inaccessible";
@@ -351,7 +355,7 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public int hashCode() {
 
         try {
-            return makeCall("hashCode").getInt();
+            return (Integer) makeCall("hashCode").getValue();
         }
         catch (final Exception e) {
             Diagnostic.trace(DiagnosticLevel.RUN, "error calling remote hashCode()");

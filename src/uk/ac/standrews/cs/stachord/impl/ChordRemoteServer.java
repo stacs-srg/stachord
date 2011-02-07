@@ -24,16 +24,18 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.IHandler;
-import uk.ac.standrews.cs.nds.rpc.JSONValue;
 import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.json.JSONArray;
+import uk.ac.standrews.cs.nds.rpc.json.JSONInteger;
+import uk.ac.standrews.cs.nds.rpc.json.JSONString;
+import uk.ac.standrews.cs.nds.rpc.json.JSONValue;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -181,7 +183,7 @@ public class ChordRemoteServer extends ApplicationServer {
                 final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                 final IChordRemoteReference potential_predecessor = temp;
                 chord_node.notify(potential_predecessor);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final DeserializationException e) {
                 throw new RemoteChordException(e);
@@ -200,7 +202,7 @@ public class ChordRemoteServer extends ApplicationServer {
             try {
                 final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                 chord_node.join(node);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final DeserializationException e) {
                 throw new RemoteChordException(e);
@@ -235,7 +237,7 @@ public class ChordRemoteServer extends ApplicationServer {
         public JSONValue execute(final JSONArray args) {
 
             chord_node.isAlive();
-            return JSONValue.NULL;
+            return null;
         }
     }
 
@@ -265,7 +267,7 @@ public class ChordRemoteServer extends ApplicationServer {
             try {
                 final boolean enabled = args.getBoolean(0);
                 chord_node.enablePredecessorMaintenance(enabled);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -281,7 +283,7 @@ public class ChordRemoteServer extends ApplicationServer {
             try {
                 final boolean enabled = args.getBoolean(0);
                 chord_node.enableStabilization(enabled);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -297,7 +299,7 @@ public class ChordRemoteServer extends ApplicationServer {
             try {
                 final boolean enabled = args.getBoolean(0);
                 chord_node.enablePeerStateMaintenance(enabled);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -313,7 +315,7 @@ public class ChordRemoteServer extends ApplicationServer {
             try {
                 final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                 chord_node.notifyFailure(node);
-                return JSONValue.NULL;
+                return null;
             }
             catch (final DeserializationException e) {
                 throw new RemoteChordException(e);
@@ -329,7 +331,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public JSONValue execute(final JSONArray args) {
 
-            return new JSONValue(chord_node.toStringDetailed());
+            return new JSONString(chord_node.toStringDetailed());
         }
     }
 
@@ -338,7 +340,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public JSONValue execute(final JSONArray args) {
 
-            return new JSONValue(chord_node.toStringTerse());
+            return new JSONString(chord_node.toStringTerse());
         }
     }
 
@@ -347,7 +349,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public JSONValue execute(final JSONArray args) {
 
-            return new JSONValue(chord_node.hashCode());
+            return new JSONInteger(chord_node.hashCode());
         }
     }
 
@@ -356,7 +358,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public JSONValue execute(final JSONArray args) {
 
-            return new JSONValue(chord_node.toString());
+            return new JSONString(chord_node.toString());
         }
     }
 }
