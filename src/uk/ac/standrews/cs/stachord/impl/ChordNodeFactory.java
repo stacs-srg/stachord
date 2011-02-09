@@ -54,6 +54,8 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public final class ChordNodeFactory {
 
+    // TODO unify with TromboneNodeFactory.
+
     /**
      * Timeout interval for connection to remote nodes, in ms.
      */
@@ -267,9 +269,7 @@ public final class ChordNodeFactory {
 
         final long start_time = System.currentTimeMillis();
 
-        boolean finished = false;
-
-        while (!finished) {
+        while (true) {
 
             int port = 0;
 
@@ -290,7 +290,7 @@ public final class ChordNodeFactory {
                 final IChordRemoteReference chord_application_reference = bindToRemoteNodeWithRetry(host_address);
 
                 host_descriptor.applicationReference(chord_application_reference);
-                finished = true;
+                return;
             }
             catch (final TimeoutException e) {
                 Diagnostic.trace("timed out trying to connect to port: " + port);
