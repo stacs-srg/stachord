@@ -25,9 +25,11 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
+import java.util.Map;
+
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.IAttributesCallback;
 import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
-import uk.ac.standrews.cs.stachord.test.recovery.RecoveryTestLogic;
 
 class ChordCycleLengthScanner implements ISingleHostScanner {
 
@@ -46,10 +48,19 @@ class ChordCycleLengthScanner implements ISingleHostScanner {
     }
 
     @Override
-    public void check(final HostDescriptor host_descriptor) {
+    public void check(final HostDescriptor host_descriptor, final IAttributesCallback attributes_callback) {
 
-        final int cycle_length = RecoveryTestLogic.cycleLengthFrom(host_descriptor, true);
-        host_descriptor.getScanResults().put(ChordManager.RING_SIZE_NAME, cycle_length > 0 ? String.valueOf(cycle_length) : "-");
+        final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+        final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
+        final Map<String, String> attribute_map = host_descriptor.getScanResults();
+
+        final boolean need_to_notify_attributes_changed = attributes_callback != null && attribute_map.containsKey(ChordManager.RING_SIZE_NAME) && !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
+
+        attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
+
+        if (need_to_notify_attributes_changed) {
+            attributes_callback.attributesChange(host_descriptor, attribute_map);
+        }
     }
 
     @Override
