@@ -110,7 +110,7 @@ class ChordPartitionScanner implements IGlobalHostScanner {
 
     private int ringSize(final HostDescriptor host_descriptor) {
 
-        final String ring_size_record = host_descriptor.getScanResults().get(ChordManager.RING_SIZE_NAME);
+        final String ring_size_record = host_descriptor.getAttributes().get(ChordManager.RING_SIZE_NAME);
         return ring_size_record != null && !ring_size_record.equals("-") ? Integer.parseInt(ring_size_record) : 0;
     }
 }
