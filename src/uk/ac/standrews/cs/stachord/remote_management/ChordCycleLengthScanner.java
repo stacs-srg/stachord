@@ -26,6 +26,7 @@
 package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.util.Map;
+import java.util.Set;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.IAttributesCallback;
@@ -48,18 +49,20 @@ class ChordCycleLengthScanner implements ISingleHostScanner {
     }
 
     @Override
-    public void check(final HostDescriptor host_descriptor, final IAttributesCallback attributes_callback) {
+    public void check(final HostDescriptor host_descriptor, final Set<IAttributesCallback> attribute_callbacks) {
 
         final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
         final Map<String, String> attribute_map = host_descriptor.getAttributes();
 
-        final boolean need_to_notify_attributes_changed = attributes_callback != null && attribute_map.containsKey(ChordManager.RING_SIZE_NAME) && !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
+        final boolean attributes_changed = attribute_map.containsKey(ChordManager.RING_SIZE_NAME) && !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
 
         attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
 
-        if (need_to_notify_attributes_changed) {
-            attributes_callback.attributesChange(host_descriptor, attribute_map);
+        if (attributes_changed) {
+            for (final IAttributesCallback callback : attribute_callbacks) {
+                callback.attributesChange(host_descriptor, attribute_map);
+            }
         }
     }
 
