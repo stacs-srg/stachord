@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;

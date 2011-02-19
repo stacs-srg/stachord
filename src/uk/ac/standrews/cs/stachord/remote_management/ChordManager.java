@@ -29,11 +29,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.madface.DeploymentException;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.IApplicationManager;
-import uk.ac.standrews.cs.nds.madface.IGlobalHostScanner;
-import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.madface.exceptions.DeploymentException;
+import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
+import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.madface.interfaces.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;

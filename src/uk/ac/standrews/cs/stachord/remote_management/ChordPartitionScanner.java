@@ -30,7 +30,7 @@ import java.util.List;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
-import uk.ac.standrews.cs.nds.madface.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;

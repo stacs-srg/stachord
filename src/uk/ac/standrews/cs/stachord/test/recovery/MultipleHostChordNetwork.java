@@ -27,7 +27,7 @@ package uk.ac.standrews.cs.stachord.test.recovery;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.IApplicationManager;
+import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.MultipleHostNetwork;

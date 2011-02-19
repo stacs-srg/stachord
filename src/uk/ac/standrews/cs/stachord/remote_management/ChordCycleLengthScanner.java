@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.IAttributesCallback;
-import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.madface.interfaces.IAttributesCallback;
+import uk.ac.standrews.cs.nds.madface.interfaces.ISingleHostScanner;
 
 class ChordCycleLengthScanner implements ISingleHostScanner {
 
