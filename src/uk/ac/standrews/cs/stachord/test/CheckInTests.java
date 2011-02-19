@@ -28,13 +28,13 @@ package uk.ac.standrews.cs.stachord.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.ac.standrews.cs.nds.p2p.impl.test.RingArithmeticTest;
+import uk.ac.standrews.cs.stachord.impl.test.AllTests;
 
 /**
  * Tests run on each build.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({RingArithmeticTest.class})
+@Suite.SuiteClasses({AllTests.class})
 public class CheckInTests {
     // Empty.
 }

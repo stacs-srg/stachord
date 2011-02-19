@@ -1,8 +1,8 @@
 /***************************************************************************
  *                                                                         *
  * stachord Library                                                        *
- * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
- * University of St Andrews, Scotland
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
@@ -23,33 +23,18 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.test.factory;
+package uk.ac.standrews.cs.stachord.impl.test;
 
-import java.util.List;
-
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
- * Interface representing a set of Chord nodes.
+ * Suite containing all Chord implementation tests.
  *
- * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public interface INetwork {
-
-    /**
-     * Returns a new list containing the nodes.
-     * @return the nodes in the network, sorted in ascending key order.
-     */
-    List<HostDescriptor> getNodes();
-
-    /**
-     * Kills a given node and removes it from the network.
-     * @param node the node to be killed
-     */
-    void killNode(HostDescriptor node);
-
-    /**
-     * Kills all nodes and removes them from the network.
-     */
-    void killAllNodes();
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ChordLocalTest.class})
+public class AllTests {
+    // Empty.
 }

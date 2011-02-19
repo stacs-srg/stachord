@@ -29,9 +29,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
-import uk.ac.standrews.cs.nds.p2p.impl.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
+import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;

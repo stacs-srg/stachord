@@ -55,13 +55,13 @@ class ChordCycleLengthScanner implements ISingleHostScanner {
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
         final Map<String, String> attribute_map = host_descriptor.getAttributes();
 
-        final boolean attributes_changed = attribute_map.containsKey(ChordManager.RING_SIZE_NAME) && !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
+        final boolean attributes_changed = !attribute_map.containsKey(ChordManager.RING_SIZE_NAME) || !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
 
         attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
 
         if (attributes_changed) {
             for (final IAttributesCallback callback : attribute_callbacks) {
-                callback.attributesChange(host_descriptor, attribute_map);
+                callback.attributesChange(host_descriptor);
             }
         }
     }

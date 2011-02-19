@@ -33,8 +33,8 @@ import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.UnknownPlatformException;
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -94,7 +94,7 @@ public final class ChordNodeFactory {
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public static IChordNode createNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -111,7 +111,7 @@ public final class ChordNodeFactory {
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      */
-    public static IChordNode createLocalNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public static IChordNode createNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         return new ChordNodeImpl(local_address, key);
     }
@@ -148,7 +148,7 @@ public final class ChordNodeFactory {
 
         instantiateNode(host_descriptor, key);
 
-        return bindToRemoteNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
+        return bindToNodeWithRetry(NetworkUtil.getInetSocketAddress(host_descriptor.getHost(), host_descriptor.getPort()));
     }
 
     /**
@@ -162,9 +162,9 @@ public final class ChordNodeFactory {
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
      * @throws UnknownPlatformException if the operating system of the remote host cannot be established
      */
-    public static Process instantiateNode(final HostDescriptor host_descriptor) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    public static void instantiateNode(final HostDescriptor host_descriptor) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
-        return instantiateNode(host_descriptor, null);
+        instantiateNode(host_descriptor, null);
     }
 
     /**
@@ -179,37 +179,17 @@ public final class ChordNodeFactory {
      * @throws TimeoutException if the node cannot be instantiated within the timeout period
      * @throws UnknownPlatformException if the operating system of the remote host cannot be established
      */
-    public static Process instantiateNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    public static void instantiateNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
-        final List<String> args = constructArgs(host_descriptor, key, host_descriptor.getPort());
+        final int port = host_descriptor.getPort();
+        if (port == 0) {
+            createAndBindToNodeOnFreePort(host_descriptor, key);
+        }
+        else {
+            final List<String> args = constructArgs(host_descriptor, key, port);
 
-        return host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args);
-    }
-
-    /**
-     * Creates a new Chord node running at a given network address on a free port, with a given key, establishing a new one-node ring.
-     * The port already set in the host_descriptor parameter, if any, is ignored
-     *
-     * @param host_descriptor a structure containing access details for a remote host
-     * @param key the key of the new node
-     *
-     * @throws IOException if an error occurs when reading communicating with the remote host
-     * @throws SSH2Exception if an SSH connection to the remote host cannot be established
-     * @throws TimeoutException if the node cannot be instantiated within the timeout period ({@link #FREE_PORT_TIMEOUT_INTERVAL})
-     * @throws UnknownPlatformException if the operating system of the remote host cannot be established
-     */
-    public static void createAndBindToNodeOnFreePort(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
-
-        final IArgGen arg_gen = new IArgGen() {
-
-            @Override
-            public List<String> getArgs(final int local_port) {
-
-                return constructArgs(host_descriptor, key, local_port);
-            }
-        };
-
-        createAndBindToRemoteNodeOnFreePort(host_descriptor, arg_gen);
+            host_descriptor.process(host_descriptor.getProcessManager().runJavaProcess(StartNodeInNewRing.class, args));
+        }
     }
 
     /**
@@ -220,7 +200,7 @@ public final class ChordNodeFactory {
      *
      * @throws RPCException if an error occurs communicating with the remote machine
      */
-    public static IChordRemoteReference bindToRemoteNode(final InetSocketAddress node_address) throws RPCException {
+    public static IChordRemoteReference bindToNode(final InetSocketAddress node_address) throws RPCException {
 
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
 
@@ -238,14 +218,14 @@ public final class ChordNodeFactory {
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
      */
-    public static IChordRemoteReference bindToRemoteNodeWithRetry(final InetSocketAddress node_address) throws TimeoutException {
+    public static IChordRemoteReference bindToNodeWithRetry(final InetSocketAddress node_address) throws TimeoutException {
 
         final long start_time = System.currentTimeMillis();
 
         while (true) {
 
             try {
-                return bindToRemoteNode(node_address);
+                return bindToNode(node_address);
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.FULL, "remote binding failed: " + e.getMessage());
@@ -265,7 +245,29 @@ public final class ChordNodeFactory {
 
     // -------------------------------------------------------------------------------------------------------
 
-    private static void createAndBindToRemoteNodeOnFreePort(final HostDescriptor host_descriptor, final IArgGen arg_gen) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    /**
+     * Creates a new Chord node running at a given network address on a free port, with a given key, establishing a new one-node ring.
+     * The port already set in the host descriptor parameter, if any, is ignored. The host descriptor is updated with the selected port
+     * and the process handle for the new node.
+     *
+     * @param host_descriptor a structure containing access details for a remote host
+     * @param key the key of the new node
+     *
+     * @throws IOException if an error occurs when reading communicating with the remote host
+     * @throws SSH2Exception if an SSH connection to the remote host cannot be established
+     * @throws TimeoutException if the node cannot be instantiated within the timeout period ({@link #FREE_PORT_TIMEOUT_INTERVAL})
+     * @throws UnknownPlatformException if the operating system of the remote host cannot be established
+     */
+    private static void createAndBindToNodeOnFreePort(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+
+        final IArgGen arg_gen = new IArgGen() {
+
+            @Override
+            public List<String> getArgs(final int local_port) {
+
+                return constructArgs(host_descriptor, key, local_port);
+            }
+        };
 
         final long start_time = System.currentTimeMillis();
 
@@ -287,7 +289,7 @@ public final class ChordNodeFactory {
                 host_descriptor.process(chord_process);
 
                 final InetSocketAddress host_address = host_descriptor.getInetSocketAddress();
-                final IChordRemoteReference chord_application_reference = bindToRemoteNodeWithRetry(host_address);
+                final IChordRemoteReference chord_application_reference = bindToNodeWithRetry(host_address);
 
                 host_descriptor.applicationReference(chord_application_reference);
                 return;

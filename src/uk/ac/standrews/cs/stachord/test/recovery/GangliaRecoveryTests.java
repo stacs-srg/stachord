@@ -32,10 +32,9 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
-import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 
 /**
  * Various tests of ring recovery on the Ganglia cluster, not intended to be run automatically.
@@ -63,7 +62,7 @@ public class GangliaRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }

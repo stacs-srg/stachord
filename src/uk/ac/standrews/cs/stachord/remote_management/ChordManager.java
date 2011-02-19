@@ -29,10 +29,12 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.standrews.cs.nds.madface.DeploymentException;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.IApplicationManager;
 import uk.ac.standrews.cs.nds.madface.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.madface.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
@@ -49,7 +51,7 @@ public class ChordManager implements IApplicationManager {
     private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName(); // Full name of the class used to instantiate a Chord ring.
     private static final int APPLICATION_CALL_TIMEOUT = 10000; // The timeout for attempted application calls, in ms.
     private static final String CHORD_APPLICATION_NAME = "Chord";
-    static final String RING_SIZE_NAME = "Ring Size";
+    public static final String RING_SIZE_NAME = "Ring Size";
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +72,7 @@ public class ChordManager implements IApplicationManager {
 
                 try {
                     // Try to access the application at the specified address.
-                    host_descriptor.applicationReference(ChordNodeFactory.bindToRemoteNode(inet_socket_address));
+                    host_descriptor.applicationReference(ChordNodeFactory.bindToNode(inet_socket_address));
                 }
                 catch (final Exception e) {
                     // We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway
@@ -87,9 +89,20 @@ public class ChordManager implements IApplicationManager {
     }
 
     @Override
-    public void deployApplication(final HostDescriptor host_descriptor) throws Exception {
+    public void deployApplication(final HostDescriptor host_descriptor, final Object... args) throws Exception {
 
-        host_descriptor.process(ChordNodeFactory.instantiateNode(host_descriptor));
+        final IKey key = getKey(args);
+
+        ChordNodeFactory.instantiateNode(host_descriptor, key);
+    }
+
+    private IKey getKey(final Object... args) throws DeploymentException {
+
+        if (args.length == 0 || args[0] == null) { return null; }
+
+        final Object arg = args[0];
+        if (arg instanceof IKey) { return (IKey) arg; }
+        throw new DeploymentException("argument not of type IKey");
     }
 
     @Override

@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Observable;
 
 import uk.ac.standrews.cs.nds.events.Event;
-import uk.ac.standrews.cs.nds.p2p.impl.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
 import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;

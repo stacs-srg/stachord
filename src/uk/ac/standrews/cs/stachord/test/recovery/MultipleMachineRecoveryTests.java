@@ -36,12 +36,11 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.p2p.network.INetwork;
+import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.test.factory.INetwork;
-import uk.ac.standrews.cs.stachord.test.factory.KeyDistribution;
-import uk.ac.standrews.cs.stachord.test.factory.MultipleHostNetwork;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
@@ -69,7 +68,7 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -90,7 +89,7 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -112,7 +111,7 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -135,7 +134,7 @@ public class MultipleMachineRecoveryTests {
 
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        final INetwork network = new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM);
+        final INetwork network = new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM);
 
         final int test_timeout = 60000;
         RecoveryTestLogic.waitForStableRing(network.getNodes(), test_timeout);
@@ -174,7 +173,7 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
 
         System.out.println(">>>>> recovery test completed");
     }

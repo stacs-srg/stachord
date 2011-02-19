@@ -1,8 +1,8 @@
 /***************************************************************************
  *                                                                         *
  * stachord Library                                                        *
- * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
- * University of St Andrews, Scotland
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
@@ -23,27 +23,39 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.test.factory;
+package uk.ac.standrews.cs.stachord.test.recovery;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
- * Options for distribution of a set of keys in key space.
+ * Network comprising P2P nodes all running on the local machine.
  *
- * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
+ * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
-public enum KeyDistribution {
+public class SingleHostChordNetwork extends MultipleHostChordNetwork {
+
+    private static final String LOCAL_HOST = "localhost";
 
     /**
-     * Keys randomly distributed around the ring.
+     * Creates a new network.
+     *
+     * @param number_of_nodes the number of nodes to be created
+     * @param key_distribution the required key distribution
+     * @throws Exception if there is an error during creation of the network
      */
-    RANDOM,
+    public SingleHostChordNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
 
-    /**
-     * Keys evenly distributed around the ring.
-     */
-    EVEN,
+        final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
 
-    /**
-     * Keys clustered tightly in one region of the ring.
-     */
-    CLUSTERED
+        for (int i = 0; i < number_of_nodes; i++) {
+            node_descriptors.add(new HostDescriptor(LOCAL_HOST));
+        }
+
+        init(node_descriptors, key_distribution);
+    }
 }

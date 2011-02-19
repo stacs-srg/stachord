@@ -62,7 +62,7 @@ public class AddressChangeTest implements Observer {
         final AddressChangeTest foo = new AddressChangeTest();
 
         socketAddress = new InetSocketAddress(InetAddress.getLocalHost(), CHORD_PORT);
-        impl = ChordNodeFactory.createLocalNode(socketAddress);
+        impl = ChordNodeFactory.createNode(socketAddress);
         impl.addObserver(foo);
 
         System.out.println("Running... at " + impl.getSelfReference().getCachedAddress() + " started at: " + socketAddress);

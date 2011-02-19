@@ -30,8 +30,8 @@ import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
-import uk.ac.standrews.cs.nds.p2p.impl.Key;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -93,7 +93,7 @@ abstract class AbstractServer {
     protected IChordNode makeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         final InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-        return server_key == null ? ChordNodeFactory.createLocalNode(local_socket_address) : ChordNodeFactory.createLocalNode(local_socket_address, server_key);
+        return server_key == null ? ChordNodeFactory.createNode(local_socket_address) : ChordNodeFactory.createNode(local_socket_address, server_key);
     }
 
     protected abstract void usage();
