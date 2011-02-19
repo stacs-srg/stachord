@@ -54,7 +54,7 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public final class ChordNodeFactory {
 
-    // TODO unify with TromboneNodeFactory.
+    // TODO extract generic code for binding with retry, and unify with TromboneNodeFactory.
 
     /**
      * Timeout interval for connection to remote nodes, in ms.
