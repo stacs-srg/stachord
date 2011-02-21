@@ -80,7 +80,6 @@ public class ChordManager implements IApplicationManager {
                     exception_wrapper[0] = e;
                 }
             }
-
         }, APPLICATION_CALL_TIMEOUT);
 
         // The exception will be null if the application call succeeded.
@@ -108,6 +107,13 @@ public class ChordManager implements IApplicationManager {
     @Override
     public void killApplication(final HostDescriptor host_descriptor) throws Exception {
 
+        final Process process = host_descriptor.getProcess();
+        if (process != null) {
+            process.destroy();
+        }
+
+        // Explanation below now obsolete.
+
         // Although the host descriptor may contain a process handle, we don't use it for killing off the application,
         // because it's possible that it refers to a dead process while there is another live process.
         // This can happen when the application is deployed but the status scanner doesn't notice that it's live
@@ -118,7 +124,7 @@ public class ChordManager implements IApplicationManager {
         // For simplicity we just kill all Chord nodes. Obviously this won't work in situations where multiple
         // Chord nodes are being run on the same machine.
 
-        host_descriptor.getProcessManager().killMatchingProcesses(CHORD_APPLICATION_CLASSNAME);
+        //        host_descriptor.getProcessManager().killMatchingProcesses(CHORD_APPLICATION_CLASSNAME);
     }
 
     @Override

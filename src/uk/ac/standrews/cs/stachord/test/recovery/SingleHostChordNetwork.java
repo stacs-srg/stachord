@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
@@ -37,9 +38,9 @@ import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
-public class SingleHostChordNetwork extends MultipleHostChordNetwork {
+public class SingleHostChordNetwork implements INetwork {
 
-    private static final String LOCAL_HOST = "localhost";
+    private final INetwork network;
 
     /**
      * Creates a new network.
@@ -53,9 +54,27 @@ public class SingleHostChordNetwork extends MultipleHostChordNetwork {
         final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
 
         for (int i = 0; i < number_of_nodes; i++) {
-            node_descriptors.add(new HostDescriptor(LOCAL_HOST));
+            node_descriptors.add(new HostDescriptor());
         }
 
-        init(node_descriptors, key_distribution);
+        network = new MultipleHostChordNetwork(node_descriptors, key_distribution);
+    }
+
+    @Override
+    public List<HostDescriptor> getNodes() {
+
+        return network.getNodes();
+    }
+
+    @Override
+    public void killNode(final HostDescriptor node) throws Exception {
+
+        network.killNode(node);
+    }
+
+    @Override
+    public void killAllNodes() {
+
+        network.killAllNodes();
     }
 }

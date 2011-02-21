@@ -41,6 +41,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -71,7 +72,7 @@ public final class RecoveryTestLogic {
     private static final int RANDOM_SEED = 32423545;
     private static final int WAIT_DELAY = 5000;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Tests the ability of the given network to recover from the killing off of a proportion ({@link #PROPORTION_TO_KILL}) of its nodes.
@@ -244,7 +245,7 @@ public final class RecoveryTestLogic {
         Diagnostic.trace(DiagnosticLevel.RUN, "routing is correct");
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Tests whether all nodes in are ring are stable. See {@link #ringStable(HostDescriptor, int)} for definition of stability.
@@ -300,20 +301,7 @@ public final class RecoveryTestLogic {
         return ChordMonitoring.cycleLengthFrom(host_descriptor, true) == network_size && ChordMonitoring.cycleLengthFrom(host_descriptor, false) == network_size;
     }
 
-    /**
-     * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
-     *
-     * @param host_descriptors a list of Chord nodes
-     * @return true if all nodes have complete finger tables
-     */
-    private static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
-
-        for (final HostDescriptor host_descriptor : host_descriptors) {
-            if (!fingerTableComplete(host_descriptor)) { return false; }
-        }
-
-        return true;
-    }
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * Checks that the finger table of the given node is complete. The completeness criteria are:
@@ -464,6 +452,23 @@ public final class RecoveryTestLogic {
         }
     }
 
+    // -------------------------------------------------------------------------------------------------------
+
+    /**
+     * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
+     *
+     * @param host_descriptors a list of Chord nodes
+     * @return true if all nodes have complete finger tables
+     */
+    private static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
+
+        for (final HostDescriptor host_descriptor : host_descriptors) {
+            if (!fingerTableComplete(host_descriptor)) { return false; }
+        }
+
+        return true;
+    }
+
     private static boolean routingToSmallerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RPCException {
 
         // Check that a slightly smaller key than the target's key routes to the node, except
@@ -532,7 +537,12 @@ public final class RecoveryTestLogic {
             for (final int victim_index : victim_indices) {
 
                 final HostDescriptor victim = nodes.get(victim_index);
-                network.killNode(victim);
+                try {
+                    network.killNode(victim);
+                }
+                catch (final Exception e) {
+                    ErrorHandling.error(e, "error killing node: " + e.getMessage());
+                }
 
                 final IChordRemoteReference application_reference = (IChordRemoteReference) victim.getApplicationReference();
 

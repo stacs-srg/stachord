@@ -56,6 +56,8 @@ public final class ChordNodeFactory {
 
     // TODO extract generic code for binding with retry, and unify with TromboneNodeFactory.
 
+    // TODO have target node select free port and notify back to temporary server.
+
     /**
      * Timeout interval for connection to remote nodes, in ms.
      */
@@ -182,6 +184,7 @@ public final class ChordNodeFactory {
     public static void instantiateNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         final int port = host_descriptor.getPort();
+
         if (port == 0) {
             createAndBindToNodeOnFreePort(host_descriptor, key);
         }

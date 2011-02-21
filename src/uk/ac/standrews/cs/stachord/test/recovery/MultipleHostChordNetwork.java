@@ -31,7 +31,6 @@ import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.MultipleHostNetwork;
-import uk.ac.standrews.cs.nds.p2p.network.SingleHostNetwork;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -44,18 +43,11 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
  */
 public class MultipleHostChordNetwork implements INetwork {
 
-    // TODO replace with MadfaceManager
+    // TODO make variants without network and with all nodes in same VM using network
 
-    private INetwork network;
+    private final INetwork network;
 
     // -------------------------------------------------------------------------------------------------------
-
-    /**
-     * Needed for subclass {@link SingleHostNetwork}, but shouldn't be generally accessible.
-     */
-    protected MultipleHostChordNetwork() {
-
-    }
 
     /**
      * Creates a new Chord network.
@@ -66,33 +58,6 @@ public class MultipleHostChordNetwork implements INetwork {
      * @throws Exception if there is an error during creation of the network
      */
     public MultipleHostChordNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
-
-        init(host_descriptors, key_distribution);
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    @Override
-    public List<HostDescriptor> getNodes() {
-
-        return network.getNodes();
-    }
-
-    @Override
-    public void killNode(final HostDescriptor node) {
-
-        network.killNode(node);
-    }
-
-    @Override
-    public void killAllNodes() {
-
-        network.killAllNodes();
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    protected void init(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final IApplicationManager application_manager = new ChordManager();
         network = new MultipleHostNetwork(host_descriptors, application_manager, key_distribution);
@@ -108,5 +73,25 @@ public class MultipleHostChordNetwork implements INetwork {
 
             node.join(known_node);
         }
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public List<HostDescriptor> getNodes() {
+
+        return network.getNodes();
+    }
+
+    @Override
+    public void killNode(final HostDescriptor node) throws Exception {
+
+        network.killNode(node);
+    }
+
+    @Override
+    public void killAllNodes() {
+
+        network.killAllNodes();
     }
 }
