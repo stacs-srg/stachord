@@ -200,6 +200,9 @@ public class ChordRemoteServer extends ApplicationServer {
         public JSONValue execute(final JSONArray args) throws RPCException {
 
             try {
+                if (chord_node.getAddress().getPort() == 50000) {
+                    System.out.println(" join handler before");
+                }
                 final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
                 chord_node.join(node);
                 return null;

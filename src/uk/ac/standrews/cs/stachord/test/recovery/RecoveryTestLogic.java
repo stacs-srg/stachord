@@ -119,6 +119,7 @@ public final class RecoveryTestLogic {
             System.out.println("done");
 
             System.out.println("waiting for correct routing... ");
+            //            System.out.println("number of nodes: " + nodes.size());
             waitForCorrectRouting(nodes, test_timeout);
             System.out.println("done");
 
@@ -423,7 +424,13 @@ public final class RecoveryTestLogic {
                 final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.getApplicationReference();
                 final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.getApplicationReference();
 
-                if (!routingCorrect(node1, node2)) { return false; }
+                //                System.out.println("checking routing : " + node1.getCachedAddress() + " and " + node2.getCachedAddress());
+                if (!routingCorrect(node1, node2)) {
+
+                    //                    System.out.println("routing wrong between " + node1.getCachedAddress() + " and " + node2.getCachedAddress());
+
+                    return false;
+                }
             }
         }
         return true;
@@ -448,6 +455,8 @@ public final class RecoveryTestLogic {
             return routingToSmallerKeyCorrect(source, target) && routingToSameKeyCorrect(source, target) && routingToLargerKeyCorrect(source, target);
         }
         catch (final RPCException e) {
+            //            System.out.println("routing exception: " + e);
+            //            e.printStackTrace();
             return false;
         }
     }
@@ -536,27 +545,13 @@ public final class RecoveryTestLogic {
 
             for (final int victim_index : victim_indices) {
 
-                final HostDescriptor victim = nodes.get(victim_index);
                 try {
+                    final HostDescriptor victim = nodes.get(victim_index);
+                    //                    System.out.println("killing node: " + victim);
                     network.killNode(victim);
                 }
                 catch (final Exception e) {
                     ErrorHandling.error(e, "error killing node: " + e.getMessage());
-                }
-
-                final IChordRemoteReference application_reference = (IChordRemoteReference) victim.getApplicationReference();
-
-                // Wait for it to die.
-                while (true) {
-                    try {
-                        application_reference.getRemote().isAlive();
-                        Thread.sleep(DEATH_CHECK_INTERVAL);
-                    }
-                    catch (final RPCException e) {
-                        break;
-                    }
-                    catch (final InterruptedException e) {
-                    }
                 }
             }
 
@@ -621,7 +616,7 @@ public final class RecoveryTestLogic {
         return System.currentTimeMillis() - start_time;
     }
 
-    static void dumpState(final List<HostDescriptor> nodes) {
+    public static void dumpState(final List<HostDescriptor> nodes) {
 
         for (final HostDescriptor machine_descriptor : nodes) {
 

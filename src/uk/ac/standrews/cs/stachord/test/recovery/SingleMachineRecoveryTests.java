@@ -29,10 +29,10 @@ import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.ProcessManager;
+import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
@@ -51,8 +51,11 @@ public class SingleMachineRecoveryTests {
     private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
     // TODO Make this work on Windows.
 
-    //    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
-    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10};
+    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
+
+    //    private static final int[] RING_SIZES = {20};
+
+    //    private static final int[] RING_SIZES = {5};
 
     /**
      * Disables diagnostic output and kills existing instances.
@@ -86,7 +89,6 @@ public class SingleMachineRecoveryTests {
      * @throws Exception if the test fails
      */
     @Test
-    @Ignore
     public void ringRecoversEven() throws Exception {
 
         ringRecovers(KeyDistribution.EVEN);
@@ -98,7 +100,6 @@ public class SingleMachineRecoveryTests {
      * @throws Exception if the test fails
      */
     @Test
-    @Ignore
     public void ringRecoversClustered() throws Exception {
 
         ringRecovers(KeyDistribution.CLUSTERED);
@@ -119,7 +120,7 @@ public class SingleMachineRecoveryTests {
     private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws Exception {
 
         System.out.println("constructing ring... ");
-        final SingleHostChordNetwork network = new SingleHostChordNetwork(ring_size, network_type);
+        final INetwork network = new SingleHostChordNetwork(ring_size, network_type);
         System.out.println("done");
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT);

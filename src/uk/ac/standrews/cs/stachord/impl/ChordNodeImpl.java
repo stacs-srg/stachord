@@ -132,12 +132,17 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public IChordRemoteReference lookup(final IKey k) throws RPCException {
 
+        //        System.out.println(local_address + " l1");
         if (inLocalKeyRange(k)) {
 
             // If the key is equal to this node's, or the ring currently only has one node...
+            //            System.out.println(local_address + " l2");
             return self_reference;
         }
-        return findSuccessor(k);
+        //        System.out.println(local_address + " l3");
+        final IChordRemoteReference findSuccessor = findSuccessor(k);
+        //        System.out.println(local_address + " l4");
+        return findSuccessor;
     }
 
     @Override
@@ -155,16 +160,30 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public synchronized void join(final IChordRemoteReference known_node) throws RPCException {
 
+        //        System.out.println(local_address + " j1");
+
         // Route to this node's key; the result is this node's new successor.
-        final IChordRemoteReference new_successor = known_node.getRemote().lookup(key);
+        final IChordRemote remote = known_node.getRemote();
+        //        System.out.println(local_address + " calling lookup on node: " + known_node.getCachedAddress());
+        IChordRemoteReference new_successor;
+        try {
+            new_successor = remote.lookup(key);
+        }
+        catch (final RPCException e) {
+            //            System.out.println("exception on lookup: " + e.getMessage());
+            throw e;
+        }
+        //        System.out.println(local_address + " j2");
 
         // Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
         // This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
         // other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
         // whether a ring has partitioned or not.
         if (!equals(new_successor.getRemote())) {
+            //            System.out.println(local_address + " j3");
             setSuccessor(new_successor);
         }
+        //        System.out.println(local_address + " j4");
     }
 
     @Override

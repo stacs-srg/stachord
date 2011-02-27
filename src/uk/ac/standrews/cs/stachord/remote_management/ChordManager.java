@@ -97,7 +97,7 @@ public class ChordManager implements IApplicationManager {
 
     private IKey getKey(final Object... args) throws DeploymentException {
 
-        if (args.length == 0 || args[0] == null) { return null; }
+        if (args == null || args.length == 0 || args[0] == null) { return null; }
 
         final Object arg = args[0];
         if (arg instanceof IKey) { return (IKey) arg; }

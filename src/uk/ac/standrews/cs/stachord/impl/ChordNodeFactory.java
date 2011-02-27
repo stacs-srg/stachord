@@ -183,6 +183,7 @@ public final class ChordNodeFactory {
      */
     public static void instantiateNode(final HostDescriptor host_descriptor, final IKey key) throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
+        // TODO unify these options so both set the application reference in the host descriptor before returning.
         final int port = host_descriptor.getPort();
 
         if (port == 0) {

@@ -66,13 +66,37 @@ public class MultipleHostChordNetwork implements INetwork {
         final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
 
         // Join the nodes.
-        for (int node_index = 1; node_index < host_descriptors.size(); node_index++) {
+        for (int node_index = 1; node_index < host_descriptors.size() - 1; node_index++) {
 
             final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
             final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
 
+            //            System.out.println("node joining: " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedAddress());
+            //            System.out.println("known node: " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedAddress());
             node.join(known_node);
+            //            System.out.println("done\n");
+
         }
+
+        //        for (int node_index = 0; node_index < host_descriptors.size(); node_index++) {
+        //
+        //            final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
+        //            final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
+        //
+        //            node.enablePeerStateMaintenance(false);
+        //            node.enablePredecessorMaintenance(false);
+        //            node.enableStabilization(false);
+        //        }
+        //
+        //        RecoveryTestLogic.dumpState(host_descriptors);
+
+        final HostDescriptor new_node_descriptor = host_descriptors.get(host_descriptors.size() - 1);
+        final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
+
+        //        System.out.println("node joining: " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedAddress());
+        //        System.out.println("known node: " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedAddress());
+        node.join(known_node);
+
     }
 
     // -------------------------------------------------------------------------------------------------------
