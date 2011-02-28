@@ -741,29 +741,22 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         // and the one before it has to be notified so it can update its finger table.
         IChordRemote current_hop = this;
 
-        int point_reached = 0;
-
         while (!next_hop.isFinalHop()) {
             try {
                 // Next hop mustn't be this node, or further from us than the target.
                 assert !this.key.equals(next_hop.getNode().getCachedKey());
                 assert !RingArithmetic.ringDistanceFurther(this.key, next_hop.getNode().getCachedKey(), key);
 
-                point_reached = 1;
-
                 // Remember the previous value of next_hop.
                 final IChordRemote previous_next_hop = next_hop.getNode().getRemote();
 
-                point_reached = 2;
                 next_hop = previous_next_hop.nextHop(key);
 
-                point_reached = 3;
                 current_hop = previous_next_hop;
-                point_reached = 4;
             }
             catch (final RPCException e) {
                 current_hop.notifyFailure(next_hop.getNode());
-                throw new RPCException("hop failure on node " + local_address + " trying to contact node " + next_hop.getNode().getCachedAddress() + " - point reached: " + point_reached, e);
+                throw new RPCException("hop failure on node " + local_address + " trying to contact node " + next_hop.getNode().getCachedAddress(), e);
             }
             catch (final RuntimeException e) {
                 current_hop.notifyFailure(next_hop.getNode());
