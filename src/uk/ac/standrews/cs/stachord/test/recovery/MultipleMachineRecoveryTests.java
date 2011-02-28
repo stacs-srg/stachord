@@ -68,7 +68,8 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        final long ring_creation_start_time = System.currentTimeMillis();
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -89,7 +90,8 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        final long ring_creation_start_time = System.currentTimeMillis();
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -111,7 +113,8 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        final long ring_creation_start_time = System.currentTimeMillis();
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -173,7 +176,8 @@ public class MultipleMachineRecoveryTests {
         final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT);
+        final long ring_creation_start_time = System.currentTimeMillis();
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }

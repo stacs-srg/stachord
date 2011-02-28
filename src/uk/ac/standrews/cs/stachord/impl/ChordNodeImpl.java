@@ -132,17 +132,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public IChordRemoteReference lookup(final IKey k) throws RPCException {
 
-        //        System.out.println(local_address + " l1");
         if (inLocalKeyRange(k)) {
 
             // If the key is equal to this node's, or the ring currently only has one node...
-            //            System.out.println(local_address + " l2");
             return self_reference;
         }
-        //        System.out.println(local_address + " l3");
-        final IChordRemoteReference findSuccessor = findSuccessor(k);
-        //        System.out.println(local_address + " l4");
-        return findSuccessor;
+        return findSuccessor(k);
     }
 
     @Override
@@ -160,30 +155,23 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public synchronized void join(final IChordRemoteReference known_node) throws RPCException {
 
-        //        System.out.println(local_address + " j1");
-
         // Route to this node's key; the result is this node's new successor.
         final IChordRemote remote = known_node.getRemote();
-        //        System.out.println(local_address + " calling lookup on node: " + known_node.getCachedAddress());
         IChordRemoteReference new_successor;
         try {
             new_successor = remote.lookup(key);
         }
         catch (final RPCException e) {
-            //            System.out.println("exception on lookup: " + e.getMessage());
             throw e;
         }
-        //        System.out.println(local_address + " j2");
 
         // Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
         // This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
         // other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
         // whether a ring has partitioned or not.
         if (!equals(new_successor.getRemote())) {
-            //            System.out.println(local_address + " j3");
             setSuccessor(new_successor);
         }
-        //        System.out.println(local_address + " j4");
     }
 
     @Override
@@ -753,22 +741,29 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         // and the one before it has to be notified so it can update its finger table.
         IChordRemote current_hop = this;
 
+        int point_reached = 0;
+
         while (!next_hop.isFinalHop()) {
             try {
                 // Next hop mustn't be this node, or further from us than the target.
                 assert !this.key.equals(next_hop.getNode().getCachedKey());
                 assert !RingArithmetic.ringDistanceFurther(this.key, next_hop.getNode().getCachedKey(), key);
 
+                point_reached = 1;
+
                 // Remember the previous value of next_hop.
                 final IChordRemote previous_next_hop = next_hop.getNode().getRemote();
 
+                point_reached = 2;
                 next_hop = previous_next_hop.nextHop(key);
 
+                point_reached = 3;
                 current_hop = previous_next_hop;
+                point_reached = 4;
             }
             catch (final RPCException e) {
                 current_hop.notifyFailure(next_hop.getNode());
-                throw e;
+                throw new RPCException("hop failure on node " + local_address + " trying to contact node " + next_hop.getNode().getCachedAddress() + " - point reached: " + point_reached, e);
             }
             catch (final RuntimeException e) {
                 current_hop.notifyFailure(next_hop.getNode());

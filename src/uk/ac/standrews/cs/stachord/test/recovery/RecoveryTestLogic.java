@@ -95,68 +95,38 @@ public final class RecoveryTestLogic {
      * @throws RPCException if an error occurs when setting finger table maintenance on a node
      * @throws TimeoutException if one of the steps of the test is not completed within the timeout interval
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout) throws RPCException, TimeoutException {
+    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout, final long ring_creation_start_time) throws RPCException, TimeoutException {
 
-        long start_time = System.currentTimeMillis();
+        long start_time = printElapsedTime(ring_creation_start_time);
 
         final List<HostDescriptor> nodes = network.getNodes();
 
         try {
             System.out.println("waiting for stable ring... ");
             waitForStableRing(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
-
-            // Routing should still eventually work even in the absence of finger table maintenance.
-            System.out.println("disabling finger table maintenance... ");
-            enableFingerTableMaintenance(network, false);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
 
             System.out.println("killing part of network... ");
             killPartOfNetwork(network);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for stable ring... ");
             waitForStableRing(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
-
-            System.out.println("waiting for correct routing... ");
-            waitForCorrectRouting(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
-
-            System.out.println("enabling finger table maintenance... ");
-            // Turn on maintenance again.
-            enableFingerTableMaintenance(network, true);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
-
-            System.out.println("waiting for stable ring... ");
-            waitForStableRing(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for complete finger tables... ");
             waitForCompleteFingerTables(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for complete successor lists... ");
             waitForCompleteSuccessorLists(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for correct routing... ");
             waitForCorrectRouting(nodes, test_timeout);
-            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
-            start_time = System.currentTimeMillis();
+            start_time = printElapsedTime(start_time);
         }
-        catch (final RPCException e) {
-            throw e;
-        }
+
         catch (final TimeoutException e) {
             throw e;
         }
@@ -164,8 +134,15 @@ public final class RecoveryTestLogic {
 
             System.out.println("killing remaining nodes... ");
             network.killAllNodes();
-            System.out.println("done");
+            printElapsedTime(start_time);
         }
+    }
+
+    private static long printElapsedTime(final long start_time) {
+
+        final long current_time = System.currentTimeMillis();
+        System.out.println("done in " + (current_time - start_time) / 1000 + "s");
+        return current_time;
     }
 
     /**
@@ -434,9 +411,7 @@ public final class RecoveryTestLogic {
                 final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.getApplicationReference();
                 final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.getApplicationReference();
 
-                if (!routingCorrect(node1, node2)) {
-
-                return false; }
+                if (!routingCorrect(node1, node2)) { return false; }
             }
         }
         return true;

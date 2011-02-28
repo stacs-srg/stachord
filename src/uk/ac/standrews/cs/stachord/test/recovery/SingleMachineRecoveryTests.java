@@ -48,7 +48,7 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class SingleMachineRecoveryTests {
 
-    private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
+    private static final int CHECK_TIMEOUT = 1200000; // Allow 20 minutes for each check operation.
     // TODO Make this work on Windows.
 
     private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
@@ -116,9 +116,9 @@ public class SingleMachineRecoveryTests {
     private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws Exception {
 
         System.out.println("constructing ring... ");
+        final long ring_creation_start_time = System.currentTimeMillis();
         final INetwork network = new SingleHostChordNetwork(ring_size, network_type);
-        System.out.println("done");
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start_time);
     }
 }
