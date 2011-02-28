@@ -68,7 +68,6 @@ public final class RecoveryTestLogic {
      */
     public static final double PROPORTION_TO_KILL = 0.2;
 
-    private static final long DEATH_CHECK_INTERVAL = 2000;
     private static final int RANDOM_SEED = 32423545;
     private static final int WAIT_DELAY = 5000;
 
@@ -98,51 +97,62 @@ public final class RecoveryTestLogic {
      */
     public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout) throws RPCException, TimeoutException {
 
+        long start_time = System.currentTimeMillis();
+
         final List<HostDescriptor> nodes = network.getNodes();
 
         try {
             System.out.println("waiting for stable ring... ");
             waitForStableRing(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             // Routing should still eventually work even in the absence of finger table maintenance.
             System.out.println("disabling finger table maintenance... ");
             enableFingerTableMaintenance(network, false);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("killing part of network... ");
             killPartOfNetwork(network);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for stable ring... ");
             waitForStableRing(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for correct routing... ");
-            //            System.out.println("number of nodes: " + nodes.size());
             waitForCorrectRouting(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("enabling finger table maintenance... ");
             // Turn on maintenance again.
             enableFingerTableMaintenance(network, true);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for stable ring... ");
             waitForStableRing(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for complete finger tables... ");
             waitForCompleteFingerTables(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for complete successor lists... ");
             waitForCompleteSuccessorLists(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
 
             System.out.println("waiting for correct routing... ");
             waitForCorrectRouting(nodes, test_timeout);
-            System.out.println("done");
+            System.out.println("done in " + (System.currentTimeMillis() - start_time) / 1000 + "s");
+            start_time = System.currentTimeMillis();
         }
         catch (final RPCException e) {
             throw e;
@@ -424,13 +434,9 @@ public final class RecoveryTestLogic {
                 final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.getApplicationReference();
                 final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.getApplicationReference();
 
-                //                System.out.println("checking routing : " + node1.getCachedAddress() + " and " + node2.getCachedAddress());
                 if (!routingCorrect(node1, node2)) {
 
-                    //                    System.out.println("routing wrong between " + node1.getCachedAddress() + " and " + node2.getCachedAddress());
-
-                    return false;
-                }
+                return false; }
             }
         }
         return true;
@@ -455,8 +461,6 @@ public final class RecoveryTestLogic {
             return routingToSmallerKeyCorrect(source, target) && routingToSameKeyCorrect(source, target) && routingToLargerKeyCorrect(source, target);
         }
         catch (final RPCException e) {
-            //            System.out.println("routing exception: " + e);
-            //            e.printStackTrace();
             return false;
         }
     }
@@ -480,7 +484,7 @@ public final class RecoveryTestLogic {
 
     private static boolean routingToSmallerKeyCorrect(final IChordRemoteReference source, final IChordRemoteReference target) throws RPCException {
 
-        // Check that a slightly smaller key than the target's key routes to the node, except
+        // Check that a slightly smaller key than the target's key routes to the target, except
         // in the pathological case where the target has a predecessor with a key one less than it.
         final IChordRemoteReference predecessor_of_target = target.getRemote().getPredecessor();
 
@@ -547,7 +551,6 @@ public final class RecoveryTestLogic {
 
                 try {
                     final HostDescriptor victim = nodes.get(victim_index);
-                    //                    System.out.println("killing node: " + victim);
                     network.killNode(victim);
                 }
                 catch (final Exception e) {
