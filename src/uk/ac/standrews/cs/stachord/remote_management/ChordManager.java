@@ -39,7 +39,7 @@ import uk.ac.standrews.cs.nds.util.IActionWithNoResult;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.Timeout;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
  * Provides remote management hooks for Chord.
@@ -48,7 +48,6 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
  */
 public class ChordManager implements IApplicationManager {
 
-    private static final String CHORD_APPLICATION_CLASSNAME = StartNodeInNewRing.class.getCanonicalName(); // Full name of the class used to instantiate a Chord ring.
     private static final int APPLICATION_CALL_TIMEOUT = 10000; // The timeout for attempted application calls, in ms.
     private static final String CHORD_APPLICATION_NAME = "Chord";
     public static final String RING_SIZE_NAME = "Ring Size";
@@ -71,13 +70,22 @@ public class ChordManager implements IApplicationManager {
             public void performAction() {
 
                 try {
-                    // Try to access the application at the specified address.
-                    host_descriptor.applicationReference(ChordNodeFactory.bindToNode(inet_socket_address));
+                    // Use existing application reference if present.
+                    if (host_descriptor.getApplicationReference() != null) {
+                        final IChordRemoteReference remote_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
+                        remote_reference.getRemote().isAlive();
+                    }
+                    else {
+                        // Establish a new connection to the application at the specified address.
+                        host_descriptor.applicationReference(ChordNodeFactory.bindToNode(inet_socket_address));
+                    }
                 }
                 catch (final Exception e) {
                     // We have to store the exception here for later access, rather than throwing it, since an ActionWithNoResult can't throw exceptions and anyway
                     // it's being executed in the timeout thread.
                     exception_wrapper[0] = e;
+
+                    host_descriptor.applicationReference(null);
                 }
             }
         }, APPLICATION_CALL_TIMEOUT);
