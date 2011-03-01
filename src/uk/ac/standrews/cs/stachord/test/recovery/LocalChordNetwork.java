@@ -29,16 +29,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.HostState;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
  * Network comprising P2P nodes all running on the local machine.
  *
- * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
+ * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public class SingleHostChordNetwork implements INetwork {
+public class LocalChordNetwork implements INetwork {
 
     private final INetwork network;
 
@@ -49,15 +50,16 @@ public class SingleHostChordNetwork implements INetwork {
      * @param key_distribution the required key distribution
      * @throws Exception if there is an error during creation of the network
      */
-    public SingleHostChordNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
+    public LocalChordNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
 
         final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
 
         for (int i = 0; i < number_of_nodes; i++) {
-            node_descriptors.add(new HostDescriptor());
+            // Set the host state to AUTH so that the node will be deployed immediately without the need for an initial probe.
+            node_descriptors.add(new HostDescriptor().hostState(HostState.AUTH));
         }
 
-        network = new MultipleHostChordNetwork(node_descriptors, key_distribution);
+        network = new ChordNetwork(node_descriptors, key_distribution);
     }
 
     @Override

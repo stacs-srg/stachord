@@ -31,16 +31,9 @@ import java.util.Set;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.interfaces.IAttributesCallback;
 import uk.ac.standrews.cs.nds.madface.interfaces.ISingleHostScanner;
+import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 
-class ChordCycleLengthScanner implements ISingleHostScanner {
-
-    private static final int MIN_CYCLE_TIME = 10000;
-
-    @Override
-    public int getMinCycleTime() {
-
-        return MIN_CYCLE_TIME;
-    }
+class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
 
     @Override
     public String getAttributeName() {

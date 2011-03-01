@@ -59,7 +59,7 @@ public class TestNetwork implements INetwork {
             node_descriptors.add(hostDescriptor);
         }
 
-        network = new MultipleHostChordNetwork(node_descriptors, key_distribution);
+        network = new ChordNetwork(node_descriptors, key_distribution);
     }
 
     @Override

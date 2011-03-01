@@ -31,22 +31,16 @@ import java.util.List;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
 import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
+import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordPartitionScanner implements IGlobalHostScanner {
+class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
-    private static final int MIN_CYCLE_TIME = 20000;
     private boolean enabled = false;
-
-    @Override
-    public int getMinCycleTime() {
-
-        return MIN_CYCLE_TIME;
-    }
 
     @Override
     public void check(final List<HostDescriptor> host_descriptors) {

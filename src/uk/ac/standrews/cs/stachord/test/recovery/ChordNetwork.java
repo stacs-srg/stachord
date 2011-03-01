@@ -30,18 +30,18 @@ import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.MultipleHostNetwork;
+import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
 
 /**
- * Network comprising Chord nodes running on a set of specified physical machines running Linux or OSX.
+ * Network comprising Chord nodes running on a set of specified machines running Linux or OSX.
  *
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public class MultipleHostChordNetwork implements INetwork {
+public class ChordNetwork implements INetwork {
 
     // TODO make variants without network and with all nodes in same VM using network
 
@@ -57,46 +57,23 @@ public class MultipleHostChordNetwork implements INetwork {
      * 
      * @throws Exception if there is an error during creation of the network
      */
-    public MultipleHostChordNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
+    public ChordNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final IApplicationManager application_manager = new ChordManager();
-        network = new MultipleHostNetwork(host_descriptors, application_manager, key_distribution);
+        network = new P2PNetwork(host_descriptors, application_manager, key_distribution);
 
+        // Pick one node for the others to join.
         final HostDescriptor known_node_descriptor = host_descriptors.get(0);
         final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
 
-        // Join the nodes.
-        for (int node_index = 1; node_index < host_descriptors.size() - 1; node_index++) {
+        // Join the other nodes to the ring via the first one.
+        for (int node_index = 1; node_index < host_descriptors.size(); node_index++) {
 
             final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
             final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
 
-            //            System.out.println("node joining: " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedAddress());
-            //            System.out.println("known node: " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedAddress());
             node.join(known_node);
-            //            System.out.println("done\n");
-
         }
-
-        //        for (int node_index = 0; node_index < host_descriptors.size(); node_index++) {
-        //
-        //            final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
-        //            final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
-        //
-        //            node.enablePeerStateMaintenance(false);
-        //            node.enablePredecessorMaintenance(false);
-        //            node.enableStabilization(false);
-        //        }
-        //
-        //        RecoveryTestLogic.dumpState(host_descriptors);
-
-        final HostDescriptor new_node_descriptor = host_descriptors.get(host_descriptors.size() - 1);
-        final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
-
-        //        System.out.println("node joining: " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedAddress());
-        //        System.out.println("known node: " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedAddress());
-        node.join(known_node);
-
     }
 
     // -------------------------------------------------------------------------------------------------------

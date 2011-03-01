@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.HostState;
 import uk.ac.standrews.cs.nds.madface.exceptions.DeploymentException;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
@@ -101,6 +102,7 @@ public class ChordManager implements IApplicationManager {
         final IKey key = getKey(args);
 
         ChordNodeFactory.instantiateNode(host_descriptor, key);
+        host_descriptor.hostState(HostState.RUNNING);
     }
 
     private IKey getKey(final Object... args) throws DeploymentException {
