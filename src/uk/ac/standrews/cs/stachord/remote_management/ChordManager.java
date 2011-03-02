@@ -101,7 +101,7 @@ public class ChordManager implements IApplicationManager {
 
         final IKey key = getKey(args);
 
-        ChordNodeFactory.instantiateNode(host_descriptor, key);
+        ChordNodeFactory.createNode(host_descriptor, key);
         host_descriptor.hostState(HostState.RUNNING);
     }
 

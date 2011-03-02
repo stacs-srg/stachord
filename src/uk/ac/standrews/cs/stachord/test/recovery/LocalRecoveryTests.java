@@ -48,11 +48,10 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public class LocalRecoveryTests {
 
-    private static final int CHECK_TIMEOUT = 1200000; // Allow 20 minutes for each check operation.
+    private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
     // TODO Make this work on Windows.
 
-    //    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
-    private static final int[] RING_SIZES = {20};
+    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
 
     /**
      * Disables diagnostic output and kills existing instances.

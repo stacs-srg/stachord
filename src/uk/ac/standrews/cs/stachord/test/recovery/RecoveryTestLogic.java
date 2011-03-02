@@ -260,10 +260,8 @@ public final class RecoveryTestLogic {
      * <li>the length of the cycle obtained by following predecessor pointers from the given node is equal to the size of the network</li>
      * <li>no errors occur during the test</li>
      * </ol>
-
      *
-     * Stability is defined as the lengths of the successor and predecessor cycles both being equal
-     * to the number of nodes in the network. This is perhaps a bit weak as a test, since it doesn't guarantee that all nodes encountered in the cycle are actually part of this network.
+     * This is perhaps a bit weak as a test, since it doesn't guarantee that all nodes encountered in the cycle are actually part of this network.
      *
      * @param host_descriptor a Chord node
      * @param network_size the known size of the network
@@ -500,14 +498,6 @@ public final class RecoveryTestLogic {
             Thread.sleep(WAIT_DELAY);
         }
         catch (final InterruptedException e) {
-        }
-    }
-
-    private static void enableFingerTableMaintenance(final INetwork network, final boolean enabled) throws RPCException {
-
-        for (final HostDescriptor machine_descriptor : network.getNodes()) {
-            final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
-            application_reference.getRemote().enablePeerStateMaintenance(enabled);
         }
     }
 
