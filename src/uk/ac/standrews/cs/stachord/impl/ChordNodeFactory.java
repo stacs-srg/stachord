@@ -27,11 +27,10 @@ package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
@@ -40,8 +39,6 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
-
-import com.mindbright.ssh2.SSH2Exception;
 
 /**
  * Provides methods for creating new Chord nodes and binding to existing remote Chord nodes.
@@ -117,6 +114,8 @@ public final class ChordNodeFactory extends P2PNodeFactory {
 
     }
 
+    // -------------------------------------------------------------------------------------------------------
+
     @Override
     protected Object bindToNode(final Object... args) throws RPCException {
 
@@ -125,23 +124,15 @@ public final class ChordNodeFactory extends P2PNodeFactory {
         return bindToNode(node_address);
     }
 
-    // -------------------------------------------------------------------------------------------------------
+    @Override
+    protected Object bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException {
+
+        return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, TIMEOUT_INTERVAL);
+    }
 
     @Override
     protected Class<?> getNodeServerClass() {
 
         return StartNodeInNewRing.class;
-    }
-
-    @Override
-    protected void createAndBindToNodeOnSpecifiedPort(final HostDescriptor host_descriptor, final IKey key) throws SSH2Exception, IOException, TimeoutException, UnknownPlatformException {
-
-        final List<String> args = constructArgs(host_descriptor, key, host_descriptor.getPort());
-
-        // Create a node process.
-        host_descriptor.process(host_descriptor.getProcessManager().runJavaProcess(getNodeServerClass(), args));
-
-        // Bind to the node, establishing the application reference.
-        host_descriptor.applicationReference(bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, TIMEOUT_INTERVAL));
     }
 }
