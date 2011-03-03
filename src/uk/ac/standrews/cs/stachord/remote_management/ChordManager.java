@@ -53,6 +53,8 @@ public class ChordManager implements IApplicationManager {
     private static final String CHORD_APPLICATION_NAME = "Chord";
     public static final String RING_SIZE_NAME = "Ring Size";
 
+    private final ChordNodeFactory factory = new ChordNodeFactory();
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
@@ -78,7 +80,7 @@ public class ChordManager implements IApplicationManager {
                     }
                     else {
                         // Establish a new connection to the application at the specified address.
-                        host_descriptor.applicationReference(ChordNodeFactory.bindToNode(inet_socket_address));
+                        host_descriptor.applicationReference(factory.bindToNode(inet_socket_address));
                     }
                 }
                 catch (final Exception e) {
@@ -101,7 +103,7 @@ public class ChordManager implements IApplicationManager {
 
         final IKey key = getKey(args);
 
-        ChordNodeFactory.createNode(host_descriptor, key);
+        factory.createNode(host_descriptor, key);
         host_descriptor.hostState(HostState.RUNNING);
     }
 

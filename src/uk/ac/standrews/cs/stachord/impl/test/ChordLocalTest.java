@@ -27,7 +27,7 @@ public class ChordLocalTest {
     public void setup() throws Exception {
 
         key = new Key(new BigInteger("3"));
-        chord_node = ChordNodeFactory.createNode(new InetSocketAddress(NetworkUtil.getLocalIPv4Address(), 10000), key);
+        chord_node = new ChordNodeFactory().createNode(new InetSocketAddress(NetworkUtil.getLocalIPv4Address(), 10000), key);
     }
 
     @After

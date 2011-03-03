@@ -105,7 +105,7 @@ public final class StartNodeInExistingRing extends AbstractServer {
 
         final IChordNode node = makeNode();
 
-        node.join(ChordNodeFactory.bindToNode(known_socket_address));
+        node.join(new ChordNodeFactory().bindToNode(known_socket_address));
     }
 
     @Override

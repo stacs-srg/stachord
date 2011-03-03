@@ -93,7 +93,7 @@ abstract class AbstractServer {
     protected IChordNode makeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         final InetSocketAddress local_socket_address = new InetSocketAddress(local_address, local_port);
-        return server_key == null ? ChordNodeFactory.createNode(local_socket_address) : ChordNodeFactory.createNode(local_socket_address, server_key);
+        return server_key == null ? new ChordNodeFactory().createNode(local_socket_address) : new ChordNodeFactory().createNode(local_socket_address, server_key);
     }
 
     protected abstract void usage();
