@@ -117,7 +117,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    protected Object bindToNode(final Object... args) throws RPCException {
+    public Object bindToNode(final Object... args) throws RPCException {
 
         final InetSocketAddress node_address = (InetSocketAddress) args[0];
 

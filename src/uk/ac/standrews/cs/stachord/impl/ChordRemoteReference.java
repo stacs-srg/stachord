@@ -80,6 +80,12 @@ class ChordRemoteReference implements IChordRemoteReference {
     }
 
     @Override
+    public void isAlive() throws RPCException {
+
+        reference.isAlive();
+    }
+
+    @Override
     public int hashCode() {
 
         return key == null ? 0 : key.hashCode();

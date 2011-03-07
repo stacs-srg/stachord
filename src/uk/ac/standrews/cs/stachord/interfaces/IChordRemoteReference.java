@@ -28,6 +28,7 @@ package uk.ac.standrews.cs.stachord.interfaces;
 import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.network.IPingable;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 
 /**
@@ -35,7 +36,7 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public interface IChordRemoteReference {
+public interface IChordRemoteReference extends IPingable {
 
     /**
      * Returns the key associated with this reference, using cached information if possible and making a remote call if not.
