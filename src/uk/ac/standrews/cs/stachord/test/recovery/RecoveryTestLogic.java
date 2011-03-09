@@ -56,6 +56,8 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordMonitoring;
  */
 public final class RecoveryTestLogic {
 
+    private static final int MILLIS_PER_SECOND = 1000;
+
     /**
      * Prevent instantiation of utility class.
      */
@@ -91,6 +93,7 @@ public final class RecoveryTestLogic {
      *
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
+     * @param ring_creation_start_time the time at which ring creation was started
      *
      * @throws RPCException if an error occurs when setting finger table maintenance on a node
      * @throws TimeoutException if one of the steps of the test is not completed within the timeout interval
@@ -141,7 +144,7 @@ public final class RecoveryTestLogic {
     private static long printElapsedTime(final long start_time) {
 
         final long current_time = System.currentTimeMillis();
-        System.out.println("done in " + (current_time - start_time) / 1000 + "s");
+        System.out.println("done in " + (current_time - start_time) / MILLIS_PER_SECOND + "s");
         return current_time;
     }
 
@@ -438,6 +441,29 @@ public final class RecoveryTestLogic {
         }
     }
 
+    /**
+     * Prints a representation of a network.
+     * @param nodes the network
+     */
+    public static void dumpState(final List<HostDescriptor> nodes) {
+
+        for (final HostDescriptor machine_descriptor : nodes) {
+
+            System.out.println(machine_descriptor);
+
+            try {
+                final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
+                System.out.println(application_reference.getRemote().toStringDetailed());
+            }
+            catch (final RPCException e) {
+                System.out.println("application inaccessible");
+            }
+            System.out.println();
+        }
+
+        System.out.println("\n>>>>>>>>>>>>>>>> End of state\n");
+    }
+
     // -------------------------------------------------------------------------------------------------------
 
     /**
@@ -584,28 +610,8 @@ public final class RecoveryTestLogic {
         return System.currentTimeMillis() - start_time;
     }
 
-    public static void dumpState(final List<HostDescriptor> nodes) {
-
-        for (final HostDescriptor machine_descriptor : nodes) {
-
-            System.out.println(machine_descriptor);
-
-            try {
-                final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
-                System.out.println(application_reference.getRemote().toStringDetailed());
-            }
-            catch (final RPCException e) {
-                System.out.println("application inaccessible");
-            }
-            System.out.println();
-        }
-
-        System.out.println("\n>>>>>>>>>>>>>>>> End of state\n");
-    }
-
     private interface IRingCheck {
 
         boolean check(List<HostDescriptor> nodes);
-
     }
 }

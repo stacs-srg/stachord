@@ -186,13 +186,8 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
         try {
             final JSONArray args = new JSONArray();
             args.put(marshaller.serializeChordRemoteReference(node));
-            if (node_address.getPort() == 50004) {
-                System.out.println("proxy join before");
-            }
+
             makeCall("join", args);
-            if (node_address.getPort() == 50004) {
-                System.out.println("proxy join after");
-            }
         }
         catch (final Exception e) {
             dealWithException(e);

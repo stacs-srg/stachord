@@ -55,7 +55,7 @@ public class TestNetwork implements INetwork {
 
         for (int i = 0; i < number_of_nodes; i++) {
             final HostDescriptor hostDescriptor = new HostDescriptor();
-            hostDescriptor.port(50000 + i);
+            //            hostDescriptor.port(50000 + i);
             node_descriptors.add(hostDescriptor);
         }
 

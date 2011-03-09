@@ -39,9 +39,15 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
  */
 public class ChordManager extends P2PNodeManager {
 
-    private static final String CHORD_APPLICATION_NAME = "Chord";
+    /**
+     * Name of 'ring size' attribute.
+     */
     public static final String RING_SIZE_NAME = "Ring Size";
+    private static final String CHORD_APPLICATION_NAME = "Chord";
 
+    /**
+     * Initializes a Chord manager.
+     */
     public ChordManager() {
 
         factory = new ChordNodeFactory();
