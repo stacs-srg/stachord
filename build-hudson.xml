@@ -5,7 +5,7 @@
 
 	<import file="${hudson-tools-archive-dir}/build-common.xml"/>
 
-	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, 3rd-party-jars, project-release, release-doc, do-checkstyle, do-findbugs, do-cpd,  do-highlight" />
+	<target name="build" depends="do-init-release, do-compile, do-test, project-jar, 3rd-party-jars, project-release, release-doc, do-checkstyle, do-findbugs, do-cpd" />
 
 	<target name="build-nightly" depends="do-init-release, do-compile, do-test-nightly" />
 
