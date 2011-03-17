@@ -111,7 +111,6 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final int retry_interval, final int timeout_interval) throws TimeoutException {
 
         return (IChordRemoteReference) bindToNode(retry_interval, timeout_interval, node_address);
-
     }
 
     // -------------------------------------------------------------------------------------------------------

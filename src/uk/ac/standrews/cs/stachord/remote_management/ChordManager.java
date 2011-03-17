@@ -27,7 +27,8 @@ package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetSocketAddress;
 
-import uk.ac.standrews.cs.nds.p2p.network.IPingable;
+import uk.ac.standrews.cs.nds.madface.IPingable;
+import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeManager;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
@@ -38,6 +39,8 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class ChordManager extends P2PNodeManager {
+
+    private final ChordNodeFactory factory;
 
     /**
      * Name of 'ring size' attribute.
@@ -51,6 +54,7 @@ public class ChordManager extends P2PNodeManager {
     public ChordManager() {
 
         factory = new ChordNodeFactory();
+
         getSingleScanners().add(new ChordCycleLengthScanner());
         getGlobalScanners().add(new ChordPartitionScanner());
     }
@@ -66,6 +70,12 @@ public class ChordManager extends P2PNodeManager {
     @Override
     public IPingable getApplicationReference(final InetSocketAddress inet_socket_address) throws RPCException {
 
-        return ((ChordNodeFactory) factory).bindToNode(inet_socket_address);
+        return factory.bindToNode(inet_socket_address);
+    }
+
+    @Override
+    protected P2PNodeFactory getP2PNodeFactory() {
+
+        return factory;
     }
 }
