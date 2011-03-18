@@ -62,7 +62,7 @@ class SuccessorList {
 
         for (final IChordRemoteReference next : successor_list) {
             try {
-                next.getRemote().isAlive();
+                next.ping();
                 return next;
             }
             catch (final RPCException e) {

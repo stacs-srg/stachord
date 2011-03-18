@@ -266,11 +266,11 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         return finger_table.getFingers();
     }
 
-    @Override
-    public void isAlive() {
-
-        // No action needed.
-    }
+    //    @Override
+    //    public void isAlive() {
+    //
+    //        // No action needed.
+    //    }
 
     @Override
     public NextHopResult nextHop(final IKey k) throws RPCException {
@@ -610,7 +610,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private void pingPredecessor() throws RPCException {
 
         if (predecessor != null) {
-            predecessor.getRemote().isAlive();
+            predecessor.ping();
         }
     }
 

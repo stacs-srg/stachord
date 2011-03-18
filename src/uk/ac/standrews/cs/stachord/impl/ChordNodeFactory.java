@@ -93,7 +93,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
         final ChordRemoteReference remote_reference = new ChordRemoteReference(node_address);
 
         // Check that the remote application can be contacted.
-        remote_reference.getRemote().isAlive();
+        remote_reference.ping();
 
         return remote_reference;
     }

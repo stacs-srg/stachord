@@ -80,9 +80,9 @@ class ChordRemoteReference implements IChordRemoteReference {
     }
 
     @Override
-    public void isAlive() throws RPCException {
+    public void ping() throws RPCException {
 
-        reference.isAlive();
+        reference.ping();
     }
 
     @Override

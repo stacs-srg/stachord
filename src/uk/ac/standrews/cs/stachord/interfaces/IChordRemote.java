@@ -112,12 +112,12 @@ public interface IChordRemote {
      */
     List<IChordRemoteReference> getFingerList() throws RPCException;
 
-    /**
-     * Used to check liveness of this node.
-     *
-     * @throws RPCException if an error occurs during the remote call
-     */
-    void isAlive() throws RPCException;
+    //    /**
+    //     * Used to check liveness of this node.
+    //     *
+    //     * @throws RPCException if an error occurs during the remote call
+    //     */
+    //    void isAlive() throws RPCException;
 
     /**
      * Returns the next hop towards the successor node of a given key.
