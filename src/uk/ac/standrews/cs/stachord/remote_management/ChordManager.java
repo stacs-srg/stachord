@@ -51,7 +51,9 @@ public class ChordManager extends P2PNodeManager {
     /**
      * Initializes a Chord manager.
      */
-    public ChordManager() {
+    public ChordManager(final boolean local_deployment_only) {
+
+        super(local_deployment_only);
 
         factory = new ChordNodeFactory();
 

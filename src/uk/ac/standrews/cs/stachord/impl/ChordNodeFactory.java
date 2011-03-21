@@ -47,6 +47,11 @@ import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
  */
 public final class ChordNodeFactory extends P2PNodeFactory {
 
+    public ChordNodeFactory() {
+
+        super();
+    }
+
     /**
      * Creates a new Chord node running in the current JVM at a given local network address on a given port, establishing a new one-node ring.
      *
@@ -102,8 +107,6 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * Binds to an existing remote Chord node running at a given network address, checking for liveness, retrying on any error until the timeout interval has elapsed.
      *
      * @param node_address the address of the existing node
-     * @param retry_interval TODO
-     * @param timeout_interval TODO
      * @return a remote reference to the node
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval

@@ -118,6 +118,7 @@ public class LocalRecoveryTests {
         System.out.println("constructing ring... ");
         final long ring_creation_start_time = System.currentTimeMillis();
         final INetwork network = new LocalChordNetwork(ring_size, network_type);
+        //        final INetwork network = new LocalChordNetworkSingleProcess(ring_size, network_type);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start_time);
     }

@@ -75,7 +75,7 @@ public class TestNetwork implements INetwork {
     }
 
     @Override
-    public void killAllNodes() {
+    public void killAllNodes() throws Exception {
 
         network.killAllNodes();
     }

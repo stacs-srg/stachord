@@ -59,7 +59,8 @@ public class ChordNetwork implements INetwork {
      */
     public ChordNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
-        final IApplicationManager application_manager = new ChordManager();
+        final boolean local_deployment_only = allLocal(host_descriptors);
+        final IApplicationManager application_manager = new ChordManager(local_deployment_only);
         network = new P2PNetwork(host_descriptors, application_manager, key_distribution);
 
         // Pick one node for the others to join.
@@ -91,8 +92,18 @@ public class ChordNetwork implements INetwork {
     }
 
     @Override
-    public void killAllNodes() {
+    public void killAllNodes() throws Exception {
 
         network.killAllNodes();
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    private boolean allLocal(final List<HostDescriptor> host_descriptors) {
+
+        for (final HostDescriptor host_descriptor : host_descriptors) {
+            if (!host_descriptor.local()) { return false; }
+        }
+        return true;
     }
 }

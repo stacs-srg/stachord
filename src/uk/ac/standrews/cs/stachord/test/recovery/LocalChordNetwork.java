@@ -34,7 +34,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
- * Network comprising P2P nodes all running on the local machine.
+ * Network comprising Chord nodes all running on the local machine, in separate processes.
  *
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
@@ -75,7 +75,7 @@ public class LocalChordNetwork implements INetwork {
     }
 
     @Override
-    public void killAllNodes() {
+    public void killAllNodes() throws Exception {
 
         network.killAllNodes();
     }

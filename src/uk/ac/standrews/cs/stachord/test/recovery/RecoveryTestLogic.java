@@ -94,11 +94,9 @@ public final class RecoveryTestLogic {
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
      * @param ring_creation_start_time the time at which ring creation was started
-     *
-     * @throws RPCException if an error occurs when setting finger table maintenance on a node
-     * @throws TimeoutException if one of the steps of the test is not completed within the timeout interval
+     * @throws Exception if the network cannot be shut down 
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout, final long ring_creation_start_time) throws RPCException, TimeoutException {
+    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout, final long ring_creation_start_time) throws Exception {
 
         long start_time = printElapsedTime(ring_creation_start_time);
 
