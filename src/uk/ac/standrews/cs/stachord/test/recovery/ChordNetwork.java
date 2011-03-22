@@ -79,7 +79,16 @@ public class ChordNetwork implements INetwork {
             final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
             final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
 
-            node.join(known_node);
+            while (true) {
+                try {
+                    node.join(known_node);
+                    break;
+                }
+                catch (final Exception e) {
+                    System.out.println("join failed, retrying");
+                    Thread.yield();
+                }
+            }
         }
     }
 
