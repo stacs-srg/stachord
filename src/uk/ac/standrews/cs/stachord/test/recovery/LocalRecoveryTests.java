@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
+import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 import com.mindbright.ssh2.SSH2Exception;
 
@@ -53,6 +53,8 @@ public class LocalRecoveryTests {
 
     private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
 
+    //    private static final int[] RING_SIZES = {2};
+
     /**
      * Disables diagnostic output and kills existing instances.
      * @throws IOException if existing instances cannot be killed
@@ -65,7 +67,7 @@ public class LocalRecoveryTests {
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
         // Kill any lingering Chord node processes.
-        new ProcessManager().killMatchingProcesses(StartNodeInNewRing.class.getSimpleName());
+        new ProcessManager().killMatchingProcesses(NodeServer.class.getSimpleName());
     }
 
     /**

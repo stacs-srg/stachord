@@ -31,6 +31,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
@@ -55,8 +56,6 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordMonitoring;
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class RecoveryTestLogic {
-
-    private static final int MILLIS_PER_SECOND = 1000;
 
     /**
      * Prevent instantiation of utility class.
@@ -142,7 +141,9 @@ public final class RecoveryTestLogic {
     private static long printElapsedTime(final long start_time) {
 
         final long current_time = System.currentTimeMillis();
-        System.out.println("done in " + (current_time - start_time) / MILLIS_PER_SECOND + "s");
+        final long seconds_elapsed = TimeUnit.MILLISECONDS.toSeconds(current_time - start_time);
+        System.out.println("done in " + seconds_elapsed + "s");
+
         return current_time;
     }
 
@@ -285,7 +286,10 @@ public final class RecoveryTestLogic {
         }
 
         // Check that we see cycles containing the same number of nodes as the network size.
-        return ChordMonitoring.cycleLengthFrom(host_descriptor, true) == network_size && ChordMonitoring.cycleLengthFrom(host_descriptor, false) == network_size;
+        final int cycleLengthForwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+        final int cycleLengthBackwards = ChordMonitoring.cycleLengthFrom(host_descriptor, false);
+
+        return cycleLengthForwards == network_size && cycleLengthBackwards == network_size;
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -522,6 +526,7 @@ public final class RecoveryTestLogic {
             Thread.sleep(WAIT_DELAY);
         }
         catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -572,6 +577,7 @@ public final class RecoveryTestLogic {
         return indices;
     }
 
+    // TODO rewrite with standard Java classes
     private static void checkWithTimeout(final List<HostDescriptor> nodes, final IRingCheck checker, final int test_timeout) throws TimeoutException {
 
         final long start_time = System.currentTimeMillis();

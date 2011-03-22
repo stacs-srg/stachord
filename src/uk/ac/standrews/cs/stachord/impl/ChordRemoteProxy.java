@@ -224,17 +224,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
         }
     }
 
-    //    @Override
-    //    public void isAlive() throws RPCException {
-    //
-    //        try {
-    //            makeCall("isAlive");
-    //        }
-    //        catch (final Exception e) {
-    //            dealWithException(e);
-    //        }
-    //    }
-
     @Override
     public NextHopResult nextHop(final IKey key) throws RPCException {
 

@@ -30,6 +30,7 @@ import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
+import uk.ac.standrews.cs.stachord.impl.ChordLocalReference;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
 /**
@@ -61,16 +62,19 @@ public class LocalChordNetworkSingleProcess implements INetwork {
 
         for (int node_index = 0; node_index < number_of_nodes; node_index++) {
 
-            final HostDescriptor new_node_descriptor = new HostDescriptor();
+            final HostDescriptor host_descriptor = new HostDescriptor();
 
-            new_node_descriptor.applicationDeploymentParams(new Object[]{node_keys[node_index]});
-            new_node_descriptor.deployInLocalProcess(true);
+            host_descriptor.applicationDeploymentParams(new Object[]{node_keys[node_index]});
+            host_descriptor.deployInLocalProcess(true);
 
-            // TODO create killable proxy and substitute here.
-            factory.createNode(new_node_descriptor, node_keys[node_index]);
+            // Set the application_reference field in the host descriptor to an instance of ChordLocalReference, controlled by the deployInLocalProcess() flag.
+            factory.createNode(host_descriptor, node_keys[node_index]);
 
-            host_descriptors.add(new_node_descriptor);
+            host_descriptors.add(host_descriptor);
         }
+
+        // Join the nodes to each other.
+        ChordNetwork.assembleChordRing(host_descriptors);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -81,17 +85,29 @@ public class LocalChordNetworkSingleProcess implements INetwork {
         return host_descriptors;
     }
 
-    @Override
-    public synchronized void killNode(final HostDescriptor node) throws Exception {
+    /**
+     * Simulates node failure by shutting down the node's network server.
+     * @param host_descriptor
+     * @throws Exception
+     */
+    private void shutdownNode(final HostDescriptor host_descriptor) throws Exception {
 
-        // TODO kill via proxy
+        ((ChordLocalReference) host_descriptor.getApplicationReference()).getNode().shutDown();
+    }
+
+    @Override
+    public synchronized void killNode(final HostDescriptor host_descriptor) throws Exception {
+
+        shutdownNode(host_descriptor);
+        host_descriptors.remove(host_descriptor);
     }
 
     @Override
     public synchronized void killAllNodes() throws Exception {
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
-            killNode(host_descriptor);
+            shutdownNode(host_descriptor);
         }
+        host_descriptors.clear();
     }
 }

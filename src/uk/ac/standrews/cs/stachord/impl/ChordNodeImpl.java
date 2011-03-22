@@ -66,7 +66,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private final FingerTable finger_table; // The finger table of this node.
     private final ChordRemoteServer chord_remote_server;
 
-    private boolean maintenance_thread_finished = false;
+    private volatile boolean maintenance_thread_finished = false;
     private final boolean own_address_maintenance_enabled = true; // Whether periodic checking of own address is enabled
     private boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
     private boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
@@ -157,13 +157,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         // Route to this node's key; the result is this node's new successor.
         final IChordRemote remote = known_node.getRemote();
-        IChordRemoteReference new_successor;
-        try {
-            new_successor = remote.lookup(key);
-        }
-        catch (final RPCException e) {
-            throw e;
-        }
+        final IChordRemoteReference new_successor = remote.lookup(key);
 
         // Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
         // This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
@@ -186,15 +180,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         // Stop the maintenance thread.
         shutdownMaintenanceThread();
 
-        // Unhook the node from RMI.
+        // Shutdown the server.
         try {
             unexposeNode();
         }
         catch (final Exception e) {
             Diagnostic.trace(DiagnosticLevel.FULL, "failed to destroy node: ", key);
         }
-
-        Diagnostic.trace(DiagnosticLevel.FULL, "shutdown node: ", key);
     }
 
     /**
@@ -214,9 +206,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             throw new RPCException("predecessor is null");
         }
 
-        final IKey predecessor_key = predecessor.getCachedKey();
-
-        return RingArithmetic.inSegment(predecessor_key, k, key);
+        return RingArithmetic.inSegment(predecessor.getCachedKey(), k, key);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -265,12 +255,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         return finger_table.getFingers();
     }
-
-    //    @Override
-    //    public void isAlive() {
-    //
-    //        // No action needed.
-    //    }
 
     @Override
     public NextHopResult nextHop(final IKey k) throws RPCException {
@@ -471,7 +455,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     private synchronized void stabilize() {
 
         try {
-
             // Find predecessor of this node's successor.
             final IChordRemoteReference predecessor_of_successor = getPredecessorOfSuccessor();
 
@@ -694,14 +677,14 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                     joinUsingFinger();
                 }
                 catch (final NoReachableNodeException e1) {
-                    // we are on our own - nothing we can do
+
                     // We don't have a predecessor and can't connect via the fingers
                     // In this case - will never rejoin without some manual intervention (?)
                     Diagnostic.trace("Cannot rejoin ring using predecessor (null) or finger");
                 }
             }
             else {
-                // normal case
+                // Normal case
                 join(predecessor);
             }
         }
@@ -778,6 +761,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         this.successor = successor;
 
         if (old_successor != null && !old_successor.equals(successor)) {
+
             setChanged();
             notifyObservers(SUCCESSOR_CHANGE_EVENT);
         }
@@ -835,7 +819,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             @Override
             public void run() {
 
-                while (!maintenance_thread_finished) {
+                while (!isInterrupted() && !maintenance_thread_finished) {
 
                     if (ownAddressMaintenanceEnabled()) {
                         checkOwnAddress();
@@ -894,7 +878,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             Thread.sleep(MAINTENANCE_WAIT_INTERVAL);
         }
         catch (final InterruptedException e) {
-            // Ignore.
+            Thread.currentThread().interrupt();
         }
     }
 }

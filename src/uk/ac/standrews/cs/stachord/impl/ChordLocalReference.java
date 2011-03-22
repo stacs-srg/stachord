@@ -29,73 +29,67 @@ import java.net.InetSocketAddress;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
- * Holds a reference to a remote Chord node, with a locally cached copy of its key and IP address.
+ * A specialised version of ChordRemoteReference, used in testing, which retains the local reference.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
-class ChordRemoteReference implements IChordRemoteReference {
+public class ChordLocalReference implements IChordRemoteReference {
 
-    private IKey key = null;
-    private final InetSocketAddress address;
-    private final ChordRemoteProxy reference;
+    private final IChordNode node;
+    private final IChordRemoteReference remote_reference;
 
-    public ChordRemoteReference(final InetSocketAddress address) {
+    public ChordLocalReference(final IChordNode node, final IChordRemoteReference remote_reference) {
 
-        this.address = address;
-        reference = ChordRemoteProxy.getProxy(address);
+        this.node = node;
+        this.remote_reference = remote_reference;
     }
 
-    public ChordRemoteReference(final IKey key, final InetSocketAddress address) {
+    public IChordNode getNode() {
 
-        this(address);
-        this.key = key;
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    @Override
-    public IKey getCachedKey() throws RPCException {
-
-        if (key == null) {
-            key = reference.getKey();
-        }
-        return key;
-    }
-
-    @Override
-    public InetSocketAddress getCachedAddress() {
-
-        return address;
-    }
-
-    @Override
-    public IChordRemote getRemote() {
-
-        return reference;
+        return node;
     }
 
     @Override
     public void ping() throws RPCException {
 
-        reference.ping();
+        remote_reference.ping();
+    }
+
+    @Override
+    public IKey getCachedKey() throws RPCException {
+
+        return remote_reference.getCachedKey();
+    }
+
+    @Override
+    public InetSocketAddress getCachedAddress() {
+
+        return remote_reference.getCachedAddress();
+    }
+
+    @Override
+    public IChordRemote getRemote() {
+
+        return remote_reference.getRemote();
     }
 
     @Override
     public int hashCode() {
 
-        return key == null ? 0 : key.hashCode();
+        return remote_reference.hashCode();
     }
 
     @Override
     public boolean equals(final Object o) {
 
         try {
-            return o instanceof IChordRemoteReference && key != null && key.equals(((IChordRemoteReference) o).getCachedKey());
+            return o instanceof IChordRemoteReference && remote_reference.getCachedKey() != null && remote_reference.getCachedKey().equals(((IChordRemoteReference) o).getCachedKey());
         }
         catch (final RPCException e) {
             return false;
@@ -105,6 +99,6 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public String toString() {
 
-        return getRemote().toString();
+        return remote_reference.toString();
     }
 }

@@ -31,6 +31,7 @@ import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -62,6 +63,11 @@ public class ChordNetwork implements INetwork {
         final boolean local_deployment_only = allLocal(host_descriptors);
         final IApplicationManager application_manager = new ChordManager(local_deployment_only);
         network = new P2PNetwork(host_descriptors, application_manager, key_distribution);
+
+        assembleChordRing(host_descriptors);
+    }
+
+    protected static void assembleChordRing(final List<HostDescriptor> host_descriptors) throws RPCException {
 
         // Pick one node for the others to join.
         final HostDescriptor known_node_descriptor = host_descriptors.get(0);

@@ -59,7 +59,6 @@ public final class ChordMonitoring {
         final Set<IChordRemoteReference> nodes_encountered = new HashSet<IChordRemoteReference>();
 
         int cycle_length = 0;
-
         IChordRemoteReference node = application_reference;
 
         while (true) {

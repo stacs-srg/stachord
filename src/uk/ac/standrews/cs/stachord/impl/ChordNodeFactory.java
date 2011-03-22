@@ -38,7 +38,7 @@ import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.servers.StartNodeInNewRing;
+import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 /**
  * Provides methods for creating new Chord nodes and binding to existing remote Chord nodes.
@@ -119,6 +119,12 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
+    protected IChordRemoteReference createLocalReference(final Object node, final Object remote_reference) {
+
+        return new ChordLocalReference((IChordNode) node, (IChordRemoteReference) remote_reference);
+    }
+
+    @Override
     public Object bindToNode(final Object... args) throws RPCException {
 
         final InetSocketAddress node_address = (InetSocketAddress) args[0];
@@ -135,6 +141,6 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     @Override
     protected Class<?> getNodeServerClass() {
 
-        return StartNodeInNewRing.class;
+        return NodeServer.class;
     }
 }

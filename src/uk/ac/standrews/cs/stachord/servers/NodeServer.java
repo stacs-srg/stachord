@@ -27,7 +27,12 @@ package uk.ac.standrews.cs.stachord.servers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Map;
 
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -41,38 +46,39 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
- * Provides the entry point for deploying a Chord node that is joining an existing Chord ring.
+ * Provides the entry point for deploying a Chord node.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public final class StartNodeInExistingRing extends AbstractServer {
+public final class NodeServer {
 
-    private final String known_address;
-    private final int known_port;
+    private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 
-    private StartNodeInExistingRing(final String[] args) throws UndefinedDiagnosticLevelException {
+    private IKey node_key;
+    private InetSocketAddress local_address = null;
+    private InetSocketAddress join_address = null;
 
-        super(args);
+    private static final ChordNodeFactory factory = new ChordNodeFactory();
 
-        final String known_address_parameter = CommandLineArgs.getArg(args, "-k");
-        if (known_address_parameter == null) {
-            usage();
-        }
+    public NodeServer(final String[] args) throws UndefinedDiagnosticLevelException, UnknownHostException {
 
-        known_address = NetworkUtil.extractHostName(known_address_parameter);
-        known_port = NetworkUtil.extractPortNumber(known_address_parameter);
+        final Map<String, String> arguments = CommandLineArgs.parseCommandLineArgs(args);
+
+        configureDiagnostics(arguments);
+        configureLocalAddress(arguments);
+        configureJoinAddress(arguments);
+        configureNodeKey(arguments);
     }
 
     /**
-     * Creates a node that joins an existing ring.
      * The following command line parameters are available:
      * <dl>
      * <dt>-shost:port (required)</dt>
      * <dd>Specifies the local address and port at which the Chord service should be made available.</dd>
      *
-     * <dt>-khost:port (required)</dt>
-     * <dd>Specifies the address and port for a known host that will be used to join the Chord ring. </dd>
+     * <dt>-khost:port (optional)</dt>
+     * <dd>Specifies the address and port of an existing Chord node, via which the new node should join the ring.</dd>
      *
      * <dt>-xkey (optional)</dt>
      * <dd>Specifies the key for the new Chord node.</dd>
@@ -91,26 +97,61 @@ public final class StartNodeInExistingRing extends AbstractServer {
      */
     public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
 
-        final StartNodeInExistingRing starter = new StartNodeInExistingRing(args);
-        starter.createNode();
+        final NodeServer server = new NodeServer(args);
+        server.createNode();
     }
 
     // -------------------------------------------------------------------------------------------------------
 
-    private void createNode() throws RPCException, IOException, AlreadyBoundException, RegistryUnavailableException {
+    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
-        Diagnostic.traceNoSource(DiagnosticLevel.FULL, "Joining Chord ring with address: ", local_address, " on port: ", local_port, ", known node: ", known_address, " on port: ", known_port, " with key: ", server_key);
+        final IChordNode node = node_key == null ? new ChordNodeFactory().createNode(local_address) : new ChordNodeFactory().createNode(local_address, node_key);
 
-        final InetSocketAddress known_socket_address = new InetSocketAddress(known_address, known_port);
+        if (join_address != null) {
+            node.join(factory.bindToNode(join_address));
+        }
 
-        final IChordNode node = makeNode();
-
-        node.join(new ChordNodeFactory().bindToNode(known_socket_address));
+        return node;
     }
 
-    @Override
-    protected void usage() {
+    // -------------------------------------------------------------------------------------------------------
 
-        ErrorHandling.hardError("Usage: -shost:port -k[host][:port] [-xkey] [-Dlevel]");
+    private void usage() {
+
+        ErrorHandling.hardError("Usage: -shost:port [-khost:port] [-xkey] [-Dlevel]");
+    }
+
+    private void configureDiagnostics(final Map<String, String> arguments) throws UndefinedDiagnosticLevelException {
+
+        Diagnostic.setLevel(DiagnosticLevel.getDiagnosticLevelFromCommandLineArg(arguments.get("-D"), DEFAULT_DIAGNOSTIC_LEVEL));
+        Diagnostic.setTimestampFlag(true);
+        Diagnostic.setTimestampFormat(new SimpleDateFormat("HH:mm:ss:SSS "));
+        Diagnostic.setTimestampDelimiterFlag(false);
+        ErrorHandling.setTimestampFlag(false);
+    }
+
+    private void configureLocalAddress(final Map<String, String> arguments) throws UnknownHostException {
+
+        final String local_address_parameter = arguments.get("-s"); // This node's address.
+        if (local_address_parameter == null) {
+            usage();
+        }
+        local_address = NetworkUtil.extractInetSocketAddress(local_address_parameter, 0);
+    }
+
+    private void configureJoinAddress(final Map<String, String> arguments) throws UnknownHostException {
+
+        final String known_address_parameter = arguments.get("-k");
+        if (known_address_parameter != null) {
+            join_address = NetworkUtil.extractInetSocketAddress(known_address_parameter, 0);
+        }
+    }
+
+    private void configureNodeKey(final Map<String, String> arguments) {
+
+        final String server_key_parameter = arguments.get("-x"); // This node's key.
+        if (server_key_parameter != null && !server_key_parameter.equals("null")) {
+            node_key = new Key(server_key_parameter);
+        }
     }
 }
