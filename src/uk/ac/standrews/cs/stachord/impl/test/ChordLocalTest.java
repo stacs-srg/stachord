@@ -32,8 +32,8 @@ import static org.junit.Assert.assertThat;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -50,15 +50,15 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 public class ChordLocalTest {
 
     private static final int PORT = 10000;
-    private IKey key;
-    private IChordNode chord_node;
+    private static IKey key;
+    private static IChordNode chord_node;
 
     /**
      * Sets up test.
      * @throws Exception if the test cannot be set up.
      */
-    @Before
-    public void setup() throws Exception {
+    @BeforeClass
+    public static void setup() throws Exception {
 
         key = new Key(new BigInteger("3"));
         chord_node = new ChordNodeFactory().createNode(new InetSocketAddress(NetworkUtil.getLocalIPv4Address(), PORT), key);
@@ -67,8 +67,8 @@ public class ChordLocalTest {
     /**
      * Cleans up test.
      */
-    @After
-    public void teardown() {
+    @AfterClass
+    public static void teardown() {
 
         chord_node.shutDown();
     }
