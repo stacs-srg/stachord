@@ -35,6 +35,7 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in the same process.
+ * This creates the node instances as local objects, via {@link ChordNodeFactory}.
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)

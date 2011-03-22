@@ -46,7 +46,7 @@ import com.mindbright.ssh2.SSH2Exception;
  *
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public class LocalRecoveryTests {
+public abstract class LocalRecoveryTestBase {
 
     private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
     // TODO Make this work on Windows.
@@ -119,9 +119,10 @@ public class LocalRecoveryTests {
 
         System.out.println("constructing ring... ");
         final long ring_creation_start_time = System.currentTimeMillis();
-        final INetwork network = new LocalChordNetwork(ring_size, network_type);
-        //        final INetwork network = new LocalChordNetworkSingleProcess(ring_size, network_type);
+        final INetwork network = getTestNetwork(ring_size, network_type);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start_time);
     }
+
+    protected abstract INetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
 }

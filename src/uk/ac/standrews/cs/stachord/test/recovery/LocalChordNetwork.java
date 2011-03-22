@@ -35,6 +35,7 @@ import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in separate processes.
+ * This uses Madface to instantiate the node processes, via {@link ChordNetwork}.
  *
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
