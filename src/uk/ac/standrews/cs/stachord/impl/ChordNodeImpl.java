@@ -382,7 +382,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(SUCCESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "successor now: ", (successor != null ? successor.getCachedKey() : "null"));
+                Diagnostic.trace("successor of " + key + " now: ", (successor != null ? successor.getCachedKey() : "null"));
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling successor change");
@@ -391,7 +391,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(PREDECESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "predecessor now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
+                Diagnostic.trace("predecessor of " + key + " now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling predecessor change");
