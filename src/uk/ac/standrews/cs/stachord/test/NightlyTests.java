@@ -29,13 +29,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import uk.ac.standrews.cs.stachord.test.recovery.LocalRecoveryTestsSameProcessWithNetwork;
-import uk.ac.standrews.cs.stachord.test.recovery.LocalRecoveryTestsSeparateProcesses;
 
 /**
  * Tests run nightly.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({LocalRecoveryTestsSameProcessWithNetwork.class, LocalRecoveryTestsSeparateProcesses.class})
+@Suite.SuiteClasses({LocalRecoveryTestsSameProcessWithNetwork.class})
 public class NightlyTests {
     // Empty.
 }

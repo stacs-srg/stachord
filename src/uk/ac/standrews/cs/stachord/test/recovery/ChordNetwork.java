@@ -32,6 +32,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -85,7 +86,7 @@ public class ChordNetwork implements INetwork {
                     break;
                 }
                 catch (final Exception e) {
-                    System.out.println("join failed, retrying");
+                    Diagnostic.trace("join of " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedKey() + " to " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedKey() + " failed, retrying");
                     Thread.yield();
                 }
             }
