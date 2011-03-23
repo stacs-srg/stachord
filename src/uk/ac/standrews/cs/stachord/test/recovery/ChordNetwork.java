@@ -86,7 +86,8 @@ public class ChordNetwork implements INetwork {
                     break;
                 }
                 catch (final Exception e) {
-                    Diagnostic.trace("join of " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedKey() + " to " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedKey() + " failed, retrying");
+                    Diagnostic.trace("join of " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedKey() + " to " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedKey() + " failed: " + e.getMessage());
+                    e.printStackTrace();
                     Thread.yield();
                 }
             }
