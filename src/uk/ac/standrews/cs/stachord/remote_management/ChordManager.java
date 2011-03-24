@@ -48,6 +48,11 @@ public class ChordManager extends P2PNodeManager {
     public static final String RING_SIZE_NAME = "Ring Size";
     private static final String CHORD_APPLICATION_NAME = "Chord";
 
+    public ChordManager() {
+
+        this(false);
+    }
+
     /**
      * Initializes a Chord manager.
      */
