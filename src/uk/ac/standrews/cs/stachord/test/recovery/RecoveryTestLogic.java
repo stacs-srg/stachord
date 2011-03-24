@@ -93,7 +93,7 @@ public final class RecoveryTestLogic {
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
      * @param ring_creation_start_time the time at which ring creation was started
-     * @throws Exception if the network cannot be shut down 
+     * @throws Exception if the network cannot be shut down
      */
     public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout, final long ring_creation_start_time) throws Exception {
 
@@ -126,7 +126,6 @@ public final class RecoveryTestLogic {
             waitForCorrectRouting(nodes, test_timeout);
             start_time = printElapsedTime(start_time);
         }
-
         catch (final TimeoutException e) {
             throw e;
         }
@@ -239,16 +238,20 @@ public final class RecoveryTestLogic {
 
     /**
      * Tests whether all nodes in are ring are stable. See {@link #ringStable(HostDescriptor, int)} for definition of stability.
+     * We define a single-node network as stable. Should really have null as predecessor and self as successor, but don't insist on this because
+     * setting self as successor if no running successor can be found when dealing with errors would
+     * preclude recovery from transient faults or successor that fails and recovers. See joinUsingFinger() in ChordMaintenanceThread.
      *
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes are stable
      */
-    private static boolean ringStable(final List<HostDescriptor> host_descriptors) {
+    public static boolean ringStable(final List<HostDescriptor> host_descriptors) {
 
-        final int ring_size = host_descriptors.size();
+        final int network_size = host_descriptors.size();
+        if (network_size == 1) { return true; }
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
-            if (!ringStable(host_descriptor, ring_size)) { return false; }
+            if (!ringStable(host_descriptor, network_size)) { return false; }
         }
 
         return true;
@@ -270,20 +273,6 @@ public final class RecoveryTestLogic {
      * @return true if the node is stable.
      */
     public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) {
-
-        if (network_size == 1) {
-
-            // Single-node ring, so stable if predecessor is null and successor is self.
-            final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
-            final IChordRemote node = application_reference.getRemote();
-
-            try {
-                return node.getPredecessor() == null && node.getSuccessor().getCachedKey().equals(node.getKey());
-            }
-            catch (final RPCException e) {
-                return false;
-            }
-        }
 
         // Check that we see cycles containing the same number of nodes as the network size.
         final int cycleLengthForwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
@@ -317,8 +306,11 @@ public final class RecoveryTestLogic {
 
             for (final IChordRemoteReference finger_reference : node.getRemote().getFingerList()) {
 
-                // Check that the finger is not this node.
-                if (finger_reference == null) { return false; }
+                // Check that the finger is not null.
+                if (finger_reference == null) {
+                    //                    System.out.println(finger_number + " ftc1");
+                    return false;
+                }
 
                 // Check that the finger is not closer in ring distance than the previous non-null finger.
                 // Treat self-reference as the full ring distance, so ignore case where finger points to this node.
@@ -328,7 +320,10 @@ public final class RecoveryTestLogic {
 
                 if (previous_finger_reference != null && !finger_key.equals(node_key)) {
 
-                    if (RingArithmetic.ringDistanceFurther(node_key, previous_finger_reference.getCachedKey(), finger_key)) { return false; }
+                    if (RingArithmetic.ringDistanceFurther(node_key, previous_finger_reference.getCachedKey(), finger_key)) {
+                        //                        System.out.println(finger_number + " ftc2");
+                        return false;
+                    }
                 }
 
                 previous_finger_reference = finger_reference;
@@ -336,24 +331,29 @@ public final class RecoveryTestLogic {
             }
         }
         catch (final RPCException e) {
+            //            System.out.println("ftc3");
             return false;
         }
 
+        //        System.out.println("ftc4");
         return true;
     }
 
     /**
      * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
-     *
+     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
+     * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
     public static boolean successorListComplete(final List<HostDescriptor> host_descriptors) {
 
-        final int ring_size = host_descriptors.size();
+        final int network_size = host_descriptors.size();
+        if (network_size == 1) { return true; }
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
-            if (!successorListComplete(host_descriptor, ring_size)) { return false; }
+            if (!successorListComplete(host_descriptor, network_size)) { return false; }
         }
 
         return true;
@@ -402,11 +402,14 @@ public final class RecoveryTestLogic {
 
     /**
      * Tests whether routing works correctly between all pairs of nodes. See {@link #routingCorrect(IChordRemoteReference, IChordRemoteReference)} for definition of correctness.
+     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(List)} for rationale for allowing this.
      *
      * @param host_descriptors a list of Chord nodes
      * @return true if routing works correctly between all pairs of nodes
      */
     public static boolean routingCorrect(final List<HostDescriptor> host_descriptors) {
+
+        if (host_descriptors.size() == 1) { return true; }
 
         for (final HostDescriptor host_descriptor1 : host_descriptors) {
             for (final HostDescriptor host_descriptor2 : host_descriptors) {
@@ -470,11 +473,15 @@ public final class RecoveryTestLogic {
 
     /**
      * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
-     *
+     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
+     * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
     private static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
+
+        if (host_descriptors.size() == 1) { return true; }
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
             if (!fingerTableComplete(host_descriptor)) { return false; }
@@ -546,6 +553,7 @@ public final class RecoveryTestLogic {
                 try {
                     final HostDescriptor victim = nodes.get(victim_index);
                     network.killNode(victim);
+                    //                    System.out.println("killed node on port: " + victim.getPort());
                 }
                 catch (final Exception e) {
                     ErrorHandling.error(e, "error killing node: " + e.getMessage());
