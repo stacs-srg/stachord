@@ -49,9 +49,8 @@ import com.mindbright.ssh2.SSH2Exception;
 public abstract class LocalRecoveryTestBase {
 
     private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
-    // TODO Make this work on Windows.
 
-    private static final int[] RING_SIZES = {1, 2, 3, 4, 5, 10, 20};
+    // TODO Make this work on Windows.
 
     //    private static final int[] RING_SIZES = {2};
 
@@ -107,7 +106,7 @@ public abstract class LocalRecoveryTestBase {
 
     private void ringRecovers(final KeyDistribution network_type) throws Exception {
 
-        for (final int ring_size : RING_SIZES) {
+        for (final int ring_size : getRingSizes()) {
 
             System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
             ringRecovers(ring_size, network_type);
@@ -125,4 +124,6 @@ public abstract class LocalRecoveryTestBase {
     }
 
     protected abstract INetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
+
+    protected abstract int[] getRingSizes();
 }

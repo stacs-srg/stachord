@@ -32,7 +32,6 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -68,7 +67,7 @@ public class ChordNetwork implements INetwork {
         assembleChordRing(host_descriptors);
     }
 
-    protected static void assembleChordRing(final List<HostDescriptor> host_descriptors) throws RPCException {
+    protected static void assembleChordRing(final List<HostDescriptor> host_descriptors) {
 
         // Pick one node for the others to join.
         final HostDescriptor known_node_descriptor = host_descriptors.get(0);
@@ -85,9 +84,8 @@ public class ChordNetwork implements INetwork {
                     node.join(known_node);
                     break;
                 }
-                catch (final Exception e) {
-                    Diagnostic.trace("join of " + ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getCachedKey() + " to " + ((IChordRemoteReference) known_node_descriptor.getApplicationReference()).getCachedKey() + " failed: " + e.getMessage());
-                    e.printStackTrace();
+                catch (final RPCException e) {
+                    // Retry.
                     Thread.yield();
                 }
             }
