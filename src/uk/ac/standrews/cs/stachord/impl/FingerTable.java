@@ -26,8 +26,8 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
@@ -72,7 +72,7 @@ class FingerTable {
         fingers = new IChordRemoteReference[number_of_fingers];
         finger_targets = new IKey[number_of_fingers];
 
-        initFingerTargets();
+        initializeFingerTargetKeys();
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ class FingerTable {
      * Fixes the next finger in the finger table.
      * @return true if the finger was changed.
      */
-    public boolean fixNextFinger() {
+    boolean fixNextFinger() {
 
         final boolean changed = fixFinger(next_finger_index);
         next_finger_index--;
@@ -98,9 +98,8 @@ class FingerTable {
      * @return the closest preceding finger to the key
      * @throws NoPrecedingNodeException if no suitable finger is found
      * @throws RPCException if an error occurs in accessing a finger's key
-
      */
-    public synchronized IChordRemoteReference closestPrecedingNode(final IKey k) throws NoPrecedingNodeException, RPCException {
+    IChordRemoteReference closestPrecedingNode(final IKey k) throws NoPrecedingNodeException, RPCException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
@@ -111,8 +110,10 @@ class FingerTable {
             // Looking for finger that lies before k from position of this node.
             // Ignore fingers pointing to this node.
 
-            if (finger != null && !node_key.equals(finger.getCachedKey()) && RingArithmetic.inRingOrder(node_key, finger.getCachedKey(), k)) { return finger; }
-            //            if (finger != null && !node_key.equals(finger.getCachedKey()) && RingArithmetic.ringDistanceFurther(node_key, k, finger.getCachedKey())) { return finger; }
+            if (finger != null) {
+                final IKey finger_key = finger.getCachedKey();
+                if (!finger_key.equals(node_key) && RingArithmetic.inRingOrder(node_key, finger_key, k)) { return finger; }
+            }
         }
 
         throw new NoPrecedingNodeException();
@@ -121,14 +122,19 @@ class FingerTable {
     /**
      * Notifies the finger table of a broken finger.
      *
-     * @param broken_finger the finger that has failed
+     * @param broken_finger the finger that is suspected to have failed
      * @throws RPCException if an error occurs in accessing a finger's key
      */
-    public void fingerFailure(final IChordRemoteReference broken_finger) throws RPCException {
+    void fingerFailure(final IChordRemoteReference broken_finger) throws RPCException {
 
         for (int i = number_of_fingers - 1; i >= 0; i--) {
 
-            if (fingers[i] != null && fingers[i].getCachedKey().equals(broken_finger.getCachedKey())) {
+            IChordRemoteReference finger;
+            synchronized (this) {
+                finger = fingers[i] != null ? fingers[i] : null;
+            }
+
+            if (finger != null && finger.getCachedKey().equals(broken_finger.getCachedKey())) {
                 fingers[i] = null;
             }
         }
@@ -136,16 +142,11 @@ class FingerTable {
 
     /**
      * Returns the contents of the finger table as a list.
-     *
      * @return the contents of the finger table as a list
      */
-    public List<IChordRemoteReference> getFingers() {
+    List<IChordRemoteReference> getFingers() {
 
-        final ArrayList<IChordRemoteReference> finger_list = new ArrayList<IChordRemoteReference>();
-        for (int i = 0; i < number_of_fingers; i++) {
-            finger_list.add(fingers[i]);
-        }
-        return finger_list;
+        return new CopyOnWriteArrayList<IChordRemoteReference>(fingers);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -182,7 +183,7 @@ class FingerTable {
     /**
      * Constructs the finger target keys by successively dividing the offset from this node by the inter-finger ratio.
      */
-    private void initFingerTargets() {
+    private void initializeFingerTargetKeys() {
 
         BigInteger finger_offset = Key.KEYSPACE_SIZE;
 
@@ -217,11 +218,15 @@ class FingerTable {
 
         try {
             final IKey target_key = finger_targets[finger_index];
-            final IChordRemoteReference finger = node.lookup(target_key);
+            final IChordRemoteReference new_finger = node.lookup(target_key);
 
-            final boolean changed = fingers[finger_index] == null || !fingers[finger_index].getCachedKey().equals(finger.getCachedKey());
-            fingers[finger_index] = finger;
-            return changed;
+            IChordRemoteReference old_finger;
+            synchronized (this) {
+                old_finger = fingers[finger_index] != null ? fingers[finger_index] : null;
+            }
+
+            fingers[finger_index] = new_finger;
+            return old_finger == null || !old_finger.getCachedKey().equals(new_finger.getCachedKey());
         }
         catch (final RPCException e) {
             return false;

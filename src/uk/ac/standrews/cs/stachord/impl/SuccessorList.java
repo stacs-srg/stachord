@@ -27,6 +27,7 @@ package uk.ac.standrews.cs.stachord.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
@@ -76,10 +77,9 @@ class SuccessorList {
      * Returns the successor list.
      * @return the successor list
      */
-    @SuppressWarnings("unchecked")
     protected List<IChordRemoteReference> getList() {
 
-        return (List<IChordRemoteReference>) successor_list.clone();
+        return new CopyOnWriteArrayList<IChordRemoteReference>(successor_list);
     }
 
     /**
@@ -104,10 +104,8 @@ class SuccessorList {
 
         final int number_to_be_taken_from_successors_successor_list = Math.min(IChordNode.MAX_SUCCESSOR_LIST_SIZE - 1, successor_list_of_successor.size());
 
-        // Check for the element of the successor list being this node, as will
-        // happen with a small number of nodes in the ring. If this node is
-        // found in the received successor list then that element and all
-        // elements following it are discarded.
+        // Check for the element of the successor list being this node, as will happen with a small number of nodes in the ring. If this node is
+        // found in the received successor list then that element and all elements following it are discarded.
 
         for (int i = 0; i < number_to_be_taken_from_successors_successor_list; i++) {
 

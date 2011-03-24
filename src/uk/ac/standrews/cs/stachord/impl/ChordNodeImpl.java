@@ -26,9 +26,7 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Observable;
 
@@ -41,7 +39,6 @@ import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -56,22 +53,27 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
-    private InetSocketAddress local_address; // The address of this node.
+    private volatile InetSocketAddress local_address; // The address of this node.
+    private volatile IChordRemoteReference self_reference; // A local reference to this node.
+    private volatile IChordRemoteReference predecessor; // The predecessor of this node.
+    private volatile IChordRemoteReference successor; // The successor of this node.
+
+    private volatile boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
+    private volatile boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
+    private volatile boolean finger_table_maintenance_enabled = true; // Whether periodic finger table maintenance should be performed.
+    private volatile boolean detailed_to_string = false; // Whether toString() should return a detailed description.
+
+    private volatile int predecessor_error_count = 0;
+
     private final IKey key; // The key of this node.
     private final int hash_code; // The hash code of this node.
-    private IChordRemoteReference self_reference; // A local RMI reference to this node.
-    private IChordRemoteReference predecessor; // The predecessor of this node.
-    private IChordRemoteReference successor; // The successor of this node.
     private final SuccessorList successor_list; // The successor list of this node.
     private final FingerTable finger_table; // The finger table of this node.
     private final ChordRemoteServer chord_remote_server;
-
-    private volatile boolean maintenance_thread_finished = false;
+    private final ChordMaintenanceThread maintenance_thread;
     private final boolean own_address_maintenance_enabled = true; // Whether periodic checking of own address is enabled
-    private boolean predecessor_maintenance_enabled = true; // Whether periodic predecessor maintenance should be performed.
-    private boolean stabilization_enabled = true; // Whether periodic ring stabilization should be performed.
-    private boolean finger_table_maintenance_enabled = true; // Whether periodic finger table maintenance should be performed.
-    private boolean detailed_to_string = false; // Whether toString() should return a detailed description.
+
+    private static final int PREDECESSOR_ERROR_ACTION_THRESHOLD = 1; // The number of predecessor errors that will be ignored before the predecessor is reset to null.
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -109,6 +111,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         successor_list = new SuccessorList(this);
         finger_table = new FingerTable(this);
         chord_remote_server = new ChordRemoteServer(this);
+        maintenance_thread = new ChordMaintenanceThread(this);
 
         initialiseSelfReference();
 
@@ -117,6 +120,41 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         startMaintenanceThread();
         addObserver(this);
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    // Operations that use synchronization.
+
+    /**
+     * Checks whether the given key lies in this node's key range.
+     *
+     * @param k a key
+     * @return true if the key lies in this node's key range
+     * @throws RPCException if an error occurs in accessing this node's predecessor's key
+     */
+    @Override
+    public boolean inLocalKeyRange(final IKey k) throws RPCException {
+
+        // It's possible that predecessor and successor will change during execution of this method, leading to transiently
+        // incorrect results. We don't care about this, so only synchronize enough of the method to avoid NPEs.
+
+        final IKey predecessor_key;
+
+        synchronized (this) {
+            // getCachedKey() is a non-open call, holding lock on this node.
+            // It may make a remote getKey() call on the predecessor, which doesn't require any further locks.
+            predecessor_key = predecessor != null ? predecessor.getCachedKey() : null;
+        }
+
+        if (predecessor_key == null) {
+            if (successorIsSelf()) { return true; }
+
+            // No predecessor and successor not self, so not a one-node ring - don't know local key range.
+            throw new RPCException("predecessor is null");
+        }
+
+        return RingArithmetic.inSegment(predecessor_key, k, key);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -153,22 +191,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     @Override
-    public synchronized void join(final IChordRemoteReference known_node) throws RPCException {
-
-        // Route to this node's key; the result is this node's new successor.
-        final IChordRemote remote = known_node.getRemote();
-        final IChordRemoteReference new_successor = remote.lookup(key);
-
-        // Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
-        // This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
-        // other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
-        // whether a ring has partitioned or not.
-        if (!equals(new_successor.getRemote())) {
-            setSuccessor(new_successor);
-        }
-    }
-
-    @Override
     public IChordRemoteReference getSelfReference() {
 
         return self_reference;
@@ -189,33 +211,30 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
-    /**
-     * Checks whether the given key lies in this node's key range.
-     *
-     * @param k a key
-     * @return true if the key lies in this node's key range
-     * @throws RPCException if an error occurs in accessing this node's predecessor's key
-     */
-    @Override
-    public boolean inLocalKeyRange(final IKey k) throws RPCException {
-
-        if (predecessor == null) {
-            if (successorIsSelf()) { return true; }
-
-            // No predecessor and successor not self, so not a one-node ring - don't know local key range.
-            throw new RPCException("predecessor is null");
-        }
-
-        return RingArithmetic.inSegment(predecessor.getCachedKey(), k, key);
-    }
-
     // -------------------------------------------------------------------------------------------------------
 
     // IChordRemote operations.
+
     @Override
     public InetSocketAddress getAddress() {
 
         return local_address;
+    }
+
+    @Override
+    public void join(final IChordRemoteReference known_node) throws RPCException {
+
+        // Route to this node's key; the result is this node's new successor.
+        final IChordRemote remote = known_node.getRemote();
+        final IChordRemoteReference new_successor = remote.lookup(key);
+
+        // Check that the new successor is not this node. This could happen if this node is already in a ring containing the known node.
+        // This could happen in a situation where we're trying to combine two rings by having in a node in one join using a node in the
+        // other as the known node, but where they're actually in the same ring. Perhaps unlikely, but we can never be completely sure
+        // whether a ring has partitioned or not.
+        if (!equals(new_successor.getRemote())) {
+            setSuccessor(new_successor);
+        }
     }
 
     @Override
@@ -382,7 +401,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(SUCCESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace("successor of " + key + " now: ", (successor != null ? successor.getCachedKey() : "null"));
+                Diagnostic.trace(DiagnosticLevel.FULL, "successor of " + key + " now: ", (successor != null ? successor.getCachedKey() : "null"));
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling successor change");
@@ -391,7 +410,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(PREDECESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace("predecessor of " + key + " now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
+                Diagnostic.trace(DiagnosticLevel.FULL, "\n\npredecessor of " + key + " now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling predecessor change");
@@ -411,6 +430,12 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
     }
 
+    @Override
+    protected void setChanged() {
+
+        super.setChanged();
+    }
+
     // -------------------------------------------------------------------------------------------------------
 
     /**
@@ -421,7 +446,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      */
-    private void exposeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    void exposeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
 
         chord_remote_server.setLocalAddress(local_address.getAddress());
         chord_remote_server.setPort(local_address.getPort());
@@ -430,9 +455,131 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         chord_remote_server.start(true);
     }
 
-    private void unexposeNode() throws IOException {
+    void unexposeNode() throws IOException {
 
         chord_remote_server.stop();
+    }
+
+    /**
+     * Sets a new predecessor for this node.
+     * @param new_predecessor the new predecessor
+     */
+    void setPredecessor(final IChordRemoteReference new_predecessor) {
+
+        final IChordRemoteReference old_predecessor = predecessor;
+        predecessor = new_predecessor;
+
+        if (new_predecessor != null) {
+            predecessor_error_count = 0;
+        }
+
+        if (new_predecessor == null || !new_predecessor.equals(old_predecessor)) {
+
+            //            try {
+            //                System.out.println("\n\npredecessor of " + key + " now: " + (predecessor != null ? predecessor.getCachedKey() : "null"));
+            //                if (predecessor != null) {
+            //                    System.out.println("new predecessor address: " + predecessor.getCachedAddress());
+            //                }
+            //                Diagnostic.printStackTrace();
+            //            }
+            //            catch (final RPCException e) {
+            //                // TODO Auto-generated catch block
+            //                e.printStackTrace();
+            //            }
+
+            setChanged();
+            notifyObservers(PREDECESSOR_CHANGE_EVENT);
+        }
+    }
+
+    /**
+     * Sets the successor node in key space.
+     * @param successor the new successor node
+     */
+    void setSuccessor(final IChordRemoteReference successor) {
+
+        assert successor != null;
+
+        final IChordRemoteReference old_successor = this.successor;
+        this.successor = successor;
+
+        if (old_successor != null && !old_successor.equals(successor)) {
+
+            //            try {
+            //                System.out.println("\n\nsuccessor of " + key + " now: " + successor.getCachedKey());
+            //            }
+            //            catch (final RPCException e) {
+            //                // TODO Auto-generated catch block
+            //                e.printStackTrace();
+            //            }
+            //            if (successor != null) {
+            //                System.out.println("new successor address: " + successor.getCachedAddress());
+            //            }
+            //            Diagnostic.printStackTrace();
+
+            setChanged();
+            notifyObservers(SUCCESSOR_CHANGE_EVENT);
+        }
+    }
+
+    /**
+    * Checks whether this node's successor is itself, i.e. whether it is in a one-node ring.
+    * @return true if this node's successor is itself
+    * @throws RPCException if an error occurs accessing the successor's key
+    */
+    boolean successorIsSelf() throws RPCException {
+
+        return successor.getCachedKey().equals(key);
+    }
+
+    void initialiseSelfReference() {
+
+        self_reference = new ChordRemoteReference(key, local_address);
+    }
+
+    SuccessorList getRealSuccessorList() {
+
+        return successor_list;
+    }
+
+    FingerTable getFingerTable() {
+
+        return finger_table;
+    }
+
+    boolean ownAddressMaintenanceEnabled() {
+
+        return own_address_maintenance_enabled;
+    }
+
+    boolean predecessorMaintenanceEnabled() {
+
+        return predecessor_maintenance_enabled;
+    }
+
+    boolean stabilizationEnabled() {
+
+        return stabilization_enabled;
+    }
+
+    boolean fingerTableMaintenanceEnabled() {
+
+        return finger_table_maintenance_enabled;
+    }
+
+    void setAddress(final InetSocketAddress local_address) {
+
+        this.local_address = local_address;
+    }
+
+    void handlePredecessorError() {
+
+        predecessor_error_count++;
+
+        if (predecessor_error_count > PREDECESSOR_ERROR_ACTION_THRESHOLD) {
+            Diagnostic.trace(DiagnosticLevel.FULL, "resetting predecessor after " + predecessor_error_count + " errors");
+            setPredecessor(null);
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -440,134 +587,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     /**
      * Sets data structures for a new ring.
      */
-    private synchronized void createRing() {
+    private void createRing() {
 
         setPredecessor(null);
         setSuccessor(self_reference);
         successor_list.clear();
         setChanged();
         notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
-    }
-
-    /**
-     * Executes the stabilization protocol.
-     */
-    private synchronized void stabilize() {
-
-        try {
-            // Find predecessor of this node's successor.
-            final IChordRemoteReference predecessor_of_successor = getPredecessorOfSuccessor();
-
-            // Check whether that is a better successor for this node than its current successor.
-            // This may update this node's successor pointer.
-            checkForBetterSuccessor(predecessor_of_successor);
-
-            // Notify this node's successor (which may have just changed) that this node may be its predecessor.
-            notifySuccessor();
-
-            // Update this node's successor list from its successor's.
-            refreshSuccessorList();
-        }
-        catch (final Exception e) {
-
-            try {
-                // Error contacting successor.
-                handleSuccessorError(e);
-            }
-            catch (final RPCException e1) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "error in stabilize", e1);
-            }
-        }
-    }
-
-    /**
-     * Checks whether the address of this node has changed since the last check.
-     */
-    private synchronized boolean checkNodeAddressChanged() {
-
-        try {
-            final InetAddress new_address = NetworkUtil.getLocalIPv4Address();
-
-            final boolean address_has_changed = !new_address.equals(local_address.getAddress());
-
-            if (address_has_changed) {
-                Diagnostic.trace("Address change: old : " + local_address);
-                local_address = new InetSocketAddress(new_address, local_address.getPort());
-                Diagnostic.trace("New: " + local_address);
-            }
-            return address_has_changed;
-        }
-        catch (final UnknownHostException e) {
-            Diagnostic.trace(DiagnosticLevel.RUN, "couldn't find local address");
-            return true;
-        }
-    }
-
-    /**
-     * Tries to communicate with this node's predecessor.
-     */
-    private synchronized void checkPredecessor() {
-
-        try {
-            pingPredecessor();
-        }
-        catch (final Exception e) {
-            setPredecessor(null);
-        }
-    }
-
-    /**
-     * Checks whether this node's successor is itself, i.e. whether it is in a one-node ring.
-     * @return true if this node's successor is itself
-     * @throws RPCException if an error occurs accessing the successor's key
-     */
-    private boolean successorIsSelf() throws RPCException {
-
-        return successor.getCachedKey().equals(key);
-    }
-
-    /**
-      * Checks whether the local address has changed, for example due to switching NIC or moving behind a NAT.
-      */
-    private void checkOwnAddress() {
-
-        if (checkNodeAddressChanged()) {
-            try {
-                handleAddressChange();
-            }
-            catch (final Exception e) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "Error handling address change: " + e.getMessage());
-            }
-
-            setChanged();
-            notifyObservers(OWN_ADDRESS_CHANGE_EVENT);
-        }
-    }
-
-    /**
-     * Checks the next finger, and updates the finger table entry if a better finger is available.
-     */
-    private synchronized void fixNextFinger() {
-
-        if (finger_table.fixNextFinger()) {
-            setChanged();
-            notifyObservers(FINGER_TABLE_CHANGE_EVENT);
-        }
-    }
-
-    /**
-     * Sets a new predecessor for this node.
-     *     * @param new_predecessor the new predecessor
-     */
-    private synchronized void setPredecessor(final IChordRemoteReference new_predecessor) {
-
-        final IChordRemoteReference old_predecessor = predecessor;
-        predecessor = new_predecessor;
-
-        if (new_predecessor == null || !new_predecessor.equals(old_predecessor)) {
-            setChanged();
-            notifyObservers(PREDECESSOR_CHANGE_EVENT);
-        }
     }
 
     /**
@@ -584,130 +610,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         catch (final NoPrecedingNodeException e) {
             return successor;
         }
-    }
-
-    /**
-     * Attempts to communicate with this node's predecessor.
-     * @throws RPCException if the attempted communication fails
-     */
-    private void pingPredecessor() throws RPCException {
-
-        if (predecessor != null) {
-            predecessor.ping();
-        }
-    }
-
-    /**
-     * Gets the predecessor of this node's successor.
-     * @return the predecessor of this node's successor
-     * @throws RPCException if an error occurs communicating with the successor
-     */
-    private IChordRemoteReference getPredecessorOfSuccessor() throws RPCException {
-
-        return successor.getRemote().getPredecessor();
-    }
-
-    /**
-     * Checks whether a given potential successor would be a better successor for this node than the current successor.
-     * @param potential_successor the potential successor
-     * @throws RPCException
-     */
-    private void checkForBetterSuccessor(final IChordRemoteReference potential_successor) throws RPCException {
-
-        if (potential_successor != null) {
-
-            final IKey key_of_potential_successor = potential_successor.getCachedKey();
-
-            // Check whether the potential successor's key lies in this node's current successor's key range, and the potential successor is not the current successor.
-            if (RingArithmetic.inSegment(key, key_of_potential_successor, successor.getCachedKey()) && !key_of_potential_successor.equals(successor.getCachedKey())) {
-
-                // The potential successor is more suitable as this node's successor.
-                setSuccessor(potential_successor);
-            }
-        }
-    }
-
-    private void initialiseSelfReference() {
-
-        self_reference = new ChordRemoteReference(key, local_address);
-    }
-
-    private void initialiseSelfSuccessorReference() throws RPCException {
-
-        if (successorIsSelf()) {
-            successor = self_reference;
-        }
-    }
-
-    private void notifySuccessor() throws RPCException {
-
-        successor.getRemote().notify(self_reference);
-    }
-
-    private void refreshSuccessorList() throws RPCException {
-
-        if (!successor.getCachedKey().equals(getKey())) {
-            try {
-                final List<IChordRemoteReference> successor_list_of_successor = successor.getRemote().getSuccessorList();
-
-                if (successor_list.refreshList(successor_list_of_successor)) {
-                    setChanged();
-                    notifyObservers(SUCCESSOR_LIST_CHANGE_EVENT);
-                }
-            }
-            catch (final Exception e) {
-                handleSuccessorError(e);
-            }
-        }
-    }
-
-    private void handleAddressChange() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
-
-        unexposeNode();
-        exposeNode();
-
-        initialiseSelfReference();
-        initialiseSelfSuccessorReference();
-
-        // Try to rejoin the ring.
-        try {
-            // First preference: rejoin the ring by binding to predecessor if we can.
-            if (predecessor == null) {
-                try {
-                    joinUsingFinger();
-                }
-                catch (final NoReachableNodeException e1) {
-
-                    // We don't have a predecessor and can't connect via the fingers
-                    // In this case - will never rejoin without some manual intervention (?)
-                    Diagnostic.trace("Cannot rejoin ring using predecessor (null) or finger");
-                }
-            }
-            else {
-                // Normal case
-                join(predecessor);
-            }
-        }
-        catch (final Exception e) {
-
-            // Second preference: rejoin the ring by using a finger.
-
-            try {
-                joinUsingFinger();
-            }
-            catch (final NoReachableNodeException e1) {
-
-                // Not much else we can do here.
-                // We will try and re-join if we get another address change event.
-                Diagnostic.trace("Cannot rejoin ring using predecessor or finger");
-            }
-        }
-    }
-
-    private void handleSuccessorError(final Exception e) throws RPCException {
-
-        Diagnostic.trace(DiagnosticLevel.FULL, this, ": error calling successor ", successor, ": ", e);
-        findWorkingSuccessor();
     }
 
     /**
@@ -749,136 +651,13 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         return next_hop.getNode();
     }
 
-    /**
-     * Sets the successor node in key space.
-     * @param successor the new successor node
-     */
-    private synchronized void setSuccessor(final IChordRemoteReference successor) {
-
-        assert successor != null;
-
-        final IChordRemoteReference old_successor = this.successor;
-        this.successor = successor;
-
-        if (old_successor != null && !old_successor.equals(successor)) {
-
-            setChanged();
-            notifyObservers(SUCCESSOR_CHANGE_EVENT);
-        }
-    }
-
-    /**
-     * Attempts to find a working successor from the successor list, or failing that using the predecessor or a finger.
-     * @throws RPCException
-     */
-    private synchronized void findWorkingSuccessor() throws RPCException {
-
-        try {
-            final IChordRemoteReference new_successor = successor_list.findFirstWorkingNode();
-            setSuccessor(new_successor);
-        }
-        catch (final NoReachableNodeException e) {
-            try {
-                join(predecessor);
-            }
-            catch (final Exception e1) {
-
-                // RPCException if predecessor has failed, or NullPointerException if it's already null
-                try {
-                    joinUsingFinger();
-                }
-                catch (final NoReachableNodeException e2) {
-
-                    // Couldn't contact any known node in current ring, so admit defeat and partition ring.
-                    createRing();
-                }
-            }
-        }
-    }
-
-    private void joinUsingFinger() throws NoReachableNodeException, RPCException {
-
-        for (final IChordRemoteReference finger : finger_table.getFingers()) {
-            if (finger != null && !finger.getCachedKey().equals(key)) {
-                try {
-                    join(finger);
-                    return;
-                }
-                catch (final RPCException e) {
-                    // Ignore and try next finger.
-                }
-            }
-        }
-        throw new NoReachableNodeException();
-    }
-
     private void startMaintenanceThread() {
 
-        new Thread() {
-
-            @Override
-            public void run() {
-
-                while (!isInterrupted() && !maintenance_thread_finished) {
-
-                    if (ownAddressMaintenanceEnabled()) {
-                        checkOwnAddress();
-                    }
-
-                    if (predecessorMaintenanceEnabled()) {
-                        checkPredecessor();
-                    }
-
-                    if (stabilizationEnabled()) {
-                        stabilize();
-                    }
-
-                    if (fingerTableMaintenanceEnabled()) {
-                        fixNextFinger();
-                    }
-
-                    doSleep();
-                }
-
-                Diagnostic.trace(DiagnosticLevel.FULL, "maintenance thread stopping on node " + getKey());
-            }
-        }.start();
+        maintenance_thread.start();
     }
 
     private void shutdownMaintenanceThread() {
 
-        maintenance_thread_finished = true;
-    }
-
-    private boolean ownAddressMaintenanceEnabled() {
-
-        return own_address_maintenance_enabled;
-    }
-
-    private boolean predecessorMaintenanceEnabled() {
-
-        return predecessor_maintenance_enabled;
-    }
-
-    private boolean stabilizationEnabled() {
-
-        return stabilization_enabled;
-    }
-
-    private boolean fingerTableMaintenanceEnabled() {
-
-        return finger_table_maintenance_enabled;
-    }
-
-    private static final int MAINTENANCE_WAIT_INTERVAL = 1000;
-
-    private void doSleep() {
-
-        try {
-            Thread.sleep(MAINTENANCE_WAIT_INTERVAL);
-        }
-        catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        maintenance_thread.shutdown();
     }
 }
