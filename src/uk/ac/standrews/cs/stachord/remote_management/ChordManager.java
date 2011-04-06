@@ -25,13 +25,17 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import uk.ac.standrews.cs.nds.madface.IPingable;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeManager;
-import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.registry.IRegistry;
+import uk.ac.standrews.cs.nds.registry.LocateRegistry;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.impl.ChordRemoteServer;
+import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 /**
  * Provides remote management hooks for Chord.
@@ -75,10 +79,39 @@ public class ChordManager extends P2PNodeManager {
     }
 
     @Override
-    public IPingable getApplicationReference(final InetSocketAddress inet_socket_address) throws RPCException {
+    public void establishApplicationReference(final HostDescriptor host_descriptor) throws Exception {
 
-        return factory.bindToNode(inet_socket_address);
+        final InetSocketAddress inet_socket_address = host_descriptor.getInetSocketAddress();
+
+        try {
+            host_descriptor.applicationReference(factory.bindToNode(inet_socket_address));
+        }
+        catch (final Exception e) {
+
+            // Try accessing Chord via the registry.
+            final InetAddress address = inet_socket_address.getAddress();
+            final IRegistry registry = LocateRegistry.getRegistry(address);
+            final int chord_port = registry.lookup(ChordRemoteServer.DEFAULT_REGISTRY_KEY);
+            host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
+            host_descriptor.port(chord_port);
+        }
     }
+
+    @Override
+    public void killApplication(final HostDescriptor host_descriptor) throws Exception {
+
+        // Check whether a process handle exists, implying that the node was initiated by the current Java process.
+        if (host_descriptor.getNumberOfProcesses() > 0) {
+            super.killApplication(host_descriptor);
+        }
+        else {
+            // If not, try to kill the process by guessing the format of the process name.
+            final String match_fragment = NodeServer.class.getName() + " -s" + host_descriptor.getInetAddress().getCanonicalHostName() + ":" + host_descriptor.getPort();
+            host_descriptor.getProcessManager().killMatchingProcesses(match_fragment);
+        }
+    }
+
+    // -------------------------------------------------------------------------------------------------------
 
     @Override
     protected P2PNodeFactory getP2PNodeFactory() {
