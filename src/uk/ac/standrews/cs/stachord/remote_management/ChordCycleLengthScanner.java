@@ -67,8 +67,8 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
     }
 
     @Override
-    public void setEnabled(final boolean enabled) {
+    public boolean enabledByDefault() {
 
-        // Ignore - this scanner is always enabled.
+        return true;
     }
 }

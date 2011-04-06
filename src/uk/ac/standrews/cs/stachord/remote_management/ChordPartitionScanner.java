@@ -40,8 +40,6 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
-    private boolean enabled = false;
-
     @Override
     public void check(final List<HostDescriptor> host_descriptors) {
 
@@ -97,9 +95,9 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
     }
 
     @Override
-    public void setEnabled(final boolean enabled) {
+    public boolean enabledByDefault() {
 
-        this.enabled = enabled;
+        return false;
     }
 
     private int ringSize(final HostDescriptor host_descriptor) {
