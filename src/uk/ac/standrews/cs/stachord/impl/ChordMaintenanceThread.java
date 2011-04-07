@@ -20,19 +20,23 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 final class ChordMaintenanceThread extends Thread {
 
-    private static final int MAINTENANCE_WAIT_INTERVAL = 1;
+    private static final int MAINTENANCE_WAIT_INTERVAL = 3;
 
     private final ChordNodeImpl chord_node;
 
     ChordMaintenanceThread(final ChordNodeImpl chord_node) {
 
         this.chord_node = chord_node;
+        System.out.println("created chord maintenance on: " + chord_node.getAddress());
     }
 
     @Override
     public void run() {
 
+        System.out.println("starting chord maintenance on: " + chord_node.getAddress());
         while (!isInterrupted()) {
+
+            System.out.println("chord maintenance on: " + chord_node.getAddress());
 
             if (chord_node.ownAddressMaintenanceEnabled()) {
                 checkOwnAddress();
@@ -63,7 +67,6 @@ final class ChordMaintenanceThread extends Thread {
 
     protected void shutdown() {
 
-        //        System.out.println("interrupting maintenance on: " + chord_node.getAddress());
         interrupt();
     }
 
