@@ -27,13 +27,11 @@ final class ChordMaintenanceThread extends Thread {
     ChordMaintenanceThread(final ChordNodeImpl chord_node) {
 
         this.chord_node = chord_node;
-        System.out.println("created chord maintenance on: " + chord_node.getAddress());
     }
 
     @Override
     public void run() {
 
-        System.out.println("starting chord maintenance on: " + chord_node.getAddress());
         while (!isInterrupted()) {
 
             System.out.println("chord maintenance on: " + chord_node.getAddress());

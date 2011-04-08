@@ -43,6 +43,7 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
     @Override
     public void check(final List<HostDescriptor> host_descriptors) {
 
+        System.out.println("cps check1");
         if (enabled) {
 
             // It's possible for the size of the host list, or the entries within it, to change during this method.
@@ -60,6 +61,7 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                         stable_hosts.add(host_descriptor);
                     }
                     else {
+                        System.out.println("cps check2");
                         return;
                     }
                 }
@@ -86,6 +88,7 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                 }
             }
         }
+        System.out.println("cps check3");
     }
 
     @Override

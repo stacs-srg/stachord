@@ -475,18 +475,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (new_predecessor == null || !new_predecessor.equals(old_predecessor)) {
 
-            //            try {
-            //                System.out.println("\n\npredecessor of " + key + " now: " + (predecessor != null ? predecessor.getCachedKey() : "null"));
-            //                if (predecessor != null) {
-            //                    System.out.println("new predecessor address: " + predecessor.getCachedAddress());
-            //                }
-            //                Diagnostic.printStackTrace();
-            //            }
-            //            catch (final RPCException e) {
-            //                // TODO Auto-generated catch block
-            //                e.printStackTrace();
-            //            }
-
             setChanged();
             notifyObservers(PREDECESSOR_CHANGE_EVENT);
         }
@@ -504,18 +492,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         this.successor = successor;
 
         if (old_successor != null && !old_successor.equals(successor)) {
-
-            //            try {
-            //                System.out.println("\n\nsuccessor of " + key + " now: " + successor.getCachedKey());
-            //            }
-            //            catch (final RPCException e) {
-            //                // TODO Auto-generated catch block
-            //                e.printStackTrace();
-            //            }
-            //            if (successor != null) {
-            //                System.out.println("new successor address: " + successor.getCachedAddress());
-            //            }
-            //            Diagnostic.printStackTrace();
 
             setChanged();
             notifyObservers(SUCCESSOR_CHANGE_EVENT);
