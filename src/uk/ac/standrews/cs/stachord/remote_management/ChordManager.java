@@ -50,8 +50,12 @@ public class ChordManager extends P2PNodeManager {
      * Name of 'ring size' attribute.
      */
     public static final String RING_SIZE_NAME = "Ring Size";
+
     private static final String CHORD_APPLICATION_NAME = "Chord";
 
+    /**
+     * Initializes a Chord manager for remote deployment.
+     */
     public ChordManager() {
 
         this(false);
@@ -59,6 +63,8 @@ public class ChordManager extends P2PNodeManager {
 
     /**
      * Initializes a Chord manager.
+     * 
+     * @param local_deployment_only true if nodes are only to be deployed to the local node
      */
     public ChordManager(final boolean local_deployment_only) {
 
@@ -92,6 +98,7 @@ public class ChordManager extends P2PNodeManager {
             final InetAddress address = inet_socket_address.getAddress();
             final IRegistry registry = LocateRegistry.getRegistry(address);
             final int chord_port = registry.lookup(ChordRemoteServer.DEFAULT_REGISTRY_KEY);
+
             host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
             host_descriptor.port(chord_port);
         }

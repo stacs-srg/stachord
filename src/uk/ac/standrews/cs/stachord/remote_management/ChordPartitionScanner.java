@@ -44,7 +44,6 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
     public void check(final List<HostDescriptor> host_descriptors) {
 
         if (enabled) {
-            System.out.println("cps check1");
 
             // It's possible for the size of the host list, or the entries within it, to change during this method.
             // This shouldn't matter - the worst that can happen is that a node is joined to a ring it's already in,
@@ -61,7 +60,6 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                         stable_hosts.add(host_descriptor);
                     }
                     else {
-                        System.out.println("cps check2");
                         return;
                     }
                 }
@@ -77,7 +75,6 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                     final IChordRemote node = ((IChordRemoteReference) host_descriptor.getApplicationReference()).getRemote();
                     try {
                         if (ringSize(host_descriptor) < stable_hosts.size()) {
-                            System.out.println("joining " + node.getAddress() + " to " + first_node.getCachedAddress());
 
                             node.join(first_node);
                         }
@@ -87,8 +84,6 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                     }
                 }
             }
-
-            System.out.println("cps check3");
         }
     }
 

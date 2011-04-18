@@ -36,6 +36,7 @@ import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
@@ -111,7 +112,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
      */
-    public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final int retry_interval, final int timeout_interval) throws TimeoutException {
+    public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final Duration retry_interval, final Duration timeout_interval) throws TimeoutException {
 
         return (IChordRemoteReference) bindToNode(retry_interval, timeout_interval, node_address);
     }

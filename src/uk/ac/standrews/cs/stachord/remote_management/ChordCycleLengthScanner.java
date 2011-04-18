@@ -44,9 +44,6 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
     @Override
     public void check(final HostDescriptor host_descriptor, final Set<IAttributesCallback> attribute_callbacks) {
 
-        if (host_descriptor.getHost().equals("teaching-4")) {
-            System.out.println("ccls check1: " + host_descriptor.getHost());
-        }
         final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
         final Map<String, String> attribute_map = host_descriptor.getAttributes();
@@ -59,9 +56,6 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
             for (final IAttributesCallback callback : attribute_callbacks) {
                 callback.attributesChange(host_descriptor);
             }
-        }
-        if (host_descriptor.getHost().equals("teaching-4")) {
-            System.out.println("ccls check2: " + host_descriptor.getHost());
         }
     }
 
