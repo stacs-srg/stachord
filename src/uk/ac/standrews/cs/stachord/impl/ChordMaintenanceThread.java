@@ -14,13 +14,14 @@ import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 final class ChordMaintenanceThread extends Thread {
 
-    private static final int MAINTENANCE_WAIT_INTERVAL = 3;
+    private static final Duration MAINTENANCE_WAIT_INTERVAL = new Duration(3, TimeUnit.SECONDS);
 
     private final ChordNodeImpl chord_node;
 
@@ -33,8 +34,6 @@ final class ChordMaintenanceThread extends Thread {
     public void run() {
 
         while (!isInterrupted()) {
-
-            System.out.println("chord maintenance on: " + chord_node.getAddress());
 
             if (chord_node.ownAddressMaintenanceEnabled()) {
                 checkOwnAddress();
@@ -52,12 +51,7 @@ final class ChordMaintenanceThread extends Thread {
                 fixNextFinger();
             }
 
-            try {
-                TimeUnit.SECONDS.sleep(MAINTENANCE_WAIT_INTERVAL);
-            }
-            catch (final InterruptedException e) {
-                break;
-            }
+            MAINTENANCE_WAIT_INTERVAL.sleep();
         }
 
         Diagnostic.trace(DiagnosticLevel.RUN, "maintenance thread stopping on node " + chord_node.getKey());
