@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.junit.Test;
 
@@ -65,7 +66,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> hosts = twoEachOnBeastAndMini();
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
         final long ring_creation_start_time = System.currentTimeMillis();
@@ -87,7 +88,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> hosts = twoEachOnBeastAndMini();
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
-        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
+        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
         final long ring_creation_start_time = System.currentTimeMillis();
@@ -110,7 +111,7 @@ public class MultipleMachineRecoveryTests {
 
         final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
-        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final long ring_creation_start_time = System.currentTimeMillis();
@@ -133,7 +134,7 @@ public class MultipleMachineRecoveryTests {
 
         final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
-        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
+        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
 
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
@@ -147,7 +148,7 @@ public class MultipleMachineRecoveryTests {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         reader.readLine(); // wait for input
 
-        final HostDescriptor a_beast_node = network.getNodes().get(0);
+        final HostDescriptor a_beast_node = network.getNodes().first();
 
         assertEquals(a_beast_node.getHost(), "beast.cs.st-andrews.ac.uk");
 
@@ -173,7 +174,7 @@ public class MultipleMachineRecoveryTests {
 
         final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
-        final List<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
+        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final long ring_creation_start_time = System.currentTimeMillis();

@@ -23,8 +23,8 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -42,7 +42,7 @@ import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
  */
 public class LocalChordNetworkSingleProcess implements INetwork {
 
-    private final List<HostDescriptor> host_descriptors;
+    private final SortedSet<HostDescriptor> host_descriptors;
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ public class LocalChordNetworkSingleProcess implements INetwork {
      */
     public LocalChordNetworkSingleProcess(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
 
-        host_descriptors = new ArrayList<HostDescriptor>();
+        host_descriptors = new ConcurrentSkipListSet<HostDescriptor>();
 
         final IKey[] node_keys = key_distribution.generateKeys(number_of_nodes);
 
@@ -81,7 +81,7 @@ public class LocalChordNetworkSingleProcess implements INetwork {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    public List<HostDescriptor> getNodes() {
+    public SortedSet<HostDescriptor> getNodes() {
 
         return host_descriptors;
     }

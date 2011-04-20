@@ -24,7 +24,7 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.util.List;
+import java.util.SortedSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
@@ -44,7 +44,7 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
  */
 public class ChordNetwork implements INetwork {
 
-    // TODO make variants without network and with all nodes in same VM using network
+    // TODO make variant without network
 
     private final INetwork network;
 
@@ -58,7 +58,7 @@ public class ChordNetwork implements INetwork {
      * 
      * @throws Exception if there is an error during creation of the network
      */
-    public ChordNetwork(final List<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
+    public ChordNetwork(final SortedSet<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final boolean local_deployment_only = allLocal(host_descriptors);
         final IApplicationManager application_manager = new ChordManager(local_deployment_only);
@@ -67,26 +67,32 @@ public class ChordNetwork implements INetwork {
         assembleChordRing(host_descriptors);
     }
 
-    protected static void assembleChordRing(final List<HostDescriptor> host_descriptors) {
+    protected static void assembleChordRing(final SortedSet<HostDescriptor> host_descriptors) {
 
-        // Pick one node for the others to join.
-        final HostDescriptor known_node_descriptor = host_descriptors.get(0);
-        final IChordRemoteReference known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
+        HostDescriptor known_node_descriptor = null;
+        IChordRemoteReference known_node = null;
 
-        // Join the other nodes to the ring via the first one.
-        for (int node_index = 1; node_index < host_descriptors.size(); node_index++) {
+        for (final HostDescriptor new_node_descriptor : host_descriptors) {
 
-            final HostDescriptor new_node_descriptor = host_descriptors.get(node_index);
-            final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
+            if (known_node_descriptor == null) {
+                // Pick one node for the others to join.
 
-            while (true) {
-                try {
-                    node.join(known_node);
-                    break;
-                }
-                catch (final RPCException e) {
-                    // Retry.
-                    Thread.yield();
+                known_node_descriptor = new_node_descriptor;
+                known_node = (IChordRemoteReference) known_node_descriptor.getApplicationReference();
+            }
+            else {
+                // Join the other nodes to the ring via the first one.
+                final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
+
+                while (true) {
+                    try {
+                        node.join(known_node);
+                        break;
+                    }
+                    catch (final RPCException e) {
+                        // Retry.
+                        Thread.yield();
+                    }
                 }
             }
         }
@@ -95,7 +101,7 @@ public class ChordNetwork implements INetwork {
     // -------------------------------------------------------------------------------------------------------
 
     @Override
-    public List<HostDescriptor> getNodes() {
+    public SortedSet<HostDescriptor> getNodes() {
 
         return network.getNodes();
     }
@@ -114,7 +120,7 @@ public class ChordNetwork implements INetwork {
 
     // -------------------------------------------------------------------------------------------------------
 
-    private boolean allLocal(final List<HostDescriptor> host_descriptors) {
+    private boolean allLocal(final SortedSet<HostDescriptor> host_descriptors) {
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
             if (!host_descriptor.local()) { return false; }

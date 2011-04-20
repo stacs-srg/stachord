@@ -25,8 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
@@ -51,11 +51,10 @@ public class TestNetwork implements INetwork {
      */
     public TestNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
 
-        final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
+        final SortedSet<HostDescriptor> node_descriptors = new ConcurrentSkipListSet<HostDescriptor>();
 
         for (int i = 0; i < number_of_nodes; i++) {
             final HostDescriptor hostDescriptor = new HostDescriptor();
-            //            hostDescriptor.port(50000 + i);
             node_descriptors.add(hostDescriptor);
         }
 
@@ -63,7 +62,7 @@ public class TestNetwork implements INetwork {
     }
 
     @Override
-    public List<HostDescriptor> getNodes() {
+    public SortedSet<HostDescriptor> getNodes() {
 
         return network.getNodes();
     }

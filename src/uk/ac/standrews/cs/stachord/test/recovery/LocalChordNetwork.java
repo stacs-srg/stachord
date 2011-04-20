@@ -25,8 +25,8 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
@@ -53,7 +53,7 @@ public class LocalChordNetwork implements INetwork {
      */
     public LocalChordNetwork(final int number_of_nodes, final KeyDistribution key_distribution) throws Exception {
 
-        final List<HostDescriptor> node_descriptors = new ArrayList<HostDescriptor>();
+        final SortedSet<HostDescriptor> node_descriptors = new ConcurrentSkipListSet<HostDescriptor>();
 
         for (int i = 0; i < number_of_nodes; i++) {
             // Set the host state to AUTH so that the node will be deployed immediately without the need for an initial probe.
@@ -64,7 +64,7 @@ public class LocalChordNetwork implements INetwork {
     }
 
     @Override
-    public List<HostDescriptor> getNodes() {
+    public SortedSet<HostDescriptor> getNodes() {
 
         return network.getNodes();
     }

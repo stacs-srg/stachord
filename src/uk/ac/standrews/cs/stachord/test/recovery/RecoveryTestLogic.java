@@ -31,6 +31,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -99,7 +100,7 @@ public final class RecoveryTestLogic {
 
         long start_time = printElapsedTime(ring_creation_start_time);
 
-        final List<HostDescriptor> nodes = network.getNodes();
+        final SortedSet<HostDescriptor> nodes = network.getNodes();
 
         try {
             System.out.println("waiting for stable ring... ");
@@ -153,12 +154,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the ring does not become stable within the timeout interval
      */
-    public static void waitForStableRing(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForStableRing(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
             @Override
-            public boolean check(final List<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<HostDescriptor> nodes) {
 
                 return ringStable(nodes);
             }
@@ -175,12 +176,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the finger tables do not become complete within the timeout interval
      */
-    public static void waitForCompleteFingerTables(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCompleteFingerTables(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
             @Override
-            public boolean check(final List<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<HostDescriptor> nodes) {
 
                 return fingerTableComplete(nodes);
             }
@@ -197,12 +198,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the successor lists do not become complete within the timeout interval
      */
-    public static void waitForCompleteSuccessorLists(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCompleteSuccessorLists(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
             @Override
-            public boolean check(final List<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<HostDescriptor> nodes) {
 
                 return successorListComplete(nodes);
             }
@@ -219,12 +220,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if not all nodes become able to route correctly within the timeout interval
      */
-    public static void waitForCorrectRouting(final List<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCorrectRouting(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
             @Override
-            public boolean check(final List<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<HostDescriptor> nodes) {
 
                 return routingCorrect(nodes);
             }
@@ -245,7 +246,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes are stable
      */
-    public static boolean ringStable(final List<HostDescriptor> host_descriptors) {
+    public static boolean ringStable(final SortedSet<HostDescriptor> host_descriptors) {
 
         final int network_size = host_descriptors.size();
         if (network_size == 1) { return true; }
@@ -342,12 +343,12 @@ public final class RecoveryTestLogic {
     /**
      * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
-     * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
+     * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
      * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
-    public static boolean successorListComplete(final List<HostDescriptor> host_descriptors) {
+    public static boolean successorListComplete(final SortedSet<HostDescriptor> host_descriptors) {
 
         final int network_size = host_descriptors.size();
         if (network_size == 1) { return true; }
@@ -402,12 +403,12 @@ public final class RecoveryTestLogic {
 
     /**
      * Tests whether routing works correctly between all pairs of nodes. See {@link #routingCorrect(IChordRemoteReference, IChordRemoteReference)} for definition of correctness.
-     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(List)} for rationale for allowing this.
+     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(SortedSet)} for rationale for allowing this.
      *
      * @param host_descriptors a list of Chord nodes
      * @return true if routing works correctly between all pairs of nodes
      */
-    public static boolean routingCorrect(final List<HostDescriptor> host_descriptors) {
+    public static boolean routingCorrect(final SortedSet<HostDescriptor> host_descriptors) {
 
         if (host_descriptors.size() == 1) { return true; }
 
@@ -450,7 +451,7 @@ public final class RecoveryTestLogic {
      * Prints a representation of a network.
      * @param nodes the network
      */
-    public static void dumpState(final List<HostDescriptor> nodes) {
+    public static void dumpState(final SortedSet<HostDescriptor> nodes) {
 
         for (final HostDescriptor machine_descriptor : nodes) {
 
@@ -479,7 +480,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
-    private static boolean fingerTableComplete(final List<HostDescriptor> host_descriptors) {
+    private static boolean fingerTableComplete(final SortedSet<HostDescriptor> host_descriptors) {
 
         if (host_descriptors.size() == 1) { return true; }
 
@@ -539,7 +540,7 @@ public final class RecoveryTestLogic {
 
     private static void killPartOfNetwork(final INetwork network) {
 
-        final List<HostDescriptor> nodes = network.getNodes();
+        final SortedSet<HostDescriptor> nodes = network.getNodes();
         final int network_size = nodes.size();
 
         // No point in killing off the only member of the network and expecting it to recover.
@@ -548,15 +549,16 @@ public final class RecoveryTestLogic {
 
             final List<Integer> victim_indices = pickRandomIndices(number_to_kill, network_size);
 
-            for (final int victim_index : victim_indices) {
+            int host_index = 0;
+            for (final HostDescriptor host_descriptor : nodes) {
 
-                try {
-                    final HostDescriptor victim = nodes.get(victim_index);
-                    network.killNode(victim);
-                    //                    System.out.println("killed node on port: " + victim.getPort());
-                }
-                catch (final Exception e) {
-                    ErrorHandling.error(e, "error killing node: " + e.getMessage());
+                if (victim_indices.contains(host_index++)) {
+                    try {
+                        network.killNode(host_descriptor);
+                    }
+                    catch (final Exception e) {
+                        ErrorHandling.error(e, "error killing node: " + e.getMessage());
+                    }
                 }
             }
 
@@ -586,7 +588,7 @@ public final class RecoveryTestLogic {
     }
 
     // TODO rewrite with standard Java classes
-    private static void checkWithTimeout(final List<HostDescriptor> nodes, final IRingCheck checker, final int test_timeout) throws TimeoutException {
+    private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final int test_timeout) throws TimeoutException {
 
         final long start_time = System.currentTimeMillis();
         boolean timed_out = false;
@@ -624,6 +626,6 @@ public final class RecoveryTestLogic {
 
     private interface IRingCheck {
 
-        boolean check(List<HostDescriptor> nodes);
+        boolean check(SortedSet<HostDescriptor> nodes);
     }
 }

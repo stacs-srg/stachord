@@ -27,6 +27,7 @@ package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
@@ -41,7 +42,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
     @Override
-    public void check(final List<HostDescriptor> host_descriptors) {
+    public void check(final SortedSet<HostDescriptor> host_descriptors) {
 
         if (enabled) {
 
