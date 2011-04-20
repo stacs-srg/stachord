@@ -44,6 +44,8 @@ import uk.ac.standrews.cs.stachord.servers.NodeServer;
  */
 public class ChordManager extends P2PNodeManager {
 
+    private static final String LOCAL_HOSTNAME_SUFFIX = ".local";
+
     private final ChordNodeFactory factory;
 
     /**
@@ -113,7 +115,8 @@ public class ChordManager extends P2PNodeManager {
         }
         else {
             // If not, try to kill the process by guessing the format of the process name.
-            final String match_fragment = NodeServer.class.getName() + " -s" + host_descriptor.getInetAddress().getCanonicalHostName() + ":" + host_descriptor.getPort();
+            final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getCanonicalHostName());
+            final String match_fragment = NodeServer.class.getName() + " -s" + host_name + ":" + host_descriptor.getPort();
             System.out.println("trying to kill: " + match_fragment);
             host_descriptor.getProcessManager().killMatchingProcesses(match_fragment);
         }
@@ -125,5 +128,12 @@ public class ChordManager extends P2PNodeManager {
     protected P2PNodeFactory getP2PNodeFactory() {
 
         return factory;
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    private String stripLocalSuffix(final String host_name) {
+
+        return host_name.endsWith(LOCAL_HOSTNAME_SUFFIX) ? host_name.substring(0, host_name.length() - LOCAL_HOSTNAME_SUFFIX.length()) : host_name;
     }
 }
