@@ -136,7 +136,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     @Override
     protected Object bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException {
 
-        return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, TIMEOUT_INTERVAL);
+        return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, INDIVIDUAL_TIMEOUT_INTERVAL);
     }
 
     @Override
