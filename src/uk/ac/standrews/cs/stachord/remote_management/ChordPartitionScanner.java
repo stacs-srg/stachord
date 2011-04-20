@@ -70,17 +70,22 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
                 final IChordRemoteReference first_node = (IChordRemoteReference) stable_hosts.get(0).getApplicationReference();
 
-                for (int i = 1; i < stable_hosts.size(); i++) {
-                    final HostDescriptor host_descriptor = stable_hosts.get(i);
-                    final IChordRemote node = ((IChordRemoteReference) host_descriptor.getApplicationReference()).getRemote();
-                    try {
-                        if (ringSize(host_descriptor) < stable_hosts.size()) {
+                if (first_node != null) {
+                    for (int i = 1; i < stable_hosts.size(); i++) {
+                        final HostDescriptor host_descriptor = stable_hosts.get(i);
+                        final IChordRemoteReference remote_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
+                        if (remote_reference != null) {
+                            final IChordRemote node = remote_reference.getRemote();
+                            try {
+                                if (ringSize(host_descriptor) < stable_hosts.size()) {
 
-                            node.join(first_node);
+                                    node.join(first_node);
+                                }
+                            }
+                            catch (final RPCException e) {
+                                Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
+                            }
                         }
-                    }
-                    catch (final RPCException e) {
-                        Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
                     }
                 }
             }
