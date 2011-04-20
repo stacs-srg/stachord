@@ -117,7 +117,6 @@ public class ChordManager extends P2PNodeManager {
             // If not, try to kill the process by guessing the format of the process name.
             final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getCanonicalHostName());
             final String match_fragment = NodeServer.class.getName() + " -s" + host_name + ":" + host_descriptor.getPort();
-            System.out.println("trying to kill: " + match_fragment);
             host_descriptor.getProcessManager().killMatchingProcesses(match_fragment);
         }
     }
