@@ -344,7 +344,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
-     * 
+     *
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
@@ -476,7 +476,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
-     * 
+     *
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
@@ -552,9 +552,13 @@ public final class RecoveryTestLogic {
             int host_index = 0;
             for (final HostDescriptor host_descriptor : nodes) {
 
-                if (victim_indices.contains(host_index++)) {
+                final int index_of_victim = victim_indices.indexOf(host_index++);
+
+                if (index_of_victim != -1) {
                     try {
                         network.killNode(host_descriptor);
+                        victim_indices.remove(index_of_victim);
+                        host_index--; // Reduce the host index, since node is removed from the set.
                     }
                     catch (final Exception e) {
                         ErrorHandling.error(e, "error killing node: " + e.getMessage());
