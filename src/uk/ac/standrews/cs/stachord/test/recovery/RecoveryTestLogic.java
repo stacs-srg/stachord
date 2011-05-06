@@ -25,13 +25,16 @@
 
 package uk.ac.standrews.cs.stachord.test.recovery;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.SortedSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -43,7 +46,9 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
+import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -71,7 +76,8 @@ public final class RecoveryTestLogic {
     public static final double PROPORTION_TO_KILL = 0.2;
 
     private static final int RANDOM_SEED = 32423545;
-    private static final int WAIT_DELAY = 5000;
+
+    private static final Duration CHECK_WAIT_DELAY = new Duration(3, TimeUnit.SECONDS);
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -96,7 +102,7 @@ public final class RecoveryTestLogic {
      * @param ring_creation_start_time the time at which ring creation was started
      * @throws Exception if the network cannot be shut down
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final int test_timeout, final long ring_creation_start_time) throws Exception {
+    public static void testRingRecoveryFromNodeFailure(final INetwork network, final Duration test_timeout, final long ring_creation_start_time) throws Exception {
 
         long start_time = printElapsedTime(ring_creation_start_time);
 
@@ -134,6 +140,10 @@ public final class RecoveryTestLogic {
 
             System.out.println("killing remaining nodes... ");
             network.killAllNodes();
+            start_time = printElapsedTime(start_time);
+
+            System.out.println("shutting down network... ");
+            network.shutdown();
             printElapsedTime(start_time);
         }
     }
@@ -154,7 +164,7 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the ring does not become stable within the timeout interval
      */
-    public static void waitForStableRing(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForStableRing(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
@@ -176,7 +186,7 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the finger tables do not become complete within the timeout interval
      */
-    public static void waitForCompleteFingerTables(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCompleteFingerTables(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
@@ -198,7 +208,7 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the successor lists do not become complete within the timeout interval
      */
-    public static void waitForCompleteSuccessorLists(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCompleteSuccessorLists(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
@@ -220,7 +230,7 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if not all nodes become able to route correctly within the timeout interval
      */
-    public static void waitForCorrectRouting(final SortedSet<HostDescriptor> nodes, final int test_timeout) throws TimeoutException {
+    public static void waitForCorrectRouting(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new IRingCheck() {
 
@@ -276,10 +286,10 @@ public final class RecoveryTestLogic {
     public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) {
 
         // Check that we see cycles containing the same number of nodes as the network size.
-        final int cycleLengthForwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
-        final int cycleLengthBackwards = ChordMonitoring.cycleLengthFrom(host_descriptor, false);
+        final int cycle_length_forwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+        final int cycle_length_backwards = ChordMonitoring.cycleLengthFrom(host_descriptor, false);
 
-        return cycleLengthForwards == network_size && cycleLengthBackwards == network_size;
+        return cycle_length_forwards == network_size && cycle_length_backwards == network_size;
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -344,7 +354,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
-     *
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
@@ -476,7 +486,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
-     *
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
@@ -528,16 +538,6 @@ public final class RecoveryTestLogic {
         return source.getRemote().lookup(key).getRemote();
     }
 
-    private static void sleep() {
-
-        try {
-            Thread.sleep(WAIT_DELAY);
-        }
-        catch (final InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
     private static void killPartOfNetwork(final INetwork network) {
 
         final SortedSet<HostDescriptor> nodes = network.getNodes();
@@ -545,29 +545,41 @@ public final class RecoveryTestLogic {
 
         // No point in killing off the only member of the network and expecting it to recover.
         if (network_size > 1) {
+
             final int number_to_kill = Math.max(1, (int) (PROPORTION_TO_KILL * network_size));
 
+            // The list of victim indices may contain duplicates since each victim is removed from the network immediately after being killed.
             final List<Integer> victim_indices = pickRandomIndices(number_to_kill, network_size);
 
-            int host_index = 0;
-            for (final HostDescriptor host_descriptor : nodes) {
+            for (final int victim_index : victim_indices) {
 
-                final int index_of_victim = victim_indices.indexOf(host_index++);
-
-                if (index_of_victim != -1) {
-                    try {
-                        network.killNode(host_descriptor);
-                        victim_indices.remove(index_of_victim);
-                        host_index--; // Reduce the host index, since node is removed from the set.
-                    }
-                    catch (final Exception e) {
-                        ErrorHandling.error(e, "error killing node: " + e.getMessage());
-                    }
+                try {
+                    final HostDescriptor victim = getElement(nodes, victim_index);
+                    network.killNode(victim);
+                }
+                catch (final Exception e) {
+                    ErrorHandling.error(e, "error killing node: " + e.getMessage());
                 }
             }
 
-            assertEquals(nodes.size(), network_size - number_to_kill);
+            assertThat(nodes.size(), is(equalTo(network_size - number_to_kill)));
         }
+    }
+
+    private static HostDescriptor getElement(final SortedSet<HostDescriptor> nodes, final int index) {
+
+        HostDescriptor element = null;
+
+        // Need to do this to access set element with particular index.
+        int host_index = 0;
+        for (final HostDescriptor host_descriptor : nodes) {
+            if (host_index == index) {
+                element = host_descriptor;
+                break;
+            }
+            host_index++;
+        }
+        return element;
     }
 
     /**
@@ -591,41 +603,51 @@ public final class RecoveryTestLogic {
         return indices;
     }
 
-    // TODO rewrite with standard Java classes
-    private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final int test_timeout) throws TimeoutException {
+    private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final Duration test_timeout) throws TimeoutException {
 
-        final long start_time = System.currentTimeMillis();
+        final TimeoutExecutor timeout_executor = new TimeoutExecutor(1, test_timeout, true);
+
         boolean timed_out = false;
         final DiagnosticLevel previous_level = Diagnostic.getLevel();
 
-        while (!checker.check(nodes)) {
+        while (!Thread.currentThread().isInterrupted()) {
 
-            if (timed_out) {
+            try {
+                final boolean check_succeeded = timeout_executor.executeWithTimeout(new Callable<Boolean>() {
 
-                System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
-                dumpState(nodes);
-                throw new TimeoutException();
+                    @Override
+                    public Boolean call() throws Exception {
+
+                        return checker.check(nodes);
+                    }
+                });
+
+                if (check_succeeded) {
+                    if (timed_out) {
+                        System.out.println("\n>>>>>>>>>>>>>>>> Succeeded on last check\n");
+                        Diagnostic.setLevel(previous_level);
+                    }
+                    return;
+                }
+
+                CHECK_WAIT_DELAY.sleep();
             }
+            catch (final TimeoutException e) {
 
-            if (timeElapsed(start_time) > test_timeout) {
+                if (timed_out) {
+                    System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
+                    dumpState(nodes);
+                    throw e;
+                }
 
-                // Exceeded timeout. Go round loop one more time with full diagnostics, then throw exception.
                 System.out.println("\n>>>>>>>>>>>>>>>> Potential timeout: executing one more check with full diagnostics\n");
-                timed_out = true;
                 Diagnostic.setLevel(DiagnosticLevel.FULL);
+                timed_out = true;
             }
-            sleep();
+            catch (final Exception e) {
+                throw new TimeoutException("unexpected exception: " + e.getMessage());
+            }
         }
-
-        if (timed_out) {
-            System.out.println("\n>>>>>>>>>>>>>>>> Succeeded on last check\n");
-            Diagnostic.setLevel(previous_level);
-        }
-    }
-
-    private static long timeElapsed(final long start_time) {
-
-        return System.currentTimeMillis() - start_time;
     }
 
     private interface IRingCheck {

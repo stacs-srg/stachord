@@ -224,6 +224,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public void join(final IChordRemoteReference known_node) throws RPCException {
 
+        //        System.out.println("node: " + this + " joining known node: " + known_node);
+
         // Route to this node's key; the result is this node's new successor.
         final IChordRemote remote = known_node.getRemote();
         final IChordRemoteReference new_successor = remote.lookup(key);
@@ -257,6 +259,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
            A new node has joined between the current predecessor and this node.
          */
         final IKey key_of_potential_predecessor = potential_predecessor.getCachedKey();
+
+        //        System.out.println("node: " + this + " notified of potential predecessor: " + potential_predecessor);
 
         if (!key_of_potential_predecessor.equals(key) && (predecessor == null || inLocalKeyRange(key_of_potential_predecessor))) {
             setPredecessor(potential_predecessor);

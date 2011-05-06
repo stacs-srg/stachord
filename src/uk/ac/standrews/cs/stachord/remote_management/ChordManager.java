@@ -27,12 +27,16 @@ package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeManager;
 import uk.ac.standrews.cs.nds.registry.IRegistry;
 import uk.ac.standrews.cs.nds.registry.LocateRegistry;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.ChordRemoteServer;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
@@ -48,6 +52,8 @@ public class ChordManager extends P2PNodeManager {
 
     private final ChordNodeFactory factory;
 
+    private final boolean try_registry_on_connection_error;
+
     /**
      * Name of 'ring size' attribute.
      */
@@ -55,12 +61,15 @@ public class ChordManager extends P2PNodeManager {
 
     private static final String CHORD_APPLICATION_NAME = "Chord";
 
+    private static final Duration CHORD_CONNECTION_RETRY = new Duration(5, TimeUnit.SECONDS);
+    private static final Duration CHORD_CONNECTION_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+
     /**
      * Initializes a Chord manager for remote deployment.
      */
     public ChordManager() {
 
-        this(false);
+        this(false, true, true);
     }
 
     /**
@@ -68,14 +77,18 @@ public class ChordManager extends P2PNodeManager {
      * 
      * @param local_deployment_only true if nodes are only to be deployed to the local node
      */
-    public ChordManager(final boolean local_deployment_only) {
+    public ChordManager(final boolean local_deployment_only, final boolean run_chord_scanners, final boolean try_registry_on_connection_error) {
 
         super(local_deployment_only);
 
+        this.try_registry_on_connection_error = try_registry_on_connection_error;
+
         factory = new ChordNodeFactory();
 
-        getSingleScanners().add(new ChordCycleLengthScanner());
-        getGlobalScanners().add(new ChordPartitionScanner());
+        if (run_chord_scanners) {
+            getSingleScanners().add(new ChordCycleLengthScanner());
+            getGlobalScanners().add(new ChordPartitionScanner());
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -91,19 +104,42 @@ public class ChordManager extends P2PNodeManager {
 
         final InetSocketAddress inet_socket_address = host_descriptor.getInetSocketAddress();
 
+        if (inet_socket_address.getPort() == 0) {
+
+            if (try_registry_on_connection_error) {
+                establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+            }
+            else {
+                throw new Exception("trying to establish connection with port 0 and registry retry disabled");
+            }
+        }
+
         try {
-            host_descriptor.applicationReference(factory.bindToNode(inet_socket_address));
+            host_descriptor.applicationReference(factory.bindToNode(inet_socket_address, CHORD_CONNECTION_RETRY, CHORD_CONNECTION_TIMEOUT));
         }
         catch (final Exception e) {
 
-            // Try accessing Chord via the registry.
-            final InetAddress address = inet_socket_address.getAddress();
-            final IRegistry registry = LocateRegistry.getRegistry(address);
-            final int chord_port = registry.lookup(ChordRemoteServer.DEFAULT_REGISTRY_KEY);
+            System.out.println("giving up establishing reference to: " + inet_socket_address);
 
-            host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
-            host_descriptor.port(chord_port);
+            if (try_registry_on_connection_error) {
+                establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+            }
+            else {
+                throw e;
+            }
         }
+    }
+
+    private void establishApplicationReferenceViaRegistry(final HostDescriptor host_descriptor, final InetSocketAddress inet_socket_address) throws RegistryUnavailableException, RPCException {
+
+        // Try accessing Chord via the registry.
+        final InetAddress address = inet_socket_address.getAddress();
+        final IRegistry registry = LocateRegistry.getRegistry(address);
+        final int chord_port = registry.lookup(ChordRemoteServer.DEFAULT_REGISTRY_KEY);
+
+        host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
+        System.out.println("overwriting port " + host_descriptor.getPort() + " with " + chord_port);
+        host_descriptor.port(chord_port);
     }
 
     @Override

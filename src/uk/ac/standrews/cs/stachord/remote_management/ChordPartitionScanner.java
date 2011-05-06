@@ -28,6 +28,7 @@ package uk.ac.standrews.cs.stachord.remote_management;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
@@ -36,10 +37,20 @@ import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
+
+    private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+    private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
+
+    public TimeoutExecutor makeExecutor() {
+
+        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false);
+    }
 
     @Override
     public void check(final SortedSet<HostDescriptor> host_descriptors) {

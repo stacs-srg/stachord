@@ -33,6 +33,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -42,6 +43,7 @@ import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.ClassPath;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
@@ -51,7 +53,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 public class MultipleMachineRecoveryTests {
 
     private static final String STACHORD_JAR = "http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar";
-    private static final int TIMEOUT = 500;
+    private static final Duration TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
     /**
      * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
@@ -140,7 +142,7 @@ public class MultipleMachineRecoveryTests {
 
         final INetwork network = new ChordNetwork(host_descriptors, KeyDistribution.RANDOM);
 
-        final int test_timeout = 60000;
+        final Duration test_timeout = new Duration(60000, TimeUnit.MILLISECONDS);
         RecoveryTestLogic.waitForStableRing(network.getNodes(), test_timeout);
 
         System.out.println("USER: Please change network connection on local node - please hit return");

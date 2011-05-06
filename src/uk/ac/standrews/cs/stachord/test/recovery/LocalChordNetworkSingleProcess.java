@@ -111,4 +111,9 @@ public class LocalChordNetworkSingleProcess implements INetwork {
         }
         host_descriptors.clear();
     }
+
+    @Override
+    public void shutdown() {
+
+    }
 }

@@ -25,6 +25,7 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.util.SortedSet;
+import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
@@ -32,6 +33,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -48,6 +50,8 @@ public class ChordNetwork implements INetwork {
 
     private final INetwork network;
 
+    private static final Duration KNOWN_NODE_CONTACT_RETRY_INTERVAL = new Duration(2, TimeUnit.SECONDS);
+
     // -------------------------------------------------------------------------------------------------------
 
     /**
@@ -61,7 +65,7 @@ public class ChordNetwork implements INetwork {
     public ChordNetwork(final SortedSet<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final boolean local_deployment_only = allLocal(host_descriptors);
-        final IApplicationManager application_manager = new ChordManager(local_deployment_only);
+        final IApplicationManager application_manager = new ChordManager(local_deployment_only, false, false);
         network = new P2PNetwork(host_descriptors, application_manager, key_distribution);
 
         assembleChordRing(host_descriptors);
@@ -82,16 +86,21 @@ public class ChordNetwork implements INetwork {
             }
             else {
                 // Join the other nodes to the ring via the first one.
-                final IChordRemote node = ((IChordRemoteReference) new_node_descriptor.getApplicationReference()).getRemote();
 
                 while (true) {
                     try {
-                        node.join(known_node);
-                        break;
+                        final IChordRemoteReference node_reference = (IChordRemoteReference) new_node_descriptor.getApplicationReference();
+
+                        // The known node may not have come up yet.
+                        if (node_reference != null) {
+                            final IChordRemote node = node_reference.getRemote();
+                            node.join(known_node);
+                            break;
+                        }
+                        KNOWN_NODE_CONTACT_RETRY_INTERVAL.sleep();
                     }
                     catch (final RPCException e) {
                         // Retry.
-                        Thread.yield();
                     }
                 }
             }
@@ -126,5 +135,11 @@ public class ChordNetwork implements INetwork {
             if (!host_descriptor.local()) { return false; }
         }
         return true;
+    }
+
+    @Override
+    public void shutdown() {
+
+        network.shutdown();
     }
 }

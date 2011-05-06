@@ -26,16 +26,20 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.ProcessManager;
+import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 import com.mindbright.ssh2.SSH2Exception;
@@ -48,20 +52,20 @@ import com.mindbright.ssh2.SSH2Exception;
  */
 public abstract class LocalRecoveryTestBase {
 
-    private static final int CHECK_TIMEOUT = 600000; // Allow 10 minutes for each check operation.
+    private static final Duration CHECK_TIMEOUT = new Duration(10, TimeUnit.MINUTES); // Allow 10 minutes for each check operation.
 
     // TODO Make this work on Windows.
 
-    //    private static final int[] RING_SIZES = {2};
-
     /**
      * Disables diagnostic output and kills existing instances.
+     * 
      * @throws IOException if existing instances cannot be killed
      * @throws TimeoutException shouldn't occur locally
      * @throws SSH2Exception shouldn't occur locally
+     * @throws UnknownPlatformException shouldn't occur locally
      */
     @Before
-    public void setUp() throws IOException, SSH2Exception, TimeoutException {
+    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
@@ -86,6 +90,7 @@ public abstract class LocalRecoveryTestBase {
      * @throws Exception if the test fails
      */
     @Test
+    @Ignore
     public void ringRecoversEven() throws Exception {
 
         ringRecovers(KeyDistribution.EVEN);
@@ -97,6 +102,7 @@ public abstract class LocalRecoveryTestBase {
      * @throws Exception if the test fails
      */
     @Test
+    @Ignore
     public void ringRecoversClustered() throws Exception {
 
         ringRecovers(KeyDistribution.CLUSTERED);

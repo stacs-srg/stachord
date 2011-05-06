@@ -78,4 +78,10 @@ public class TestNetwork implements INetwork {
 
         network.killAllNodes();
     }
+
+    @Override
+    public void shutdown() {
+
+        network.shutdown();
+    }
 }
