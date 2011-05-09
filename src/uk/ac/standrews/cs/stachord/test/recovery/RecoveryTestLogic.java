@@ -453,6 +453,8 @@ public final class RecoveryTestLogic {
             return routingToSmallerKeyCorrect(source, target) && routingToSameKeyCorrect(source, target) && routingToLargerKeyCorrect(source, target);
         }
         catch (final RPCException e) {
+            System.out.println("RPC exception checking routing:");
+            e.printStackTrace();
             return false;
         }
     }
