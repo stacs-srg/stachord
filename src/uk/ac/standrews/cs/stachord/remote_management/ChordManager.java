@@ -36,6 +36,8 @@ import uk.ac.standrews.cs.nds.registry.IRegistry;
 import uk.ac.standrews.cs.nds.registry.LocateRegistry;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.impl.ChordRemoteServer;
@@ -119,7 +121,7 @@ public class ChordManager extends P2PNodeManager {
         }
         catch (final Exception e) {
 
-            System.out.println("giving up establishing reference to: " + inet_socket_address);
+            Diagnostic.trace(DiagnosticLevel.FULL, "giving up establishing reference to: " + inet_socket_address);
 
             if (try_registry_on_connection_error) {
                 establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
