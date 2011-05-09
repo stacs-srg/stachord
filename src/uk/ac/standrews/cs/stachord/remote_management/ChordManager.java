@@ -72,7 +72,7 @@ public class ChordManager extends P2PNodeManager {
      */
     public ChordManager() {
 
-        this(false, true, true);
+        this(false, true, false);
     }
 
     /**
