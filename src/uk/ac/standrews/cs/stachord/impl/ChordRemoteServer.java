@@ -25,17 +25,15 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import org.json.JSONException;
+import org.json.JSONWriter;
 
+import uk.ac.standrews.cs.nds.JSONstream.rpc.ApplicationServer;
+import uk.ac.standrews.cs.nds.JSONstream.rpc.IHandler;
+import uk.ac.standrews.cs.nds.JSONstream.rpc.JSONReader;
+import uk.ac.standrews.cs.nds.JSONstream.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.rpc.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
-import uk.ac.standrews.cs.nds.rpc.IHandler;
-import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.rpc.json.JSONArray;
-import uk.ac.standrews.cs.nds.rpc.json.JSONInteger;
-import uk.ac.standrews.cs.nds.rpc.json.JSONString;
-import uk.ac.standrews.cs.nds.rpc.json.JSONValue;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -123,31 +121,31 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class GetKeyHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return marshaller.serializeKey(chord_node.getKey());
+            marshaller.serializeKey(chord_node.getKey(), writer);
         }
     }
 
     private final class GetAddressHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return marshaller.serializeInetSocketAddress(chord_node.getAddress());
+            marshaller.serializeInetSocketAddress(chord_node.getAddress(), writer);
         }
     }
 
     private final class LookupHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final IKey key = marshaller.deserializeKey(args.getString(0));
-                return marshaller.serializeChordRemoteReference(chord_node.lookup(key));
+                final IKey key = marshaller.deserializeKey(args);
+                marshaller.serializeChordRemoteReference(chord_node.lookup(key), writer);
             }
-            catch (final DeserializationException e) {
+            catch (final uk.ac.standrews.cs.nds.rpc.DeserializationException e) {
                 throw new RemoteChordException(e);
             }
             catch (final JSONException e) {
@@ -159,36 +157,33 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class GetSuccessorHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException, RPCException {
 
-            return marshaller.serializeChordRemoteReference(chord_node.getSuccessor());
+            marshaller.serializeChordRemoteReference(chord_node.getSuccessor(), writer);
         }
     }
 
     private final class GetPredecessorHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException, RPCException {
 
-            return marshaller.serializeChordRemoteReference(chord_node.getPredecessor());
+            marshaller.serializeChordRemoteReference(chord_node.getPredecessor(), writer);
         }
     }
 
     private final class NotifyHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException, JSONException {
 
             try {
-                final IChordRemoteReference temp = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
-                final IChordRemoteReference potential_predecessor = temp;
+                final IChordRemoteReference potential_predecessor = marshaller.deserializeChordRemoteReference(args);
+
                 chord_node.notify(potential_predecessor);
-                return null;
+                writer.value("");
             }
             catch (final DeserializationException e) {
-                throw new RemoteChordException(e);
-            }
-            catch (final JSONException e) {
                 throw new RemoteChordException(e);
             }
         }
@@ -197,17 +192,14 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class JoinHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException, JSONException {
 
             try {
-                final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
+                final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args);
                 chord_node.join(node);
-                return null;
+                writer.value("");
             }
             catch (final DeserializationException e) {
-                throw new RemoteChordException(e);
-            }
-            catch (final JSONException e) {
                 throw new RemoteChordException(e);
             }
         }
@@ -216,25 +208,25 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class GetSuccessorListHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException, RPCException {
 
-            return marshaller.serializeListChordRemoteReference(chord_node.getSuccessorList());
+            marshaller.serializeListChordRemoteReference(chord_node.getSuccessorList(), writer);
         }
     }
 
     private final class GetFingerListHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException, RPCException {
 
-            return marshaller.serializeListChordRemoteReference(chord_node.getFingerList());
+            marshaller.serializeListChordRemoteReference(chord_node.getFingerList(), writer);
         }
     }
 
     //    private final class IsAliveHandler implements IHandler {
     //
     //        @Override
-    //        public JSONValue execute(final JSONArray args) {
+    //        public void execute(final JSONReader args, JSONWriter writer) {
     //
     //            chord_node.isAlive();
     //            return null;
@@ -244,11 +236,11 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class NextHopHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final IKey key = marshaller.deserializeKey(args.getString(0));
-                return marshaller.serializeNextHopResult(chord_node.nextHop(key));
+                final IKey key = marshaller.deserializeKey(args);
+                marshaller.serializeNextHopResult(chord_node.nextHop(key), writer);
             }
             catch (final DeserializationException e) {
                 throw new RemoteChordException(e);
@@ -262,12 +254,12 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class EnablePredecessorMaintenanceHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final boolean enabled = args.getBoolean(0);
+                final boolean enabled = args.booleanValue();
                 chord_node.enablePredecessorMaintenance(enabled);
-                return null;
+                writer.value("");
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -278,12 +270,12 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class EnableStabilizationHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final boolean enabled = args.getBoolean(0);
+                final boolean enabled = args.booleanValue();
                 chord_node.enableStabilization(enabled);
-                return null;
+                writer.value("");
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -294,12 +286,12 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class EnablePeerStateMaintenanceHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final boolean enabled = args.getBoolean(0);
+                final boolean enabled = args.booleanValue();
                 chord_node.enablePeerStateMaintenance(enabled);
-                return null;
+                writer.value("");
             }
             catch (final JSONException e) {
                 throw new RemoteChordException(e);
@@ -310,17 +302,14 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class NotifyFailureHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) throws RPCException {
+        public void execute(final JSONReader args, final JSONWriter writer) throws RPCException, JSONException {
 
             try {
-                final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args.getJSONObject(0));
+                final IChordRemoteReference node = marshaller.deserializeChordRemoteReference(args);
                 chord_node.notifyFailure(node);
-                return null;
+                writer.value("");
             }
             catch (final DeserializationException e) {
-                throw new RemoteChordException(e);
-            }
-            catch (final JSONException e) {
                 throw new RemoteChordException(e);
             }
         }
@@ -329,36 +318,36 @@ public class ChordRemoteServer extends ApplicationServer {
     private final class ToStringDetailedHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return new JSONString(chord_node.toStringDetailed());
+            writer.value(chord_node.toStringDetailed());
         }
     }
 
     private final class ToStringTerseHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return new JSONString(chord_node.toStringTerse());
+            writer.value(chord_node.toStringTerse());
         }
     }
 
     private final class HashCodeHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return new JSONInteger(chord_node.hashCode());
+            writer.value(chord_node.hashCode());
         }
     }
 
     private final class ToStringHandler implements IHandler {
 
         @Override
-        public JSONValue execute(final JSONArray args) {
+        public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            return new JSONString(chord_node.toString());
+            writer.value(chord_node.toString());
         }
     }
 }

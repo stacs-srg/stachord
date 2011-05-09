@@ -28,13 +28,14 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONWriter;
+
+import uk.ac.standrews.cs.nds.JSONstream.rpc.JSONReader;
+import uk.ac.standrews.cs.nds.JSONstream.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
-import uk.ac.standrews.cs.nds.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.rpc.json.JSONArray;
-import uk.ac.standrews.cs.nds.rpc.json.JSONObject;
-import uk.ac.standrews.cs.nds.rpc.json.JSONValue;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -54,26 +55,27 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param chord_remote_reference the remote reference
      * @return a JSON object
+     * @throws JSONException 
+     * @throws RPCException 
      */
-    public JSONValue serializeChordRemoteReference(final IChordRemoteReference chord_remote_reference) {
+    public void serializeChordRemoteReference(final IChordRemoteReference chord_remote_reference, final JSONWriter writer) throws JSONException, RPCException {
 
-        if (chord_remote_reference == null) { return JSONObject.NULL; }
-
-        JSONValue serialized_key = null;
-        try {
-            serialized_key = serializeKey(chord_remote_reference.getCachedKey());
+        if (chord_remote_reference == null) {
+            writer.value(null);
         }
-        catch (final RPCException e) {
-            // Ignore.
+        else {
+
+            writer.object();
+
+            writer.key(KEY_KEY);
+            serializeKey(chord_remote_reference.getCachedKey(), writer);
+
+            writer.key(PROXY_KEY);
+            serializeInetSocketAddress(((ChordRemoteProxy) chord_remote_reference.getRemote()).getProxiedAddress(), writer);
+
+            writer.endObject();
+
         }
-
-        final JSONValue serialized_proxy = serializeInetSocketAddress(((ChordRemoteProxy) chord_remote_reference.getRemote()).getProxiedAddress());
-        final JSONObject object = new JSONObject();
-
-        object.put(KEY_KEY, serialized_key);
-        object.put(PROXY_KEY, serialized_proxy);
-
-        return object;
     }
 
     /**
@@ -83,20 +85,22 @@ public class ChordRemoteMarshaller extends Marshaller {
      * @return a chord remote reference
      * @throws DeserializationException if the representation is invalid
      */
-    public IChordRemoteReference deserializeChordRemoteReference(final JSONObject object) throws DeserializationException {
-
-        if (object == JSONObject.NULL) { return null; }
+    public IChordRemoteReference deserializeChordRemoteReference(final JSONReader reader) throws uk.ac.standrews.cs.nds.rpc.DeserializationException {
 
         try {
 
-            final String serialized_key = object.getString(KEY_KEY);
-            final String serialized_address = object.getString(PROXY_KEY);
+            if (reader.checkNull()) { return null; }
 
-            final InetSocketAddress address = deserializeInetSocketAddress(serialized_address);
+            reader.object();
 
-            if (serialized_key.equals("")) { return new ChordRemoteReference(address); }
+            reader.key(KEY_KEY);
+            final IKey key = deserializeKey(reader);
 
-            final IKey key = deserializeKey(serialized_key);
+            reader.key(PROXY_KEY);
+            final InetSocketAddress address = deserializeInetSocketAddress(reader);
+
+            reader.endObject();
+
             return new ChordRemoteReference(key, address);
         }
         catch (final Exception e) {
@@ -111,15 +115,23 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param list_chord_remote_reference the list
      * @return a JSON array
+     * @throws JSONException 
+     * @throws RPCException 
      */
-    public JSONValue serializeListChordRemoteReference(final List<IChordRemoteReference> list_chord_remote_reference) {
+    public void serializeListChordRemoteReference(final List<IChordRemoteReference> list_chord_remote_reference, final JSONWriter writer) throws JSONException, RPCException {
 
-        final JSONArray array = new JSONArray();
+        if (list_chord_remote_reference != null) {
+            writer.array();
+            for (final IChordRemoteReference reference : list_chord_remote_reference) {
+                serializeChordRemoteReference(reference, writer);
+            }
 
-        for (final IChordRemoteReference reference : list_chord_remote_reference) {
-            array.put(serializeChordRemoteReference(reference));
+            writer.endArray();
+
         }
-        return array;
+        else {
+            writer.value(null);
+        }
     }
 
     /**
@@ -129,15 +141,18 @@ public class ChordRemoteMarshaller extends Marshaller {
      * @return a list of chord remote references
      * @throws DeserializationException if the representation is invalid
      */
-    public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONArray array) throws DeserializationException {
-
-        final List<IChordRemoteReference> deserialized_references = new ArrayList<IChordRemoteReference>();
+    public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONReader reader) throws DeserializationException {
 
         try {
 
-            for (int i = 0; i < array.length(); i++) {
-                final JSONObject serialized_chord_remote_reference = array.getJSONObject(i);
-                deserialized_references.add(deserializeChordRemoteReference(serialized_chord_remote_reference));
+            if (reader.checkNull()) { return null; }
+
+            reader.array();
+
+            final List<IChordRemoteReference> deserialized_references = new ArrayList<IChordRemoteReference>();
+
+            while (!reader.have(JSONReader.ENDARRAY)) {
+                deserialized_references.add(deserializeChordRemoteReference(reader));
             }
 
             return deserialized_references;
@@ -154,15 +169,25 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param next_hop_result the next hop result
      * @return a JSON object
+     * @throws JSONException 
+     * @throws RPCException 
      */
-    public JSONValue serializeNextHopResult(final NextHopResult next_hop_result) {
+    public void serializeNextHopResult(final NextHopResult next_hop_result, final JSONWriter writer) throws JSONException, RPCException {
 
-        final JSONObject object = new JSONObject();
+        if (next_hop_result != null) {
+            writer.object();
 
-        object.put(NODE_KEY, serializeChordRemoteReference(next_hop_result.getNode()));
-        object.put(IS_FINAL_HOP_KEY, next_hop_result.isFinalHop());
+            writer.key(NODE_KEY);
+            serializeChordRemoteReference(next_hop_result.getNode(), writer);
 
-        return object;
+            writer.key(IS_FINAL_HOP_KEY);
+            writer.value(next_hop_result.isFinalHop());
+
+            writer.endObject();
+        }
+        else {
+            writer.value(null);
+        }
     }
 
     /**
@@ -172,13 +197,23 @@ public class ChordRemoteMarshaller extends Marshaller {
      * @return a next hop result
      * @throws DeserializationException if the representation is invalid
      */
-    public NextHopResult deserializeNextHopResult(final JSONObject object) throws DeserializationException {
+    public NextHopResult deserializeNextHopResult(final JSONReader reader) throws DeserializationException {
 
         try {
-            final JSONObject serialized_node = object.getJSONObject(NODE_KEY);
-            final boolean is_final_hop = object.getBoolean(IS_FINAL_HOP_KEY);
 
-            return new NextHopResult(deserializeChordRemoteReference(serialized_node), is_final_hop);
+            if (reader.checkNull()) { return null; }
+
+            reader.object();
+
+            reader.key(NODE_KEY);
+            final IChordRemoteReference chordRemoteReference = deserializeChordRemoteReference(reader);
+
+            reader.key(IS_FINAL_HOP_KEY);
+            final boolean is_final_hop = reader.booleanValue();
+
+            reader.endObject();
+
+            return new NextHopResult(chordRemoteReference, is_final_hop);
         }
         catch (final Exception e) {
             throw new DeserializationException(e);
