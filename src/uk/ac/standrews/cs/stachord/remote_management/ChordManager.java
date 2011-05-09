@@ -107,7 +107,7 @@ public class ChordManager extends P2PNodeManager {
     @Override
     public void establishApplicationReference(final HostDescriptor host_descriptor) throws Exception {
 
-        System.out.println("concurrency in ear now: " + conc.incrementAndGet());
+        //        System.out.println("concurrency in ear now: " + conc.incrementAndGet());
 
         try {
             final InetSocketAddress inet_socket_address = host_descriptor.getInetSocketAddress();
@@ -138,7 +138,7 @@ public class ChordManager extends P2PNodeManager {
             }
         }
         finally {
-            conc.decrementAndGet();
+            //            conc.decrementAndGet();
         }
     }
 
