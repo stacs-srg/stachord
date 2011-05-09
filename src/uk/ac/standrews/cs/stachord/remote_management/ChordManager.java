@@ -28,6 +28,7 @@ package uk.ac.standrews.cs.stachord.remote_management;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNodeFactory;
@@ -101,34 +102,43 @@ public class ChordManager extends P2PNodeManager {
         return CHORD_APPLICATION_NAME;
     }
 
+    AtomicInteger conc = new AtomicInteger(0);
+
     @Override
     public void establishApplicationReference(final HostDescriptor host_descriptor) throws Exception {
 
-        final InetSocketAddress inet_socket_address = host_descriptor.getInetSocketAddress();
-
-        if (inet_socket_address.getPort() == 0) {
-
-            if (try_registry_on_connection_error) {
-                establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
-            }
-            else {
-                throw new Exception("trying to establish connection with port 0 and registry retry disabled");
-            }
-        }
+        System.out.println("concurrency in ear now: " + conc.incrementAndGet());
 
         try {
-            host_descriptor.applicationReference(factory.bindToNode(inet_socket_address, CHORD_CONNECTION_RETRY, CHORD_CONNECTION_TIMEOUT));
+            final InetSocketAddress inet_socket_address = host_descriptor.getInetSocketAddress();
+
+            if (inet_socket_address.getPort() == 0) {
+
+                if (try_registry_on_connection_error) {
+                    establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+                }
+                else {
+                    throw new Exception("trying to establish connection with port 0 and registry retry disabled");
+                }
+            }
+
+            try {
+                host_descriptor.applicationReference(factory.bindToNode(inet_socket_address, CHORD_CONNECTION_RETRY, CHORD_CONNECTION_TIMEOUT));
+            }
+            catch (final Exception e) {
+
+                Diagnostic.trace(DiagnosticLevel.FULL, "giving up establishing reference to: " + inet_socket_address);
+
+                if (try_registry_on_connection_error) {
+                    establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+                }
+                else {
+                    throw e;
+                }
+            }
         }
-        catch (final Exception e) {
-
-            Diagnostic.trace(DiagnosticLevel.FULL, "giving up establishing reference to: " + inet_socket_address);
-
-            if (try_registry_on_connection_error) {
-                establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
-            }
-            else {
-                throw e;
-            }
+        finally {
+            conc.decrementAndGet();
         }
     }
 
