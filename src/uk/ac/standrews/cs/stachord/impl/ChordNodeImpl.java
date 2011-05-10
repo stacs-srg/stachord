@@ -151,7 +151,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             if (successorIsSelf()) { return true; }
 
             // No predecessor and successor not self, so not a one-node ring - don't know local key range.
-            throw new RPCException("predecessor is null");
+            throw new RPCException("Unable to determine local key range because the predecessor is null. This is not a JSON RPCException.");
         }
 
         return RingArithmetic.inSegment(predecessor_key, k, key);
