@@ -207,6 +207,8 @@ final class ChordMaintenanceThread extends Thread {
         }
         catch (final Exception e) {
 
+            e.printStackTrace();
+
             try {
                 // Error contacting successor.
                 handleSuccessorError();

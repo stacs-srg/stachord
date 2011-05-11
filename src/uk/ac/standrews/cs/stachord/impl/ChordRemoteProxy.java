@@ -31,13 +31,13 @@ import java.util.Map;
 
 import org.json.JSONWriter;
 
-import uk.ac.standrews.cs.nds.JSONstream.rpc.IStreamPair;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.JSONReader;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.Marshaller;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.Proxy;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.stream.IStreamPair;
+import uk.ac.standrews.cs.nds.rpc.stream.JSONReader;
+import uk.ac.standrews.cs.nds.rpc.stream.Marshaller;
+import uk.ac.standrews.cs.nds.rpc.stream.Proxy;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;

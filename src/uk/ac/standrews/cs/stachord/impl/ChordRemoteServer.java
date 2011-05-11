@@ -27,13 +27,13 @@ package uk.ac.standrews.cs.stachord.impl;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import uk.ac.standrews.cs.nds.JSONstream.rpc.ApplicationServer;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.IHandler;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.JSONReader;
-import uk.ac.standrews.cs.nds.JSONstream.rpc.Marshaller;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.stream.ApplicationServer;
+import uk.ac.standrews.cs.nds.rpc.stream.IHandler;
+import uk.ac.standrews.cs.nds.rpc.stream.JSONReader;
+import uk.ac.standrews.cs.nds.rpc.stream.Marshaller;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
