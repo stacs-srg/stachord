@@ -186,15 +186,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
         }
     }
 
-    //
-    //    @Override
-    //    protected StreamPair setupStreams() throws IOException {
-    //
-    //        final IStreamPair stream_pair = new StreamPair(StreamPool.makeSocket(node_address));
-    //
-    //        return stream_pair;
-    //    }
-
     @Override
     public IChordRemoteReference getPredecessor() throws RPCException {
 
@@ -209,7 +200,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             finishCall(streams);
 
             return result;
-
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -230,10 +220,9 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             final JSONWriter writer = streams.getJSONwriter();
             marshaller.serializeChordRemoteReference(potential_predecessor, writer);
 
-            makeCall(streams);
+            handleVoidCall(makeCall(streams));
 
             finishCall(streams);
-
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -249,10 +238,9 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             final JSONWriter writer = streams.getJSONwriter();
             marshaller.serializeChordRemoteReference(node, writer);
 
-            makeCall(streams);
+            handleVoidCall(makeCall(streams));
 
             finishCall(streams);
-
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -320,7 +308,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             finishCall(streams);
 
             return result;
-
         }
         catch (final DeserializationException e) {
             throw new RPCException(e);
@@ -340,10 +327,9 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             final JSONWriter writer = streams.getJSONwriter();
             writer.value(enabled);
 
-            makeCall(streams);
+            handleVoidCall(makeCall(streams));
 
             finishCall(streams);
-
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -354,14 +340,13 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public void enableStabilization(final boolean enabled) throws RPCException {
 
         try {
-
             final IStreamPair streams = startCall("enableStabilization");
             final JSONWriter writer = streams.getJSONwriter();
             writer.value(enabled);
 
-            makeCall(streams);
-            finishCall(streams);
+            handleVoidCall(makeCall(streams));
 
+            finishCall(streams);
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -372,15 +357,13 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public void enablePeerStateMaintenance(final boolean enabled) throws RPCException {
 
         try {
-
             final IStreamPair streams = startCall("enablePeerStateMaintenance");
             final JSONWriter writer = streams.getJSONwriter();
             writer.value(enabled);
 
-            makeCall(streams);
+            handleVoidCall(makeCall(streams));
 
             finishCall(streams);
-
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -391,15 +374,13 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public void notifyFailure(final IChordRemoteReference node) throws RPCException {
 
         try {
-
             final IStreamPair streams = startCall("notifyFailure");
             final JSONWriter writer = streams.getJSONwriter();
             marshaller.serializeChordRemoteReference(node, writer);
 
-            makeCall(streams);
+            handleVoidCall(makeCall(streams));
 
             finishCall(streams);
-
         }
         catch (final Exception e) {
             dealWithException(e);
@@ -410,7 +391,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
     public String toStringDetailed() throws RPCException {
 
         try {
-
             final IStreamPair streams = startCall("toStringDetailed");
 
             final JSONReader reader = makeCall(streams);
@@ -419,7 +399,6 @@ public final class ChordRemoteProxy extends Proxy implements IChordRemote {
             finishCall(streams);
 
             return result;
-
         }
         catch (final Exception e) {
             dealWithException(e);

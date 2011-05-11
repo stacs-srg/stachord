@@ -85,7 +85,7 @@ public class ChordRemoteMarshaller extends Marshaller {
      * @return a chord remote reference
      * @throws DeserializationException if the representation is invalid
      */
-    public IChordRemoteReference deserializeChordRemoteReference(final JSONReader reader) throws uk.ac.standrews.cs.nds.rpc.DeserializationException {
+    public IChordRemoteReference deserializeChordRemoteReference(final JSONReader reader) throws DeserializationException {
 
         try {
 
