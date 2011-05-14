@@ -82,7 +82,7 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public void ping() throws RPCException {
 
-        reference.checkServerConnection();
+        reference.ping();
     }
 
     @Override

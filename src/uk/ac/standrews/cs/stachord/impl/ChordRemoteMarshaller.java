@@ -64,7 +64,6 @@ public class ChordRemoteMarshaller extends Marshaller {
             writer.value(null);
         }
         else {
-
             writer.object();
 
             writer.key(KEY_KEY);
@@ -74,7 +73,6 @@ public class ChordRemoteMarshaller extends Marshaller {
             serializeInetSocketAddress(((ChordRemoteProxy) chord_remote_reference.getRemote()).getProxiedAddress(), writer);
 
             writer.endObject();
-
         }
     }
 
@@ -88,7 +86,6 @@ public class ChordRemoteMarshaller extends Marshaller {
     public IChordRemoteReference deserializeChordRemoteReference(final JSONReader reader) throws DeserializationException {
 
         try {
-
             if (reader.checkNull()) { return null; }
 
             reader.object();
@@ -127,7 +124,6 @@ public class ChordRemoteMarshaller extends Marshaller {
             }
 
             writer.endArray();
-
         }
         else {
             writer.value(null);
@@ -144,7 +140,6 @@ public class ChordRemoteMarshaller extends Marshaller {
     public List<IChordRemoteReference> deserializeListChordRemoteReference(final JSONReader reader) throws DeserializationException {
 
         try {
-
             if (reader.checkNull()) { return null; }
 
             reader.array();
@@ -155,6 +150,7 @@ public class ChordRemoteMarshaller extends Marshaller {
                 deserialized_references.add(deserializeChordRemoteReference(reader));
             }
 
+            reader.endArray();
             return deserialized_references;
         }
         catch (final Exception e) {
@@ -200,7 +196,6 @@ public class ChordRemoteMarshaller extends Marshaller {
     public NextHopResult deserializeNextHopResult(final JSONReader reader) throws DeserializationException {
 
         try {
-
             if (reader.checkNull()) { return null; }
 
             reader.object();
