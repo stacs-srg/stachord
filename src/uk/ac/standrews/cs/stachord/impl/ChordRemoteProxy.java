@@ -113,24 +113,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
     @Override
     public InetSocketAddress getAddress() throws RPCException {
 
-        try {
-            final Connection connection = (Connection) startCall("getAddress");
-
-            final JSONReader reader = makeCall(connection);
-            final InetSocketAddress result = marshaller.deserializeInetSocketAddress(reader);
-
-            finishCall(connection);
-
-            return result;
-
-        }
-        catch (final DeserializationException e) {
-            throw new RPCException(e);
-        }
-        catch (final Exception e) {
-            dealWithException(e);
-            return null;
-        }
+       return super.node_address;
     }
 
     @Override

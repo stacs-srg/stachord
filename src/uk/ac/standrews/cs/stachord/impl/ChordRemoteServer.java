@@ -145,7 +145,7 @@ public class ChordRemoteServer extends ApplicationServer {
                 final IKey key = marshaller.deserializeKey(args);
                 marshaller.serializeChordRemoteReference(chord_node.lookup(key), writer);
             }
-            catch (final uk.ac.standrews.cs.nds.rpc.DeserializationException e) {
+            catch (final DeserializationException e) {
                 throw new RemoteChordException(e);
             }
             catch (final JSONException e) {
