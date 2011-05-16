@@ -104,7 +104,6 @@ public class ChordRemoteServer extends ApplicationServer {
         handler_map.put("join", new JoinHandler());
         handler_map.put("getSuccessorList", new GetSuccessorListHandler());
         handler_map.put("getFingerList", new GetFingerListHandler());
-        //        handler_map.put("isAlive", new IsAliveHandler());
         handler_map.put("nextHop", new NextHopHandler());
         handler_map.put("enablePredecessorMaintenance", new EnablePredecessorMaintenanceHandler());
         handler_map.put("enableStabilization", new EnableStabilizationHandler());
@@ -222,16 +221,6 @@ public class ChordRemoteServer extends ApplicationServer {
             marshaller.serializeListChordRemoteReference(chord_node.getFingerList(), writer);
         }
     }
-
-    //    private final class IsAliveHandler implements IHandler {
-    //
-    //        @Override
-    //        public void execute(final JSONReader args, JSONWriter writer) {
-    //
-    //            chord_node.isAlive();
-    //            return null;
-    //        }
-    //    }
 
     private final class NextHopHandler implements IHandler {
 
