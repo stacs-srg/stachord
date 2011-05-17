@@ -32,6 +32,7 @@ import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.stachord.impl.ChordLocalReference;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in the same process.
@@ -93,7 +94,9 @@ public class LocalChordNetworkSingleProcess implements INetwork {
      */
     private void shutdownNode(final HostDescriptor host_descriptor) throws Exception {
 
-        ((ChordLocalReference) host_descriptor.getApplicationReference()).getNode().shutDown();
+        final ChordLocalReference applicationReference = (ChordLocalReference) host_descriptor.getApplicationReference();
+        final IChordNode node = applicationReference.getNode();
+        node.shutDown();
     }
 
     @Override

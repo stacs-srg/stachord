@@ -199,7 +199,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public void shutDown() {
 
-        // Stop the maintenance thread.
         shutdownMaintenanceThread();
 
         // Shutdown the server.
