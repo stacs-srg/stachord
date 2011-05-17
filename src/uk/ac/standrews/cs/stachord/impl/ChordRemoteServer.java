@@ -24,6 +24,8 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
+import java.net.InetAddress;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -34,6 +36,7 @@ import uk.ac.standrews.cs.nds.rpc.stream.ApplicationServer;
 import uk.ac.standrews.cs.nds.rpc.stream.IHandler;
 import uk.ac.standrews.cs.nds.rpc.stream.JSONReader;
 import uk.ac.standrews.cs.nds.rpc.stream.Marshaller;
+import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -338,5 +341,17 @@ public class ChordRemoteServer extends ApplicationServer {
 
             writer.value(chord_node.toString());
         }
+    }
+
+    @Override
+    public void runServer(final InetAddress address, final int port) throws Exception {
+
+        Diagnostic.trace("Not implemented - only present for ease of testing");
+    }
+
+    @Override
+    public void runServer(final String[] args) throws Exception {
+
+        Diagnostic.trace("Not implemented - only present for ease of testing");
     }
 }
