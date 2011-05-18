@@ -140,7 +140,6 @@ public class ChordManager extends P2PNodeManager {
         final int chord_port = registry.lookup(ChordRemoteServer.DEFAULT_REGISTRY_KEY);
 
         host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
-        System.out.println("overwriting port " + host_descriptor.getPort() + " with " + chord_port);
         host_descriptor.port(chord_port);
     }
 
