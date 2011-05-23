@@ -44,7 +44,7 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
     @Override
     public TimeoutExecutor makeExecutor() {
 
-        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false);
+        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false, "cycle length scanner");
     }
 
     @Override
@@ -54,7 +54,20 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
     }
 
     @Override
-    public void check(final HostDescriptor host_descriptor, final Set<IAttributesCallback> attribute_callbacks) {
+    public String getToggleLabel() {
+
+        // No toggle in user interface required.
+        return null;
+    }
+
+    @Override
+    public String getName() {
+
+        return "Cycle Length";
+    }
+
+    @Override
+    public void check(final HostDescriptor host_descriptor, final Set<IAttributesCallback> attribute_callbacks) throws InterruptedException {
 
         final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
@@ -69,13 +82,6 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
                 callback.attributesChange(host_descriptor);
             }
         }
-    }
-
-    @Override
-    public String getToggleLabel() {
-
-        // No toggle in user interface required.
-        return null;
     }
 
     @Override

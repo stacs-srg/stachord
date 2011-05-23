@@ -47,9 +47,10 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
 
+    @Override
     public TimeoutExecutor makeExecutor() {
 
-        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false);
+        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false, "partition scanner");
     }
 
     @Override
@@ -102,6 +103,12 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
                 }
             }
         }
+    }
+
+    @Override
+    public String getName() {
+
+        return "Partition";
     }
 
     @Override

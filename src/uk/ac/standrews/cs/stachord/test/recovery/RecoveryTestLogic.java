@@ -262,7 +262,12 @@ public final class RecoveryTestLogic {
         if (network_size == 1) { return true; }
 
         for (final HostDescriptor host_descriptor : host_descriptors) {
-            if (!ringStable(host_descriptor, network_size)) { return false; }
+            try {
+                if (!ringStable(host_descriptor, network_size)) { return false; }
+            }
+            catch (final InterruptedException e) {
+                return false;
+            }
         }
 
         return true;
@@ -282,8 +287,9 @@ public final class RecoveryTestLogic {
      * @param host_descriptor a Chord node
      * @param network_size the known size of the network
      * @return true if the node is stable.
+     * @throws InterruptedException 
      */
-    public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) {
+    public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) throws InterruptedException {
 
         // Check that we see cycles containing the same number of nodes as the network size.
         final int cycle_length_forwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
@@ -605,48 +611,53 @@ public final class RecoveryTestLogic {
 
     private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final Duration test_timeout) throws TimeoutException {
 
-        final TimeoutExecutor timeout_executor = new TimeoutExecutor(1, test_timeout, true);
+        final TimeoutExecutor timeout_executor = new TimeoutExecutor(1, test_timeout, true, "Chord recovery check");
 
         boolean timed_out = false;
         final DiagnosticLevel previous_level = Diagnostic.getLevel();
 
-        while (!Thread.currentThread().isInterrupted()) {
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
 
-            try {
-                final boolean check_succeeded = timeout_executor.executeWithTimeout(new Callable<Boolean>() {
+                try {
+                    final boolean check_succeeded = timeout_executor.executeWithTimeout(new Callable<Boolean>() {
 
-                    @Override
-                    public Boolean call() throws Exception {
+                        @Override
+                        public Boolean call() throws Exception {
 
-                        return checker.check(nodes);
+                            return checker.check(nodes);
+                        }
+                    });
+
+                    if (check_succeeded) {
+                        if (timed_out) {
+                            System.out.println("\n>>>>>>>>>>>>>>>> Succeeded on last check\n");
+                            Diagnostic.setLevel(previous_level);
+                        }
+                        return;
                     }
-                });
 
-                if (check_succeeded) {
+                    CHECK_WAIT_DELAY.sleep();
+                }
+                catch (final TimeoutException e) {
+
                     if (timed_out) {
-                        System.out.println("\n>>>>>>>>>>>>>>>> Succeeded on last check\n");
-                        Diagnostic.setLevel(previous_level);
+                        System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
+                        dumpState(nodes);
+                        throw e;
                     }
-                    return;
+
+                    System.out.println("\n>>>>>>>>>>>>>>>> Potential timeout: executing one more check with full diagnostics\n");
+                    Diagnostic.setLevel(DiagnosticLevel.FULL);
+                    timed_out = true;
                 }
-
-                CHECK_WAIT_DELAY.sleep();
-            }
-            catch (final TimeoutException e) {
-
-                if (timed_out) {
-                    System.out.println("\n>>>>>>>>>>>>>>>> Test timed out: dumping state\n");
-                    dumpState(nodes);
-                    throw e;
+                catch (final Exception e) {
+                    throw new TimeoutException("unexpected exception: " + e.getMessage());
                 }
-
-                System.out.println("\n>>>>>>>>>>>>>>>> Potential timeout: executing one more check with full diagnostics\n");
-                Diagnostic.setLevel(DiagnosticLevel.FULL);
-                timed_out = true;
             }
-            catch (final Exception e) {
-                throw new TimeoutException("unexpected exception: " + e.getMessage());
-            }
+        }
+        finally {
+            timeout_executor.shutdown();
         }
     }
 

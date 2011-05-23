@@ -48,8 +48,9 @@ public final class ChordMonitoring {
      * @param host_descriptor a ring node
      * @param forwards true if the ring should be traversed via successor pointers, false if it should be traversed via predecessor pointers
      * @return the length of the cycle containing the given node, or zero if the ring node is null or there is no such cycle.
+     * @throws InterruptedException 
      */
-    public static int cycleLengthFrom(final HostDescriptor host_descriptor, final boolean forwards) {
+    public static int cycleLengthFrom(final HostDescriptor host_descriptor, final boolean forwards) throws InterruptedException {
 
         final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
 
@@ -61,7 +62,7 @@ public final class ChordMonitoring {
         int cycle_length = 0;
         IChordRemoteReference node = application_reference;
 
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
 
             cycle_length++;
 
@@ -85,5 +86,7 @@ public final class ChordMonitoring {
 
             nodes_encountered.add(node);
         }
+
+        throw new InterruptedException();
     }
 }

@@ -40,6 +40,7 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
+import uk.ac.standrews.cs.stachord.impl.ChordRemoteProxy;
 import uk.ac.standrews.cs.stachord.impl.ChordRemoteServer;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
@@ -94,6 +95,13 @@ public class ChordManager extends P2PNodeManager {
     }
 
     // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    public void shutdown() {
+
+        super.shutdown();
+        ChordRemoteProxy.CONNECTION_POOL.shutdown();
+    }
 
     @Override
     public String getApplicationName() {
