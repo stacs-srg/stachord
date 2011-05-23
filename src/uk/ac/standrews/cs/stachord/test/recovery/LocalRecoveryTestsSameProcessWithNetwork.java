@@ -41,7 +41,7 @@ public class LocalRecoveryTestsSameProcessWithNetwork extends LocalRecoveryTestB
 
     @Test
     @Ignore
-    public void runSingleNode() throws UnknownHostException, IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, SSH2Exception, TimeoutException, UnknownPlatformException, InvalidServerClassException {
+    public void runSingleNode() throws UnknownHostException, IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, SSH2Exception, TimeoutException, UnknownPlatformException, InvalidServerClassException, InterruptedException {
 
         final HostDescriptor hd = new HostDescriptor().port(50000);
         hd.deployInLocalProcess(true);
