@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.madface.ProcessManager;
+import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
@@ -70,7 +70,7 @@ public abstract class LocalRecoveryTestBase {
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
         // Kill any lingering Chord node processes.
-        new ProcessManager().killMatchingProcesses(NodeServer.class.getSimpleName());
+        new HostDescriptor().getProcessManager().killMatchingProcesses(NodeServer.class.getSimpleName());
     }
 
     /**
