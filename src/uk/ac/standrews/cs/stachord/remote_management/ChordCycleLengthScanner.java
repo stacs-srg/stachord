@@ -36,7 +36,12 @@ import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 
-class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
+/**
+ * The Cycle length scanenr.
+ *
+ * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ */
+public class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
@@ -73,9 +78,9 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
         final Map<String, String> attribute_map = host_descriptor.getAttributes();
 
-        final boolean attributes_changed = !attribute_map.containsKey(ChordManager.RING_SIZE_NAME) || !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
+        final boolean attributes_changed = !attribute_map.containsKey(getAttributeName()) || !attribute_map.get(getAttributeName()).equals(cycle_length_string);
 
-        attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
+        attribute_map.put(getAttributeName(), cycle_length_string);
 
         if (attributes_changed) {
             for (final IAttributesCallback callback : attribute_callbacks) {

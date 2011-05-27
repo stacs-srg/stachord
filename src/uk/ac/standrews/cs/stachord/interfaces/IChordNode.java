@@ -39,44 +39,28 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
  */
 public interface IChordNode extends Observer {
 
-    /**
-     * The name of the remotely accessible Chord service.
-     */
-    String CHORD_REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
+    /** The name of the remotely accessible Chord service. */
+    String REMOTE_SERVICE_NAME = IChordRemote.class.getSimpleName();
 
-    /**
-     * Predecessor change event.
-     */
+    /** Predecessor change event. */
     IEvent PREDECESSOR_CHANGE_EVENT = new Event("PREDECESSOR_CHANGE_EVENT");
 
-    /**
-     * Successor change event.
-     */
+    /** Successor change event. */
     IEvent SUCCESSOR_CHANGE_EVENT = new Event("SUCCESSOR_CHANGE_EVENT");
 
-    /**
-     * Successor list change event.
-     */
+    /** Successor list change event. */
     IEvent SUCCESSOR_LIST_CHANGE_EVENT = new Event("SUCCESSOR_LIST_CHANGE_EVENT");
 
-    /**
-     * Finger table change event.
-     */
+    /** Finger table change event. */
     IEvent FINGER_TABLE_CHANGE_EVENT = new Event("FINGER_TABLE_CHANGE_EVENT");
 
-    /**
-     * Event for this chord nodes own address being changed.
-     */
+    /** Event for this chord nodes own address being changed. */
     IEvent OWN_ADDRESS_CHANGE_EVENT = new Event("OWN_ADDRESS_CHANGE_EVENT");
 
-    /**
-     * The maximum length of a node's successor list.
-     */
+    /** The maximum length of a node's successor list. */
     int MAX_SUCCESSOR_LIST_SIZE = 5;
 
-    /**
-     * The ratio between successive finger target keys in the finger table.
-     */
+    /** The ratio between successive finger target keys in the finger table. */
     int INTER_FINGER_RATIO = 2;
 
     // -------------------------------------------------------------------------------------------------------
