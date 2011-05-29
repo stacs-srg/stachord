@@ -102,7 +102,7 @@ public interface IChordRemote {
      * @return this node's successor list
      * @throws RPCException if an error occurs during the remote call
      */
-    List<IChordRemoteReference> getSuccessorList() throws RPCException;
+    List<? extends IChordRemoteReference> getSuccessorList() throws RPCException;
 
     /**
      * Returns this node's finger list.
@@ -110,7 +110,7 @@ public interface IChordRemote {
      * @return this node's finger list
      * @throws RPCException if an error occurs during the remote call
      */
-    List<IChordRemoteReference> getFingerList() throws RPCException;
+    List<? extends IChordRemoteReference> getFingerList() throws RPCException;
 
     //    /**
     //     * Used to check liveness of this node.

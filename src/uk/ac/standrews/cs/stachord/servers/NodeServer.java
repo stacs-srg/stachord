@@ -51,15 +51,16 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public final class NodeServer {
+public class NodeServer {
 
-    private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
+    //TODO consider creating an abstract version of this class
+    private static final ChordNodeFactory CHORD_NODE_FACTORY = new ChordNodeFactory();
 
-    private IKey node_key;
-    private InetSocketAddress local_address = null;
-    private InetSocketAddress join_address = null;
+    protected static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
 
-    private static final ChordNodeFactory factory = new ChordNodeFactory();
+    protected IKey node_key;
+    protected InetSocketAddress local_address = null;
+    protected InetSocketAddress join_address = null;
 
     public NodeServer(final String[] args) throws UndefinedDiagnosticLevelException, UnknownHostException {
 
@@ -95,7 +96,7 @@ public final class NodeServer {
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      */
-    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException, Exception {
 
         final NodeServer server = new NodeServer(args);
         server.createNode();
@@ -103,12 +104,12 @@ public final class NodeServer {
 
     // -------------------------------------------------------------------------------------------------------
 
-    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, Exception {
 
         final IChordNode node = node_key == null ? new ChordNodeFactory().createNode(local_address) : new ChordNodeFactory().createNode(local_address, node_key);
 
         if (join_address != null) {
-            node.join(factory.bindToNode(join_address));
+            node.join(CHORD_NODE_FACTORY.bindToNode(join_address));
         }
 
         return node;
@@ -116,12 +117,12 @@ public final class NodeServer {
 
     // -------------------------------------------------------------------------------------------------------
 
-    private void usage() {
+    protected void usage() {
 
         ErrorHandling.hardError("Usage: -shost:port [-khost:port] [-xkey] [-Dlevel]");
     }
 
-    private void configureDiagnostics(final Map<String, String> arguments) throws UndefinedDiagnosticLevelException {
+    protected void configureDiagnostics(final Map<String, String> arguments) throws UndefinedDiagnosticLevelException {
 
         Diagnostic.setLevel(DiagnosticLevel.getDiagnosticLevelFromCommandLineArg(arguments.get("-D"), DEFAULT_DIAGNOSTIC_LEVEL));
         Diagnostic.setTimestampFlag(true);
@@ -130,7 +131,7 @@ public final class NodeServer {
         ErrorHandling.setTimestampFlag(false);
     }
 
-    private void configureLocalAddress(final Map<String, String> arguments) throws UnknownHostException {
+    protected void configureLocalAddress(final Map<String, String> arguments) throws UnknownHostException {
 
         final String local_address_parameter = arguments.get("-s"); // This node's address.
         if (local_address_parameter == null) {
@@ -139,7 +140,7 @@ public final class NodeServer {
         local_address = NetworkUtil.extractInetSocketAddress(local_address_parameter, 0);
     }
 
-    private void configureJoinAddress(final Map<String, String> arguments) throws UnknownHostException {
+    protected void configureJoinAddress(final Map<String, String> arguments) throws UnknownHostException {
 
         final String known_address_parameter = arguments.get("-k");
         if (known_address_parameter != null) {
@@ -147,7 +148,7 @@ public final class NodeServer {
         }
     }
 
-    private void configureNodeKey(final Map<String, String> arguments) {
+    protected void configureNodeKey(final Map<String, String> arguments) {
 
         final String server_key_parameter = arguments.get("-x"); // This node's key.
         if (server_key_parameter != null && !server_key_parameter.equals("null")) {

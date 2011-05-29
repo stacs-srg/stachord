@@ -42,7 +42,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 public class ChordLocalReference implements IChordRemoteReference {
 
     private final IChordNode node;
-    private final IChordRemoteReference remote_reference;
+    protected final IChordRemoteReference remote_reference;
 
     public ChordLocalReference(final IChordNode node, final IChordRemoteReference remote_reference) {
 
