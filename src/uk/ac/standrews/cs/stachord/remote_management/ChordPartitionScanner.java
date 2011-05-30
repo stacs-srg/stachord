@@ -42,12 +42,7 @@ import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-/**
- * The partition scanenr.
- *
- * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
- */
-public class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
+class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
@@ -128,14 +123,9 @@ public class ChordPartitionScanner extends Scanner implements IGlobalHostScanner
         return false;
     }
 
-    protected String getAttributeName() {
-
-        return ChordManager.RING_SIZE_NAME;
-    }
-
     private int ringSize(final HostDescriptor host_descriptor) {
 
-        final String ring_size_record = host_descriptor.getAttributes().get(getAttributeName());
+        final String ring_size_record = host_descriptor.getAttributes().get(ChordManager.RING_SIZE_NAME);
         return ring_size_record != null && !ring_size_record.equals("-") ? Integer.parseInt(ring_size_record) : 0;
     }
 }

@@ -65,20 +65,13 @@ public class AddressChangeTest implements Observer {
         impl = new ChordNodeFactory().createNode(socketAddress);
         impl.addObserver(foo);
 
-        printStatus();
+        System.out.println("Running... at " + impl.getSelfReference().getCachedAddress() + " started at: " + socketAddress);
     }
 
     @Override
     public void update(final Observable o, final Object arg) {
 
-        printStatus();
-        System.out.println(arg);
-    }
-
-    // -------------------------------------------------------------------------------------------------------------------------------
-
-    private static void printStatus() {
-
         System.out.println("Running... at " + impl.getSelfReference().getCachedAddress() + " started at: " + socketAddress);
+        System.out.println(arg);
     }
 }
