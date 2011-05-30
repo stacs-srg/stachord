@@ -287,7 +287,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptor a Chord node
      * @param network_size the known size of the network
      * @return true if the node is stable.
-     * @throws InterruptedException
+     * @throws InterruptedException 
      */
     public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) throws InterruptedException {
 
@@ -360,7 +360,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
-     *
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
@@ -394,7 +394,7 @@ public final class RecoveryTestLogic {
         final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
         final IChordRemote node = application_reference.getRemote();
 
-        List<? extends IChordRemoteReference> successor_list;
+        List<IChordRemoteReference> successor_list;
         try {
             successor_list = node.getSuccessorList();
 
@@ -492,7 +492,7 @@ public final class RecoveryTestLogic {
      * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
-     *
+     * 
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */

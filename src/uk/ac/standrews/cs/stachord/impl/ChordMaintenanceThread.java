@@ -256,7 +256,7 @@ final class ChordMaintenanceThread extends Thread {
 
         if (!successor.getCachedKey().equals(chord_node.getKey())) {
             try {
-                final List<? extends IChordRemoteReference> successor_list_of_successor = successor.getRemote().getSuccessorList();
+                final List<IChordRemoteReference> successor_list_of_successor = successor.getRemote().getSuccessorList();
 
                 if (chord_node.getRealSuccessorList().refreshList(successor_list_of_successor)) {
                     chord_node.setChanged();

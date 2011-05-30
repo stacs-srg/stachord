@@ -96,7 +96,7 @@ class SuccessorList {
      *
      * @throws RPCException if an error occurs when accessing this node's successor's key
      */
-    protected boolean refreshList(final List<? extends IChordRemoteReference> successor_list_of_successor) throws RPCException {
+    protected boolean refreshList(final List<IChordRemoteReference> successor_list_of_successor) throws RPCException {
 
         final IChordRemoteReference successor = node.getSuccessor();
 
