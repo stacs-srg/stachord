@@ -51,8 +51,6 @@ import uk.ac.standrews.cs.stachord.servers.NodeServer;
  */
 public class ChordManager extends P2PNodeManager {
 
-    private static final String LOCAL_HOSTNAME_SUFFIX = ".local";
-
     private final ChordNodeFactory factory;
 
     private final boolean try_registry_on_connection_error;
@@ -140,6 +138,23 @@ public class ChordManager extends P2PNodeManager {
         }
     }
 
+    // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    protected P2PNodeFactory getP2PNodeFactory() {
+
+        return factory;
+    }
+
+    @Override
+    protected String guessFragmentOfApplicationProcessName(final HostDescriptor host_descriptor) {
+
+        final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getCanonicalHostName());
+        return NodeServer.class.getName() + " -s" + host_name + ":" + host_descriptor.getPort();
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
     private void establishApplicationReferenceViaRegistry(final HostDescriptor host_descriptor, final InetSocketAddress inet_socket_address) throws RegistryUnavailableException, RPCException {
 
         // Try accessing Chord via the registry.
@@ -149,35 +164,5 @@ public class ChordManager extends P2PNodeManager {
 
         host_descriptor.applicationReference(factory.bindToNode(new InetSocketAddress(address, chord_port)));
         host_descriptor.port(chord_port);
-    }
-
-    @Override
-    public void killApplication(final HostDescriptor host_descriptor) throws Exception {
-
-        // Check whether a process handle exists, implying that the node was initiated by the current Java process.
-        if (host_descriptor.getNumberOfProcesses() > 0) {
-            super.killApplication(host_descriptor);
-        }
-        else {
-            // If not, try to kill the process by guessing the format of the process name.
-            final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getCanonicalHostName());
-            final String match_fragment = NodeServer.class.getName() + " -s" + host_name + ":" + host_descriptor.getPort();
-            host_descriptor.getProcessManager().killMatchingProcesses(match_fragment);
-        }
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    @Override
-    protected P2PNodeFactory getP2PNodeFactory() {
-
-        return factory;
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    private String stripLocalSuffix(final String host_name) {
-
-        return host_name.endsWith(LOCAL_HOSTNAME_SUFFIX) ? host_name.substring(0, host_name.length() - LOCAL_HOSTNAME_SUFFIX.length()) : host_name;
     }
 }
