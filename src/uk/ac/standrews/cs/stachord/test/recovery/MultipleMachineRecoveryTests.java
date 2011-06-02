@@ -29,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -39,6 +38,7 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.ClassPath;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.URL;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
