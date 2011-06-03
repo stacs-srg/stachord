@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
@@ -56,8 +57,10 @@ public class AddressChangeTest implements Observer {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public static void main(final String[] args) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public static void main(final String[] args) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         final AddressChangeTest foo = new AddressChangeTest();
 

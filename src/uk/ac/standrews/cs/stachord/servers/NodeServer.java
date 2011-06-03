@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
@@ -94,8 +95,10 @@ public final class NodeServer {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException {
+    public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         final NodeServer server = new NodeServer(args);
         server.createNode();
@@ -103,7 +106,7 @@ public final class NodeServer {
 
     // -------------------------------------------------------------------------------------------------------
 
-    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         final IChordNode node = node_key == null ? new ChordNodeFactory().createNode(local_address) : new ChordNodeFactory().createNode(local_address, node_key);
 

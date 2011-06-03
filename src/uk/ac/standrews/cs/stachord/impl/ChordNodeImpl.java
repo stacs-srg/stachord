@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Observable;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -86,8 +87,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public ChordNodeImpl(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public ChordNodeImpl(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         this(local_address, new SHA1KeyFactory().generateKey(local_address));
     }
@@ -102,8 +105,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public ChordNodeImpl(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public ChordNodeImpl(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         this.local_address = local_address;
         this.key = key;
@@ -448,8 +453,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    void exposeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    void exposeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         chord_remote_server.setLocalAddress(local_address.getAddress());
         chord_remote_server.setPort(local_address.getPort());

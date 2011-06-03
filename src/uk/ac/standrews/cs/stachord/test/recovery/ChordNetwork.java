@@ -71,7 +71,7 @@ public class ChordNetwork implements INetwork {
         assembleChordRing(host_descriptors);
     }
 
-    protected static void assembleChordRing(final SortedSet<HostDescriptor> host_descriptors) {
+    protected static void assembleChordRing(final SortedSet<HostDescriptor> host_descriptors) throws InterruptedException {
 
         HostDescriptor known_node_descriptor = null;
         IChordRemoteReference known_node = null;
@@ -87,7 +87,7 @@ public class ChordNetwork implements INetwork {
             else {
                 // Join the other nodes to the ring via the first one.
 
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
                         final IChordRemoteReference node_reference = (IChordRemoteReference) new_node_descriptor.getApplicationReference();
 
@@ -103,6 +103,8 @@ public class ChordNetwork implements INetwork {
                         // Retry.
                     }
                 }
+
+                if (Thread.currentThread().isInterrupted()) { throw new InterruptedException(); }
             }
         }
     }

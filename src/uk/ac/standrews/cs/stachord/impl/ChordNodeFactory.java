@@ -63,8 +63,10 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public IChordNode createNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public IChordNode createNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         return new ChordNodeImpl(local_address);
     }
@@ -80,8 +82,10 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
+     * @throws TimeoutException 
+     * @throws InterruptedException 
      */
-    public IChordNode createNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    public IChordNode createNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         return new ChordNodeImpl(local_address, key);
     }

@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
@@ -109,7 +110,7 @@ final class ChordMaintenanceThread extends Thread {
         }
     }
 
-    private void handleAddressChange() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException {
+    private void handleAddressChange() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         chord_node.unexposeNode();
         chord_node.exposeNode();
