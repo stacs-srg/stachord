@@ -77,6 +77,8 @@ public class ChordManager extends P2PNodeManager {
      * Initializes a Chord manager.
      * 
      * @param local_deployment_only true if nodes are only to be deployed to the local node
+     * @param run_chord_scanners true if scanners for cycle length and partitions should be started
+     * @param try_registry_on_connection_error if the manager should try to establish a connection via the registry when a specified port is unsuccessful
      */
     public ChordManager(final boolean local_deployment_only, final boolean run_chord_scanners, final boolean try_registry_on_connection_error) {
 
