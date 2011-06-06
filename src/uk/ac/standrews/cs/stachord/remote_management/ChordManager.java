@@ -149,8 +149,9 @@ public class ChordManager extends P2PNodeManager {
     @Override
     protected String guessFragmentOfApplicationProcessName(final HostDescriptor host_descriptor) {
 
-        final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getCanonicalHostName());
-        return NodeServer.class.getName() + " -s" + host_name + ":" + host_descriptor.getPort();
+        // Don't include the port, because it may not be set at this point.
+        final String host_name = stripLocalSuffix(host_descriptor.getInetAddress().getHostName());
+        return NodeServer.class.getName() + " -s" + host_name + ":";
     }
 
     // -------------------------------------------------------------------------------------------------------
