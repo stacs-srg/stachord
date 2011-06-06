@@ -52,7 +52,12 @@ final class ChordMaintenanceThread extends Thread {
                 fixNextFinger();
             }
 
-            MAINTENANCE_WAIT_INTERVAL.sleep();
+            try {
+                MAINTENANCE_WAIT_INTERVAL.sleep();
+            }
+            catch (final InterruptedException e) {
+                break;
+            }
         }
 
         Diagnostic.trace(DiagnosticLevel.RUN, "maintenance thread stopping on node " + chord_node.getKey());

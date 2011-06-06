@@ -71,7 +71,7 @@ public class MultipleMachineRecoveryTests {
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        final long ring_creation_start_time = System.currentTimeMillis();
+        final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
@@ -93,7 +93,7 @@ public class MultipleMachineRecoveryTests {
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
-        final long ring_creation_start_time = System.currentTimeMillis();
+        final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
@@ -116,7 +116,7 @@ public class MultipleMachineRecoveryTests {
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        final long ring_creation_start_time = System.currentTimeMillis();
+        final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
@@ -179,7 +179,7 @@ public class MultipleMachineRecoveryTests {
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
         HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
-        final long ring_creation_start_time = System.currentTimeMillis();
+        final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");

@@ -25,15 +25,18 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import java.util.SortedSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
-import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.nds.util.Timing;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -51,6 +54,7 @@ public class ChordNetwork implements INetwork {
     private final INetwork network;
 
     private static final Duration KNOWN_NODE_CONTACT_RETRY_INTERVAL = new Duration(2, TimeUnit.SECONDS);
+    private static final Duration RING_ASSEMBLY_TIMEOUT = new Duration(10, TimeUnit.MINUTES);
 
     // -------------------------------------------------------------------------------------------------------
 
@@ -71,7 +75,7 @@ public class ChordNetwork implements INetwork {
         assembleChordRing(host_descriptors);
     }
 
-    protected static void assembleChordRing(final SortedSet<HostDescriptor> host_descriptors) throws InterruptedException {
+    protected static void assembleChordRing(final SortedSet<HostDescriptor> host_descriptors) throws InterruptedException, TimeoutException {
 
         HostDescriptor known_node_descriptor = null;
         IChordRemoteReference known_node = null;
@@ -86,27 +90,61 @@ public class ChordNetwork implements INetwork {
             }
             else {
                 // Join the other nodes to the ring via the first one.
+                final IChordRemoteReference known_node_constant = known_node;
 
-                while (!Thread.currentThread().isInterrupted()) {
-                    try {
+                final Callable<Void> join_action = new Callable<Void>() {
+
+                    @Override
+                    public Void call() throws Exception {
+
                         final IChordRemoteReference node_reference = (IChordRemoteReference) new_node_descriptor.getApplicationReference();
 
                         // The known node may not have come up yet.
-                        if (node_reference != null) {
-                            final IChordRemote node = node_reference.getRemote();
-                            node.join(known_node);
-                            break;
-                        }
-                        KNOWN_NODE_CONTACT_RETRY_INTERVAL.sleep();
+                        if (node_reference == null) { throw new Exception("known node not accessible yet"); }
+
+                        final IChordRemote node = node_reference.getRemote();
+                        node.join(known_node_constant);
+
+                        return null;
                     }
-                    catch (final RPCException e) {
-                        // Retry.
-                    }
+                };
+
+                try {
+                    Timing.retry(join_action, RING_ASSEMBLY_TIMEOUT, KNOWN_NODE_CONTACT_RETRY_INTERVAL, true, DiagnosticLevel.FULL);
+                }
+                catch (final Exception e) {
+                    launderException(e);
                 }
 
-                if (Thread.currentThread().isInterrupted()) { throw new InterruptedException(); }
+                //                while (!Thread.currentThread().isInterrupted()) {
+                //                    try {
+                //                        final IChordRemoteReference node_reference = (IChordRemoteReference) new_node_descriptor.getApplicationReference();
+                //
+                //                        // The known node may not have come up yet.
+                //                        if (node_reference != null) {
+                //                            final IChordRemote node = node_reference.getRemote();
+                //                            node.join(known_node);
+                //                            break;
+                //                        }
+                //                        KNOWN_NODE_CONTACT_RETRY_INTERVAL.sleep();
+                //                    }
+                //                    catch (final RPCException e) {
+                //                        // Retry.
+                //                    }
+                //                }
+                //
+                //                if (Thread.currentThread().isInterrupted()) { throw new InterruptedException(); }
             }
         }
+    }
+
+    private static void launderException(final Exception e) throws TimeoutException, InterruptedException {
+
+        if (e instanceof InterruptedException) { throw (InterruptedException) e; }
+        if (e instanceof TimeoutException) { throw (TimeoutException) e; }
+        if (e instanceof RuntimeException) { throw (RuntimeException) e; }
+
+        throw new IllegalStateException("Unexpected checked exception", e);
     }
 
     // -------------------------------------------------------------------------------------------------------

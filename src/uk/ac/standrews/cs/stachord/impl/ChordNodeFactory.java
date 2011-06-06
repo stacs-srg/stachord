@@ -115,8 +115,9 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @return a remote reference to the node
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
+     * @throws InterruptedException 
      */
-    public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final Duration retry_interval, final Duration timeout_interval) throws TimeoutException {
+    public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final Duration retry_interval, final Duration timeout_interval) throws TimeoutException, InterruptedException {
 
         return (IChordRemoteReference) bindToNode(retry_interval, timeout_interval, node_address);
     }
@@ -138,7 +139,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     }
 
     @Override
-    protected Object bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException {
+    protected Object bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
 
         return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, INDIVIDUAL_TIMEOUT_INTERVAL);
     }

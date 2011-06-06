@@ -99,12 +99,12 @@ public final class RecoveryTestLogic {
      *
      * @param network a Chord network
      * @param test_timeout the timeout for individual steps of the test, in ms
-     * @param ring_creation_start_time the time at which ring creation was started
+     * @param ring_creation_start the time at which ring creation was started
      * @throws Exception if the network cannot be shut down
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final Duration test_timeout, final long ring_creation_start_time) throws Exception {
+    public static void testRingRecoveryFromNodeFailure(final INetwork network, final Duration test_timeout, final Duration ring_creation_start) throws Exception {
 
-        long start_time = printElapsedTime(ring_creation_start_time);
+        Duration start_time = printElapsedTime(ring_creation_start);
 
         final SortedSet<HostDescriptor> nodes = network.getNodes();
 
@@ -148,13 +148,13 @@ public final class RecoveryTestLogic {
         }
     }
 
-    private static long printElapsedTime(final long start_time) {
+    private static Duration printElapsedTime(final Duration start) {
 
-        final long current_time = System.currentTimeMillis();
-        final long seconds_elapsed = TimeUnit.MILLISECONDS.toSeconds(current_time - start_time);
-        System.out.println("done in " + seconds_elapsed + "s");
+        final Duration current = Duration.elapsed();
+        final Duration elapsed = Duration.elapsed(start);
+        System.out.println("done in " + elapsed);
 
-        return current_time;
+        return current;
     }
 
     /**

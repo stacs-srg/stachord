@@ -123,10 +123,10 @@ public abstract class LocalRecoveryTestBase {
     private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws Exception {
 
         System.out.println("constructing ring... ");
-        final long ring_creation_start_time = System.currentTimeMillis();
+        final Duration ring_creation_start = Duration.elapsed();
         final INetwork network = getTestNetwork(ring_size, network_type);
 
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start);
     }
 
     protected abstract INetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
