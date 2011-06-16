@@ -65,6 +65,9 @@ public class ChordManager extends P2PNodeManager {
     private static final Duration CHORD_CONNECTION_RETRY = new Duration(5, TimeUnit.SECONDS);
     private static final Duration CHORD_CONNECTION_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
+    private static final int THREAD_POOL_SIZE = 10;
+    private static final Duration MIN_CYCLE_TIME = new Duration(5, TimeUnit.SECONDS);
+
     /**
      * Initializes a Chord manager for remote deployment.
      */
@@ -89,8 +92,8 @@ public class ChordManager extends P2PNodeManager {
         factory = new ChordNodeFactory();
 
         if (run_chord_scanners) {
-            getSingleScanners().add(new ChordCycleLengthScanner());
-            getGlobalScanners().add(new ChordPartitionScanner());
+            getSingleScanners().add(new ChordCycleLengthScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
+            getGlobalScanners().add(new ChordPartitionScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
         }
     }
 

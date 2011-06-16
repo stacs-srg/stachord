@@ -32,25 +32,23 @@ import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
+import uk.ac.standrews.cs.nds.madface.MadfaceManager;
 import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
 import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
-    private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
 
-    @Override
-    public TimeoutExecutor makeExecutor() {
+    public ChordPartitionScanner(final MadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
 
-        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false, "partition scanner");
+        super(manager, thread_pool_size, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "partition scanner", false);
     }
 
     @Override
@@ -115,12 +113,6 @@ class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
     public String getToggleLabel() {
 
         return "Auto-Heal Partitions";
-    }
-
-    @Override
-    public boolean enabledByDefault() {
-
-        return false;
     }
 
     private int ringSize(final HostDescriptor host_descriptor) {

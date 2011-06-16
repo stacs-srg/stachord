@@ -30,21 +30,19 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.MadfaceManager;
 import uk.ac.standrews.cs.nds.madface.interfaces.IAttributesCallback;
 import uk.ac.standrews.cs.nds.madface.interfaces.ISingleHostScanner;
 import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 
 class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
-    private static final int CYCLE_LENGTH_CHECK_THREADS = 10;
 
-    @Override
-    public TimeoutExecutor makeExecutor() {
+    public ChordCycleLengthScanner(final MadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
 
-        return new TimeoutExecutor(CYCLE_LENGTH_CHECK_THREADS, CYCLE_LENGTH_CHECK_TIMEOUT, false, "cycle length scanner");
+        super(manager, thread_pool_size, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
     }
 
     @Override
@@ -82,11 +80,5 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
                 callback.attributesChange(host_descriptor);
             }
         }
-    }
-
-    @Override
-    public boolean enabledByDefault() {
-
-        return true;
     }
 }

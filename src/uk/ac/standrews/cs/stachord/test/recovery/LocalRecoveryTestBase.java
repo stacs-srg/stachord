@@ -63,9 +63,10 @@ public abstract class LocalRecoveryTestBase {
      * @throws TimeoutException shouldn't occur locally
      * @throws SSH2Exception shouldn't occur locally
      * @throws UnknownPlatformException shouldn't occur locally
+     * @throws InterruptedException 
      */
     @Before
-    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException {
+    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
