@@ -611,7 +611,7 @@ public final class RecoveryTestLogic {
 
     private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final Duration test_timeout) throws TimeoutException {
 
-        final TimeoutExecutor timeout_executor = TimeoutExecutor.makeTimeoutExecutor(1, test_timeout, true, true);
+        final TimeoutExecutor timeout_executor = TimeoutExecutor.makeTimeoutExecutor(1, test_timeout, true, true, "Chord recovery executor");
 
         boolean timed_out = false;
         final DiagnosticLevel previous_level = Diagnostic.getLevel();
