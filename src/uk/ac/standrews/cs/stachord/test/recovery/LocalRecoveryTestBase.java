@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
+import uk.ac.standrews.cs.nds.madface.exceptions.UnsupportedPlatformException;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -64,9 +65,10 @@ public abstract class LocalRecoveryTestBase {
      * @throws SSH2Exception shouldn't occur locally
      * @throws UnknownPlatformException shouldn't occur locally
      * @throws InterruptedException 
+     * @throws UnsupportedPlatformException 
      */
     @Before
-    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException {
+    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException, UnsupportedPlatformException {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
