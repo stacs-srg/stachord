@@ -103,6 +103,7 @@ public final class NodeServer {
         final NodeServer server = new NodeServer(args);
         try {
             server.createNode();
+            System.out.println("Started Chord node at " + server.local_address);
         }
         catch (final IOException e) {
             System.out.println("Couldn't start Chord node at " + server.local_address + " : " + e.getMessage());
