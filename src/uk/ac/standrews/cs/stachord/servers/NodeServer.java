@@ -101,7 +101,12 @@ public final class NodeServer {
     public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         final NodeServer server = new NodeServer(args);
-        server.createNode();
+        try {
+            server.createNode();
+        }
+        catch (final IOException e) {
+            System.out.println("Couldn't start Chord node at " + server.local_address + " : " + e.getMessage());
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
