@@ -1,8 +1,8 @@
 /***************************************************************************
  *                                                                         *
  * stachord Library                                                        *
- * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
- * University of St Andrews, Scotland
+ * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
+ * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
@@ -22,7 +22,6 @@
  * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
  *                                                                         *
  ***************************************************************************/
-
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +46,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
- *
+ * 
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public class MultipleMachineRecoveryTests {
@@ -57,7 +56,7 @@ public class MultipleMachineRecoveryTests {
 
     /**
      * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
-     *
+     * 
      * @throws Exception if the test fails
      */
     @Test
@@ -79,7 +78,7 @@ public class MultipleMachineRecoveryTests {
 
     /**
      * Runs a multiple machine test using public key authentication and assuming that libraries are pre-installed on remote machines.
-     *
+     * 
      * @throws Exception if the test fails
      */
     @Test
@@ -101,7 +100,7 @@ public class MultipleMachineRecoveryTests {
 
     /**
      * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines.
-     *
+     * 
      * @throws Exception if the test fails
      */
     @Test
@@ -111,10 +110,10 @@ public class MultipleMachineRecoveryTests {
 
         final List<String> hosts = threeOnBeast();
 
-        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
+        // final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
 
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
+        // HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
@@ -124,7 +123,7 @@ public class MultipleMachineRecoveryTests {
 
     /**
      * Runs a multiple machine test using password authentication and dynamically installing libraries on remote machines and the local machine to permit manual disconnection testing.
-     *
+     * 
      * @throws Exception if the test fails
      */
     @Test
@@ -164,7 +163,7 @@ public class MultipleMachineRecoveryTests {
 
     /**
      * Runs a multiple machine test using public key authentication and dynamically installing libraries on remote machines.
-     *
+     * 
      * @throws Exception if the test fails
      */
     @Test
@@ -200,8 +199,8 @@ public class MultipleMachineRecoveryTests {
         final List<String> hosts = new ArrayList<String>();
         hosts.add("beast.cs.st-andrews.ac.uk");
         hosts.add("beast.cs.st-andrews.ac.uk");
-        hosts.add("mini.cs.st-andrews.ac.uk");
-        hosts.add("mini.cs.st-andrews.ac.uk");
+        // hosts.add("mini.cs.st-andrews.ac.uk");
+        // hosts.add("mini.cs.st-andrews.ac.uk");
         return hosts;
     }
 

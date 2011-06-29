@@ -24,12 +24,15 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.test.recovery;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.URL;
 import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
@@ -43,7 +46,7 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
 
 /**
  * Network comprising Chord nodes running on a set of specified machines running Linux or OSX.
- *
+ * 
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
@@ -60,17 +63,23 @@ public class ChordNetwork implements INetwork {
 
     /**
      * Creates a new Chord network.
-     *
+     * 
      * @param host_descriptors a description of the target host for each Chord node to be created
      * @param key_distribution the required key distribution
-     * 
      * @throws Exception if there is an error during creation of the network
      */
     public ChordNetwork(final SortedSet<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final boolean local_deployment_only = allLocal(host_descriptors);
         final IApplicationManager application_manager = new ChordManager(local_deployment_only, false, false);
-        network = new P2PNetwork(host_descriptors, application_manager, key_distribution);
+
+        final Set<URL> application_urls = new HashSet<URL>();
+
+        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar"));
+        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/json.jar"));
+        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/mindterm.jar"));
+
+        network = new P2PNetwork(host_descriptors, application_manager, application_urls, key_distribution);
 
         assembleChordRing(host_descriptors);
     }
@@ -115,25 +124,6 @@ public class ChordNetwork implements INetwork {
                 catch (final Exception e) {
                     launderException(e);
                 }
-
-                //                while (!Thread.currentThread().isInterrupted()) {
-                //                    try {
-                //                        final IChordRemoteReference node_reference = (IChordRemoteReference) new_node_descriptor.getApplicationReference();
-                //
-                //                        // The known node may not have come up yet.
-                //                        if (node_reference != null) {
-                //                            final IChordRemote node = node_reference.getRemote();
-                //                            node.join(known_node);
-                //                            break;
-                //                        }
-                //                        KNOWN_NODE_CONTACT_RETRY_INTERVAL.sleep();
-                //                    }
-                //                    catch (final RPCException e) {
-                //                        // Retry.
-                //                    }
-                //                }
-                //
-                //                if (Thread.currentThread().isInterrupted()) { throw new InterruptedException(); }
             }
         }
     }
