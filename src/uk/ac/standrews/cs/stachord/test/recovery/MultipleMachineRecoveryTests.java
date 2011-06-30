@@ -37,7 +37,6 @@ import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.ClassPath;
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.URL;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
@@ -51,7 +50,6 @@ import uk.ac.standrews.cs.nds.util.Duration;
  */
 public class MultipleMachineRecoveryTests {
 
-    private static final String STACHORD_JAR = "http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar";
     private static final Duration TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
     /**
@@ -110,10 +108,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<String> hosts = threeOnBeast();
 
-        // final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
-
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-        // HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
@@ -133,11 +128,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<String> hosts = threeOnBeast();
 
-        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
-
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-
-        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final INetwork network = new ChordNetwork(host_descriptors, KeyDistribution.RANDOM);
 
@@ -173,10 +164,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<String> hosts = threeBlubNodes();
 
-        final URL[] lib_urls = new URL[]{new URL(STACHORD_JAR)};
-
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
-        HostDescriptor.setApplicationURLs(host_descriptors, lib_urls);
 
         final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
