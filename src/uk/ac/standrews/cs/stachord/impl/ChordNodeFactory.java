@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -47,6 +48,9 @@ import uk.ac.standrews.cs.stachord.servers.NodeServer;
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
 public final class ChordNodeFactory extends P2PNodeFactory {
+
+    private static final int INITIAL_PORT = 55496; // First port to attempt when trying to find free port.
+    private static final AtomicInteger NEXT_PORT = new AtomicInteger(INITIAL_PORT); // The next port to be used; static to allow multiple concurrent networks.
 
     public ChordNodeFactory() {
 
@@ -148,5 +152,11 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     protected Class<?> getNodeServerClass() {
 
         return NodeServer.class;
+    }
+
+    @Override
+    protected AtomicInteger getNextPortContainer() {
+
+        return NEXT_PORT;
     }
 }
