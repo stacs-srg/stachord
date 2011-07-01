@@ -126,19 +126,20 @@ public class ChordManager extends P2PNodeManager {
                 throw new Exception("trying to establish connection with port 0 and registry retry disabled");
             }
         }
-
-        try {
-            host_descriptor.applicationReference(factory.bindToNode(inet_socket_address, CHORD_CONNECTION_RETRY, CHORD_CONNECTION_TIMEOUT));
-        }
-        catch (final Exception e) {
-
-            Diagnostic.trace(DiagnosticLevel.FULL, "giving up establishing reference to: " + inet_socket_address);
-
-            if (try_registry_on_connection_error) {
-                establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+        else {
+            try {
+                host_descriptor.applicationReference(factory.bindToNode(inet_socket_address, CHORD_CONNECTION_RETRY, CHORD_CONNECTION_TIMEOUT));
             }
-            else {
-                throw e;
+            catch (final Exception e) {
+
+                Diagnostic.trace(DiagnosticLevel.FULL, "giving up establishing reference to: " + inet_socket_address);
+
+                if (try_registry_on_connection_error) {
+                    establishApplicationReferenceViaRegistry(host_descriptor, inet_socket_address);
+                }
+                else {
+                    throw e;
+                }
             }
         }
     }
