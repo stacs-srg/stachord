@@ -113,7 +113,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
     @Override
     public InetSocketAddress getAddress() throws RPCException {
 
-       return super.node_address;
+        return super.node_address;
     }
 
     @Override
@@ -196,7 +196,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             marshaller.serializeChordRemoteReference(potential_predecessor, writer);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
@@ -214,7 +214,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             marshaller.serializeChordRemoteReference(node, writer);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
@@ -300,7 +300,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             writer.value(enabled);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
@@ -317,7 +317,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             writer.value(enabled);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
@@ -334,7 +334,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             writer.value(enabled);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
@@ -351,7 +351,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final JSONWriter writer = connection.getJSONwriter();
             marshaller.serializeChordRemoteReference(node, writer);
 
-            handleVoidCall(makeCall(connection));
+            makeVoidCall(connection);
 
             finishCall(connection);
         }
