@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
+import uk.ac.standrews.cs.nds.madface.exceptions.DeploymentException;
 import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.nds.madface.exceptions.UnsupportedPlatformException;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
@@ -42,7 +43,8 @@ public class LocalRecoveryTestsSameProcessWithNetwork extends LocalRecoveryTestB
 
     @Test
     @Ignore
-    public void runSingleNode() throws UnknownHostException, IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, SSH2Exception, TimeoutException, UnknownPlatformException, InvalidServerClassException, InterruptedException, UnsupportedPlatformException {
+    public void runSingleNode() throws UnknownHostException, IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, SSH2Exception, TimeoutException, UnknownPlatformException, InvalidServerClassException, InterruptedException, UnsupportedPlatformException,
+                    DeploymentException {
 
         final HostDescriptor hd = new HostDescriptor().port(50000);
         hd.deployInLocalProcess(true);
