@@ -30,6 +30,7 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
@@ -37,9 +38,11 @@ import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
 import uk.ac.standrews.cs.nds.util.CommandLineArgs;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
+import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
@@ -55,12 +58,22 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 public final class NodeServer {
 
     private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
+    public static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
+
+    private static final ChordNodeFactory factory;
 
     private IKey node_key;
     private InetSocketAddress local_address = null;
     private InetSocketAddress join_address = null;
 
-    private static final ChordNodeFactory factory = new ChordNodeFactory();
+    // -------------------------------------------------------------------------------------------------------
+
+    static {
+        factory = new ChordNodeFactory();
+        StreamProxy.CONNECTION_POOL.setSocketReadTimeout(CHORD_SOCKET_READ_TIMEOUT);
+    }
+
+    // -------------------------------------------------------------------------------------------------------
 
     public NodeServer(final String[] args) throws UndefinedDiagnosticLevelException, UnknownHostException {
 
@@ -71,6 +84,8 @@ public final class NodeServer {
         configureJoinAddress(arguments);
         configureNodeKey(arguments);
     }
+
+    // -------------------------------------------------------------------------------------------------------
 
     /**
      * The following command line parameters are available:
