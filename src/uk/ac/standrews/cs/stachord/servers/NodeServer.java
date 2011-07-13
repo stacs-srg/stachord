@@ -103,10 +103,10 @@ public final class NodeServer {
         final NodeServer server = new NodeServer(args);
         try {
             server.createNode();
-            Diagnostic.trace(DiagnosticLevel.RUN, "Started Chord node at " + server.local_address);
+            Diagnostic.trace("Started Chord node at " + server.local_address);
         }
         catch (final IOException e) {
-            Diagnostic.trace(DiagnosticLevel.RUN, "Couldn't start Chord node at " + server.local_address + " : " + e.getMessage());
+            Diagnostic.trace("Couldn't start Chord node at " + server.local_address + " : " + e.getMessage());
         }
     }
 
