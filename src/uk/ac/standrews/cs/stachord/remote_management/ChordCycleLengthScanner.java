@@ -42,7 +42,7 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
 
     public ChordCycleLengthScanner(final MadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
 
-        super(manager, thread_pool_size, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
+        super(manager, min_cycle_time, thread_pool_size, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
     }
 
     @Override

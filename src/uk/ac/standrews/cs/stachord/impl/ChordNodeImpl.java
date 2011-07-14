@@ -295,7 +295,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public NextHopResult nextHop(final IKey k) throws RPCException {
 
-        // Check whether the key lies in the range between this node and its successor, in which case the successor represents the final hop.
+        // Check whether the key lies in this node's successor's key range, in which case the successor represents the final hop.
         if (inSuccessorKeyRange(k)) { return new NextHopResult(successor, true); }
 
         final IChordRemoteReference closest_preceding_node = closestPrecedingNode(k);

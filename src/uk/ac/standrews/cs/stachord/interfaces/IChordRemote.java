@@ -114,8 +114,6 @@ public interface IChordRemote {
 
     /**
      * Returns the next hop towards the successor node of a given key.
-     * Of the nodes known by this node, the result is the node whose key is the furthest round the key space
-     * without overshooting the target key.
      *
      * @param key a key
      * @return the next hop towards the successor of the specified key
