@@ -156,10 +156,23 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             if (successorIsSelf()) { return true; }
 
             // No predecessor and successor not self, so not a one-node ring - don't know local key range.
-            throw new PredecessorKeyUnknownException("Unable to determine local key range because the predecessor is null. This is not a JSON RPCException.");
+            throw new KeyUnknownException("Unable to determine local key range because the predecessor is null. This is not a JSON RPCException.");
         }
 
         return RingArithmetic.inSegment(predecessor_key, k, key);
+    }
+
+    private boolean inSuccessorKeyRange(final IKey k) throws RPCException {
+
+        final IKey successor_key;
+
+        synchronized (this) {
+            successor_key = successor != null ? successor.getCachedKey() : null;
+        }
+
+        if (successor_key == null) { throw new KeyUnknownException("Unable to determine successor key range because the successor is null. This is not a JSON RPCException."); }
+
+        return RingArithmetic.inSegment(key, k, successor_key);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -228,8 +241,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     @Override
     public void join(final IChordRemoteReference known_node) throws RPCException {
 
-        //        System.out.println("node: " + this + " joining known node: " + known_node);
-
         // Route to this node's key; the result is this node's new successor.
         final IChordRemote remote = known_node.getRemote();
         final IChordRemoteReference new_successor = remote.lookup(key);
@@ -264,8 +275,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
          */
         final IKey key_of_potential_predecessor = potential_predecessor.getCachedKey();
 
-        //        System.out.println("node: " + this + " notified of potential predecessor: " + potential_predecessor);
-
         if (!key_of_potential_predecessor.equals(key) && (predecessor == null || inLocalKeyRange(key_of_potential_predecessor))) {
             setPredecessor(potential_predecessor);
         }
@@ -287,7 +296,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     public NextHopResult nextHop(final IKey k) throws RPCException {
 
         // Check whether the key lies in the range between this node and its successor, in which case the successor represents the final hop.
-        if (RingArithmetic.inSegment(key, k, successor.getCachedKey())) { return new NextHopResult(successor, true); }
+        if (inSuccessorKeyRange(k)) { return new NextHopResult(successor, true); }
 
         final IChordRemoteReference closest_preceding_node = closestPrecedingNode(k);
 
@@ -409,7 +418,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(SUCCESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "successor of " + key + " now: ", (successor != null ? successor.getCachedKey() : "null"));
+                Diagnostic.trace(DiagnosticLevel.FULL, "successor of " + key + " now: ", successor != null ? successor.getCachedKey() : "null");
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling successor change");
@@ -418,7 +427,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         if (event.equals(PREDECESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "\n\npredecessor of " + key + " now: ", (predecessor != null ? predecessor.getCachedKey() : "null"));
+                Diagnostic.trace(DiagnosticLevel.FULL, "\n\npredecessor of " + key + " now: ", predecessor != null ? predecessor.getCachedKey() : "null");
             }
             catch (final RPCException e) {
                 Diagnostic.trace(DiagnosticLevel.RUN, "Error handling predecessor change");

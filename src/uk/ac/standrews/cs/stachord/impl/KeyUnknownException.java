@@ -8,9 +8,9 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
  *
  * @author Angus Macdonald (angus AT cs.st-andrews.ac.uk)
  */
-public class PredecessorKeyUnknownException extends RPCException {
+public class KeyUnknownException extends RPCException {
 
-    public PredecessorKeyUnknownException(final String message) {
+    public KeyUnknownException(final String message) {
 
         super(message);
     }
@@ -19,5 +19,4 @@ public class PredecessorKeyUnknownException extends RPCException {
      * 
      */
     private static final long serialVersionUID = 9118195319302052447L;
-
 }
