@@ -25,7 +25,7 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
     private static final Map<InetSocketAddress, ChordRemoteProxy> PROXY_MAP;
 
     static {
-        PROXY_MAP = new HashMap<InetSocketAddress, ChordRemoteProxy>();
+        PROXY_MAP = new Hashtable<InetSocketAddress, ChordRemoteProxy>(); // Hashtable is used since it only permits non-null keys and values
     }
 
     private final ChordRemoteMarshaller marshaller;
@@ -70,8 +70,11 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
 
     static synchronized ChordRemoteProxy getProxy(final InetSocketAddress proxy_address) {
 
-        ChordRemoteProxy proxy = PROXY_MAP.get(proxy_address);
-        if (proxy == null) {
+        final ChordRemoteProxy proxy;
+        if (PROXY_MAP.containsKey(proxy_address)) { // Throws NPE if the given proxy address is null
+            proxy = PROXY_MAP.get(proxy_address);
+        }
+        else {
             proxy = new ChordRemoteProxy(proxy_address);
             PROXY_MAP.put(proxy_address, proxy);
         }
