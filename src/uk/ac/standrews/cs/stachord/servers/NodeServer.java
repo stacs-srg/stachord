@@ -129,7 +129,7 @@ public final class NodeServer {
 
     public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
-        final IChordNode node = node_key == null ? new ChordNodeFactory().createNode(local_address) : new ChordNodeFactory().createNode(local_address, node_key);
+        final IChordNode node = node_key == null ? factory.createNode(local_address) : factory.createNode(local_address, node_key);
 
         if (join_address != null) {
             node.join(factory.bindToNode(join_address));
