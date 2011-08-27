@@ -3,7 +3,7 @@
  * stachord Library                                                        *
  * Copyright (C) 2004-2011 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland                                      *
- * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ * http://beast.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
  * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *
@@ -75,9 +75,9 @@ public class ChordNetwork implements INetwork {
 
         final Set<URL> application_urls = new HashSet<URL>();
 
-        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar"));
-        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/json.jar"));
-        application_urls.add(new URL("http://www-systems.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/mindterm.jar"));
+        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar"));
+        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/json.jar"));
+        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/mindterm.jar"));
 
         network = new P2PNetwork(host_descriptors, application_manager, application_urls, key_distribution);
 

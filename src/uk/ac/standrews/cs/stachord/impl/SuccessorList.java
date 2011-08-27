@@ -3,7 +3,7 @@
  * stachord Library                                                        *
  * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland
- * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ * http://beast.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
  * the Chord protocol (http://pdos.csail.mit.edu/chord/).                  *

@@ -3,7 +3,7 @@
  * nds Library                                                             *
  * Copyright (C) 2005-2011 Distributed Systems Architecture Research Group *
  * University of St Andrews, Scotland                                      *
- * http://www-systems.cs.st-andrews.ac.uk/                                 *
+ * http://beast.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of nds, a package of utility classes.                 *
  *                                                                         *
