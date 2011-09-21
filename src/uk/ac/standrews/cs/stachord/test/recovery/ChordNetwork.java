@@ -75,9 +75,9 @@ public class ChordNetwork implements INetwork {
 
         final Set<URL> application_urls = new HashSet<URL>();
 
-        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar"));
-        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/json.jar"));
-        application_urls.add(new URL("http://beast.cs.st-andrews.ac.uk:8080/hudson/job/stachord/lastSuccessfulBuild/artifact/lib/mindterm.jar"));
+        application_urls.add(new URL("https://builds.cs.st-andrews.ac.uk/job/stachord/lastSuccessfulBuild/artifact/bin/stachord.jar"));
+        application_urls.add(new URL("https://builds.cs.st-andrews.ac.uk/job/stachord/lastSuccessfulBuild/artifact/lib/json.jar"));
+        application_urls.add(new URL("https://builds.cs.st-andrews.ac.uk/job/stachord/lastSuccessfulBuild/artifact/lib/mindterm.jar"));
 
         network = new P2PNetwork(host_descriptors, application_manager, application_urls, key_distribution);
 
