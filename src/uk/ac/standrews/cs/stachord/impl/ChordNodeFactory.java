@@ -52,8 +52,8 @@ public final class ChordNodeFactory extends P2PNodeFactory {
 
     private static final int INITIAL_PORT = 55496; // First port to attempt when trying to find free port.
     private static final AtomicInteger NEXT_PORT = new AtomicInteger(INITIAL_PORT); // The next port to be used; static to allow multiple concurrent networks.
-    protected static final Duration INDIVIDUAL_TIMEOUT_INTERVAL = new Duration(20, TimeUnit.SECONDS); // Timeout for individual connection attempt.
-    protected static final Duration RETRY_INTERVAL = new Duration(3, TimeUnit.SECONDS); // Interval between retry of connecting to remote nodes.
+    protected static final Duration INDIVIDUAL_TIMEOUT_INTERVAL = new Duration(50, TimeUnit.SECONDS); // Timeout for individual connection attempt.
+    protected static final Duration RETRY_INTERVAL = new Duration(1, TimeUnit.SECONDS); // Interval between retry of connecting to remote nodes.
 
     public ChordNodeFactory() {
 
