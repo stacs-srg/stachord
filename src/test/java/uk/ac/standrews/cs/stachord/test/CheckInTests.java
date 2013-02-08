@@ -28,7 +28,7 @@ package uk.ac.standrews.cs.stachord.test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.ac.standrews.cs.stachord.impl.test.AllTests;
+import uk.ac.standrews.cs.stachord.impl.AllTests;
 
 /**
  * Tests run on each build.

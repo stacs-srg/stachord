@@ -23,7 +23,7 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.impl.test;
+package uk.ac.standrews.cs.stachord.impl;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

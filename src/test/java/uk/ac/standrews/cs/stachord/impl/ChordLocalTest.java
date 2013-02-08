@@ -22,7 +22,7 @@
  * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
  *                                                                         *
  ***************************************************************************/
-package uk.ac.standrews.cs.stachord.impl.test;
+package uk.ac.standrews.cs.stachord.impl;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
