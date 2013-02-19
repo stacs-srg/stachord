@@ -64,8 +64,8 @@ public abstract class LocalRecoveryTestBase {
      * @throws TimeoutException shouldn't occur locally
      * @throws SSH2Exception shouldn't occur locally
      * @throws UnknownPlatformException shouldn't occur locally
-     * @throws InterruptedException 
-     * @throws UnsupportedPlatformException 
+     * @throws InterruptedException
+     * @throws UnsupportedPlatformException
      */
     @Before
     public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException, UnsupportedPlatformException {
@@ -73,7 +73,7 @@ public abstract class LocalRecoveryTestBase {
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
         // Kill any lingering Chord node processes.
-        new HostDescriptor().getProcessManager().killMatchingProcesses(NodeServer.class.getSimpleName());
+        new HostDescriptor().killMatchingProcesses(NodeServer.class.getSimpleName());
     }
 
     /**
