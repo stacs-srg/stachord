@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.madface.HostState;
+import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.p2p.network.INetwork;
-import uk.ac.standrews.cs.nds.p2p.network.KeyDistribution;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in separate processes.
