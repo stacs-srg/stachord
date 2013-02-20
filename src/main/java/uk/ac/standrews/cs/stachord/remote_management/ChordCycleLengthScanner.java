@@ -29,12 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.MadfaceManager;
-import uk.ac.standrews.cs.nds.madface.interfaces.IAttributesCallback;
-import uk.ac.standrews.cs.nds.madface.interfaces.ISingleHostScanner;
-import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.IAttributesCallback;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.ISingleHostScanner;
+import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
 
 class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
 

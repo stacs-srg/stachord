@@ -1,7 +1,7 @@
 package uk.ac.standrews.cs.stachord.test.recovery;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 
 public class LocalRecoveryTestsSeparateProcesses extends LocalRecoveryTestBase {
 

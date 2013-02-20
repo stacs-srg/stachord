@@ -31,15 +31,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.URL;
-import uk.ac.standrews.cs.nds.madface.interfaces.IApplicationManager;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.INetwork;
-import uk.ac.standrews.cs.nds.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.Timing;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.active.URL;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.ApplicationManager;
+import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
@@ -71,7 +71,7 @@ public class ChordNetwork implements INetwork {
     public ChordNetwork(final SortedSet<HostDescriptor> host_descriptors, final KeyDistribution key_distribution) throws Exception {
 
         final boolean local_deployment_only = allLocal(host_descriptors);
-        final IApplicationManager application_manager = new ChordManager(local_deployment_only, false, false);
+        final ApplicationManager application_manager = new ChordManager(local_deployment_only, false, false);
 
         final Set<URL> application_urls = new HashSet<URL>();
 

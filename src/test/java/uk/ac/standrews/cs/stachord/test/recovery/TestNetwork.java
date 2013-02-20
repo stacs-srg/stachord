@@ -28,9 +28,9 @@ package uk.ac.standrews.cs.stachord.test.recovery;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 
 /**
  * Network comprising P2P nodes all running on the local machine.

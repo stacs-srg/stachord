@@ -8,17 +8,17 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.exceptions.DeploymentException;
-import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
-import uk.ac.standrews.cs.nds.madface.exceptions.UnsupportedPlatformException;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.INetwork;
-import uk.ac.standrews.cs.nds.p2p.network.InvalidServerClassException;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.active.exceptions.DeploymentException;
+import uk.ac.standrews.cs.shabdiz.active.exceptions.UnknownPlatformException;
+import uk.ac.standrews.cs.shabdiz.active.exceptions.UnsupportedPlatformException;
+import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.InvalidServerClassException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
 import com.mindbright.ssh2.SSH2Exception;

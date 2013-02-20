@@ -27,8 +27,8 @@ package uk.ac.standrews.cs.stachord.remote_management;
 import java.util.HashSet;
 import java.util.Set;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**

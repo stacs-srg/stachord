@@ -30,15 +30,15 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.HostState;
-import uk.ac.standrews.cs.nds.madface.MadfaceManager;
-import uk.ac.standrews.cs.nds.madface.interfaces.IGlobalHostScanner;
-import uk.ac.standrews.cs.nds.madface.scanners.Scanner;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.active.HostState;
+import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.IGlobalHostScanner;
+import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 

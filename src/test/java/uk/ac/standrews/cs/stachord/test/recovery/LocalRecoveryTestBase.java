@@ -33,14 +33,14 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.ac.standrews.cs.nds.madface.HostDescriptor;
-import uk.ac.standrews.cs.nds.madface.exceptions.UnknownPlatformException;
-import uk.ac.standrews.cs.nds.madface.exceptions.UnsupportedPlatformException;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.nds.p2p.network.INetwork;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.active.exceptions.UnknownPlatformException;
+import uk.ac.standrews.cs.shabdiz.active.exceptions.UnsupportedPlatformException;
+import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 import com.mindbright.ssh2.SSH2Exception;
