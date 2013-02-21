@@ -36,6 +36,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.interfaces.IPingable;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNodeFactory;
@@ -70,8 +71,8 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     public IChordNode createNode(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
@@ -89,8 +90,8 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     public IChordNode createNode(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
@@ -122,7 +123,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
      * @return a remote reference to the node
      *
      * @throws TimeoutException if the node cannot be bound to within the timeout interval
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
     public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final Duration retry_interval, final Duration timeout_interval) throws TimeoutException, InterruptedException {
 
@@ -138,7 +139,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     }
 
     @Override
-    public Object bindToNode(final Object... args) throws RPCException {
+    public IPingable bindToNode(final Object... args) throws RPCException {
 
         final InetSocketAddress node_address = (InetSocketAddress) args[0];
 
@@ -146,7 +147,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     }
 
     @Override
-    protected Object bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
+    protected IPingable bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
 
         return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, INDIVIDUAL_TIMEOUT_INTERVAL);
     }

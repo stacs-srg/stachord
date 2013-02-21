@@ -37,12 +37,12 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.active.HostState;
 import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.IGlobalHostScanner;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.GlobalHostScanner;
 import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordPartitionScanner extends Scanner implements IGlobalHostScanner {
+class ChordPartitionScanner extends Scanner implements GlobalHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 

@@ -32,11 +32,11 @@ import java.util.concurrent.TimeUnit;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.IAttributesCallback;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.ISingleHostScanner;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.AttributesCallback;
+import uk.ac.standrews.cs.shabdiz.active.interfaces.SingleHostScanner;
 import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
 
-class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
+class ChordCycleLengthScanner extends Scanner implements SingleHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
@@ -65,7 +65,7 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
     }
 
     @Override
-    public void check(final HostDescriptor host_descriptor, final Set<IAttributesCallback> attribute_callbacks) throws InterruptedException {
+    public void check(final HostDescriptor host_descriptor, final Set<AttributesCallback> attribute_callbacks) throws InterruptedException {
 
         final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
         final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
@@ -76,7 +76,7 @@ class ChordCycleLengthScanner extends Scanner implements ISingleHostScanner {
         attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
 
         if (attributes_changed) {
-            for (final IAttributesCallback callback : attribute_callbacks) {
+            for (final AttributesCallback callback : attribute_callbacks) {
                 callback.attributesChange(host_descriptor);
             }
         }
