@@ -25,37 +25,35 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.AttributesCallback;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.SingleHostScanner;
-import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
+import uk.ac.standrews.cs.shabdiz.DefaultMadfaceManager;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.scanners.ConcurrentHostScanner;
 
-class ChordCycleLengthScanner extends Scanner implements SingleHostScanner {
+class ChordCycleLengthScanner extends ConcurrentHostScanner {
 
+    private static final Logger LOGGER = Logger.getLogger(ChordCycleLengthScanner.class.getName());
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+    private volatile Integer min_cycle_legth;
+    private volatile Integer old_min_cycle_length;
+    private final ReentrantLock cycle_length_lock;
 
-    public ChordCycleLengthScanner(final MadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
+    public ChordCycleLengthScanner(final ExecutorService executor, final DefaultMadfaceManager manager, final Duration min_cycle_time) {
 
-        super(manager, min_cycle_time, thread_pool_size, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
-    }
-
-    @Override
-    public String getAttributeName() {
-
-        return ChordManager.RING_SIZE_NAME;
+        super(executor, manager, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
+        cycle_length_lock = new ReentrantLock();
     }
 
     @Override
     public String getToggleLabel() {
 
-        // No toggle in user interface required.
-        return null;
+        return null; // No toggle in user interface required.
     }
 
     @Override
@@ -65,20 +63,34 @@ class ChordCycleLengthScanner extends Scanner implements SingleHostScanner {
     }
 
     @Override
-    public void check(final HostDescriptor host_descriptor, final Set<AttributesCallback> attribute_callbacks) throws InterruptedException {
+    protected void check(final HostDescriptor host_descriptor) {
 
-        final int cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
-        final String cycle_length_string = cycle_length > 0 ? String.valueOf(cycle_length) : "-";
-        final Map<String, String> attribute_map = host_descriptor.getAttributes();
+        int cycle_length;
+        try {
+            cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+            updateMinCycleLength(cycle_length);
+        }
+        catch (final InterruptedException e) {
+            LOGGER.log(Level.WARNING, "interrupted while determining cycle length on " + host_descriptor.getHost(), e);
+        }
+    }
 
-        final boolean attributes_changed = !attribute_map.containsKey(ChordManager.RING_SIZE_NAME) || !attribute_map.get(ChordManager.RING_SIZE_NAME).equals(cycle_length_string);
+    @Override
+    public void cycleFinished() {
 
-        attribute_map.put(ChordManager.RING_SIZE_NAME, cycle_length_string);
+        property_change_support.firePropertyChange(ChordManager.RING_SIZE_NAME, old_min_cycle_length, min_cycle_legth);
+        old_min_cycle_length = min_cycle_legth;
+        super.cycleFinished();
+    }
 
-        if (attributes_changed) {
-            for (final AttributesCallback callback : attribute_callbacks) {
-                callback.attributesChange(host_descriptor);
-            }
+    private void updateMinCycleLength(final int cycle_length) {
+
+        cycle_length_lock.lock();
+        try {
+            min_cycle_legth = Math.min(min_cycle_legth, cycle_length);
+        }
+        finally {
+            cycle_length_lock.unlock();
         }
     }
 }

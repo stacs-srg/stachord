@@ -27,34 +27,55 @@ package uk.ac.standrews.cs.stachord.remote_management;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.active.HostState;
-import uk.ac.standrews.cs.shabdiz.active.MadfaceManager;
-import uk.ac.standrews.cs.shabdiz.active.interfaces.GlobalHostScanner;
-import uk.ac.standrews.cs.shabdiz.active.scanners.Scanner;
+import uk.ac.standrews.cs.shabdiz.DefaultMadfaceManager;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.HostState;
+import uk.ac.standrews.cs.shabdiz.scanners.AbstractHostScanner;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordPartitionScanner extends Scanner implements GlobalHostScanner {
+class ChordPartitionScanner extends AbstractHostScanner {
 
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
-    public ChordPartitionScanner(final MadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
+    public ChordPartitionScanner(final DefaultMadfaceManager manager, final int thread_pool_size, final Duration min_cycle_time) {
 
-        super(manager, min_cycle_time, thread_pool_size, CYCLE_LENGTH_CHECK_TIMEOUT, "partition scanner", false);
+        super(manager, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "partition scanner", false);
     }
 
     @Override
-    public void check(final SortedSet<HostDescriptor> host_descriptors) {
+    public String getName() {
 
-        if (enabled) {
+        return "Partition";
+    }
+
+    @Override
+    public String getToggleLabel() {
+
+        return "Auto-Heal Partitions";
+    }
+
+    private int ringSize(final HostDescriptor host_descriptor) {
+
+        try {
+            return ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+        }
+        catch (final InterruptedException e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public void scan(final Set<HostDescriptor> host_descriptors) {
+
+        if (isEnabled()) {
 
             // It's possible for the size of the host list, or the entries within it, to change during this method.
             // This shouldn't matter - the worst that can happen is that a node is joined to a ring it's already in,
@@ -101,23 +122,7 @@ class ChordPartitionScanner extends Scanner implements GlobalHostScanner {
                 }
             }
         }
+
     }
 
-    @Override
-    public String getName() {
-
-        return "Partition";
-    }
-
-    @Override
-    public String getToggleLabel() {
-
-        return "Auto-Heal Partitions";
-    }
-
-    private int ringSize(final HostDescriptor host_descriptor) {
-
-        final String ring_size_record = host_descriptor.getAttributes().get(ChordManager.RING_SIZE_NAME);
-        return ring_size_record != null && !ring_size_record.equals("-") ? Integer.parseInt(ring_size_record) : 0;
-    }
 }

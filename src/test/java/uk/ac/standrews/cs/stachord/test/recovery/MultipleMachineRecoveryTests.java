@@ -39,8 +39,8 @@ import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.active.ClassPath;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.ClassPath;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 
 /**
@@ -66,7 +66,8 @@ public class MultipleMachineRecoveryTests {
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-        HostDescriptor.setClassPaths(host_descriptors, class_paths);
+        //FIXME classpath in host descriptor
+        //HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
         final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
@@ -88,7 +89,8 @@ public class MultipleMachineRecoveryTests {
         final List<ClassPath> class_paths = beastAndMiniClassPaths();
 
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
-        HostDescriptor.setClassPaths(host_descriptors, class_paths);
+        //FIXME classpath
+        //        HostDescriptor.setClassPaths(host_descriptors, class_paths);
 
         final Duration ring_creation_start_time = Duration.elapsed();
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);

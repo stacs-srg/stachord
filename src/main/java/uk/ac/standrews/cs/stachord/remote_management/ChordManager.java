@@ -33,14 +33,14 @@ import uk.ac.standrews.cs.nds.registry.IRegistry;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.registry.stream.RegistryFactory;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNodeManager;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.impl.ChordRemoteProxy;
 import uk.ac.standrews.cs.stachord.impl.ChordRemoteServer;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
@@ -92,8 +92,7 @@ public class ChordManager extends P2PNodeManager {
         factory = new ChordNodeFactory();
 
         if (run_chord_scanners) {
-            getSingleScanners().add(new ChordCycleLengthScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
-            getGlobalScanners().add(new ChordPartitionScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
+            getHostScanners().add(new ChordPartitionScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
         }
     }
 
@@ -103,7 +102,7 @@ public class ChordManager extends P2PNodeManager {
     public void shutdown() {
 
         super.shutdown();
-        ChordRemoteProxy.CONNECTION_POOL.shutdown();
+        StreamProxy.CONNECTION_POOL.shutdown();
     }
 
     @Override

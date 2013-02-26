@@ -37,9 +37,9 @@ import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.active.exceptions.UnknownPlatformException;
-import uk.ac.standrews.cs.shabdiz.active.exceptions.UnsupportedPlatformException;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.exceptions.UnknownPlatformException;
+import uk.ac.standrews.cs.shabdiz.exceptions.UnsupportedPlatformException;
 import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 

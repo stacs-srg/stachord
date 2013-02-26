@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.shabdiz.active.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 import uk.ac.standrews.cs.stachord.impl.ChordLocalReference;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
