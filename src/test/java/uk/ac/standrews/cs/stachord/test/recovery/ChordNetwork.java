@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.Timing;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.interfaces.ApplicationManager;
+import uk.ac.standrews.cs.shabdiz.api.ApplicationManager;
 import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.shabdiz.util.URL;
