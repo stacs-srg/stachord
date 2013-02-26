@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.DefaultMadfaceManager;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.HostState;
+import uk.ac.standrews.cs.shabdiz.api.ApplicationState;
 import uk.ac.standrews.cs.shabdiz.scanners.AbstractHostScanner;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -86,7 +86,7 @@ class ChordPartitionScanner extends AbstractHostScanner {
             final List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
             for (final HostDescriptor host_descriptor : host_descriptors) {
 
-                if (host_descriptor.getHostState() == HostState.RUNNING) {
+                if (host_descriptor.getHostState() == ApplicationState.RUNNING) {
 
                     if (ringSize(host_descriptor) > 0) {
                         stable_hosts.add(host_descriptor);

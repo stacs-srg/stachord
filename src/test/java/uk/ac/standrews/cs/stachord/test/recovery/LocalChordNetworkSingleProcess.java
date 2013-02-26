@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 import uk.ac.standrews.cs.stachord.impl.ChordLocalReference;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
@@ -41,7 +41,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
-public class LocalChordNetworkSingleProcess implements INetwork {
+public class LocalChordNetworkSingleProcess implements Network {
 
     private final SortedSet<HostDescriptor> host_descriptors;
 

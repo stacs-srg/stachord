@@ -17,7 +17,7 @@ import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.exceptions.DeploymentException;
 import uk.ac.standrews.cs.shabdiz.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.shabdiz.exceptions.UnsupportedPlatformException;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 import uk.ac.standrews.cs.shabdiz.p2p.network.InvalidServerClassException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 
@@ -30,7 +30,7 @@ public class LocalRecoveryTestsSameProcessWithNetwork extends LocalRecoveryTestB
     //    private static final int[] RING_SIZES = {1, 2, 3};
 
     @Override
-    protected INetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception {
+    protected Network getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception {
 
         return new LocalChordNetworkSingleProcess(ring_size, network_type);
     }

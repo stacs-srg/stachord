@@ -37,7 +37,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.Timing;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.api.ApplicationManager;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNetwork;
 import uk.ac.standrews.cs.shabdiz.util.URL;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -50,11 +50,11 @@ import uk.ac.standrews.cs.stachord.remote_management.ChordManager;
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public class ChordNetwork implements INetwork {
+public class ChordNetwork implements Network {
 
     // TODO make variant without network
 
-    private final INetwork network;
+    private final Network network;
 
     private static final Duration KNOWN_NODE_CONTACT_RETRY_INTERVAL = new Duration(2, TimeUnit.SECONDS);
     private static final Duration RING_ASSEMBLY_TIMEOUT = new Duration(10, TimeUnit.MINUTES);

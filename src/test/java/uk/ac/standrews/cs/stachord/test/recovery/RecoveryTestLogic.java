@@ -48,7 +48,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -102,7 +102,7 @@ public final class RecoveryTestLogic {
      * @param ring_creation_start the time at which ring creation was started
      * @throws Exception if the network cannot be shut down
      */
-    public static void testRingRecoveryFromNodeFailure(final INetwork network, final Duration test_timeout, final Duration ring_creation_start) throws Exception {
+    public static void testRingRecoveryFromNodeFailure(final Network network, final Duration test_timeout, final Duration ring_creation_start) throws Exception {
 
         Duration start_time = printElapsedTime(ring_creation_start);
 
@@ -544,7 +544,7 @@ public final class RecoveryTestLogic {
         return source.getRemote().lookup(key).getRemote();
     }
 
-    private static void killPartOfNetwork(final INetwork network) {
+    private static void killPartOfNetwork(final Network network) {
 
         final SortedSet<HostDescriptor> nodes = network.getNodes();
         final int network_size = nodes.size();

@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.HostState;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.api.ApplicationState;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in separate processes.
@@ -40,9 +40,9 @@ import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  */
-public class LocalChordNetwork implements INetwork {
+public class LocalChordNetwork implements Network {
 
-    private final INetwork network;
+    private final Network network;
 
     /**
      * Creates a new network.
@@ -57,7 +57,7 @@ public class LocalChordNetwork implements INetwork {
 
         for (int i = 0; i < number_of_nodes; i++) {
             // Set the host state to AUTH so that the node will be deployed immediately without the need for an initial probe.
-            node_descriptors.add(new HostDescriptor().hostState(HostState.AUTH));
+            node_descriptors.add(new HostDescriptor().hostState(ApplicationState.AUTH));
         }
 
         network = new ChordNetwork(node_descriptors, key_distribution);

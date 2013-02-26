@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 
 /**
  * Network comprising P2P nodes all running on the local machine.
@@ -38,9 +38,9 @@ import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby(graham.kirby@st-andrews.ac.uk)
  */
-public class TestNetwork implements INetwork {
+public class TestNetwork implements Network {
 
-    private final INetwork network;
+    private final Network network;
 
     /**
      * Creates a new network.

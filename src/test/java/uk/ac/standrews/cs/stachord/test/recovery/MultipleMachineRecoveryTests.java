@@ -41,7 +41,7 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.ClassPath;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
@@ -132,7 +132,7 @@ public class MultipleMachineRecoveryTests {
 
         final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
 
-        final INetwork network = new ChordNetwork(host_descriptors, KeyDistribution.RANDOM);
+        final Network network = new ChordNetwork(host_descriptors, KeyDistribution.RANDOM);
 
         final Duration test_timeout = new Duration(60000, TimeUnit.MILLISECONDS);
         RecoveryTestLogic.waitForStableRing(network.getNodes(), test_timeout);

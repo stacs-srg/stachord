@@ -40,7 +40,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.exceptions.UnknownPlatformException;
 import uk.ac.standrews.cs.shabdiz.exceptions.UnsupportedPlatformException;
-import uk.ac.standrews.cs.shabdiz.p2p.network.INetwork;
+import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 import com.mindbright.ssh2.SSH2Exception;
@@ -127,12 +127,12 @@ public abstract class LocalRecoveryTestBase {
 
         System.out.println("constructing ring... ");
         final Duration ring_creation_start = Duration.elapsed();
-        final INetwork network = getTestNetwork(ring_size, network_type);
+        final Network network = getTestNetwork(ring_size, network_type);
 
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start);
     }
 
-    protected abstract INetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
+    protected abstract Network getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
 
     protected abstract int[] getRingSizes();
 }
