@@ -36,7 +36,7 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.rpc.interfaces.IPingable;
+import uk.ac.standrews.cs.nds.rpc.interfaces.Pingable;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNodeFactory;
@@ -139,7 +139,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     }
 
     @Override
-    public IPingable bindToNode(final Object... args) throws RPCException {
+    public Pingable bindToNode(final Object... args) throws RPCException {
 
         final InetSocketAddress node_address = (InetSocketAddress) args[0];
 
@@ -147,7 +147,7 @@ public final class ChordNodeFactory extends P2PNodeFactory {
     }
 
     @Override
-    protected IPingable bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
+    protected Pingable bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
 
         return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, INDIVIDUAL_TIMEOUT_INTERVAL);
     }
