@@ -92,7 +92,7 @@ public class ChordManager extends P2PNodeManager {
         factory = new ChordNodeFactory();
 
         if (run_chord_scanners) {
-            getHostScanners().add(new ChordPartitionScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
+            getScanners().add(new ChordPartitionScanner(null, THREAD_POOL_SIZE, MIN_CYCLE_TIME));
         }
     }
 
