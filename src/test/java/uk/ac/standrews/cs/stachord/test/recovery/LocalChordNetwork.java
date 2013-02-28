@@ -29,7 +29,7 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.shabdiz.api.State;
+import uk.ac.standrews.cs.shabdiz.api.ApplicationState;
 import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.zold.p2p.network.Network;
 
@@ -57,7 +57,7 @@ public class LocalChordNetwork implements Network {
 
         for (int i = 0; i < number_of_nodes; i++) {
             // Set the host state to AUTH so that the node will be deployed immediately without the need for an initial probe.
-            node_descriptors.add(new HostDescriptor().hostState(State.AUTH));
+            node_descriptors.add(new HostDescriptor().hostState(ApplicationState.AUTH));
         }
 
         network = new ChordNetwork(node_descriptors, key_distribution);

@@ -34,7 +34,7 @@ import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.api.State;
+import uk.ac.standrews.cs.shabdiz.api.ApplicationState;
 import uk.ac.standrews.cs.shabdiz.zold.DefaultMadfaceManager;
 import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
 import uk.ac.standrews.cs.shabdiz.zold.scanners.AbstractHostScanner;
@@ -86,7 +86,7 @@ class ChordPartitionScanner extends AbstractHostScanner {
             final List<HostDescriptor> stable_hosts = new ArrayList<HostDescriptor>();
             for (final HostDescriptor host_descriptor : host_descriptors) {
 
-                if (host_descriptor.getHostState() == State.RUNNING) {
+                if (host_descriptor.getHostState() == ApplicationState.RUNNING) {
 
                     if (ringSize(host_descriptor) > 0) {
                         stable_hosts.add(host_descriptor);
