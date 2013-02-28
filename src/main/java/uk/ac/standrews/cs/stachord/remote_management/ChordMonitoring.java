@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.shabdiz.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**

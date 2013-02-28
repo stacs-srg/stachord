@@ -37,10 +37,10 @@ import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.exceptions.UnknownPlatformException;
-import uk.ac.standrews.cs.shabdiz.exceptions.UnsupportedPlatformException;
-import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
+import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.zold.exceptions.UnknownPlatformException;
+import uk.ac.standrews.cs.shabdiz.zold.exceptions.UnsupportedPlatformException;
+import uk.ac.standrews.cs.shabdiz.zold.p2p.network.Network;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 import com.mindbright.ssh2.SSH2Exception;
