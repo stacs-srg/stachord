@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.api.State;
+import uk.ac.standrews.cs.shabdiz.new_api.State;
 import uk.ac.standrews.cs.shabdiz.p2p.network.Network;
 
 /**
