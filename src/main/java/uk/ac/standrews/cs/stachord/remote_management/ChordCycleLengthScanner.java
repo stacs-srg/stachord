@@ -32,9 +32,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.zold.DefaultMadfaceManager;
-import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.zold.scanners.ConcurrentHostScanner;
+import uk.ac.standrews.cs.shabdiz.legacy.DefaultMadfaceManager;
+import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.legacy.scanners.ConcurrentHostScanner;
 
 class ChordCycleLengthScanner extends ConcurrentHostScanner {
 

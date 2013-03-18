@@ -29,9 +29,9 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
-import uk.ac.standrews.cs.shabdiz.api.ApplicationState;
-import uk.ac.standrews.cs.shabdiz.zold.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.zold.p2p.network.Network;
+import uk.ac.standrews.cs.shabdiz.ApplicationState;
+import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
+import uk.ac.standrews.cs.shabdiz.legacy.p2p.network.Network;
 
 /**
  * Network comprising Chord nodes all running on the local machine, in separate processes.
