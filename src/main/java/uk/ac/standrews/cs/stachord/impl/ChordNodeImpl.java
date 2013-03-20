@@ -87,8 +87,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     public ChordNodeImpl(final InetSocketAddress local_address) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
@@ -105,8 +105,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     public ChordNodeImpl(final InetSocketAddress local_address, final IKey key) throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
@@ -118,13 +118,15 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         chord_remote_server = new ChordRemoteServer(this);
         maintenance_thread = new ChordMaintenanceThread(this);
 
-        initialiseSelfReference();
 
-        createRing();
         exposeNode();
+        initialiseSelfReference();
+        createRing();
 
         startMaintenanceThread();
         addObserver(this);
+
+        System.out.println(this.local_address);
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -462,8 +464,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * @throws RPCException if an error occurs binding the application to the registry
      * @throws AlreadyBoundException if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     void exposeNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
@@ -471,7 +473,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         chord_remote_server.setPort(local_address.getPort());
 
         // If the port of another Chord node is already bound in the registry, just overwrite it, don't throw exception.
-        chord_remote_server.start(true);
+        chord_remote_server.startWithNoRegistry();
+        local_address = chord_remote_server.getAddress();
     }
 
     void unexposeNode() throws IOException {
@@ -518,10 +521,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     }
 
     /**
-    * Checks whether this node's successor is itself, i.e. whether it is in a one-node ring.
-    * @return true if this node's successor is itself
-    * @throws RPCException if an error occurs accessing the successor's key
-    */
+     * Checks whether this node's successor is itself, i.e. whether it is in a one-node ring.
+     * @return true if this node's successor is itself
+     * @throws RPCException if an error occurs accessing the successor's key
+     */
     boolean successorIsSelf() throws RPCException {
 
         return successor.getCachedKey().equals(key);

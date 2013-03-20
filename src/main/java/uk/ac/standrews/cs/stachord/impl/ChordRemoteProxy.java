@@ -98,7 +98,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final Connection connection = (Connection) startCall("getKey");
 
             final JSONReader reader = makeCall(connection);
-            final IKey result = marshaller.deserializeKey(reader);
+            final IKey result = Marshaller.deserializeKey(reader);
 
             finishCall(connection);
 
@@ -126,7 +126,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             final Connection connection = (Connection) startCall("lookup");
 
             final JSONWriter writer = connection.getJSONwriter();
-            marshaller.serializeKey(key, writer);
+            Marshaller.serializeKey(key, writer);
 
             final JSONReader reader = makeCall(connection);
             final IChordRemoteReference result = marshaller.deserializeChordRemoteReference(reader);
@@ -277,7 +277,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
         try {
             final Connection connection = (Connection) startCall("nextHop");
             final JSONWriter writer = connection.getJSONwriter();
-            marshaller.serializeKey(key, writer);
+            Marshaller.serializeKey(key, writer);
 
             final JSONReader reader = makeCall(connection);
             final NextHopResult result = marshaller.deserializeNextHopResult(reader);

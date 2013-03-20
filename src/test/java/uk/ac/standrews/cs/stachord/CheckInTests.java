@@ -23,18 +23,18 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.test;
+package uk.ac.standrews.cs.stachord;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import uk.ac.standrews.cs.stachord.test.recovery.LocalRecoveryTestsSeparateProcesses;
+import uk.ac.standrews.cs.stachord.impl.AllTests;
 
 /**
- * Tests run nightly.
+ * Tests run on each build.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({LocalRecoveryTestsSeparateProcesses.class})
-public class NightlyTests {
+@Suite.SuiteClasses({AllTests.class})
+public class CheckInTests {
     // Empty.
 }

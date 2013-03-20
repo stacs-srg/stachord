@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 /**
@@ -50,9 +49,7 @@ public final class ChordMonitoring {
      * @return the length of the cycle containing the given node, or zero if the ring node is null or there is no such cycle.
      * @throws InterruptedException
      */
-    public static int cycleLengthFrom(final HostDescriptor host_descriptor, final boolean forwards) throws InterruptedException {
-
-        final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
+    public static int cycleLengthFrom(final IChordRemoteReference application_reference, final boolean forwards) throws InterruptedException {
 
         if (application_reference == null) { return 0; }
 

@@ -46,6 +46,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
+import uk.ac.standrews.cs.shabdiz.util.ProcessUtil;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
@@ -57,6 +58,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  */
 public final class NodeServer {
 
+    public static final String CHORD_NODE_LOCAL_ADDRESS_KEY = "CHORD_NODE_LOCAL_ADDRESS";
     private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
     public static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
 
@@ -75,7 +77,7 @@ public final class NodeServer {
 
     // -------------------------------------------------------------------------------------------------------
 
-    public NodeServer(final String[] args) throws UndefinedDiagnosticLevelException, UnknownHostException {
+    public NodeServer(final String... args) throws UndefinedDiagnosticLevelException, UnknownHostException {
 
         final Map<String, String> arguments = CommandLineArgs.parseCommandLineArgs(args);
 
@@ -110,14 +112,15 @@ public final class NodeServer {
      * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
-     * @throws TimeoutException 
-     * @throws InterruptedException 
+     * @throws TimeoutException
+     * @throws InterruptedException
      */
     public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
         final NodeServer server = new NodeServer(args);
         try {
-            server.createNode();
+            final IChordNode node = server.createNode();
+            ProcessUtil.printKeyValue(System.out, CHORD_NODE_LOCAL_ADDRESS_KEY, node.getAddress());
             Diagnostic.trace("Started Chord node at " + server.local_address);
         }
         catch (final IOException e) {

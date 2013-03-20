@@ -23,7 +23,7 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.test.recovery;
+package uk.ac.standrews.cs.stachord.recovery;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -47,8 +47,8 @@ import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
+import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.legacy.p2p.network.Network;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
@@ -102,11 +102,11 @@ public final class RecoveryTestLogic {
      * @param ring_creation_start the time at which ring creation was started
      * @throws Exception if the network cannot be shut down
      */
-    public static void testRingRecoveryFromNodeFailure(final Network network, final Duration test_timeout, final Duration ring_creation_start) throws Exception {
+    public static void testRingRecoveryFromNodeFailure(final ChordNetwork network, final Duration test_timeout, final Duration ring_creation_start) throws Exception {
 
         Duration start_time = printElapsedTime(ring_creation_start);
 
-        final SortedSet<HostDescriptor> nodes = network.getNodes();
+        final SortedSet<ApplicationDescriptor> nodes = network;
 
         try {
             System.out.println("waiting for stable ring... ");
@@ -139,7 +139,7 @@ public final class RecoveryTestLogic {
         finally {
 
             System.out.println("killing remaining nodes... ");
-            network.killAllNodes();
+            network.killAll();
             start_time = printElapsedTime(start_time);
 
             System.out.println("shutting down network... ");
@@ -164,12 +164,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the ring does not become stable within the timeout interval
      */
-    public static void waitForStableRing(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForStableRing(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
-        checkWithTimeout(nodes, new IRingCheck() {
+        checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
 
                 return ringStable(nodes);
             }
@@ -186,12 +186,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the finger tables do not become complete within the timeout interval
      */
-    public static void waitForCompleteFingerTables(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCompleteFingerTables(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
-        checkWithTimeout(nodes, new IRingCheck() {
+        checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
 
                 return fingerTableComplete(nodes);
             }
@@ -208,12 +208,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the successor lists do not become complete within the timeout interval
      */
-    public static void waitForCompleteSuccessorLists(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCompleteSuccessorLists(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
-        checkWithTimeout(nodes, new IRingCheck() {
+        checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
 
                 return successorListComplete(nodes);
             }
@@ -230,12 +230,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if not all nodes become able to route correctly within the timeout interval
      */
-    public static void waitForCorrectRouting(final SortedSet<HostDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCorrectRouting(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
 
-        checkWithTimeout(nodes, new IRingCheck() {
+        checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<HostDescriptor> nodes) {
+            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
 
                 return routingCorrect(nodes);
             }
@@ -256,12 +256,12 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes are stable
      */
-    public static boolean ringStable(final SortedSet<HostDescriptor> host_descriptors) {
+    public static boolean ringStable(final SortedSet<ApplicationDescriptor> host_descriptors) {
 
         final int network_size = host_descriptors.size();
         if (network_size == 1) { return true; }
 
-        for (final HostDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
             try {
                 if (!ringStable(host_descriptor, network_size)) { return false; }
             }
@@ -287,13 +287,14 @@ public final class RecoveryTestLogic {
      * @param host_descriptor a Chord node
      * @param network_size the known size of the network
      * @return true if the node is stable.
-     * @throws InterruptedException 
+     * @throws InterruptedException
      */
-    public static boolean ringStable(final HostDescriptor host_descriptor, final int network_size) throws InterruptedException {
+    public static boolean ringStable(final ApplicationDescriptor host_descriptor, final int network_size) throws InterruptedException {
 
         // Check that we see cycles containing the same number of nodes as the network size.
-        final int cycle_length_forwards = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
-        final int cycle_length_backwards = ChordMonitoring.cycleLengthFrom(host_descriptor, false);
+        final IChordRemoteReference entry_point = host_descriptor.getApplicationReference();
+        final int cycle_length_forwards = ChordMonitoring.cycleLengthFrom(entry_point, true);
+        final int cycle_length_backwards = ChordMonitoring.cycleLengthFrom(entry_point, false);
 
         return cycle_length_forwards == network_size && cycle_length_backwards == network_size;
     }
@@ -312,7 +313,7 @@ public final class RecoveryTestLogic {
      * @param host_descriptor node to be checked
      * @return true if the finger table is complete
      */
-    public static boolean fingerTableComplete(final HostDescriptor host_descriptor) {
+    public static boolean fingerTableComplete(final ApplicationDescriptor host_descriptor) {
 
         final IChordRemoteReference node = (IChordRemoteReference) host_descriptor.getApplicationReference();
         IChordRemoteReference previous_finger_reference = null;
@@ -364,12 +365,12 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
-    public static boolean successorListComplete(final SortedSet<HostDescriptor> host_descriptors) {
+    public static boolean successorListComplete(final SortedSet<ApplicationDescriptor> host_descriptors) {
 
         final int network_size = host_descriptors.size();
         if (network_size == 1) { return true; }
 
-        for (final HostDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
             if (!successorListComplete(host_descriptor, network_size)) { return false; }
         }
 
@@ -389,7 +390,7 @@ public final class RecoveryTestLogic {
      * @param network_size the known size of the network
      * @return true if the successor list is complete
      */
-    public static boolean successorListComplete(final HostDescriptor host_descriptor, final int network_size) {
+    public static boolean successorListComplete(final ApplicationDescriptor host_descriptor, final int network_size) {
 
         final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
         final IChordRemote node = application_reference.getRemote();
@@ -424,15 +425,15 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if routing works correctly between all pairs of nodes
      */
-    public static boolean routingCorrect(final SortedSet<HostDescriptor> host_descriptors) {
+    public static boolean routingCorrect(final SortedSet<ApplicationDescriptor> host_descriptors) {
 
         if (host_descriptors.size() == 1) { return true; }
 
-        for (final HostDescriptor host_descriptor1 : host_descriptors) {
-            for (final HostDescriptor host_descriptor2 : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor1 : host_descriptors) {
+            for (final ApplicationDescriptor host_descriptor2 : host_descriptors) {
 
-                final IChordRemoteReference node1 = (IChordRemoteReference) host_descriptor1.getApplicationReference();
-                final IChordRemoteReference node2 = (IChordRemoteReference) host_descriptor2.getApplicationReference();
+                final IChordRemoteReference node1 = host_descriptor1.getApplicationReference();
+                final IChordRemoteReference node2 = host_descriptor2.getApplicationReference();
 
                 if (!routingCorrect(node1, node2)) { return false; }
             }
@@ -467,14 +468,14 @@ public final class RecoveryTestLogic {
      * Prints a representation of a network.
      * @param nodes the network
      */
-    public static void dumpState(final SortedSet<HostDescriptor> nodes) {
+    public static void dumpState(final SortedSet<ApplicationDescriptor> nodes) {
 
-        for (final HostDescriptor machine_descriptor : nodes) {
+        for (final ApplicationDescriptor machine_descriptor : nodes) {
 
             System.out.println(machine_descriptor);
 
             try {
-                final IChordRemoteReference application_reference = (IChordRemoteReference) machine_descriptor.getApplicationReference();
+                final IChordRemoteReference application_reference = machine_descriptor.getApplicationReference();
                 System.out.println(application_reference.getRemote().toStringDetailed());
             }
             catch (final RPCException e) {
@@ -496,11 +497,11 @@ public final class RecoveryTestLogic {
      * @param host_descriptors a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
-    private static boolean fingerTableComplete(final SortedSet<HostDescriptor> host_descriptors) {
+    private static boolean fingerTableComplete(final SortedSet<ApplicationDescriptor> host_descriptors) {
 
         if (host_descriptors.size() == 1) { return true; }
 
-        for (final HostDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
             if (!fingerTableComplete(host_descriptor)) { return false; }
         }
 
@@ -544,10 +545,9 @@ public final class RecoveryTestLogic {
         return source.getRemote().lookup(key).getRemote();
     }
 
-    private static void killPartOfNetwork(final Network network) {
+    private static void killPartOfNetwork(final ChordNetwork network) {
 
-        final SortedSet<HostDescriptor> nodes = network.getNodes();
-        final int network_size = nodes.size();
+        final int network_size = network.size();
 
         // No point in killing off the only member of the network and expecting it to recover.
         if (network_size > 1) {
@@ -560,25 +560,26 @@ public final class RecoveryTestLogic {
             for (final int victim_index : victim_indices) {
 
                 try {
-                    final HostDescriptor victim = getElement(nodes, victim_index);
-                    network.killNode(victim);
+                    final ApplicationDescriptor victim = getElement(network, victim_index);
+                    network.kill(victim);
+                    network.remove(victim);
                 }
                 catch (final Exception e) {
                     ErrorHandling.error(e, "error killing node: " + e.getMessage());
                 }
             }
 
-            assertThat(nodes.size(), is(equalTo(network_size - number_to_kill)));
+            assertThat(network.size(), is(equalTo(network_size - number_to_kill)));
         }
     }
 
-    private static HostDescriptor getElement(final SortedSet<HostDescriptor> nodes, final int index) {
+    private static ApplicationDescriptor getElement(final SortedSet<ApplicationDescriptor> nodes, final int index) {
 
-        HostDescriptor element = null;
+        ApplicationDescriptor element = null;
 
         // Need to do this to access set element with particular index.
         int host_index = 0;
-        for (final HostDescriptor host_descriptor : nodes) {
+        for (final ApplicationDescriptor host_descriptor : nodes) {
             if (host_index == index) {
                 element = host_descriptor;
                 break;
@@ -609,7 +610,7 @@ public final class RecoveryTestLogic {
         return indices;
     }
 
-    private static void checkWithTimeout(final SortedSet<HostDescriptor> nodes, final IRingCheck checker, final Duration test_timeout) throws TimeoutException {
+    private static void checkWithTimeout(final SortedSet<ApplicationDescriptor> nodes, final RingCheck checker, final Duration test_timeout) throws TimeoutException {
 
         final TimeoutExecutor timeout_executor = TimeoutExecutor.makeTimeoutExecutor(1, test_timeout, true, true, "Chord recovery executor");
 
@@ -661,8 +662,8 @@ public final class RecoveryTestLogic {
         }
     }
 
-    private interface IRingCheck {
+    private interface RingCheck {
 
-        boolean check(SortedSet<HostDescriptor> nodes);
+        boolean check(SortedSet<ApplicationDescriptor> nodes);
     }
 }

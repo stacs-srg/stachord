@@ -25,72 +25,62 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.legacy.DefaultMadfaceManager;
-import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.legacy.scanners.ConcurrentHostScanner;
+import uk.ac.standrews.cs.shabdiz.AbstractConcurrentScanner;
+import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
+import uk.ac.standrews.cs.shabdiz.ApplicationNetwork;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordCycleLengthScanner extends ConcurrentHostScanner {
+class ChordCycleLengthScanner extends AbstractConcurrentScanner {
 
+    public static final String RING_SIZE_PROPERTY_NAME = "ring_size";
     private static final Logger LOGGER = Logger.getLogger(ChordCycleLengthScanner.class.getName());
     private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
-    private volatile Integer min_cycle_legth;
-    private volatile Integer old_min_cycle_length;
-    private final ReentrantLock cycle_length_lock;
+    private final AtomicInteger min_cycle_legth;
+    private final AtomicInteger old_min_cycle_length;
 
-    public ChordCycleLengthScanner(final ExecutorService executor, final DefaultMadfaceManager manager, final Duration min_cycle_time) {
+    public ChordCycleLengthScanner(final Duration min_cycle_time) {
 
-        super(executor, manager, min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, "cycle length scanner", true);
-        cycle_length_lock = new ReentrantLock();
+        super(min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, true);
+        min_cycle_legth = new AtomicInteger();
+        old_min_cycle_length = new AtomicInteger();
     }
 
     @Override
-    public String getToggleLabel() {
-
-        return null; // No toggle in user interface required.
-    }
-
-    @Override
-    public String getName() {
-
-        return "Cycle Length";
-    }
-
-    @Override
-    protected void check(final HostDescriptor host_descriptor) {
+    protected void scan(final ApplicationNetwork network, final ApplicationDescriptor descriptor) {
 
         int cycle_length;
         try {
-            cycle_length = ChordMonitoring.cycleLengthFrom(host_descriptor, true);
+            final IChordRemoteReference reference = descriptor.getApplicationReference();
+            cycle_length = ChordMonitoring.cycleLengthFrom(reference, true);
             updateMinCycleLength(cycle_length);
         }
         catch (final InterruptedException e) {
-            LOGGER.log(Level.WARNING, "interrupted while determining cycle length on " + host_descriptor.getHost(), e);
+            LOGGER.log(Level.WARNING, "interrupted while determining cycle length on " + descriptor.getHost(), e);
         }
     }
 
     @Override
-    public void cycleFinished() {
+    protected void afterScan() {
 
-        property_change_support.firePropertyChange(ChordManager.RING_SIZE_NAME, old_min_cycle_length, min_cycle_legth);
-        old_min_cycle_length = min_cycle_legth;
-        super.cycleFinished();
+        property_change_support.firePropertyChange(RING_SIZE_PROPERTY_NAME, old_min_cycle_length, min_cycle_legth);
+        old_min_cycle_length.set(min_cycle_legth.get());
+        super.afterScan();
     }
 
     private void updateMinCycleLength(final int cycle_length) {
 
-        cycle_length_lock.lock();
-        try {
-            min_cycle_legth = Math.min(min_cycle_legth, cycle_length);
+        int current_min_cycle_length;
+        int new_min_cycle_legth;
+        do {
+            current_min_cycle_length = min_cycle_legth.get();
+            new_min_cycle_legth = Math.min(current_min_cycle_length, cycle_length);
         }
-        finally {
-            cycle_length_lock.unlock();
-        }
+        while (min_cycle_legth.compareAndSet(current_min_cycle_length, new_min_cycle_legth));
     }
 }

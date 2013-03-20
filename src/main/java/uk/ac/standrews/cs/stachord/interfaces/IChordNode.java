@@ -25,6 +25,7 @@
 
 package uk.ac.standrews.cs.stachord.interfaces;
 
+import java.net.InetSocketAddress;
 import java.util.Observer;
 
 import uk.ac.standrews.cs.nds.events.Event;
@@ -88,6 +89,8 @@ public interface IChordNode extends Observer {
      * @return this node's key
      */
     IKey getKey();
+
+    InetSocketAddress getAddress();
 
     /**
      * Executes the routing protocol.

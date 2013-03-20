@@ -22,7 +22,7 @@
  * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
  *                                                                         *
  ***************************************************************************/
-package uk.ac.standrews.cs.stachord.test.recovery;
+package uk.ac.standrews.cs.stachord.recovery;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -22,26 +22,32 @@
  * along with stachord.  If not, see <http://www.gnu.org/licenses/>.       *
  *                                                                         *
  ***************************************************************************/
-package uk.ac.standrews.cs.stachord.test.recovery;
+package uk.ac.standrews.cs.stachord.recovery;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
+import uk.ac.standrews.cs.nds.util.Input;
+import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
+import uk.ac.standrews.cs.shabdiz.credentials.SSHPublicKeyCredential;
+import uk.ac.standrews.cs.shabdiz.host.Host;
+import uk.ac.standrews.cs.shabdiz.host.SSHHost;
 import uk.ac.standrews.cs.shabdiz.legacy.ClassPath;
-import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.legacy.p2p.network.Network;
 
 /**
  * Various tests of small ring recovery, not intended to be run automatically.
@@ -51,6 +57,13 @@ import uk.ac.standrews.cs.shabdiz.legacy.p2p.network.Network;
 public class MultipleMachineRecoveryTests {
 
     private static final Duration TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+    private static SSHPublicKeyCredential credential;
+
+    @BeforeClass
+    public static void setUp() throws Exception {
+
+        credential = SSHPublicKeyCredential.getDefaultRSACredentials(Input.readPassword("Please enter the public key passphrase:"));
+    }
 
     /**
      * Runs a multiple machine test using password authentication and assuming that libraries are pre-installed on remote machines.
@@ -62,17 +75,22 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<String> hosts = twoEachOnBeastAndMini();
-        final List<ClassPath> class_paths = beastAndMiniClassPaths();
-
-        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-        //FIXME classpath in host descriptor
-        //HostDescriptor.setClassPaths(host_descriptors, class_paths);
-
+        final List<String> host_names = twoEachOnBeastAndMini();
+        final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
+    }
+
+    private Set<Host> initHostsFromHostNames(final List<String> host_names) throws IOException {
+
+        final Set<Host> hosts = new HashSet<Host>();
+        for (final String host_name : host_names) {
+            final SSHHost host = new SSHHost(host_name, credential);
+            hosts.add(host);
+        }
+        return hosts;
     }
 
     /**
@@ -85,15 +103,10 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<String> hosts = twoEachOnBeastAndMini();
-        final List<ClassPath> class_paths = beastAndMiniClassPaths();
-
-        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
-        //FIXME classpath
-        //        HostDescriptor.setClassPaths(host_descriptors, class_paths);
-
+        final List<String> host_names = twoEachOnBeastAndMini();
+        final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -108,12 +121,10 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<String> hosts = threeOnBeast();
-
-        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-
+        final List<String> host_names = threeOnBeast();
+        final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -128,28 +139,26 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.FULL);
 
-        final List<String> hosts = threeOnBeast();
-
-        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPassword(hosts, true);
-
-        final Network network = new ChordNetwork(host_descriptors, KeyDistribution.RANDOM);
+        final List<String> host_names = threeOnBeast();
+        final Set<Host> hosts = initHostsFromHostNames(host_names);
+        final MultipleMachineChordNetwork network = new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM);
 
         final Duration test_timeout = new Duration(60000, TimeUnit.MILLISECONDS);
-        RecoveryTestLogic.waitForStableRing(network.getNodes(), test_timeout);
+        RecoveryTestLogic.waitForStableRing(network, test_timeout);
 
         System.out.println("USER: Please change network connection on local node - please hit return");
 
         final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         reader.readLine(); // wait for input
 
-        final HostDescriptor a_beast_node = network.getNodes().first();
+        final ApplicationDescriptor a_beast_node = network.first();
 
         assertEquals(a_beast_node.getHost(), "beast.cs.st-andrews.ac.uk");
 
         final int network_size = 4;
         RecoveryTestLogic.ringStable(a_beast_node, network_size);
 
-        RecoveryTestLogic.dumpState(network.getNodes());
+        RecoveryTestLogic.dumpState(network);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -164,12 +173,10 @@ public class MultipleMachineRecoveryTests {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
 
-        final List<String> hosts = threeBlubNodes();
-
-        final SortedSet<HostDescriptor> host_descriptors = HostDescriptor.createDescriptorsUsingPublicKey(hosts, true);
-
+        final List<String> host_names = threeBlubNodes();
+        final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new ChordNetwork(host_descriptors, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }

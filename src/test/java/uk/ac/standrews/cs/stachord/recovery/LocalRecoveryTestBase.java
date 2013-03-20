@@ -23,27 +23,18 @@
  *                                                                         *
  ***************************************************************************/
 
-package uk.ac.standrews.cs.stachord.test.recovery;
+package uk.ac.standrews.cs.stachord.recovery;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.legacy.exceptions.UnknownPlatformException;
-import uk.ac.standrews.cs.shabdiz.legacy.exceptions.UnsupportedPlatformException;
-import uk.ac.standrews.cs.shabdiz.legacy.p2p.network.Network;
-import uk.ac.standrews.cs.stachord.servers.NodeServer;
-
-import com.mindbright.ssh2.SSH2Exception;
+import uk.ac.standrews.cs.shabdiz.ApplicationState;
 
 /**
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
@@ -55,25 +46,13 @@ public abstract class LocalRecoveryTestBase {
 
     private static final Duration CHECK_TIMEOUT = new Duration(10, TimeUnit.MINUTES); // Allow 10 minutes for each check operation.
 
-    // TODO Make this work on Windows.
-
     /**
-     * Disables diagnostic output and kills existing instances.
-     * 
-     * @throws IOException if existing instances cannot be killed
-     * @throws TimeoutException shouldn't occur locally
-     * @throws SSH2Exception shouldn't occur locally
-     * @throws UnknownPlatformException shouldn't occur locally
-     * @throws InterruptedException
-     * @throws UnsupportedPlatformException
+     * Disables diagnostic.
      */
     @Before
-    public void setUp() throws IOException, SSH2Exception, TimeoutException, UnknownPlatformException, InterruptedException, UnsupportedPlatformException {
+    public void setUp() {
 
         Diagnostic.setLevel(DiagnosticLevel.NONE);
-
-        // Kill any lingering Chord node processes.
-        new HostDescriptor().killMatchingProcesses(NodeServer.class.getSimpleName());
     }
 
     /**
@@ -93,7 +72,6 @@ public abstract class LocalRecoveryTestBase {
      * @throws Exception if the test fails
      */
     @Test
-    @Ignore
     public void ringRecoversEven() throws Exception {
 
         ringRecovers(KeyDistribution.EVEN);
@@ -105,7 +83,6 @@ public abstract class LocalRecoveryTestBase {
      * @throws Exception if the test fails
      */
     @Test
-    @Ignore
     public void ringRecoversClustered() throws Exception {
 
         ringRecovers(KeyDistribution.CLUSTERED);
@@ -127,12 +104,13 @@ public abstract class LocalRecoveryTestBase {
 
         System.out.println("constructing ring... ");
         final Duration ring_creation_start = Duration.elapsed();
-        final Network network = getTestNetwork(ring_size, network_type);
-
+        final ChordNetwork network = getTestNetwork(ring_size, network_type);
+        network.deployAll();
+        network.awaitAnyOfStates(ApplicationState.RUNNING);
         RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start);
     }
 
-    protected abstract Network getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
+    protected abstract ChordNetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
 
     protected abstract int[] getRingSizes();
 }
