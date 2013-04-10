@@ -5,12 +5,12 @@ import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.ApplicationNetwork;
 import uk.ac.standrews.cs.shabdiz.host.Host;
 
-public class ChordNetwork extends ApplicationNetwork {
+abstract class ChordNetwork extends ApplicationNetwork {
 
     private static final long serialVersionUID = -2865527843949516706L;
     protected final ChordManager default_manager;
 
-    public ChordNetwork(final ChordManager default_manager) {
+    ChordNetwork(final ChordManager default_manager) {
 
         super("Chord Application Network");
         this.default_manager = default_manager;

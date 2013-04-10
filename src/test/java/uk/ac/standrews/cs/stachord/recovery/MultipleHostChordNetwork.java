@@ -6,11 +6,11 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.shabdiz.host.Host;
 
-public class MultipleMachineChordNetwork extends ChordNetwork {
+public class MultipleHostChordNetwork extends ChordNetwork {
 
     private static final long serialVersionUID = 8698842502879913421L;
 
-    public MultipleMachineChordNetwork(final Set<Host> hosts, final KeyDistribution key_distribution) {
+    public MultipleHostChordNetwork(final Set<Host> hosts, final KeyDistribution key_distribution) {
 
         super(new MultipleProcessChordManager());
         final IKey[] node_keys = key_distribution.generateKeys(hosts.size());

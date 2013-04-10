@@ -54,7 +54,7 @@ import uk.ac.standrews.cs.shabdiz.legacy.ClassPath;
  * 
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public class MultipleMachineRecoveryTests {
+public class MultipleHostRecoveryTests {
 
     private static final Duration TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static SSHPublicKeyCredential credential;
@@ -78,7 +78,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> host_names = twoEachOnBeastAndMini();
         final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -106,7 +106,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> host_names = twoEachOnBeastAndMini();
         final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -124,7 +124,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> host_names = threeOnBeast();
         final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
@@ -141,7 +141,7 @@ public class MultipleMachineRecoveryTests {
 
         final List<String> host_names = threeOnBeast();
         final Set<Host> hosts = initHostsFromHostNames(host_names);
-        final MultipleMachineChordNetwork network = new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM);
+        final MultipleHostChordNetwork network = new MultipleHostChordNetwork(hosts, KeyDistribution.RANDOM);
 
         final Duration test_timeout = new Duration(60000, TimeUnit.MILLISECONDS);
         RecoveryTestLogic.waitForStableRing(network, test_timeout);
@@ -176,7 +176,7 @@ public class MultipleMachineRecoveryTests {
         final List<String> host_names = threeBlubNodes();
         final Set<Host> hosts = initHostsFromHostNames(host_names);
         final Duration ring_creation_start_time = Duration.elapsed();
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleMachineChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
+        RecoveryTestLogic.testRingRecoveryFromNodeFailure(new MultipleHostChordNetwork(hosts, KeyDistribution.RANDOM), TIMEOUT, ring_creation_start_time);
 
         System.out.println(">>>>> recovery test completed");
     }
