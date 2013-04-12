@@ -81,15 +81,11 @@ public abstract class ChordManager extends AbstractApplicationManager {
                 boolean succeeded = false;
                 Exception error;
                 do {
+                    delay.sleep();
                     try {
-                        delay.sleep();
                         final IChordRemoteReference reference = getNodeFactory().bindToNode(address);
                         succeeded = true;
                         return reference;
-                    }
-                    catch (final InterruptedException e) {
-                        error = e;
-                        Thread.currentThread().interrupt();
                     }
                     catch (final Exception e) {
                         error = e;
@@ -127,6 +123,11 @@ public abstract class ChordManager extends AbstractApplicationManager {
                     }
                 }
                 while (!Thread.currentThread().isInterrupted() && !succeeded);
+                if (succeeded) {
+                    synchronized (joined_nodes) {
+                        joined_nodes.add(node_reference);
+                    }
+                }
                 return null; // void task
             }
         }, DEFAULT_JOIN_TIMEOUT);
@@ -136,7 +137,6 @@ public abstract class ChordManager extends AbstractApplicationManager {
 
         synchronized (joined_nodes) {
             if (joined_nodes.isEmpty()) {
-                joined_nodes.add(joinee);
                 return joinee;
             }
             else {
