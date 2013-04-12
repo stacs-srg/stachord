@@ -27,7 +27,6 @@ package uk.ac.standrews.cs.stachord.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,20 +35,16 @@ import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.rpc.interfaces.Pingable;
 import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.shabdiz.legacy.HostDescriptor;
-import uk.ac.standrews.cs.shabdiz.p2p.network.P2PNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.servers.NodeServer;
 
 /**
  * Provides methods for creating new Chord nodes and binding to existing remote Chord nodes.
  *
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-public final class ChordNodeFactory extends P2PNodeFactory {
+public final class ChordNodeFactory {
 
     private static final int INITIAL_PORT = 55496; // First port to attempt when trying to find free port.
     private static final AtomicInteger NEXT_PORT = new AtomicInteger(INITIAL_PORT); // The next port to be used; static to allow multiple concurrent networks.
@@ -114,53 +109,5 @@ public final class ChordNodeFactory extends P2PNodeFactory {
         remote_reference.ping();
 
         return remote_reference;
-    }
-
-    /**
-     * Binds to an existing remote Chord node running at a given network address, checking for liveness, retrying on any error until the timeout interval has elapsed.
-     *
-     * @param node_address the address of the existing node
-     * @return a remote reference to the node
-     *
-     * @throws TimeoutException if the node cannot be bound to within the timeout interval
-     * @throws InterruptedException
-     */
-    public IChordRemoteReference bindToNode(final InetSocketAddress node_address, final Duration retry_interval, final Duration timeout_interval) throws TimeoutException, InterruptedException {
-
-        return (IChordRemoteReference) bindToNode(retry_interval, timeout_interval, node_address);
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    @Override
-    protected IChordRemoteReference createLocalReference(final Object node, final Object remote_reference) {
-
-        return new ChordLocalReference((IChordNode) node, (IChordRemoteReference) remote_reference);
-    }
-
-    @Override
-    public Pingable bindToNode(final Object... args) throws RPCException {
-
-        final InetSocketAddress node_address = (InetSocketAddress) args[0];
-
-        return bindToNode(node_address);
-    }
-
-    @Override
-    protected Pingable bindToNode(final HostDescriptor host_descriptor) throws UnknownHostException, TimeoutException, InterruptedException {
-
-        return bindToNode(host_descriptor.getInetSocketAddress(), RETRY_INTERVAL, INDIVIDUAL_TIMEOUT_INTERVAL);
-    }
-
-    @Override
-    protected Class<?> getNodeServerClass() {
-
-        return NodeServer.class;
-    }
-
-    @Override
-    protected AtomicInteger getNextPortContainer() {
-
-        return NEXT_PORT;
     }
 }
