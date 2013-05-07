@@ -8,7 +8,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.host.Host;
-import uk.ac.standrews.cs.shabdiz.process.RemoteJavaProcessBuilder;
+import uk.ac.standrews.cs.shabdiz.host.exec.JavaProcessBuilder;
 import uk.ac.standrews.cs.shabdiz.util.ProcessUtil;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.servers.NodeServer;
@@ -26,7 +26,7 @@ public class MultipleProcessChordManager extends ChordManager {
 
         final Host host = descriptor.getHost();
         final ChordNodeDescriptor node_descriptor = (ChordNodeDescriptor) descriptor;
-        final RemoteJavaProcessBuilder process_builder = new RemoteJavaProcessBuilder(NodeServer.class);
+        final JavaProcessBuilder process_builder = new JavaProcessBuilder(NodeServer.class);
         process_builder.addCommandLineArgument("-s:" + node_descriptor.getNodePort());
         process_builder.addCommandLineArgument("-x" + node_descriptor.getNodeKey().toString(Key.DEFAULT_RADIX));
         process_builder.addCurrentJVMClasspath();
