@@ -58,7 +58,12 @@
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.standrews.cs</groupId>
-			<artifactId>shabdiz</artifactId>
+			<artifactId>shabdiz-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.standrews.cs</groupId>
+			<artifactId>shabdiz-job</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
