@@ -61,7 +61,7 @@ class ChordPartitionScanner extends AbstractScanner {
         final List<ApplicationDescriptor> stable_nodes = new ArrayList<ApplicationDescriptor>();
         for (final ApplicationDescriptor descriptor : network) {
 
-            if (descriptor.isInState(ApplicationState.RUNNING)) {
+            if (descriptor.isInAnyOfStates(ApplicationState.RUNNING)) {
 
                 if (isStable(descriptor)) {
                     stable_nodes.add(descriptor);
