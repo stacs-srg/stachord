@@ -31,7 +31,7 @@ public class MultipleProcessChordManager extends ChordManager {
         process_builder.addCommandLineArgument("-x" + node_descriptor.getNodeKey().toString(Key.DEFAULT_RADIX));
         process_builder.addCurrentJVMClasspath();
         final Process node_process = process_builder.start(host);
-        final String address_as_string = ProcessUtil.getValueFromProcessOutput(node_process, NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY, PROCESS_START_TIMEOUT);
+        final String address_as_string = ProcessUtil.scanProcessOutput(node_process, NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY, PROCESS_START_TIMEOUT);
         final InetSocketAddress address = NetworkUtil.getAddressFromString(address_as_string);
         final IChordRemoteReference node_reference = bindWithRetry(new InetSocketAddress(host.getAddress(), address.getPort()));
         attemptJoinAndCleanUpUponFailure(node_process, node_reference);
