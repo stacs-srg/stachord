@@ -7,7 +7,6 @@ import uk.ac.standrews.cs.shabdiz.host.Host;
 
 abstract class ChordNetwork extends ApplicationNetwork {
 
-    private static final long serialVersionUID = -2865527843949516706L;
     protected final ChordManager default_manager;
 
     ChordNetwork(final ChordManager default_manager) {

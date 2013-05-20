@@ -105,11 +105,9 @@ public final class RecoveryTestLogic {
 
         Duration start_time = printElapsedTime(ring_creation_start);
 
-        final SortedSet<ApplicationDescriptor> nodes = network;
-
         try {
             System.out.println("waiting for stable ring... ");
-            waitForStableRing(nodes, test_timeout);
+            waitForStableRing(network, test_timeout);
             start_time = printElapsedTime(start_time);
 
             System.out.println("killing part of network... ");
@@ -117,19 +115,19 @@ public final class RecoveryTestLogic {
             start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for stable ring... ");
-            waitForStableRing(nodes, test_timeout);
+            waitForStableRing(network, test_timeout);
             start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for complete finger tables... ");
-            waitForCompleteFingerTables(nodes, test_timeout);
+            waitForCompleteFingerTables(network, test_timeout);
             start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for complete successor lists... ");
-            waitForCompleteSuccessorLists(nodes, test_timeout);
+            waitForCompleteSuccessorLists(network, test_timeout);
             start_time = printElapsedTime(start_time);
 
             System.out.println("waiting for correct routing... ");
-            waitForCorrectRouting(nodes, test_timeout);
+            waitForCorrectRouting(network, test_timeout);
             start_time = printElapsedTime(start_time);
         }
         catch (final TimeoutException e) {
@@ -163,12 +161,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the ring does not become stable within the timeout interval
      */
-    public static void waitForStableRing(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForStableRing(final ChordNetwork nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
+            public boolean check(final ChordNetwork nodes) {
 
                 return ringStable(nodes);
             }
@@ -185,12 +183,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the finger tables do not become complete within the timeout interval
      */
-    public static void waitForCompleteFingerTables(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCompleteFingerTables(final ChordNetwork nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
+            public boolean check(final ChordNetwork nodes) {
 
                 return fingerTableComplete(nodes);
             }
@@ -207,12 +205,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if the successor lists do not become complete within the timeout interval
      */
-    public static void waitForCompleteSuccessorLists(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCompleteSuccessorLists(final ChordNetwork nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
+            public boolean check(final ChordNetwork nodes) {
 
                 return successorListComplete(nodes);
             }
@@ -229,12 +227,12 @@ public final class RecoveryTestLogic {
      * @param test_timeout the timeout interval, in ms
      * @throws TimeoutException if not all nodes become able to route correctly within the timeout interval
      */
-    public static void waitForCorrectRouting(final SortedSet<ApplicationDescriptor> nodes, final Duration test_timeout) throws TimeoutException {
+    public static void waitForCorrectRouting(final ChordNetwork nodes, final Duration test_timeout) throws TimeoutException {
 
         checkWithTimeout(nodes, new RingCheck() {
 
             @Override
-            public boolean check(final SortedSet<ApplicationDescriptor> nodes) {
+            public boolean check(final ChordNetwork nodes) {
 
                 return routingCorrect(nodes);
             }
@@ -252,15 +250,15 @@ public final class RecoveryTestLogic {
      * setting self as successor if no running successor can be found when dealing with errors would
      * preclude recovery from transient faults or successor that fails and recovers. See joinUsingFinger() in ChordMaintenanceThread.
      *
-     * @param host_descriptors a list of Chord nodes
+     * @param network a list of Chord nodes
      * @return true if all nodes are stable
      */
-    public static boolean ringStable(final SortedSet<ApplicationDescriptor> host_descriptors) {
+    public static boolean ringStable(final ChordNetwork network) {
 
-        final int network_size = host_descriptors.size();
+        final int network_size = network.size();
         if (network_size == 1) { return true; }
 
-        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : network) {
             try {
                 if (!ringStable(host_descriptor, network_size)) { return false; }
             }
@@ -319,15 +317,11 @@ public final class RecoveryTestLogic {
 
         // For each finger...
         try {
-            int finger_number = 0;
 
             for (final IChordRemoteReference finger_reference : node.getRemote().getFingerList()) {
 
                 // Check that the finger is not null.
-                if (finger_reference == null) {
-                    //                    System.out.println(finger_number + " ftc1");
-                    return false;
-                }
+                if (finger_reference == null) { return false; }
 
                 // Check that the finger is not closer in ring distance than the previous non-null finger.
                 // Treat self-reference as the full ring distance, so ignore case where finger points to this node.
@@ -337,22 +331,16 @@ public final class RecoveryTestLogic {
 
                 if (previous_finger_reference != null && !finger_key.equals(node_key)) {
 
-                    if (RingArithmetic.ringDistanceFurther(node_key, previous_finger_reference.getCachedKey(), finger_key)) {
-                        //                        System.out.println(finger_number + " ftc2");
-                        return false;
-                    }
+                    if (RingArithmetic.ringDistanceFurther(node_key, previous_finger_reference.getCachedKey(), finger_key)) { return false; }
                 }
 
                 previous_finger_reference = finger_reference;
-                finger_number++;
             }
         }
         catch (final RPCException e) {
-            //            System.out.println("ftc3");
             return false;
         }
 
-        //        System.out.println("ftc4");
         return true;
     }
 
@@ -361,15 +349,15 @@ public final class RecoveryTestLogic {
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
      * 
-     * @param host_descriptors a list of Chord nodes
+     * @param network a list of Chord nodes
      * @return true if all nodes have complete successor lists
      */
-    public static boolean successorListComplete(final SortedSet<ApplicationDescriptor> host_descriptors) {
+    public static boolean successorListComplete(final ChordNetwork network) {
 
-        final int network_size = host_descriptors.size();
+        final int network_size = network.size();
         if (network_size == 1) { return true; }
 
-        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : network) {
             if (!successorListComplete(host_descriptor, network_size)) { return false; }
         }
 
@@ -421,15 +409,15 @@ public final class RecoveryTestLogic {
      * Tests whether routing works correctly between all pairs of nodes. See {@link #routingCorrect(IChordRemoteReference, IChordRemoteReference)} for definition of correctness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(SortedSet)} for rationale for allowing this.
      *
-     * @param host_descriptors a list of Chord nodes
+     * @param network a list of Chord nodes
      * @return true if routing works correctly between all pairs of nodes
      */
-    public static boolean routingCorrect(final SortedSet<ApplicationDescriptor> host_descriptors) {
+    public static boolean routingCorrect(final ChordNetwork network) {
 
-        if (host_descriptors.size() == 1) { return true; }
+        if (network.size() == 1) { return true; }
 
-        for (final ApplicationDescriptor host_descriptor1 : host_descriptors) {
-            for (final ApplicationDescriptor host_descriptor2 : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor1 : network) {
+            for (final ApplicationDescriptor host_descriptor2 : network) {
 
                 final IChordRemoteReference node1 = host_descriptor1.getApplicationReference();
                 final IChordRemoteReference node2 = host_descriptor2.getApplicationReference();
@@ -467,7 +455,7 @@ public final class RecoveryTestLogic {
      * Prints a representation of a network.
      * @param nodes the network
      */
-    public static void dumpState(final SortedSet<ApplicationDescriptor> nodes) {
+    public static void dumpState(final ChordNetwork nodes) {
 
         for (final ApplicationDescriptor machine_descriptor : nodes) {
 
@@ -493,14 +481,14 @@ public final class RecoveryTestLogic {
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
      * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
      * 
-     * @param host_descriptors a list of Chord nodes
+     * @param network a list of Chord nodes
      * @return true if all nodes have complete finger tables
      */
-    private static boolean fingerTableComplete(final SortedSet<ApplicationDescriptor> host_descriptors) {
+    private static boolean fingerTableComplete(final ChordNetwork network) {
 
-        if (host_descriptors.size() == 1) { return true; }
+        if (network.size() == 1) { return true; }
 
-        for (final ApplicationDescriptor host_descriptor : host_descriptors) {
+        for (final ApplicationDescriptor host_descriptor : network) {
             if (!fingerTableComplete(host_descriptor)) { return false; }
         }
 
@@ -572,13 +560,13 @@ public final class RecoveryTestLogic {
         }
     }
 
-    private static ApplicationDescriptor getElement(final SortedSet<ApplicationDescriptor> nodes, final int index) {
+    private static ApplicationDescriptor getElement(final ChordNetwork network, final int index) {
 
         ApplicationDescriptor element = null;
 
         // Need to do this to access set element with particular index.
         int host_index = 0;
-        for (final ApplicationDescriptor host_descriptor : nodes) {
+        for (final ApplicationDescriptor host_descriptor : network) {
             if (host_index == index) {
                 element = host_descriptor;
                 break;
@@ -609,7 +597,7 @@ public final class RecoveryTestLogic {
         return indices;
     }
 
-    private static void checkWithTimeout(final SortedSet<ApplicationDescriptor> nodes, final RingCheck checker, final Duration test_timeout) throws TimeoutException {
+    private static void checkWithTimeout(final ChordNetwork nodes, final RingCheck checker, final Duration test_timeout) throws TimeoutException {
 
         final TimeoutExecutor timeout_executor = TimeoutExecutor.makeTimeoutExecutor(1, test_timeout, true, true, "Chord recovery executor");
 
@@ -663,6 +651,6 @@ public final class RecoveryTestLogic {
 
     private interface RingCheck {
 
-        boolean check(SortedSet<ApplicationDescriptor> nodes);
+        boolean check(ChordNetwork nodes);
     }
 }

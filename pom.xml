@@ -58,13 +58,13 @@
 		</dependency>
 		<dependency>
 			<groupId>uk.ac.standrews.cs</groupId>
-			<artifactId>shabdiz-core</artifactId>
+			<artifactId>shabdiz</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>uk.ac.standrews.cs</groupId>
 			<artifactId>shabdiz-job</artifactId>
 			<version>1.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 	</dependencies>
 </project>
