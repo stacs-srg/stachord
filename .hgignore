@@ -5,3 +5,5 @@ syntax: regexp
 ^\.idea$
 syntax: regexp
 ^stachord\.iml$
+syntax: regexp
+^pom\.xml$
