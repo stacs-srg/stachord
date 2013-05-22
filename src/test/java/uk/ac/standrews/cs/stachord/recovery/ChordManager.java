@@ -45,12 +45,7 @@ public abstract class ChordManager extends AbstractApplicationManager {
     @Override
     public void kill(final ApplicationDescriptor descriptor) throws Exception {
 
-        try {
-            joined_nodes.remove(descriptor.getApplicationReference());
-        }
-        finally {
-            super.kill(descriptor);
-        }
+        joined_nodes.remove(descriptor.getApplicationReference());
     }
 
     @Override
@@ -78,21 +73,21 @@ public abstract class ChordManager extends AbstractApplicationManager {
             @Override
             public IChordRemoteReference call() throws Exception {
 
-                boolean succeeded = false;
                 Exception error;
                 do {
                     delay.sleep();
                     try {
-                        final IChordRemoteReference reference = getNodeFactory().bindToNode(address);
-                        succeeded = true;
-                        return reference;
+                        return getNodeFactory().bindToNode(address);
+                    }
+                    catch (final RuntimeException e) {
+                        error = e;
                     }
                     catch (final Exception e) {
                         error = e;
-                        succeeded = false;
                     }
+
                 }
-                while (!Thread.currentThread().isInterrupted() && !succeeded);
+                while (!Thread.currentThread().isInterrupted() && error != null);
                 throw error;
             }
         }, timeout);
@@ -130,7 +125,7 @@ public abstract class ChordManager extends AbstractApplicationManager {
                 }
                 return null; // void task
             }
-        }, DEFAULT_JOIN_TIMEOUT);
+        }, timeout);
     }
 
     private IChordRemoteReference getRandomKnownNode(final IChordRemoteReference joinee) {

@@ -25,19 +25,13 @@
 
 package uk.ac.standrews.cs.stachord.recovery;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.SortedSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
@@ -52,6 +46,10 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 import uk.ac.standrews.cs.stachord.remote_management.ChordMonitoring;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * Core Chord test logic. In general, due to asynchrony we can't test much of interest immediately after a given operation.
@@ -130,9 +128,6 @@ public final class RecoveryTestLogic {
             waitForCorrectRouting(network, test_timeout);
             start_time = printElapsedTime(start_time);
         }
-        catch (final TimeoutException e) {
-            throw e;
-        }
         finally {
 
             System.out.println("killing remaining nodes... ");
@@ -155,7 +150,7 @@ public final class RecoveryTestLogic {
     }
 
     /**
-     * Waits for each node in the ring to become stable. See {@link #ringStable(HostDescriptor, int)} for definition of stability.
+     * Waits for each node in the ring to become stable. See {@link #ringStable(ApplicationDescriptor, int)} for definition of stability.
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
@@ -177,7 +172,7 @@ public final class RecoveryTestLogic {
     }
 
     /**
-     * Waits for each node in the ring to have a complete finger table. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
+     * Waits for each node in the ring to have a complete finger table. See {@link #fingerTableComplete(ApplicationDescriptor)} for definition of completeness.
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
@@ -199,7 +194,7 @@ public final class RecoveryTestLogic {
     }
 
     /**
-     * Waits for each node in the ring to have a complete successor list. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
+     * Waits for each node in the ring to have a complete successor list. See {@link #successorListComplete(ApplicationDescriptor, int)} for definition of completeness.
      *
      * @param nodes a list of Chord nodes
      * @param test_timeout the timeout interval, in ms
@@ -245,7 +240,7 @@ public final class RecoveryTestLogic {
     // -------------------------------------------------------------------------------------------------------
 
     /**
-     * Tests whether all nodes in are ring are stable. See {@link #ringStable(HostDescriptor, int)} for definition of stability.
+     * Tests whether all nodes in are ring are stable. See {@link #ringStable(ApplicationDescriptor, int)} for definition of stability.
      * We define a single-node network as stable. Should really have null as predecessor and self as successor, but don't insist on this because
      * setting self as successor if no running successor can be found when dealing with errors would
      * preclude recovery from transient faults or successor that fails and recovers. See joinUsingFinger() in ChordMaintenanceThread.
@@ -307,15 +302,14 @@ public final class RecoveryTestLogic {
      * <li>no errors occur during the test</li>
      * </ol>
      *
-     * @param host_descriptor node to be checked
+     * @param descriptor node to be checked
      * @return true if the finger table is complete
      */
-    public static boolean fingerTableComplete(final ApplicationDescriptor host_descriptor) {
+    public static boolean fingerTableComplete(final ApplicationDescriptor descriptor) {
 
-        final IChordRemoteReference node = (IChordRemoteReference) host_descriptor.getApplicationReference();
+        final IChordRemoteReference node = descriptor.getApplicationReference();
         IChordRemoteReference previous_finger_reference = null;
 
-        // For each finger...
         try {
 
             for (final IChordRemoteReference finger_reference : node.getRemote().getFingerList()) {
@@ -345,9 +339,9 @@ public final class RecoveryTestLogic {
     }
 
     /**
-     * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(HostDescriptor, int)} for definition of completeness.
+     * Tests whether all nodes in the ring have complete successor lists. See {@link #successorListComplete(ApplicationDescriptor, int)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
-     * can't fix its fingers. See {@link #ringStable(SortedSet)} for rationale for allowing this.
+     * can't fix its fingers. See {@link #ringStable(ChordNetwork)} for rationale for allowing this.
      * 
      * @param network a list of Chord nodes
      * @return true if all nodes have complete successor lists
@@ -373,13 +367,13 @@ public final class RecoveryTestLogic {
      * <li>no errors occur during the test</li>
      * </ol>
      *
-     * @param host_descriptor node to be checked
+     * @param descriptor node to be checked
      * @param network_size the known size of the network
      * @return true if the successor list is complete
      */
-    public static boolean successorListComplete(final ApplicationDescriptor host_descriptor, final int network_size) {
+    public static boolean successorListComplete(final ApplicationDescriptor descriptor, final int network_size) {
 
-        final IChordRemoteReference application_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
+        final IChordRemoteReference application_reference =  descriptor.getApplicationReference();
         final IChordRemote node = application_reference.getRemote();
 
         List<IChordRemoteReference> successor_list;
@@ -407,7 +401,7 @@ public final class RecoveryTestLogic {
 
     /**
      * Tests whether routing works correctly between all pairs of nodes. See {@link #routingCorrect(IChordRemoteReference, IChordRemoteReference)} for definition of correctness.
-     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(SortedSet)} for rationale for allowing this.
+     * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route. See {@link #ringStable(ChordNetwork)} for rationale for allowing this.
      *
      * @param network a list of Chord nodes
      * @return true if routing works correctly between all pairs of nodes
@@ -477,9 +471,9 @@ public final class RecoveryTestLogic {
     // -------------------------------------------------------------------------------------------------------
 
     /**
-     * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(HostDescriptor)} for definition of completeness.
+     * Tests whether all nodes in the ring have complete finger tables. See {@link #fingerTableComplete(ApplicationDescriptor)} for definition of completeness.
      * Returns true for a single-node network, since the node may have an external non-functioning successor and a null predecessor, hence it can't route and
-     * can't fix its fingers. See {@link #ringStable(List)} for rationale for allowing this.
+     * can't fix its fingers. See {@link #ringStable(ChordNetwork)} for rationale for allowing this.
      * 
      * @param network a list of Chord nodes
      * @return true if all nodes have complete finger tables

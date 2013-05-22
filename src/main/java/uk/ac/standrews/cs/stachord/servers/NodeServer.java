@@ -26,6 +26,7 @@
 package uk.ac.standrews.cs.stachord.servers;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -59,6 +60,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 public final class NodeServer {
 
     public static final String CHORD_NODE_LOCAL_ADDRESS_KEY = "CHORD_NODE_LOCAL_ADDRESS";
+    public static final String RUNTIME_MX_BEAN_NAME_KEY = "RUNTIME_MX_BEAN_NAME";
     private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
     public static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
 
@@ -109,7 +111,6 @@ public final class NodeServer {
      * @throws RPCException if an error occurs in making the new node accessible for remote access, or in communication with the remote machine
      * @throws UndefinedDiagnosticLevelException if the specified diagnostic level is not valid
      * @throws IOException if a node cannot be created using the given local address
-     * @throws RPCException if an error occurs binding the node to the registry
      * @throws AlreadyBoundException if another node is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      * @throws TimeoutException
@@ -121,6 +122,7 @@ public final class NodeServer {
         try {
             final IChordNode node = server.createNode();
             ProcessUtil.printKeyValue(System.out, CHORD_NODE_LOCAL_ADDRESS_KEY, node.getAddress());
+            ProcessUtil.printKeyValue(System.out, RUNTIME_MX_BEAN_NAME_KEY, ManagementFactory.getRuntimeMXBean().getName());
             Diagnostic.trace("Started Chord node at " + server.local_address);
         }
         catch (final IOException e) {

@@ -66,6 +66,37 @@ public abstract class LocalRecoveryTestBase {
         ringRecovers(KeyDistribution.RANDOM);
     }
 
+    private void ringRecovers(final KeyDistribution network_type) throws Exception {
+
+        for (final int ring_size : getRingSizes()) {
+
+            System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
+            ringRecovers(ring_size, network_type);
+            System.out.println("\n>>>>>>>>>>>>>>>> Done");
+        }
+    }
+
+    protected abstract int[] getRingSizes();
+
+    // -------------------------------------------------------------------------------------------------------
+
+    private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws Exception {
+
+        System.out.println("constructing ring... ");
+        final Duration ring_creation_start = Duration.elapsed();
+        final ChordNetwork network = getTestNetwork(ring_size, network_type);
+        try {
+            network.deployAll();
+            network.awaitAnyOfStates(ApplicationState.RUNNING);
+            RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start);
+        }
+        finally {
+            network.shutdown();
+        }
+    }
+
+    protected abstract ChordNetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
+
     /**
      * Runs ring recovery tests with an {@link KeyDistribution#EVEN} key distribution.
      *
@@ -87,30 +118,4 @@ public abstract class LocalRecoveryTestBase {
 
         ringRecovers(KeyDistribution.CLUSTERED);
     }
-
-    // -------------------------------------------------------------------------------------------------------
-
-    private void ringRecovers(final KeyDistribution network_type) throws Exception {
-
-        for (final int ring_size : getRingSizes()) {
-
-            System.out.println("\n>>>>>>>>>>>>>>>> Testing recovery for ring size: " + ring_size + ", network type: " + network_type + "\n");
-            ringRecovers(ring_size, network_type);
-            System.out.println("\n>>>>>>>>>>>>>>>> Done");
-        }
-    }
-
-    private void ringRecovers(final int ring_size, final KeyDistribution network_type) throws Exception {
-
-        System.out.println("constructing ring... ");
-        final Duration ring_creation_start = Duration.elapsed();
-        final ChordNetwork network = getTestNetwork(ring_size, network_type);
-        network.deployAll();
-        network.awaitAnyOfStates(ApplicationState.RUNNING);
-        RecoveryTestLogic.testRingRecoveryFromNodeFailure(network, CHECK_TIMEOUT, ring_creation_start);
-    }
-
-    protected abstract ChordNetwork getTestNetwork(final int ring_size, final KeyDistribution network_type) throws Exception;
-
-    protected abstract int[] getRingSizes();
 }
