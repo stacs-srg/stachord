@@ -122,7 +122,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            marshaller.serializeKey(chord_node.getKey(), writer);
+            Marshaller.serializeKey(chord_node.getKey(), writer);
         }
     }
 
@@ -131,7 +131,7 @@ public class ChordRemoteServer extends ApplicationServer {
         @Override
         public void execute(final JSONReader args, final JSONWriter writer) throws JSONException {
 
-            marshaller.serializeInetSocketAddress(chord_node.getAddress(), writer);
+            Marshaller.serializeInetSocketAddress(chord_node.getAddress(), writer);
         }
     }
 
@@ -141,7 +141,7 @@ public class ChordRemoteServer extends ApplicationServer {
         public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final IKey key = marshaller.deserializeKey(args);
+                final IKey key = Marshaller.deserializeKey(args);
                 marshaller.serializeChordRemoteReference(chord_node.lookup(key), writer);
             }
             catch (final DeserializationException e) {
@@ -228,7 +228,7 @@ public class ChordRemoteServer extends ApplicationServer {
         public void execute(final JSONReader args, final JSONWriter writer) throws RPCException {
 
             try {
-                final IKey key = marshaller.deserializeKey(args);
+                final IKey key = Marshaller.deserializeKey(args);
                 marshaller.serializeNextHopResult(chord_node.nextHop(key), writer);
             }
             catch (final DeserializationException e) {
