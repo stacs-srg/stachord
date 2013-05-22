@@ -7,7 +7,6 @@ import uk.ac.standrews.cs.shabdiz.host.LocalHost;
 
 public class LocalChordNetworkMultipleProcess extends ChordNetwork {
 
-    private static final long serialVersionUID = -6230607115512428677L;
     private final LocalHost local_host;
 
     public LocalChordNetworkMultipleProcess(final int network_size, final KeyDistribution key_distribution) throws IOException {

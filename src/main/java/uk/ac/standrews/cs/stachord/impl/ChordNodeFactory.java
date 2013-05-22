@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
@@ -46,8 +45,6 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 public final class ChordNodeFactory {
 
-    private static final int INITIAL_PORT = 55496; // First port to attempt when trying to find free port.
-    private static final AtomicInteger NEXT_PORT = new AtomicInteger(INITIAL_PORT); // The next port to be used; static to allow multiple concurrent networks.
     protected static final Duration INDIVIDUAL_TIMEOUT_INTERVAL = new Duration(50, TimeUnit.SECONDS); // Timeout for individual connection attempt.
     protected static final Duration RETRY_INTERVAL = new Duration(1, TimeUnit.SECONDS); // Interval between retry of connecting to remote nodes.
 

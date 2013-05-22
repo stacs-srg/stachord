@@ -8,8 +8,6 @@ import uk.ac.standrews.cs.shabdiz.host.Host;
 
 public class MultipleHostChordNetwork extends ChordNetwork {
 
-    private static final long serialVersionUID = 8698842502879913421L;
-
     public MultipleHostChordNetwork(final Set<Host> hosts, final KeyDistribution key_distribution) {
 
         super(new MultipleProcessChordManager());
