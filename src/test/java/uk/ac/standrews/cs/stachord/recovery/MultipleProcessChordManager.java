@@ -30,12 +30,11 @@ public class MultipleProcessChordManager extends ChordManager {
     public Object deploy(final ApplicationDescriptor descriptor) throws Exception {
 
         final Host host = descriptor.getHost();
-        final ChordNodeDescriptor node_descriptor = (ChordNodeDescriptor) descriptor;
 
-        //TODO Make process builder explicit
+        // TODO Make process builder explicit
         final JavaProcessBuilder process_builder = new JavaProcessBuilder(NodeServer.class);
-        process_builder.addCommandLineArgument("-s:" + node_descriptor.getNodePort());
-        process_builder.addCommandLineArgument("-x" + node_descriptor.getNodeKey().toString(Key.DEFAULT_RADIX));
+        process_builder.addCommandLineArgument("-s:" + descriptor.getAttribute(ChordNetwork.PEER_PORT));
+        process_builder.addCommandLineArgument("-x" + descriptor.getAttribute(ChordNetwork.PEER_KEY).toString(Key.DEFAULT_RADIX));
         process_builder.addCurrentJVMClasspath();
         final Process node_process = process_builder.start(host);
         final String address_as_string = ProcessUtil.scanProcessOutput(node_process, NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY, PROCESS_START_TIMEOUT);

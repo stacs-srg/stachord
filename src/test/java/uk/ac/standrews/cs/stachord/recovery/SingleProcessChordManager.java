@@ -14,8 +14,7 @@ public class SingleProcessChordManager extends ChordManager {
     public Object deploy(final ApplicationDescriptor descriptor) throws Exception {
 
         final Host host = descriptor.getHost();
-        final ChordNodeDescriptor node_descriptor = (ChordNodeDescriptor) descriptor;
-        final IChordNode node = getNodeFactory().createNode(new InetSocketAddress(host.getAddress(), 0), node_descriptor.getNodeKey());
+        final IChordNode node = getNodeFactory().createNode(new InetSocketAddress(host.getAddress(), 0), descriptor.getAttribute(ChordNetwork.PEER_KEY));
         final InetSocketAddress address = node.getAddress();
         final IChordRemoteReference node_reference = bindWithRetry(address);
         attemptJoinAndCleanUpUponFailure(node, node_reference);

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
+import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.host.Host;
 
 public class MultipleHostChordNetwork extends ChordNetwork {
@@ -14,7 +15,7 @@ public class MultipleHostChordNetwork extends ChordNetwork {
         final IKey[] node_keys = key_distribution.generateKeys(hosts.size());
         int i = 0;
         for (final Host host : hosts) {
-            final ChordNodeDescriptor descriptor = new ChordNodeDescriptor(node_keys[i], host, default_manager);
+            final ApplicationDescriptor descriptor = createApplicationDescriptor(host, node_keys[i]);
             add(descriptor);
             i++;
         }
