@@ -5,7 +5,7 @@ import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 
 public class LocalMultipleProcessRecoveryTests extends ParameterizedRecoveryTest {
 
-    protected LocalMultipleProcessRecoveryTests(final int ring_size, final KeyDistribution key_distribution) throws IOException {
+    public LocalMultipleProcessRecoveryTests(final int ring_size, final KeyDistribution key_distribution) throws IOException {
         super(ring_size, key_distribution);
     }
 

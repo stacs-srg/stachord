@@ -2,13 +2,12 @@ package uk.ac.standrews.cs.stachord.recovery;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.host.Host;
 import uk.ac.standrews.cs.shabdiz.host.exec.Commands;
-import uk.ac.standrews.cs.shabdiz.host.exec.JavaProcessBuilder;
+import uk.ac.standrews.cs.shabdiz.host.exec.MavenManagedJavaProcessBuilder;
 import uk.ac.standrews.cs.shabdiz.platform.Platform;
 import uk.ac.standrews.cs.shabdiz.util.AttributeKey;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
@@ -21,22 +20,21 @@ public class MultipleProcessChordManager extends ChordManager {
     private static final Duration PROCESS_START_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static final AttributeKey<Process> PEER_PROCESS_KEY = new AttributeKey<Process>();
     private static final AttributeKey<Integer> PEER_PROCESS_PID_KEY = new AttributeKey<Integer>();
+    private final MavenManagedJavaProcessBuilder process_builder;
 
     public MultipleProcessChordManager() {
-
+        process_builder = new MavenManagedJavaProcessBuilder();
+        process_builder.addMavenDependency("uk.ac.standrews.cs", "stachord", "2.0-SNAPSHOT");
+        process_builder.setMainClass(NodeServer.class);
     }
 
     @Override
+
     public Object deploy(final ApplicationDescriptor descriptor) throws Exception {
 
         final Host host = descriptor.getHost();
 
-        // TODO Make process builder explicit
-        final JavaProcessBuilder process_builder = new JavaProcessBuilder(NodeServer.class);
-        process_builder.addCommandLineArgument("-s:" + descriptor.getAttribute(ChordNetwork.PEER_PORT));
-        process_builder.addCommandLineArgument("-x" + descriptor.getAttribute(ChordNetwork.PEER_KEY).toString(Key.DEFAULT_RADIX));
-        process_builder.addCurrentJVMClasspath();
-        final Process node_process = process_builder.start(host);
+        final Process node_process = process_builder.start(host, "-s:" + descriptor.getAttribute(ChordNetwork.PEER_PORT), "-x" + descriptor.getAttribute(ChordNetwork.PEER_KEY).toString(Key.DEFAULT_RADIX));
         final String address_as_string = ProcessUtil.scanProcessOutput(node_process, NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY, PROCESS_START_TIMEOUT);
         final String runtime_mx_bean_name = ProcessUtil.scanProcessOutput(node_process, NodeServer.RUNTIME_MX_BEAN_NAME_KEY, PROCESS_START_TIMEOUT);
         final InetSocketAddress address = NetworkUtil.getAddressFromString(address_as_string);
