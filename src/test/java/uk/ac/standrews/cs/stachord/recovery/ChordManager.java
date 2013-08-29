@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
-
 import uk.ac.standrews.cs.shabdiz.AbstractApplicationManager;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
@@ -19,13 +18,11 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 public abstract class ChordManager extends AbstractApplicationManager {
 
-    private static final Logger LOGGER = Logger.getLogger(ChordManager.class.getName());
-
-    private static final int SEED = 654654;
     static final Duration DEFAULT_JOIN_TIMEOUT = new Duration(10, TimeUnit.SECONDS);
     static final Duration DEFAULT_BIND_TIMEOUT = new Duration(10, TimeUnit.SECONDS);
     static final Duration DEFAULT_RETRY_DELAY = new Duration(3, TimeUnit.SECONDS);
-
+    private static final Logger LOGGER = Logger.getLogger(ChordManager.class.getName());
+    private static final int SEED = 654654;
     private final ChordNodeFactory node_factory;
     private final List<IChordRemoteReference> joined_nodes;
     private final Random random;
@@ -37,15 +34,15 @@ public abstract class ChordManager extends AbstractApplicationManager {
         random = new Random(SEED);
     }
 
-    protected ChordNodeFactory getNodeFactory() {
-
-        return node_factory;
-    }
-
     @Override
     public void kill(final ApplicationDescriptor descriptor) throws Exception {
 
         joined_nodes.remove(descriptor.getApplicationReference());
+    }
+
+    protected ChordNodeFactory getNodeFactory() {
+
+        return node_factory;
     }
 
     @Override
@@ -119,25 +116,29 @@ public abstract class ChordManager extends AbstractApplicationManager {
                 }
                 while (!Thread.currentThread().isInterrupted() && !succeeded);
                 if (succeeded) {
-                    synchronized (joined_nodes) {
-                        joined_nodes.add(node_reference);
-                    }
+                    addToJoinedNodes(node_reference);
                 }
                 return null; // void task
             }
         }, timeout);
     }
 
-    private IChordRemoteReference getRandomKnownNode(final IChordRemoteReference joinee) {
+    private synchronized void addToJoinedNodes(final IChordRemoteReference node_reference) {
 
-        synchronized (joined_nodes) {
-            if (joined_nodes.isEmpty()) {
-                return joinee;
-            }
-            else {
-                final int candidate_index = random.nextInt(joined_nodes.size());
-                return joined_nodes.get(candidate_index);
-            }
+        if (!joined_nodes.contains(node_reference)) {
+            joined_nodes.add(node_reference);
+        }
+    }
+
+    private synchronized IChordRemoteReference getRandomKnownNode(final IChordRemoteReference joinee) {
+
+        if (joined_nodes.isEmpty()) {
+            joined_nodes.add(joinee);
+            return joinee;
+        }
+        else {
+            final int candidate_index = random.nextInt(joined_nodes.size());
+            return joined_nodes.get(candidate_index);
         }
     }
 
