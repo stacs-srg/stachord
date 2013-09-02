@@ -18,7 +18,7 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 public abstract class ChordManager extends AbstractApplicationManager {
 
-    static final Duration DEFAULT_JOIN_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
+    static final Duration DEFAULT_JOIN_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     static final Duration DEFAULT_BIND_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
     static final Duration DEFAULT_RETRY_DELAY = new Duration(3, TimeUnit.SECONDS);
     private static final Logger LOGGER = Logger.getLogger(ChordManager.class.getName());
