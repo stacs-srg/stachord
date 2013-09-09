@@ -6,8 +6,8 @@ import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.host.Host;
+import uk.ac.standrews.cs.shabdiz.host.exec.AgentBasedJavaProcessBuilder;
 import uk.ac.standrews.cs.shabdiz.host.exec.Commands;
-import uk.ac.standrews.cs.shabdiz.host.exec.MavenManagedJavaProcessBuilder;
 import uk.ac.standrews.cs.shabdiz.platform.Platform;
 import uk.ac.standrews.cs.shabdiz.util.AttributeKey;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
@@ -20,16 +20,16 @@ public class MultipleProcessChordManager extends ChordManager {
     private static final Duration PROCESS_START_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
     private static final AttributeKey<Process> PEER_PROCESS_KEY = new AttributeKey<Process>();
     private static final AttributeKey<Integer> PEER_PROCESS_PID_KEY = new AttributeKey<Integer>();
-    private final MavenManagedJavaProcessBuilder process_builder;
+    private final AgentBasedJavaProcessBuilder process_builder;
 
     public MultipleProcessChordManager() {
-        process_builder = new MavenManagedJavaProcessBuilder();
+
+        process_builder = new AgentBasedJavaProcessBuilder();
         process_builder.addMavenDependency("uk.ac.standrews.cs", "stachord", "2.0-SNAPSHOT");
         process_builder.setMainClass(NodeServer.class);
     }
 
     @Override
-
     public Object deploy(final ApplicationDescriptor descriptor) throws Exception {
 
         final Host host = descriptor.getHost();
@@ -44,17 +44,6 @@ public class MultipleProcessChordManager extends ChordManager {
         descriptor.setAttribute(PEER_PROCESS_PID_KEY, pid);
         attemptJoinAndCleanUpUponFailure(node_process, node_reference);
         return node_reference;
-    }
-
-    private void attemptJoinAndCleanUpUponFailure(final Process node_process, final IChordRemoteReference node_reference) throws Exception {
-
-        try {
-            joinWithTimeout(node_reference);
-        }
-        catch (final Exception e) {
-            node_process.destroy();
-            throw e;
-        }
     }
 
     @Override
@@ -78,6 +67,17 @@ public class MultipleProcessChordManager extends ChordManager {
         }
         finally {
             super.kill(descriptor);
+        }
+    }
+
+    private void attemptJoinAndCleanUpUponFailure(final Process node_process, final IChordRemoteReference node_reference) throws Exception {
+
+        try {
+            joinWithTimeout(node_reference);
+        }
+        catch (final Exception e) {
+            node_process.destroy();
+            throw e;
         }
     }
 }
