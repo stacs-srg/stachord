@@ -26,14 +26,12 @@
 package uk.ac.standrews.cs.stachord.servers;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
@@ -47,7 +45,7 @@ import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.nds.util.ErrorHandling;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
-import uk.ac.standrews.cs.shabdiz.util.ProcessUtil;
+import uk.ac.standrews.cs.shabdiz.host.exec.Bootstrap;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 
@@ -56,53 +54,34 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
  *
  * @author Alan Dearle (al@cs.st-andrews.ac.uk)
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ * @author Masih Hajiarabderkani (mh638@st-andrews.ac.uk)
  */
-public final class NodeServer {
+public final class NodeServer extends Bootstrap {
 
+    /** The key of the property that contains the actual address on which a constructed node is exposed. */
     public static final String CHORD_NODE_LOCAL_ADDRESS_KEY = "CHORD_NODE_LOCAL_ADDRESS";
-    public static final String RUNTIME_MX_BEAN_NAME_KEY = "RUNTIME_MX_BEAN_NAME";
+    private static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
     private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
-    public static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
-
     private static final ChordNodeFactory factory;
-
+    private static final String NULL = "null";
     private IKey node_key;
-    private InetSocketAddress local_address = null;
-    private InetSocketAddress join_address = null;
-
-    // -------------------------------------------------------------------------------------------------------
+    private InetSocketAddress local_address;
+    private InetSocketAddress join_address;
 
     static {
         factory = new ChordNodeFactory();
         StreamProxy.CONNECTION_POOL.setSocketReadTimeout(CHORD_SOCKET_READ_TIMEOUT);
     }
 
-    // -------------------------------------------------------------------------------------------------------
-
-    public NodeServer(final String... args) throws UndefinedDiagnosticLevelException, UnknownHostException {
-
-        final Map<String, String> arguments = CommandLineArgs.parseCommandLineArgs(args);
-
-        configureDiagnostics(arguments);
-        configureLocalAddress(arguments);
-        configureJoinAddress(arguments);
-        configureNodeKey(arguments);
-    }
-
-    // -------------------------------------------------------------------------------------------------------
-
     /**
      * The following command line parameters are available:
      * <dl>
      * <dt>-shost:port (required)</dt>
      * <dd>Specifies the local address and port at which the Chord service should be made available.</dd>
-     *
      * <dt>-khost:port (optional)</dt>
      * <dd>Specifies the address and port of an existing Chord node, via which the new node should join the ring.</dd>
-     *
      * <dt>-xkey (optional)</dt>
      * <dd>Specifies the key for the new Chord node.</dd>
-     *
      * <dt>-Dlevel (optional)</dt>
      * <dd>Specifies a diagnostic level from 0 (most detailed) to 6 (least detailed).</dd>
      * </dl>
@@ -118,21 +97,13 @@ public final class NodeServer {
      */
     public static void main(final String[] args) throws RPCException, UndefinedDiagnosticLevelException, IOException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
 
-        final NodeServer server = new NodeServer(args);
-        try {
-            final IChordNode node = server.createNode();
-            ProcessUtil.printKeyValue(System.out, CHORD_NODE_LOCAL_ADDRESS_KEY, node.getAddress());
-            ProcessUtil.printKeyValue(System.out, RUNTIME_MX_BEAN_NAME_KEY, ManagementFactory.getRuntimeMXBean().getName());
-            Diagnostic.trace("Started Chord node at " + server.local_address);
-        }
-        catch (final IOException e) {
-            Diagnostic.trace("Couldn't start Chord node at " + server.local_address + " : " + e.getMessage());
-        }
+        final NodeServer server = new NodeServer();
+        server.deploy(args);
     }
 
     // -------------------------------------------------------------------------------------------------------
 
-    public IChordNode createNode() throws IOException, RPCException, AlreadyBoundException, RegistryUnavailableException, InterruptedException, TimeoutException {
+    public IChordNode createNode() throws InterruptedException, RPCException, IOException, AlreadyBoundException, TimeoutException, RegistryUnavailableException {
 
         final IChordNode node = node_key == null ? factory.createNode(local_address) : factory.createNode(local_address, node_key);
 
@@ -141,6 +112,32 @@ public final class NodeServer {
         }
 
         return node;
+    }
+
+    private void configure(final String... args) throws UndefinedDiagnosticLevelException, UnknownHostException {
+        final Map<String, String> arguments = CommandLineArgs.parseCommandLineArgs(args);
+
+        configureDiagnostics(arguments);
+        configureLocalAddress(arguments);
+        configureJoinAddress(arguments);
+        configureNodeKey(arguments);
+    }
+
+    // -------------------------------------------------------------------------------------------------------
+
+    @Override
+    protected void deploy(final String... args) throws UndefinedDiagnosticLevelException, UnknownHostException, InterruptedException, RegistryUnavailableException, RPCException, AlreadyBoundException, TimeoutException {
+
+        configure(args);
+        try {
+            final IChordNode node = createNode();
+            final InetSocketAddress node_address = node.getAddress();
+            setProperty(CHORD_NODE_LOCAL_ADDRESS_KEY, node_address);
+            Diagnostic.trace("Started Chord node at " + node_address);
+        }
+        catch (final IOException e) {
+            Diagnostic.trace("Couldn't start Chord node at " + local_address + " : " + e.getMessage());
+        }
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -179,7 +176,7 @@ public final class NodeServer {
     private void configureNodeKey(final Map<String, String> arguments) {
 
         final String server_key_parameter = arguments.get("-x"); // This node's key.
-        if (server_key_parameter != null && !server_key_parameter.equals("null")) {
+        if (server_key_parameter != null && !server_key_parameter.equals(NULL)) {
             node_key = new Key(server_key_parameter);
         }
     }

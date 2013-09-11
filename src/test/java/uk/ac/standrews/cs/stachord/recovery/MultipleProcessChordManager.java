@@ -1,12 +1,15 @@
 package uk.ac.standrews.cs.stachord.recovery;
 
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.util.NetworkUtil;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.host.Host;
 import uk.ac.standrews.cs.shabdiz.host.exec.AgentBasedJavaProcessBuilder;
+import uk.ac.standrews.cs.shabdiz.host.exec.Bootstrap;
 import uk.ac.standrews.cs.shabdiz.host.exec.Commands;
 import uk.ac.standrews.cs.shabdiz.platform.Platform;
 import uk.ac.standrews.cs.shabdiz.util.AttributeKey;
@@ -27,23 +30,30 @@ public class MultipleProcessChordManager extends ChordManager {
         process_builder = new AgentBasedJavaProcessBuilder();
         process_builder.addMavenDependency("uk.ac.standrews.cs", "stachord", "2.0-SNAPSHOT");
         process_builder.setMainClass(NodeServer.class);
+        process_builder.setDeleteWorkingDirectoryOnExit(true);
     }
 
     @Override
     public Object deploy(final ApplicationDescriptor descriptor) throws Exception {
 
         final Host host = descriptor.getHost();
-
-        final Process node_process = process_builder.start(host, "-s:" + descriptor.getAttribute(ChordNetwork.PEER_PORT), "-x" + descriptor.getAttribute(ChordNetwork.PEER_KEY).toString(Key.DEFAULT_RADIX));
-        final String address_as_string = ProcessUtil.scanProcessOutput(node_process, NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY, PROCESS_START_TIMEOUT);
-        final String runtime_mx_bean_name = ProcessUtil.scanProcessOutput(node_process, NodeServer.RUNTIME_MX_BEAN_NAME_KEY, PROCESS_START_TIMEOUT);
-        final InetSocketAddress address = NetworkUtil.getAddressFromString(address_as_string);
-        final Integer pid = ProcessUtil.getPIDFromRuntimeMXBeanName(runtime_mx_bean_name);
-        final IChordRemoteReference node_reference = bindWithRetry(new InetSocketAddress(host.getAddress(), address.getPort()));
+        final Integer port = descriptor.getAttribute(ChordNetwork.PEER_PORT);
+        final String node_key_as_string = descriptor.getAttribute(ChordNetwork.PEER_KEY).toString(Key.DEFAULT_RADIX);
+        final Process node_process = process_builder.start(host, "-s:" + port, "-x" + node_key_as_string);
+        final Properties properties = Bootstrap.readProperties(NodeServer.class, node_process, PROCESS_START_TIMEOUT);
+        final Integer pid = Bootstrap.getPIDProperty(properties);
+        final int remote_port = getRemotePortFromProperties(properties);
+        final IChordRemoteReference node_reference = bindWithRetry(new InetSocketAddress(host.getAddress(), remote_port));
         descriptor.setAttribute(PEER_PROCESS_KEY, node_process);
         descriptor.setAttribute(PEER_PROCESS_PID_KEY, pid);
         attemptJoinAndCleanUpUponFailure(node_process, node_reference);
         return node_reference;
+    }
+
+    private Integer getRemotePortFromProperties(final Properties properties) throws UnknownHostException {
+
+        final String port_as_string = properties.getProperty(NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY);
+        return port_as_string != null ? NetworkUtil.getAddressFromString(port_as_string).getPort() : null;
     }
 
     @Override
