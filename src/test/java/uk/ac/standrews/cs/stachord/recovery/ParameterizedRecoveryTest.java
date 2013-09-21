@@ -26,23 +26,25 @@
 package uk.ac.standrews.cs.stachord.recovery;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
-import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.ApplicationState;
+import uk.ac.standrews.cs.shabdiz.host.Host;
+import uk.ac.standrews.cs.shabdiz.host.LocalHost;
+import uk.ac.standrews.cs.shabdiz.testing.junit.ParallelParameterized;
 import uk.ac.standrews.cs.shabdiz.util.Combinations;
 
 /**
@@ -51,16 +53,16 @@ import uk.ac.standrews.cs.shabdiz.util.Combinations;
  *
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-@RunWith(Parameterized.class)
+@RunWith(ParallelParameterized.class)
+@ParallelParameterized.Parallelization(addCurrentJvmClasspath = false, mavenArtifacts = {"uk.ac.standrews.cs:trombone:jar:tests:2.0-SNAPSHOT", "uk.ac.standrews.cs:trombone:2.0-SNAPSHOT"}, hostProvider = "local", deleteWorkingDirectoryOnExit = true, threadCount = 5)
 public abstract class ParameterizedRecoveryTest {
 
-    private static final Duration CHECK_TIMEOUT = new Duration(10, TimeUnit.MINUTES); // Allow 10 minutes for each check operation.
-    protected static final Integer[] RING_SIZES = {1, 2, 3, 4, 5, 10};
+    protected static final Integer[] RING_SIZES = {1};
     protected static final KeyDistribution[] KEY_DISTRIBUTIONS = {KeyDistribution.RANDOM, KeyDistribution.EVEN, KeyDistribution.CLUSTERED};
+    private static final Duration CHECK_TIMEOUT = new Duration(10, TimeUnit.MINUTES); // Allow 10 minutes for each check operation.
     private final ChordNetwork network;
     private final int ring_size;
     private final KeyDistribution key_distribution;
-
     @Rule
     public Timeout global_timeout = new Timeout(20 * 60 * 1000);
 
@@ -68,10 +70,16 @@ public abstract class ParameterizedRecoveryTest {
 
         this.ring_size = ring_size;
         this.key_distribution = key_distribution;
-        this.network = createNetwork(ring_size, key_distribution);
+        network = createNetwork(ring_size, key_distribution);
     }
 
-    protected abstract ChordNetwork createNetwork(final int ring_size, final KeyDistribution key_distribution) throws IOException;
+    @ParallelParameterized.HostProvider(name = "local")
+    public static Collection<Host> getHosts() throws IOException {
+
+        List<Host> hosts = new ArrayList<Host>();
+        hosts.add(new LocalHost());
+        return hosts;
+    }
 
     @Parameterized.Parameters(name = "{index} -  ring size:{0}, key distribution: {1}")
     public static Collection<Object[]> getParameters() {
@@ -93,15 +101,6 @@ public abstract class ParameterizedRecoveryTest {
         network.awaitAnyOfStates(ApplicationState.RUNNING);
     }
 
-    private void printTestDetails() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("\n>>>>>>>>>>>>>>>> Testing recovery for network type: ").append(network.getClass().getSimpleName());
-        builder.append(" ring size: ").append(ring_size);
-        builder.append(", key distribution: ").append(key_distribution);
-        System.out.println(builder.toString());
-        System.out.println("constructing ring... ");
-    }
-
     /**
      * Runs ring recovery tests.
      *
@@ -120,5 +119,17 @@ public abstract class ParameterizedRecoveryTest {
 
         network.shutdown();
         System.out.println("\n>>>>>>>>>>>>>>>> Done");
+    }
+
+    protected abstract ChordNetwork createNetwork(final int ring_size, final KeyDistribution key_distribution) throws IOException;
+
+    private void printTestDetails() {
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append("\n>>>>>>>>>>>>>>>> Testing recovery for network type: ").append(network.getClass().getSimpleName());
+        builder.append(" ring size: ").append(ring_size);
+        builder.append(", key distribution: ").append(key_distribution);
+        System.out.println(builder.toString());
+        System.out.println("constructing ring... ");
     }
 }
