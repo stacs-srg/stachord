@@ -58,7 +58,7 @@ import uk.ac.standrews.cs.shabdiz.util.Combinations;
 //@ParallelParameterized.Parallelization(addCurrentJvmClasspath = false, mavenArtifacts = {"uk.ac.standrews.cs:trombone:jar:tests:2.0-SNAPSHOT", "uk.ac.standrews.cs:trombone:2.0-SNAPSHOT"}, hostProvider = "local", deleteWorkingDirectoryOnExit = true, threadCount = 5)
 public abstract class ParameterizedRecoveryTest {
 
-    protected static final Integer[] RING_SIZES = {1};
+    protected static final Integer[] RING_SIZES = {1, 2, 3, 5, 10};
     protected static final KeyDistribution[] KEY_DISTRIBUTIONS = {KeyDistribution.RANDOM, KeyDistribution.EVEN, KeyDistribution.CLUSTERED};
     private static final Duration CHECK_TIMEOUT = new Duration(10, TimeUnit.MINUTES); // Allow 10 minutes for each check operation.
     private final ChordNetwork network;
