@@ -53,8 +53,9 @@ import uk.ac.standrews.cs.shabdiz.util.Combinations;
  *
  * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
  */
-@RunWith(ParallelParameterized.class)
-@ParallelParameterized.Parallelization(addCurrentJvmClasspath = false, mavenArtifacts = {"uk.ac.standrews.cs:trombone:jar:tests:2.0-SNAPSHOT", "uk.ac.standrews.cs:trombone:2.0-SNAPSHOT"}, hostProvider = "local", deleteWorkingDirectoryOnExit = true, threadCount = 5)
+@RunWith(Parameterized.class)
+//@RunWith(ParallelParameterized.class)
+//@ParallelParameterized.Parallelization(addCurrentJvmClasspath = false, mavenArtifacts = {"uk.ac.standrews.cs:trombone:jar:tests:2.0-SNAPSHOT", "uk.ac.standrews.cs:trombone:2.0-SNAPSHOT"}, hostProvider = "local", deleteWorkingDirectoryOnExit = true, threadCount = 5)
 public abstract class ParameterizedRecoveryTest {
 
     protected static final Integer[] RING_SIZES = {1};
