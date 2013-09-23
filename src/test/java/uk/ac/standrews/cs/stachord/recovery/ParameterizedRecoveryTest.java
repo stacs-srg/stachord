@@ -2,7 +2,7 @@
  *                                                                         *
  * stachord Library                                                        *
  * Copyright (C) 2004-2010 Distributed Systems Architecture Research Group *
- * University of St Andrews, Scotland
+ * University of St Andrews, Scotland                                      *
  * http://www-systems.cs.st-andrews.ac.uk/                                 *
  *                                                                         *
  * This file is part of stachord, an independent implementation of         *
@@ -51,12 +51,10 @@ import uk.ac.standrews.cs.shabdiz.util.Combinations;
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
  * Each Chord node is created in a separate process on the local machine.
  *
- * @author Graham Kirby (graham.kirby@st-andrews.ac.uk)
+ * @author Masih Hajiarabderkani (mh638@st-andrews.ac.uk)
  */
-//@RunWith(Parameterized.class)
 @RunWith(ParallelParameterized.class)
-//@ParallelParameterized.Parallelization(addCurrentJvmClasspath = false, mavenArtifacts = {"uk.ac.standrews.cs:trombone:jar:tests:2.0-SNAPSHOT", "uk.ac.standrews.cs:trombone:2.0-SNAPSHOT"}, hostProvider = "local", deleteWorkingDirectoryOnExit = true, threadCount = 5)
-@ParallelParameterized.Parallelization(threadCount = 10)
+@ParallelParameterized.Parallelization(threadCount = 5)
 public abstract class ParameterizedRecoveryTest {
 
     protected static final Integer[] RING_SIZES = {1, 2, 3, 5, 10};

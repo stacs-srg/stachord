@@ -107,8 +107,6 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         startMaintenanceThread();
         addObserver(this);
-
-        System.out.println(this.local_address);
     }
 
     // -------------------------------------------------------------------------------------------------------
