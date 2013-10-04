@@ -27,10 +27,8 @@ package uk.ac.standrews.cs.stachord.impl;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -55,8 +53,8 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param chord_remote_reference the remote reference
      * @return a JSON object
-     * @throws JSONException 
-     * @throws RPCException 
+     * @throws JSONException
+     * @throws RPCException
      */
     public void serializeChordRemoteReference(final IChordRemoteReference chord_remote_reference, final JSONWriter writer) throws JSONException, RPCException {
 
@@ -112,8 +110,8 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param list_chord_remote_reference the list
      * @return a JSON array
-     * @throws JSONException 
-     * @throws RPCException 
+     * @throws JSONException
+     * @throws RPCException
      */
     public void serializeListChordRemoteReference(final List<IChordRemoteReference> list_chord_remote_reference, final JSONWriter writer) throws JSONException, RPCException {
 
@@ -133,7 +131,7 @@ public class ChordRemoteMarshaller extends Marshaller {
     /**
      * Deserializes a list of chord remote references.
      *
-     * @param array a JSON array containing the appropriate values
+     * @param reader a JSON reader containing the appropriate values
      * @return a list of chord remote references
      * @throws DeserializationException if the representation is invalid
      */
@@ -165,8 +163,8 @@ public class ChordRemoteMarshaller extends Marshaller {
      *
      * @param next_hop_result the next hop result
      * @return a JSON object
-     * @throws JSONException 
-     * @throws RPCException 
+     * @throws JSONException
+     * @throws RPCException
      */
     public void serializeNextHopResult(final NextHopResult next_hop_result, final JSONWriter writer) throws JSONException, RPCException {
 
