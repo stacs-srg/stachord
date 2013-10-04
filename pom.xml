@@ -47,7 +47,7 @@
                 <version>2.16</version>
                 <configuration>
                     <parallel>both</parallel>
-                    <perCoreThreadCount/>
+                    <threadCount>3</threadCount>
                     <forkCount>3</forkCount>
                     <reuseForks>false</reuseForks>
                 </configuration>
