@@ -47,8 +47,8 @@
                 <version>2.16</version>
                 <configuration>
                     <parallel>both</parallel>
-                    <threadCount>2</threadCount>
-                    <forkCount>3</forkCount>
+                    <threadCount>10</threadCount>
+                    <forkCount>5</forkCount>
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
