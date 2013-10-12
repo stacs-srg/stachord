@@ -99,9 +99,8 @@ public final class NodeServer extends Bootstrap {
 
         final NodeServer server = new NodeServer();
         server.deploy(args);
+        server.printProperties();
     }
-
-    // -------------------------------------------------------------------------------------------------------
 
     public IChordNode createNode() throws InterruptedException, RPCException, IOException, AlreadyBoundException, TimeoutException, RegistryUnavailableException {
 
