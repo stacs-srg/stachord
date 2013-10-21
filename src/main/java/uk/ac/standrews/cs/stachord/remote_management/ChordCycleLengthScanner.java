@@ -29,14 +29,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import uk.ac.standrews.cs.shabdiz.AbstractConcurrentScanner;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.ApplicationNetwork;
+import uk.ac.standrews.cs.shabdiz.ConcurrentScanner;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordCycleLengthScanner extends AbstractConcurrentScanner {
+class ChordCycleLengthScanner extends ConcurrentScanner {
 
     public static final String RING_SIZE_PROPERTY_NAME = "ring_size";
     private static final Logger LOGGER = Logger.getLogger(ChordCycleLengthScanner.class.getName());
@@ -80,7 +79,6 @@ class ChordCycleLengthScanner extends AbstractConcurrentScanner {
         do {
             current_min_cycle_length = min_cycle_legth.get();
             new_min_cycle_legth = Math.min(current_min_cycle_length, cycle_length);
-        }
-        while (min_cycle_legth.compareAndSet(current_min_cycle_length, new_min_cycle_legth));
+        } while (min_cycle_legth.compareAndSet(current_min_cycle_length, new_min_cycle_legth));
     }
 }
