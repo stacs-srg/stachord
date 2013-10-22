@@ -44,7 +44,7 @@ public final class ChordMonitoring {
     /**
      * Traverses the ring from the given node in the given direction, and returns the length of the cycle containing the given node, or zero if there is no such cycle.
      *
-     * @param host_descriptor a ring node
+     * @param application_reference a ring node
      * @param forwards true if the ring should be traversed via successor pointers, false if it should be traversed via predecessor pointers
      * @return the length of the cycle containing the given node, or zero if the ring node is null or there is no such cycle.
      * @throws InterruptedException

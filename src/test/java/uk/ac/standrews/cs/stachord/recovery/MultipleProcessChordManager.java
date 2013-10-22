@@ -52,7 +52,7 @@ public class MultipleProcessChordManager extends ChordManager {
 
     private Integer getRemotePortFromProperties(final Properties properties) throws UnknownHostException {
 
-        final String port_as_string = properties.getProperty(NodeServer.CHORD_NODE_LOCAL_ADDRESS_KEY);
+        final String port_as_string = properties.getProperty(NodeServer.ADDRESS_PROPERTY_KEY);
         return port_as_string != null ? NetworkUtil.getAddressFromString(port_as_string).getPort() : null;
     }
 
