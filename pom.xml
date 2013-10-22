@@ -6,7 +6,6 @@
         <groupId>uk.ac.standrews.cs</groupId>
         <artifactId>common-pom</artifactId>
         <version>2.0-SNAPSHOT</version>
-        <relativePath/>
     </parent>
 
     <artifactId>stachord</artifactId>
@@ -18,6 +17,7 @@
     <properties>
         <repository.type>hg</repository.type>
         <repository.location>http://quicksilver.hg.cs.st-andrews.ac.uk/stachord</repository.location>
+        <shabdiz.version>1.0-SNAPSHOT</shabdiz.version>
     </properties>
 
     <ciManagement>
@@ -36,6 +36,9 @@
             <id>uk.ac.standrews.cs.maven.repository</id>
             <name>School of Computer Science Maven Repository</name>
             <url>http://maven.cs.st-andrews.ac.uk/</url>
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 
@@ -47,7 +50,7 @@
                 <version>2.16</version>
                 <configuration>
                     <parallel>both</parallel>
-                    <threadCount>10</threadCount>
+                    <threadCount>5</threadCount>
                     <forkCount>5</forkCount>
                     <reuseForks>false</reuseForks>
                 </configuration>
@@ -57,24 +60,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>uk.ac.standrews.cs</groupId>
+            <groupId>${groupId}</groupId>
             <artifactId>nds</artifactId>
             <version>2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20121113</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.standrews.cs</groupId>
-            <artifactId>shabdiz-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.standrews.cs</groupId>
+            <groupId>${groupId}</groupId>
             <artifactId>shabdiz-job</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${shabdiz.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
