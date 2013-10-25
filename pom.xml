@@ -50,8 +50,8 @@
                 <version>2.16</version>
                 <configuration>
                     <parallel>both</parallel>
-                    <threadCount>15</threadCount>
-                    <forkCount>5</forkCount>
+                    <threadCount>20</threadCount>
+                    <forkCount>7</forkCount>
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
