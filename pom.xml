@@ -61,18 +61,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>nds</artifactId>
             <version>2.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>shabdiz-job</artifactId>
             <version>${shabdiz.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${groupId}</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>shabdiz-testing</artifactId>
             <version>${shabdiz.version}</version>
             <scope>test</scope>
