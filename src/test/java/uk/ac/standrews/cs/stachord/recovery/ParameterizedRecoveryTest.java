@@ -26,7 +26,9 @@
 package uk.ac.standrews.cs.stachord.recovery;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +42,9 @@ import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.ApplicationState;
+import uk.ac.standrews.cs.shabdiz.host.Host;
+import uk.ac.standrews.cs.shabdiz.host.LocalHost;
+import uk.ac.standrews.cs.shabdiz.testing.junit.ParallelParameterized;
 import uk.ac.standrews.cs.shabdiz.util.Combinations;
 
 /**
@@ -48,7 +53,8 @@ import uk.ac.standrews.cs.shabdiz.util.Combinations;
  *
  * @author Masih Hajiarabderkani (mh638@st-andrews.ac.uk)
  */
-@RunWith(Parameterized.class)
+@RunWith(ParallelParameterized.class)
+@ParallelParameterized.Parallelization(threadCount = 10, hostProvider = "local", jvmArguments = "-Xmx128m")
 public abstract class ParameterizedRecoveryTest {
 
     protected static final Integer[] RING_SIZES = {1, 2, 3, 5, 10};
@@ -65,6 +71,15 @@ public abstract class ParameterizedRecoveryTest {
         this.ring_size = ring_size;
         this.key_distribution = key_distribution;
         network = createNetwork(ring_size, key_distribution);
+    }
+
+    @ParallelParameterized.HostProvider(name = "local")
+    public static List<Host> getLocalHost() throws IOException {
+
+        final List<Host> localhost = new ArrayList<Host>();
+        localhost.add(new LocalHost());
+        return localhost;
+
     }
 
     @Parameterized.Parameters(name = "{index} -  ring size:{0}, key distribution: {1}")
