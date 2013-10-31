@@ -50,8 +50,9 @@
                 <version>2.16</version>
                 <configuration>
                     <parallel>both</parallel>
-                    <threadCount>5</threadCount>
-                    <forkCount>10</forkCount>
+                    <threadCount>10</threadCount>
+                    <forkCount>5</forkCount>
+                    <argLine>-Xmx90m</argLine>
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
