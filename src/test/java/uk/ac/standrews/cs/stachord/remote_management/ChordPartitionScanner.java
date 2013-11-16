@@ -39,13 +39,18 @@ import uk.ac.standrews.cs.shabdiz.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordPartitionScanner extends Scanner {
+public class ChordPartitionScanner extends Scanner {
 
-    private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+    private static final Duration DEFAULT_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
 
-    public ChordPartitionScanner(final Duration min_cycle_time) {
+    public ChordPartitionScanner(final Duration interval) {
 
-        super(min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, false);
+        this(interval, DEFAULT_TIMEOUT);
+    }
+
+    public ChordPartitionScanner(final Duration interval, final Duration timeout) {
+
+        super(interval, timeout, false);
     }
 
     @Override
@@ -79,7 +84,7 @@ class ChordPartitionScanner extends Scanner {
             if (first_node != null) {
                 for (int i = 1; i < stable_nodes.size(); i++) {
                     final ApplicationDescriptor host_descriptor = stable_nodes.get(i);
-                    final IChordRemoteReference remote_reference = (IChordRemoteReference) host_descriptor.getApplicationReference();
+                    final IChordRemoteReference remote_reference = host_descriptor.getApplicationReference();
                     if (remote_reference != null) {
                         final IChordRemote node = remote_reference.getRemote();
                         try {

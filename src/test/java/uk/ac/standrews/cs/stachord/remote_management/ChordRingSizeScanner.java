@@ -25,6 +25,7 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
+import java.beans.PropertyChangeListener;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -35,19 +36,34 @@ import uk.ac.standrews.cs.shabdiz.ConcurrentScanner;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
-class ChordCycleLengthScanner extends ConcurrentScanner {
+public class ChordRingSizeScanner extends ConcurrentScanner {
 
-    public static final String RING_SIZE_PROPERTY_NAME = "ring_size";
-    private static final Logger LOGGER = Logger.getLogger(ChordCycleLengthScanner.class.getName());
-    private static final Duration CYCLE_LENGTH_CHECK_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
-    private final AtomicInteger min_cycle_legth;
-    private final AtomicInteger old_min_cycle_length;
+    private static final String RING_SIZE_PROPERTY_NAME = "ring_size";
+    private static final Logger LOGGER = Logger.getLogger(ChordRingSizeScanner.class.getName());
+    private static final Duration DEFAULT_TIMEOUT = new Duration(30, TimeUnit.SECONDS);
+    private final AtomicInteger min_ring_size;
+    private final AtomicInteger old_min_ring_size;
 
-    public ChordCycleLengthScanner(final Duration min_cycle_time) {
+    public ChordRingSizeScanner(final Duration interval) {
 
-        super(min_cycle_time, CYCLE_LENGTH_CHECK_TIMEOUT, true);
-        min_cycle_legth = new AtomicInteger();
-        old_min_cycle_length = new AtomicInteger();
+        this(interval, DEFAULT_TIMEOUT);
+    }
+
+    public ChordRingSizeScanner(final Duration interval, final Duration timeout) {
+
+        super(interval, timeout, false);
+        min_ring_size = new AtomicInteger();
+        old_min_ring_size = new AtomicInteger();
+    }
+
+    public void addRingSizeChangeListener(final PropertyChangeListener listener) {
+
+        addPropertyChangeListener(RING_SIZE_PROPERTY_NAME, listener);
+    }
+
+    public void removeRingSizeChangeListener(final PropertyChangeListener listener) {
+
+        removePropertyChangeListener(RING_SIZE_PROPERTY_NAME, listener);
     }
 
     @Override
@@ -67,18 +83,19 @@ class ChordCycleLengthScanner extends ConcurrentScanner {
     @Override
     protected void afterScan() {
 
-        property_change_support.firePropertyChange(RING_SIZE_PROPERTY_NAME, old_min_cycle_length, min_cycle_legth);
-        old_min_cycle_length.set(min_cycle_legth.get());
+        property_change_support.firePropertyChange(RING_SIZE_PROPERTY_NAME, old_min_ring_size, min_ring_size);
+        old_min_ring_size.set(min_ring_size.get());
         super.afterScan();
     }
 
     private void updateMinCycleLength(final int cycle_length) {
 
-        int current_min_cycle_length;
-        int new_min_cycle_legth;
+        int current_min_ring_size;
+        int new_min_ring_size;
         do {
-            current_min_cycle_length = min_cycle_legth.get();
-            new_min_cycle_legth = Math.min(current_min_cycle_length, cycle_length);
-        } while (min_cycle_legth.compareAndSet(current_min_cycle_length, new_min_cycle_legth));
+            current_min_ring_size = min_ring_size.get();
+            new_min_ring_size = Math.min(current_min_ring_size, cycle_length);
+        }
+        while (min_ring_size.compareAndSet(current_min_ring_size, new_min_ring_size));
     }
 }
