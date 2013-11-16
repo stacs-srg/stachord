@@ -66,6 +66,11 @@ public class ChordRingSizeScanner extends ConcurrentScanner {
         removePropertyChangeListener(RING_SIZE_PROPERTY_NAME, listener);
     }
 
+    public int getMinRingSize() {
+
+        return min_ring_size.get();
+    }
+
     @Override
     protected void scan(final ApplicationNetwork network, final ApplicationDescriptor descriptor) {
 
@@ -73,7 +78,7 @@ public class ChordRingSizeScanner extends ConcurrentScanner {
         try {
             final IChordRemoteReference reference = descriptor.getApplicationReference();
             cycle_length = ChordMonitoring.cycleLengthFrom(reference, true);
-            updateMinCycleLength(cycle_length);
+            updateMinRingSize(cycle_length);
         }
         catch (final InterruptedException e) {
             LOGGER.log(Level.WARNING, "interrupted while determining cycle length on " + descriptor.getHost(), e);
@@ -88,7 +93,7 @@ public class ChordRingSizeScanner extends ConcurrentScanner {
         super.afterScan();
     }
 
-    private void updateMinCycleLength(final int cycle_length) {
+    private void updateMinRingSize(final int cycle_length) {
 
         int current_min_ring_size;
         int new_min_ring_size;

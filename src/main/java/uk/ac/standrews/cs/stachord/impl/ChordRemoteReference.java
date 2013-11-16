@@ -26,7 +26,6 @@
 package uk.ac.standrews.cs.stachord.impl;
 
 import java.net.InetSocketAddress;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
@@ -40,9 +39,9 @@ import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
  */
 class ChordRemoteReference implements IChordRemoteReference {
 
-    private IKey key = null;
     private final InetSocketAddress address;
     private final ChordRemoteProxy reference;
+    private IKey key = null;
 
     public ChordRemoteReference(final InetSocketAddress address) {
 
@@ -88,18 +87,19 @@ class ChordRemoteReference implements IChordRemoteReference {
     @Override
     public int hashCode() {
 
-        return key == null ? 0 : key.hashCode();
+        return key == null ? address.hashCode() : key.hashCode();
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(final Object other) {
 
-        try {
-            return o instanceof IChordRemoteReference && key != null && key.equals(((IChordRemoteReference) o).getCachedKey());
-        }
-        catch (final RPCException e) {
-            return false;
-        }
+        if (this == other) { return true; }
+        if (!(other instanceof ChordRemoteReference)) { return false; }
+
+        final ChordRemoteReference that = (ChordRemoteReference) other;
+        if (address != null ? !address.equals(that.address) : that.address != null) { return false; }
+        if (key != null ? !key.equals(that.key) : that.key != null) { return false; }
+        return true;
     }
 
     @Override
