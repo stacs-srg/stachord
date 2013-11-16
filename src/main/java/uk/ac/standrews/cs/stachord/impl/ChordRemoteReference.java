@@ -94,12 +94,15 @@ class ChordRemoteReference implements IChordRemoteReference {
     public boolean equals(final Object other) {
 
         if (this == other) { return true; }
-        if (!(other instanceof ChordRemoteReference)) { return false; }
+        if (!(other instanceof IChordRemoteReference)) { return false; }
 
-        final ChordRemoteReference that = (ChordRemoteReference) other;
-        if (address != null ? !address.equals(that.address) : that.address != null) { return false; }
-        if (key != null ? !key.equals(that.key) : that.key != null) { return false; }
-        return true;
+        final IChordRemoteReference that = (IChordRemoteReference) other;
+        try {
+            return address.equals(that.getCachedAddress()) && getCachedKey().equals(that.getCachedKey());
+        }
+        catch (RPCException e) {
+            return false;
+        }
     }
 
     @Override
