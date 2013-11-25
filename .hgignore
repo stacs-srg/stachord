@@ -3,5 +3,7 @@ syntax: regexp
 ^target$
 syntax: regexp
 ^\.idea$
-syntax: regexp
-^stachord\.iml$
+
+syntax: glob
+*.iml
+.DS_Store

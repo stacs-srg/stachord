@@ -36,6 +36,7 @@ import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
+import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
 import uk.ac.standrews.cs.nds.util.Diagnostic;
 import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.nds.util.Duration;
@@ -104,6 +105,7 @@ public abstract class ParameterizedRecoveryTest {
     public void tearDown() {
 
         network.shutdown();
+        StreamProxy.CONNECTION_POOL.shutdown();
         System.out.println("\n>>>>>>>>>>>>>>>> Done");
     }
 
