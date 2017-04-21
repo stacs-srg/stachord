@@ -1,0 +1,6 @@
+syntax: glob
+
+.DS_Store
+target
+.idea
+/.idea/inspectionProfiles/Project_Default.xml

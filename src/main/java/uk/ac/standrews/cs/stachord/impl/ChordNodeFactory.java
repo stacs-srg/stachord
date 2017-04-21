@@ -25,18 +25,18 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.utilities.archive.Duration;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Provides methods for creating new Chord nodes and binding to existing remote Chord nodes.

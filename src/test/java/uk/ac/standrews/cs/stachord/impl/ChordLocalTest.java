@@ -24,23 +24,21 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.utilities.archive.NetworkUtil;
 
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.keys.Key;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 /**
  * Local Chord tests.

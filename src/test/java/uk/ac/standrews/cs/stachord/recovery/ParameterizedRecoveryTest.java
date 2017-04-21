@@ -25,9 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.recovery;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,11 +34,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import uk.ac.standrews.cs.nds.p2p.keys.KeyDistribution;
 import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Duration;
 import uk.ac.standrews.cs.shabdiz.ApplicationState;
 import uk.ac.standrews.cs.shabdiz.util.Combinations;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+import uk.ac.standrews.cs.utilities.archive.Duration;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Tests Chord ring recovery after node failures, for rings of various sizes and for various patterns of key distribution.
@@ -82,7 +82,6 @@ public abstract class ParameterizedRecoveryTest {
     @Before
     public void setUp() throws Exception {
 
-        Diagnostic.setLevel(DiagnosticLevel.NONE);
         printTestDetails();
         network.deployAll();
         network.awaitAnyOfStates(ApplicationState.RUNNING);

@@ -25,30 +25,24 @@
 
 package uk.ac.standrews.cs.stachord.servers;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.Key;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
 import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
-import uk.ac.standrews.cs.nds.util.CommandLineArgs;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.nds.util.UndefinedDiagnosticLevelException;
 import uk.ac.standrews.cs.stachord.impl.ChordNodeFactory;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.utilities.archive.*;
+
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Provides the entry point for deploying a Chord node.
@@ -64,7 +58,6 @@ public final class NodeServer {
     /** The key of the property that contains the process ID of a deployed process. */
     public static final String PID_PROPERTY_KEY = "pid";
     private static final Duration CHORD_SOCKET_READ_TIMEOUT = new Duration(20, TimeUnit.SECONDS);
-    private static final DiagnosticLevel DEFAULT_DIAGNOSTIC_LEVEL = DiagnosticLevel.NONE;
     private static final ChordNodeFactory factory;
     private static final String NULL = "null";
     private static final char AT_SIGN = '@';
@@ -173,10 +166,6 @@ public final class NodeServer {
 
     private void configureDiagnostics(final Map<String, String> arguments) throws UndefinedDiagnosticLevelException {
 
-        Diagnostic.setLevel(DiagnosticLevel.getDiagnosticLevelFromCommandLineArg(arguments.get("-D"), DEFAULT_DIAGNOSTIC_LEVEL));
-        Diagnostic.setTimestampFlag(true);
-        Diagnostic.setTimestampFormat(new SimpleDateFormat("HH:mm:ss:SSS "));
-        Diagnostic.setTimestampDelimiterFlag(false);
         ErrorHandling.setTimestampFlag(false);
     }
 

@@ -25,6 +25,20 @@
 
 package uk.ac.standrews.cs.stachord.recovery;
 
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.Key;
+import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.stachord.remote_management.ChordMonitoring;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+import uk.ac.standrews.cs.utilities.archive.Duration;
+import uk.ac.standrews.cs.utilities.archive.ErrorHandling;
+import uk.ac.standrews.cs.utilities.archive.TimeoutExecutor;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,20 +46,6 @@ import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.keys.Key;
-import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
-import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.nds.util.ErrorHandling;
-import uk.ac.standrews.cs.nds.util.TimeoutExecutor;
-import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
-import uk.ac.standrews.cs.stachord.remote_management.ChordMonitoring;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -168,7 +168,7 @@ public final class RecoveryTestLogic {
 
         }, test_timeout);
 
-        Diagnostic.trace(DiagnosticLevel.RUN, "ring is stable");
+        Diagnostic.trace("ring is stable");
     }
 
     /**
@@ -190,7 +190,7 @@ public final class RecoveryTestLogic {
 
         }, test_timeout);
 
-        Diagnostic.trace(DiagnosticLevel.RUN, "finger tables are complete");
+        Diagnostic.trace("finger tables are complete");
     }
 
     /**
@@ -212,7 +212,7 @@ public final class RecoveryTestLogic {
 
         }, test_timeout);
 
-        Diagnostic.trace(DiagnosticLevel.RUN, "successor lists are consistent");
+        Diagnostic.trace( "successor lists are consistent");
     }
 
     /**
@@ -234,7 +234,7 @@ public final class RecoveryTestLogic {
 
         }, test_timeout);
 
-        Diagnostic.trace(DiagnosticLevel.RUN, "routing is correct");
+        Diagnostic.trace( "routing is correct");
     }
 
     // -------------------------------------------------------------------------------------------------------
@@ -596,7 +596,6 @@ public final class RecoveryTestLogic {
         final TimeoutExecutor timeout_executor = TimeoutExecutor.makeTimeoutExecutor(1, test_timeout, true, true, "Chord recovery executor");
 
         boolean timed_out = false;
-        final DiagnosticLevel previous_level = Diagnostic.getLevel();
 
         try {
             while (!Thread.currentThread().isInterrupted()) {
@@ -614,7 +613,6 @@ public final class RecoveryTestLogic {
                     if (check_succeeded) {
                         if (timed_out) {
                             System.out.println("\n>>>>>>>>>>>>>>>> Succeeded on last check\n");
-                            Diagnostic.setLevel(previous_level);
                         }
                         return;
                     }
@@ -630,7 +628,6 @@ public final class RecoveryTestLogic {
                     }
 
                     System.out.println("\n>>>>>>>>>>>>>>>> Potential timeout: executing one more check with full diagnostics\n");
-                    Diagnostic.setLevel(DiagnosticLevel.FULL);
                     timed_out = true;
                 }
                 catch (final Exception e) {

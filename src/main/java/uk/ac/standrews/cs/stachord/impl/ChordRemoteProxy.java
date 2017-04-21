@@ -24,13 +24,7 @@
  ***************************************************************************/
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.net.InetSocketAddress;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import org.json.JSONWriter;
-
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.rpc.DeserializationException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
@@ -38,10 +32,14 @@ import uk.ac.standrews.cs.nds.rpc.stream.Connection;
 import uk.ac.standrews.cs.nds.rpc.stream.JSONReader;
 import uk.ac.standrews.cs.nds.rpc.stream.Marshaller;
 import uk.ac.standrews.cs.nds.rpc.stream.StreamProxy;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+
+import java.net.InetSocketAddress;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Proxy for remotely accessible Chord node.
@@ -446,7 +444,7 @@ public final class ChordRemoteProxy extends StreamProxy implements IChordRemote 
             return result;
         }
         catch (final Exception e) {
-            Diagnostic.trace(DiagnosticLevel.RUN, "error calling remote hashCode()");
+            Diagnostic.trace("error calling remote hashCode()", Diagnostic.RUN);
             return 0;
         }
     }

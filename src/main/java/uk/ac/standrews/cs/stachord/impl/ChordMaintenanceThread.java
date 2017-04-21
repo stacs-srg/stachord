@@ -1,5 +1,16 @@
 package uk.ac.standrews.cs.stachord.impl;
 
+import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
+import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
+import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
+import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
+import uk.ac.standrews.cs.nds.rpc.RPCException;
+import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
+import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+import uk.ac.standrews.cs.utilities.archive.Duration;
+import uk.ac.standrews.cs.utilities.archive.NetworkUtil;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -7,18 +18,6 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
-import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
-import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
-import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
-import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
-import uk.ac.standrews.cs.nds.util.Duration;
-import uk.ac.standrews.cs.nds.util.NetworkUtil;
-import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
-import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
 
 final class ChordMaintenanceThread extends Thread {
 
@@ -60,7 +59,7 @@ final class ChordMaintenanceThread extends Thread {
             }
         }
 
-        Diagnostic.trace(DiagnosticLevel.RUN, "maintenance thread stopping on node " + chord_node.getKey());
+        Diagnostic.trace( "maintenance thread stopping on node " + chord_node.getKey());
     }
 
     protected void shutdown() {
@@ -80,7 +79,7 @@ final class ChordMaintenanceThread extends Thread {
                 handleAddressChange();
             }
             catch (final Exception e) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "Error handling address change: " + e.getMessage());
+                Diagnostic.trace( "Error handling address change: " + e.getMessage());
             }
 
             chord_node.setChanged();
@@ -101,16 +100,16 @@ final class ChordMaintenanceThread extends Thread {
 
             if (address_has_changed) {
 
-                Diagnostic.trace(DiagnosticLevel.RUN, "Address change: old : " + previous_socket_address);
+                Diagnostic.trace( "Address change: old : " + previous_socket_address);
                 final InetSocketAddress new_socket_address = new InetSocketAddress(current_address, previous_socket_address.getPort());
                 chord_node.setAddress(new_socket_address);
-                Diagnostic.trace(DiagnosticLevel.RUN, "New: " + new_socket_address);
+                Diagnostic.trace("New: " + new_socket_address);
             }
 
             return address_has_changed;
         }
         catch (final UnknownHostException e) {
-            Diagnostic.trace(DiagnosticLevel.RUN, "couldn't find local address");
+            Diagnostic.trace( "couldn't find local address");
             return true;
         }
     }
@@ -218,7 +217,7 @@ final class ChordMaintenanceThread extends Thread {
                 handleSuccessorError();
             }
             catch (final RPCException e1) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "error in stabilize", e1);
+                Diagnostic.trace( "error in stabilize: "+ e1);
             }
         }
     }
@@ -270,7 +269,7 @@ final class ChordMaintenanceThread extends Thread {
                 }
             }
             catch (final Exception e) {
-                Diagnostic.trace(DiagnosticLevel.FULL, chord_node, ": error calling successor ", chord_node.getSuccessor(), ": ", e);
+                Diagnostic.trace( chord_node+ ": error calling successor "+ chord_node.getSuccessor()+ ": "+ e);
                 handleSuccessorError();
             }
         }

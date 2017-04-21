@@ -25,11 +25,6 @@
 
 package uk.ac.standrews.cs.stachord.impl;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
-import java.util.Observable;
-import java.util.concurrent.TimeoutException;
 import uk.ac.standrews.cs.nds.events.Event;
 import uk.ac.standrews.cs.nds.p2p.interfaces.IKey;
 import uk.ac.standrews.cs.nds.p2p.keys.RingArithmetic;
@@ -37,11 +32,16 @@ import uk.ac.standrews.cs.nds.p2p.util.SHA1KeyFactory;
 import uk.ac.standrews.cs.nds.registry.AlreadyBoundException;
 import uk.ac.standrews.cs.nds.registry.RegistryUnavailableException;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.stachord.interfaces.IChordNode;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.Observable;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Implementation of Chord node.
@@ -88,7 +88,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
      * Creates a new Chord node bound to the given local address, with the given key.
      *
      * @param local_address the local address
-     * @param key the key
+     * @param key           the key
      * @throws IOException if the service cannot bind to the specified local address
      */
     public ChordNodeImpl(final InetSocketAddress local_address, final IKey key) throws IOException {
@@ -135,7 +135,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         }
 
         if (predecessor_key == null) {
-            if (successorIsSelf()) { return true; }
+            if (successorIsSelf()) {
+                return true;
+            }
 
             // No predecessor and successor not self, so not a one-node ring - don't know local key range.
             throw new KeyUnknownException("Unable to determine local key range because the predecessor is null. This is not a JSON RPCException.");
@@ -191,9 +193,8 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         // Shutdown the server.
         try {
             unexposeNode();
-        }
-        catch (final Exception e) {
-            Diagnostic.trace(DiagnosticLevel.FULL, "failed to destroy node: ", key);
+        } catch (final Exception e) {
+            Diagnostic.trace("failed to destroy node: " + key);
         }
     }
 
@@ -265,7 +266,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     public NextHopResult nextHop(final IKey k) throws RPCException {
 
         // Check whether the key lies in this node's successor's key range, in which case the successor represents the final hop.
-        if (inSuccessorKeyRange(k)) { return new NextHopResult(successor, true); }
+        if (inSuccessorKeyRange(k)) {
+            return new NextHopResult(successor, true);
+        }
 
         final IChordRemoteReference closest_preceding_node = closestPrecedingNode(k);
 
@@ -312,8 +315,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         builder.append("\npredecessor remote: ");
         try {
             builder.append(predecessor != null ? predecessor.getRemote().getAddress() : "null");
-        }
-        catch (final RPCException e) {
+        } catch (final RPCException e) {
             builder.append("\npredecessor remote unavailable ");
         }
 
@@ -323,8 +325,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         builder.append("\nsuccessor remote: ");
         try {
             builder.append(successor != null ? successor.getRemote().getAddress() : "null");
-        }
-        catch (final RPCException e) {
+        } catch (final RPCException e) {
             builder.append("\nsuccessor remote unavailable ");
         }
 
@@ -360,8 +361,7 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         try {
             return other instanceof IChordRemote && ((IChordRemote) other).getKey().equals(key);
-        }
-        catch (final RPCException e) {
+        } catch (final RPCException e) {
             return false;
         }
     }
@@ -381,36 +381,34 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         final Event event = (Event) arg;
 
-        Diagnostic.traceNoSource(DiagnosticLevel.FULL, ">>>>>>>>>>>>>>>>>>>>>> update: " + event);
+        Diagnostic.traceNoSource(">>>>>>>>>>>>>>>>>>>>>> update: " + event);
 
         if (event.equals(SUCCESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "successor of " + key + " now: ", successor != null ? successor.getCachedKey() : "null");
-            }
-            catch (final RPCException e) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "Error handling successor change");
+                Diagnostic.trace("successor of " + key + " now: " + (successor != null ? successor.getCachedKey() : "null"));
+            } catch (final RPCException e) {
+                Diagnostic.trace("Error handling successor change");
             }
         }
 
         if (event.equals(PREDECESSOR_CHANGE_EVENT)) {
             try {
-                Diagnostic.trace(DiagnosticLevel.FULL, "\n\npredecessor of " + key + " now: ", predecessor != null ? predecessor.getCachedKey() : "null");
-            }
-            catch (final RPCException e) {
-                Diagnostic.trace(DiagnosticLevel.RUN, "Error handling predecessor change");
+                Diagnostic.trace("\n\npredecessor of " + key + " now: " + (predecessor != null ? predecessor.getCachedKey() : "null"));
+            } catch (final RPCException e) {
+                Diagnostic.trace("Error handling predecessor change");
             }
         }
 
         if (event.equals(SUCCESSOR_LIST_CHANGE_EVENT)) {
-            Diagnostic.trace(DiagnosticLevel.FULL, "successor list now: ", successor_list);
+            Diagnostic.trace("successor list now: " + successor_list);
         }
 
         if (event.equals(FINGER_TABLE_CHANGE_EVENT)) {
-            Diagnostic.trace(DiagnosticLevel.FULL, "finger table now: ", finger_table);
+            Diagnostic.trace("finger table now: " + finger_table);
         }
 
         if (event.equals(OWN_ADDRESS_CHANGE_EVENT)) {
-            Diagnostic.trace(DiagnosticLevel.FULL, "Address change event");
+            Diagnostic.trace("Address change event");
         }
     }
 
@@ -424,7 +422,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
             successor_key = successor != null ? successor.getCachedKey() : null;
         }
 
-        if (successor_key == null) { throw new KeyUnknownException("Unable to determine successor key range because the successor is null. This is not a JSON RPCException."); }
+        if (successor_key == null) {
+            throw new KeyUnknownException("Unable to determine successor key range because the successor is null. This is not a JSON RPCException.");
+        }
 
         return RingArithmetic.inSegment(key, k, successor_key);
     }
@@ -440,9 +440,9 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
     /**
      * Exposes this node for remote access.
      *
-     * @throws IOException if the service cannot bind to the specified local address
-     * @throws RPCException if an error occurs binding the application to the registry
-     * @throws AlreadyBoundException if another instance of the application is already bound in the registry
+     * @throws IOException                  if the service cannot bind to the specified local address
+     * @throws RPCException                 if an error occurs binding the application to the registry
+     * @throws AlreadyBoundException        if another instance of the application is already bound in the registry
      * @throws RegistryUnavailableException if the registry is unavailable
      * @throws TimeoutException
      * @throws InterruptedException
@@ -558,14 +558,16 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
         predecessor_error_count++;
 
         if (predecessor_error_count > PREDECESSOR_ERROR_ACTION_THRESHOLD) {
-            Diagnostic.trace(DiagnosticLevel.FULL, "resetting predecessor after " + predecessor_error_count + " errors");
+            Diagnostic.trace("resetting predecessor after " + predecessor_error_count + " errors");
             setPredecessor(null);
         }
     }
 
     // -------------------------------------------------------------------------------------------------------
 
-    /** Sets data structures for a new ring. */
+    /**
+     * Sets data structures for a new ring.
+     */
     private void createRing() {
 
         setPredecessor(null);
@@ -586,13 +588,14 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
 
         try {
             return finger_table.closestPrecedingNode(k);
-        }
-        catch (final NoPrecedingNodeException e) {
+        } catch (final NoPrecedingNodeException e) {
             return successor;
         }
     }
 
-    /** Precondition: key is not in local key range. */
+    /**
+     * Precondition: key is not in local key range.
+     */
     private IChordRemoteReference findSuccessor(final IKey key) throws RPCException {
 
         assert !inLocalKeyRange(key);
@@ -616,12 +619,10 @@ class ChordNodeImpl extends Observable implements IChordNode, IChordRemote {
                 next_hop = previous_next_hop.nextHop(key);
 
                 current_hop = previous_next_hop;
-            }
-            catch (final RPCException e) {
+            } catch (final RPCException e) {
                 current_hop.notifyFailure(next_hop.getNode());
                 throw new RPCException("hop failure on node " + local_address + " trying to contact node " + next_hop.getNode().getCachedAddress(), e);
-            }
-            catch (final RuntimeException e) {
+            } catch (final RuntimeException e) {
                 current_hop.notifyFailure(next_hop.getNode());
                 throw e;
             }

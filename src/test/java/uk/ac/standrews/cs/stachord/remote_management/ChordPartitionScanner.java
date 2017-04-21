@@ -25,12 +25,7 @@
 
 package uk.ac.standrews.cs.stachord.remote_management;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import uk.ac.standrews.cs.nds.rpc.RPCException;
-import uk.ac.standrews.cs.nds.util.Diagnostic;
-import uk.ac.standrews.cs.nds.util.DiagnosticLevel;
 import uk.ac.standrews.cs.shabdiz.ApplicationDescriptor;
 import uk.ac.standrews.cs.shabdiz.ApplicationNetwork;
 import uk.ac.standrews.cs.shabdiz.ApplicationState;
@@ -38,6 +33,11 @@ import uk.ac.standrews.cs.shabdiz.Scanner;
 import uk.ac.standrews.cs.shabdiz.util.Duration;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemote;
 import uk.ac.standrews.cs.stachord.interfaces.IChordRemoteReference;
+import uk.ac.standrews.cs.utilities.archive.Diagnostic;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class ChordPartitionScanner extends Scanner {
 
@@ -69,8 +69,7 @@ public class ChordPartitionScanner extends Scanner {
 
                 if (isStable(descriptor)) {
                     stable_nodes.add(descriptor);
-                }
-                else {
+                } else {
                     return;
                 }
             }
@@ -92,9 +91,8 @@ public class ChordPartitionScanner extends Scanner {
 
                                 node.join(first_node);
                             }
-                        }
-                        catch (final RPCException e) {
-                            Diagnostic.trace(DiagnosticLevel.FULL, "error joining rings");
+                        } catch (final RPCException e) {
+                            Diagnostic.trace("error joining rings");
                         }
                     }
                 }
@@ -112,8 +110,7 @@ public class ChordPartitionScanner extends Scanner {
         try {
             final IChordRemoteReference reference = descriptor.getApplicationReference();
             return ChordMonitoring.cycleLengthFrom(reference, true);
-        }
-        catch (final InterruptedException e) {
+        } catch (final InterruptedException e) {
             return 0;
         }
     }
